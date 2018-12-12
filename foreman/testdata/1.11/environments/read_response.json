@@ -1,0 +1,58 @@
+{
+  "created_at": "2013-05-17 21:38:04 UTC",
+  "updated_at": "2013-05-17 21:38:04 UTC",
+  "name": "production",
+  "id": 1,
+  "template_combinations": [
+    {
+      "id": 127,
+      "provisioning_template_id": 100,
+      "provisioning_template_name": "VM Bootstrap",
+      "hostgroup_id": 144,
+      "hostgroup_name": "DC2/VM",
+      "environment_id": 1,
+      "environment_name": "production",
+      "config_template_id": 100,
+      "config_template_name": "VM Bootstrap"
+    },
+    {
+      "id": 101,
+      "provisioning_template_id": 100,
+      "provisioning_template_name": "VM Bootstrap",
+      "hostgroup_id": 98,
+      "hostgroup_name": "DC1/VM",
+      "environment_id": 1,
+      "environment_name": "production",
+      "config_template_id": 100,
+      "config_template_name": "VM Bootstrap"
+    },
+    {
+      "id": 106,
+      "provisioning_template_id": 100,
+      "provisioning_template_name": "VM Bootstrap",
+      "hostgroup_id": 79,
+      "hostgroup_name": "DC3/VM",
+      "environment_id": 1,
+      "environment_name": "production",
+      "config_template_id": 100,
+      "config_template_name": "VM Bootstrap"
+    }
+  ],
+  "puppetclasses": [
+    {
+      "id": 918,
+      "name": "base",
+      "module_name": "base"
+    },
+    {
+      "id": 986,
+      "name": "web",
+      "module_name": "web"
+    },
+    {
+      "id": 60,
+      "name": "auth",
+      "module_name": "auth"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Godoc
+
+{{ template "disclaimer" }}
+
+Not displaying correctly? Try this link: [godoc](godoc/pkg/github.com/wayfair/terraform-provider-foreman.html)
+
+<div id="godoc-iframe-container"
+  style="position: relative; padding-bottom: 56.25%; padding-top: 30px">
+  <iframe id="godoc-iframe"
+    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+    src="pkg/github.com/wayfair/terraform-provider-foreman.html"
+    onload="AdjustIframeHeight()">
+  </iframe>
+  <script>
+    function AdjustIframeHeight() {
+      var iframe = document.getElementById("godoc-iframe");
+      iframe.style.height = iframe.contentWindow.document.body.scrollHeight + "px";
+      var iframeCont = document.getElementById("godoc-iframe-container");
+      iframeCont.style.height = iframe.style.height;
+    }
+  </script>
+</div>

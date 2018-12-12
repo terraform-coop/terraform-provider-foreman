@@ -1,0 +1,76 @@
+# {{ template "disclaimer" }}
+
+# ------------------------------------------------------------------------------
+# Project Information
+# ------------------------------------------------------------------------------
+
+site_name: Terraform Provider Foreman
+site_url: https://github.com/wayfair/terraform-provider-foreman
+repo_url: https://github.com/wayfair/terraform-provider-foreman
+repo_name: terraform-provider-foreman
+#edit_uri:
+#site_description:
+site_author: Wayfair, LLC - SRE - Orchestration Pod
+#copyright:
+#google_analytics
+#remote_branch
+#remote_name
+
+# ------------------------------------------------------------------------------
+# Documentation Layout
+# ------------------------------------------------------------------------------
+
+pages:
+  - Home: 'index.md'
+  - Godoc: 'godoc.md'
+{{- if ne (len .DataSources) 0 }}
+  - Data Sources:
+  {{- range .DataSources }}
+    - '{{ . }}': 'datasources/{{ . }}.md'
+  {{- end }}
+{{- end }}
+{{- if ne (len .Resources) 0 }}
+  - Resources:
+  {{- range .Resources }}
+    - '{{ . }}': 'resources/{{ . }}.md'
+  {{- end }}
+{{- end }}
+
+# ------------------------------------------------------------------------------
+# Build Directories
+# ------------------------------------------------------------------------------
+
+theme:
+  name: material
+docs_dir: {{.DocsDir}}
+site_dir: html
+#extra_css:
+#  - 'godoc/lib/godoc/jquery.treeview.css'
+#  - 'godoc/lib/godoc/style.css'
+#extra_javascript:
+#  - 'godoc/lib/godoc/godocs.js'
+#  - 'godoc/lib/godoc/jquery.js'
+#  - 'godoc/lib/godoc/jquery.treeview.edit.js'
+#  - 'godoc/lib/godoc/jquery.treeview.js'
+#extra_templates
+extra:
+  repo_icon: github
+
+# ------------------------------------------------------------------------------
+# Preview Controls
+# ------------------------------------------------------------------------------
+
+#use_directory_urls
+#strict
+#dev_addr
+
+# ------------------------------------------------------------------------------
+# Formatting Options
+# ------------------------------------------------------------------------------
+
+markdown_extensions:
+  - codehilite
+  - urlize
+  - toc:
+      permalink: true
+#plugins

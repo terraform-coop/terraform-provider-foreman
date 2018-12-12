@@ -1,0 +1,31 @@
+{
+  "total": 4,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 100,
+  "search": "64",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "created_at": "2014-09-05 12:58:26 UTC",
+      "updated_at": "2014-09-05 12:58:26 UTC",
+      "name": "amd64",
+      "id": 4
+    },
+    {
+      "created_at": "2013-05-17 21:38:03 UTC",
+      "updated_at": "2013-05-17 21:38:03 UTC",
+      "name": "x64",
+      "id": 1
+    },
+    {
+      "created_at": "2013-05-17 21:38:06 UTC",
+      "updated_at": "2013-05-17 21:38:06 UTC",
+      "name": "x86_64",
+      "id": 2
+    }
+  ]
+}

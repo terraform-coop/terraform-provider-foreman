@@ -1,0 +1,56 @@
+{
+  "network": "10.228.247.0",
+  "cidr": 24,
+  "mask": "255.255.255.0",
+  "priority": null,
+  "vlanid": "",
+  "gateway": "10.228.247.1",
+  "dns_primary": "10.225.18.202",
+  "dns_secondary": "10.225.18.203",
+  "from": "10.228.247.1",
+  "to": "10.228.247.199",
+  "created_at": "2017-04-19 19:14:26 UTC",
+  "updated_at": "2017-11-16 21:10:29 UTC",
+  "ipam": "DHCP",
+  "boot_mode": "DHCP",
+  "id": 352,
+  "name": "10.228.247.0 DC1",
+  "network_address": "10.228.247.0/24",
+  "dhcp": {
+    "name": "dhcp.dev.dc1.company.com",
+    "id": 38,
+    "url": "https://dhcp.dev.dc1.company.com:8443"
+  },
+  "tftp": {
+    "name": "tftp.dev.dc1.company.com",
+    "id": 38,
+    "url": "https://tftp.dev.dc1.company.com:8443"
+  },
+  "dns": {
+    "name": "dns.dev.dc1.company.com",
+    "id": 39,
+    "url": "https://dns.dev.dc1.company.com:8443"
+  },
+  "domains": [
+    {
+      "id": 1,
+      "name": "company.com"
+    },
+    {
+      "id": 35,
+      "name": "dev.dc1.company.com"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": 32650,
+      "name": "tunnel.dev.dc1.company.com",
+      "ip": "10.228.247.2",
+      "mac": "C0:FF:EE:BA:BE:00",
+      "identifier": "ens192",
+      "primary": true,
+      "provision": true,
+      "type": "interface"
+    }
+  ]
+}

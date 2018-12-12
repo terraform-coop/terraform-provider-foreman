@@ -1,0 +1,56 @@
+{{ template "disclaimer" }}
+
+# Foreman Provider
+
+The Foreman provider is used to interact with the many resources supported by
+Foreman through the Foreman REST API.
+
+This project is developed, owned, and maintained by the SRE - Orchestration
+pod at Wayfair.
+
+## What is Foreman?
+
+[Foreman](https://www.theforeman.org/)
+
+> Foreman is a complete lifecycle management tool for physical and virtual
+> servers. It provides system administrators the power to easily automate
+> repetitive tasks, quickly deploy applications, and proactively manage servers,
+> on-premise or in the cloud.
+
+## Configuring the Provider
+
+```
+provider "foreman" {
+  provider_loglevel = "INFO"
+  provider_logfile = "terraform-provider-foreman.log"
+
+  client_username = "admin"
+  client_password = "changeme"
+  client_tls_insecure = "true"
+
+  server_hostname = "127.0.0.1"
+  server_protocol = "https"
+}
+```
+
+## Environment Variables
+
+Some of the provider configuration options can be provided through environment
+variables.  Environment variables are prefixed with the provider name and
+correspond to options in the provider schema definition:
+
+* `FOREMAN_PROVIDER_LOGLEVEL`
+* `FOREMAN_PROVIDER_LOGFILE`
+* `FOREMAN_CLIENT_USERNAME`
+* `FOREMAN_CLIENT_PASSWORD`
+
+Example Usage:
+
+```
+$> export FOREMAN_PROVIDER_LOGLEVEL='INFO'
+$> export FOREMAN_PROVIDER_LOGFILE='-'
+$> export FOREMAN_CLIENT_USERNAME='admin'
+$> export FOREMAN_CLIENT_PASSWORD='changeme'
+$> terraform init && terraform plan
+```
+{{ template "argument_reference" . }}

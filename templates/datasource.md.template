@@ -1,0 +1,6 @@
+{{ template "disclaimer" }}
+{{ template "title" . }}
+{{ template "description" . }}
+{{ template "example" . }}
+{{ template "argument_reference" . }}
+{{ template "attributes_reference" . }}

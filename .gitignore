@@ -1,0 +1,30 @@
+# Binaries for programs and plugins
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# godoc files
+docs/godoc/**
+# mkdocs files
+mkdocs.yml
+docs/*.md
+docs/resources/*.md
+docs/datasources/*.md
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+.terraform/
+
+*.tfstate
+*.tfstate.backup
+crash.log
+terraform-provider-foreman.log

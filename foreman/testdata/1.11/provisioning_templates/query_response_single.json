@@ -1,0 +1,23 @@
+{
+  "total": 106,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 100,
+  "search": "BIOS",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2016-12-18 19:43:24 UTC",
+      "updated_at": "2016-12-19 19:07:15 UTC",
+      "id": 138,
+      "name": "CentOS 6.7 - BO1 BIOS BOOT",
+      "template_kind_id": 1,
+      "template_kind_name": "PXELinux"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{{define "attributes_reference"}}
+## Attributes Reference
+
+The following attributes are exported:
+{{ range .Attributes }}
+- `{{ .Name }}` - ({{ .Type }}) {{ .Description -}}
+{{ end }}
+{{ end }}

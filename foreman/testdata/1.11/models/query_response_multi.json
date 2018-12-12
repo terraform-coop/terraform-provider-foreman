@@ -1,0 +1,40 @@
+{
+  "total": 40,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 100,
+  "search": "poweredge M",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "info": null,
+      "created_at": "2013-05-22 21:24:04 UTC",
+      "updated_at": "2013-05-22 21:24:04 UTC",
+      "vendor_class": null,
+      "hardware_model": null,
+      "id": 10,
+      "name": "PowerEdge M420"
+    },
+    {
+      "info": null,
+      "created_at": "2013-06-04 00:56:03 UTC",
+      "updated_at": "2013-06-04 00:56:03 UTC",
+      "vendor_class": null,
+      "hardware_model": null,
+      "id": 13,
+      "name": "PowerEdge M520"
+    },
+    {
+      "info": null,
+      "created_at": "2013-07-17 19:28:06 UTC",
+      "updated_at": "2013-07-17 19:28:06 UTC",
+      "vendor_class": null,
+      "hardware_model": null,
+      "id": 19,
+      "name": "PowerEdge M610"
+    }
+  ]
+}

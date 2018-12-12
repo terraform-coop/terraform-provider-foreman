@@ -1,0 +1,22 @@
+{
+  "total": 40,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 100,
+  "search": "test",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "info": "Testing hardware model creation with Terraform",
+      "created_at": "2018-04-09 18:27:14 UTC",
+      "updated_at": "2018-04-09 18:30:22 UTC",
+      "vendor_class": "Enterprise",
+      "hardware_model": "",
+      "id": 54,
+      "name": "Terraform Test"
+    }
+  ]
+}

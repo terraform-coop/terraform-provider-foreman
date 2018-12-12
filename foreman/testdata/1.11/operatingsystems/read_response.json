@@ -1,0 +1,26 @@
+{
+  "description": null,
+  "major": "5",
+  "minor": "2",
+  "family": "Windows",
+  "release_name": null,
+  "password_hash": "MD5",
+  "created_at": "2013-05-17 21:38:03 UTC",
+  "updated_at": "2015-05-21 13:31:58 UTC",
+  "id": 1,
+  "name": "windows",
+  "title": "windows 5.2",
+  "parameters": [],
+  "media": [
+    {
+      "id": 37,
+      "name": "Terraform Test Mirror"
+    }
+  ],
+  "architectures": [],
+  "ptables": [],
+  "config_templates": [],
+  "provisioning_templates": [],
+  "os_default_templates": [],
+  "images": []
+}

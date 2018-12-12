@@ -1,0 +1,73 @@
+{
+  "total": 106,
+  "subtotal": 8,
+  "page": 1,
+  "per_page": 100,
+  "search": "test",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2014-05-21 14:17:58 UTC",
+      "updated_at": "2014-05-21 14:17:58 UTC",
+      "id": 61,
+      "name": "Junos default finish",
+      "template_kind_id": 4,
+      "template_kind_name": "finish"
+    },
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2017-10-31 21:09:24 UTC",
+      "updated_at": "2017-11-01 16:07:04 UTC",
+      "id": 147,
+      "name": "Kickstart Default 7.3 SRE Test",
+      "template_kind_id": 3,
+      "template_kind_name": "provision"
+    },
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2013-05-17 18:43:46 UTC",
+      "updated_at": "2016-09-26 13:14:45 UTC",
+      "id": 5,
+      "name": "Preseed default",
+      "template_kind_id": 3,
+      "template_kind_name": "provision"
+    },
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2013-05-17 18:43:46 UTC",
+      "updated_at": "2016-04-14 17:41:25 UTC",
+      "id": 14,
+      "name": "PXELinux global default",
+      "template_kind_id": 1,
+      "template_kind_name": "PXELinux"
+    },
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2018-04-25 19:48:16 UTC",
+      "updated_at": "2018-04-25 19:48:16 UTC",
+      "id": 162,
+      "name": "Terraform Test Template with Combination Attributes",
+      "template_kind_id": 1,
+      "template_kind_name": "PXELinux"
+    },
+    {
+      "snippet": false,
+      "audit_comment": null,
+      "created_at": "2018-04-26 17:58:10 UTC",
+      "updated_at": "2018-04-26 17:59:18 UTC",
+      "id": 168,
+      "name": "Terraform Test Template without Template Combinations",
+      "template_kind_id": 1,
+      "template_kind_name": "PXELinux"
+    }
+  ]
+}

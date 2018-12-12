@@ -1,0 +1,11 @@
+{{define "example"}}
+## Example Usage
+
+```
+{{ if eq .SchemaType .Constants.TypeResource }}resource{{ else if eq .SchemaType .Constants.TypeDataSource }}data{{ end }} "{{ .Name }}" "example" {
+{{- range .Arguments }}
+{{ if .Example }}  {{ .Name }} = {{ .Example }}{{ end -}}
+{{ end }}
+}
+```
+{{end}}
