@@ -50,11 +50,13 @@ section:
 
     ```sh
     $ cd "${GOPATH}/src/github.com/wayfair/terraform-provider-foreman"
+    $ make
     $ make install
     ```
 
-    The install target will run a codebase vet and lint check, compile the
-    binary, and then move the binary to the Terraform plugins directory.
+    The default target, `build`, will run a codebase vet/lint check and compile
+    the binary. The `install` target will then move the binary to the Terraform
+    plugins directory.
 
     **NOTE:** See the Third-party Plugins section on Terraform's website over
     [here](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins)
