@@ -47,6 +47,8 @@ type ForemanHost struct {
 
 	// Whether or not to rebuild the host on reboot
 	Build bool `json:"build"`
+	// Describes the way this host will be provisioned by Foreman
+	Method string `json:"provision_method"`
 	// ID of the domain to assign the host
 	DomainId int `json:"domain_id"`
 	// ID of the environment to assign the host
@@ -55,6 +57,10 @@ type ForemanHost struct {
 	HostgroupId int `json:"hostgroup_id"`
 	// ID of the operating system to put on the host
 	OperatingSystemId int `json:"operatingsystem_id"`
+	// ID of the medium that should be mounted
+	MediumId int `json:"medium_id"`
+	// ID of the image that should be cloned for this host
+	ImageId int `json:"image_id"`
 	// Whether or not to Enable BMC Functionality on this host
 	EnableBMC bool
 	// Boolean to track success of BMC Calls
@@ -71,8 +77,8 @@ type ForemanInterfacesAttribute struct {
 	SubnetId   int    `json:"subnet_id"`
 	Identifier string `json:"identifier"`
 	Name       string `json:"name"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
+	Username   string `json:"username,omitempty"`
+	Password   string `json:"password,omitempty"`
 	Managed    bool   `json:"managed"`
 	Provision  bool   `json:"provision"`
 	Virtual    bool   `json:"virtual"`
@@ -81,6 +87,13 @@ type ForemanInterfacesAttribute struct {
 	MAC        string `json:"mac"`
 	Type       string `json:"type"`
 	Provider   string `json:"provider"`
+
+	// NOTE(ALL): These settings only apply to virtual machines
+	AttachedTo      string   `json:"attached_to,omitempty"`
+	AttachedDevices []string `json:"attached_devices,omitempty"`
+	// ComputeAttributes are hypervisor specific features
+	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
+
 	// NOTE(ALL): Each of the interfaces receives a unique identifier
 	//   on creation. To modify the list of interfaces, the supplied
 	//   list to the API does NOT perform a replace operation. Adding new
@@ -126,8 +139,11 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["name"] = fh.Name
 	fhMap["comment"] = fh.Comment
 	fhMap["build"] = fh.Build
+	fhMap["provision_method"] = fh.Method
 	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
 	fhMap["operatingsystem_id"] = intIdToJSONString(fh.OperatingSystemId)
+	fhMap["medium_id"] = intIdToJSONString(fh.MediumId)
+	fhMap["image_id"] = intIdToJSONString(fh.ImageId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
 	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
 	if len(fh.InterfacesAttributes) > 0 {
@@ -173,6 +189,9 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	if fh.Build, ok = fhMap["build"].(bool); !ok {
 		fh.Build = false
 	}
+	if fh.Method, ok = fhMap["method"].(string); !ok {
+		fh.Method = "build"
+	}
 	if fh.Comment, ok = fhMap["comment"].(string); !ok {
 		fh.Comment = ""
 	}
@@ -195,6 +214,11 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 		fh.OperatingSystemId = 0
 	} else {
 		fh.OperatingSystemId = int(fhMap["operatingsystem_id"].(float64))
+	}
+	if _, ok = fhMap["medium_id"].(float64); !ok {
+		fh.MediumId = 0
+	} else {
+		fh.MediumId = int(fhMap["medium_id"].(float64))
 	}
 
 	return nil

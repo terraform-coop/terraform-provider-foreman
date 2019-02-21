@@ -51,6 +51,19 @@ func resourceForemanHost() *schema.Resource {
 
 			// -- Optional --
 
+			"method": &schema.Schema{
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
+				Default:  "build",
+				ValidateFunc: validation.StringInSlice([]string{
+					"build",
+					"image",
+				}, false),
+				Description: "Chooses a method with which to provision the Host" +
+					"Options are \"build\" and \"image\"",
+			},
+
 			"comment": &schema.Schema{
 				Type:         schema.TypeString,
 				ForceNew:     true,
@@ -110,7 +123,20 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
 			},
-
+			"operatingsystem_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the operating system to put on the host.",
+			},
+			"medium_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the medium mounted on the host.",
+			},
 			"hostgroup_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -118,7 +144,15 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the hostgroup to assign to the host.",
 			},
+			"image_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of an image to be used as base for this host when cloning",
+			},
 
+			// -- Key Components --
 			"interfaces_attributes": &schema.Schema{
 				Type:        schema.TypeSet,
 				Optional:    true,
@@ -126,14 +160,6 @@ func resourceForemanHost() *schema.Resource {
 				Elem:        resourceForemanInterfacesAttributes(),
 				Set:         schema.HashResource(resourceForemanInterfacesAttributes()),
 				Description: "Host interface information.",
-			},
-
-			"operatingsystem_id": &schema.Schema{
-				Type:         schema.TypeInt,
-				Optional:     true,
-				ForceNew:     true,
-				ValidateFunc: validation.IntAtLeast(0),
-				Description:  "ID of the operating system to put on the host.",
 			},
 		},
 	}
@@ -210,6 +236,22 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 				Default:     false,
 				Description: "Whether or not this is a virtual interface.",
 			},
+			"attached_to": &schema.Schema{
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: "Identifier of the interface to which this interface belongs.",
+			},
+			"attached_devices": &schema.Schema{
+				Type:     schema.TypeList,
+				ForceNew: true,
+				Optional: true,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: "Identifiers of attached interfaces, e.g. 'eth1', 'eth2'.",
+			},
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
 				ForceNew:    true,
@@ -249,6 +291,11 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 				Description: "Provider used for BMC/IMPI functionality. Values include: " +
 					"`\"IPMI\"`",
 			},
+			"compute_attributes": &schema.Schema{
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Hypervisor specific interface options",
+			},
 		},
 	}
 }
@@ -286,6 +333,12 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	}
 	if attr, ok = d.GetOk("operatingsystem_id"); ok {
 		host.OperatingSystemId = attr.(int)
+	}
+	if attr, ok = d.GetOk("medium_id"); ok {
+		host.MediumId = attr.(int)
+	}
+	if attr, ok = d.GetOk("image_id"); ok {
+		host.ImageId = attr.(int)
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -410,6 +463,18 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 		tempIntAttr.Provider = ""
 	}
 
+	if tempIntAttr.AttachedTo, ok = m["attached"].(string); !ok {
+		tempIntAttr.AttachedTo = ""
+	}
+
+	if tempIntAttr.AttachedDevices, ok = m["attached_devices"].([]string); !ok {
+		tempIntAttr.AttachedDevices = nil
+	}
+
+	if tempIntAttr.ComputeAttributes, ok = m["compute_attributes"].(map[string]interface{}); !ok {
+		tempIntAttr.ComputeAttributes = nil
+	}
+
 	if tempIntAttr.Destroy, ok = m["_destroy"].(bool); !ok {
 		tempIntAttr.Destroy = false
 	}
@@ -431,6 +496,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("hostgroup_id", fh.HostgroupId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
+	d.Set("medium_id", fh.MediumId)
+	d.Set("image_id", fh.ImageId)
 
 	// In partial mode, flag keys below as completed successfully
 	d.SetPartial("name")
@@ -439,6 +506,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("environment_id")
 	d.SetPartial("hostgroup_id")
 	d.SetPartial("operatingsystem_id")
+	d.SetPartial("medium_id")
+	d.SetPartial("image_id")
 	d.SetPartial("enable_bmc")
 
 	setResourceDataFromForemanInterfacesAttributes(d, fh.InterfacesAttributes)
@@ -475,6 +544,11 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 			"provider":  val.Provider,
 			"username":  val.Username,
 			"password":  val.Password,
+
+			// NOTE(ALL): These settings only apply to virtual machines
+			"attached_to":        val.AttachedTo,
+			"attached_dev":       val.AttachedDevices,
+			"compute_attributes": val.ComputeAttributes,
 		}
 		ifaceArr[idx] = ifaceMap
 	}
@@ -498,7 +572,9 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	h := buildForemanHost(d)
 
 	// NOTE(ALL): Set the build flag to true on host create
-	h.Build = true
+	if h.Method == "build" {
+		h.Build = true
+	}
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
@@ -593,7 +669,9 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	h := buildForemanHost(d)
 
 	// NOTE(ALL): Set the build flag to true on host create
-	h.Build = true
+	if h.Method == "build" {
+		h.Build = true
+	}
 
 	log.Debugf("ForemanHost: [%+v]", h)
 
