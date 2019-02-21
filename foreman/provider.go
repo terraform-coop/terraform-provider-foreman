@@ -157,6 +157,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_partitiontable":       resourceForemanPartitionTable(),
 			"foreman_provisioningtemplate": resourceForemanProvisioningTemplate(),
 			"foreman_smartproxy":           resourceForemanSmartProxy(),
+			"foreman_computeresource":      resourceForemanComputeResource(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -172,6 +173,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_smartproxy":           dataSourceForemanSmartProxy(),
 			"foreman_subnet":               dataSourceForemanSubnet(),
 			"foreman_templatekind":         dataSourceForemanTemplateKind(),
+			"foreman_computeresource":      dataSourceForemanComputeResource(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

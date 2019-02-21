@@ -1,0 +1,25 @@
+{
+  "total": 2,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 20,
+  "search": "name=kvm-lab",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "description": "",
+      "url": "qemu+ssh://root@dev.company/system",
+      "created_at": "2017-10-24T16:57:23.105Z",
+      "updated_at": "2017-11-22T14:41:19.945Z",
+      "id": 9,
+      "name": "kvm-lab",
+      "provider": "Libvirt",
+      "provider_friendly_name": "Libvirt",
+      "display_type": "vnc",
+      "set_console_password": false
+    }
+  ]
+}

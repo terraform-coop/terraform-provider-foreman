@@ -1,0 +1,70 @@
+{
+  "description": "",
+  "url": "qemu+ssh://root@dev.company/system",
+  "created_at": "2017-10-24T16:57:23.105Z",
+  "updated_at": "2017-11-22T14:41:19.945Z",
+  "id": 9,
+  "name": "kvm-lab",
+  "provider": "Libvirt",
+  "provider_friendly_name": "Libvirt",
+  "display_type": "vnc",
+  "set_console_password": false,
+  "images": [
+    {
+      "id": 7,
+      "name": "Ubuntu 18.04 Cloudimage"
+    }
+  ],
+  "compute_attributes": [
+    {
+      "id": 48,
+      "name": "1 CPUs and 2 GB memory",
+      "compute_resource_id": 9,
+      "compute_resource_name": "kvm-lab",
+      "provider_friendly_name": "Libvirt",
+      "compute_profile_id": 31,
+      "compute_profile_name": "1-Small",
+      "vm_attrs": {
+        "cpus": "1",
+        "memory": "2147483648",
+        "image_id": "/var/lib/libvirt/images/lab-rbd/ubuntu-18.04-cloudimg.img",
+        "nics_attributes": {
+          "0": {
+            "type": "bridge",
+            "bridge": "br0",
+            "model": "virtio"
+          }
+        },
+        "volumes_attributes": {
+          "0": {
+            "pool_name": "rbd_fs",
+            "capacity": "10G",
+            "allocation": "0G",
+            "format_type": "raw"
+          }
+        }
+      },
+      "attributes": {
+        "cpus": "1",
+        "memory": "2147483648",
+        "image_id": "/var/lib/libvirt/images/lab-rbd/ubuntu-18.04-cloudimg.img",
+        "image_name": "Ubuntu 18.04 Cloudimage",
+        "volumes_attributes": {
+          "0": {
+            "capacity": "10737418240",
+            "allocation": "0",
+            "format_type": "raw",
+            "pool": "rbd_fs"
+          }
+        },
+        "interfaces_attributes": {
+          "0": {
+            "type": "bridge",
+            "model": "virtio",
+            "bridge": "br0"
+          }
+        }
+      }
+    }
+  ]
+}
