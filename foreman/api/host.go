@@ -12,28 +12,28 @@ import (
 const (
 	// HostEndpointPrefix : Prefix appended to API url for hosts
 	HostEndpointPrefix = "hosts"
-	// BmcPowerSuffix : Suffix appended to API url for power operations
-	BmcPowerSuffix = "power"
-	// BmcPowerOn : Power on operation
-	BmcPowerOn = "on"
-	// BmcPowerOff : Power off operation
-	BmcPowerOff = "off"
-	// BmcPowerSoft : Power reboot operation (soft)
-	BmcPowerSoft = "soft"
-	// BmcPowerCycle : Power reset operation (hard)
-	BmcPowerCycle = "cycle"
-	// BmcPowerState : Power state check operation
-	BmcPowerState = "state"
-	// BmcBootSuffix : Suffix appended to API url for power operations
-	BmcBootSuffix = "boot"
-	// BmcBootDisk : Boot to Disk
-	BmcBootDisk = "disk"
-	// BmcBootCdrom : Boot to CDROM
-	BmcBootCdrom = "cdrom"
-	// BmcBootPxe : Boot to PXE
-	BmcBootPxe = "pxe"
-	// BmcPowerBios : Boot to BIOS
-	BmcPowerBios = "bios"
+	// PowerSuffix : Suffix appended to API url for power operations
+	PowerSuffix = "power"
+	// PowerOn : Power on operation
+	PowerOn = "on"
+	// PowerOff : Power off operation
+	PowerOff = "off"
+	// PowerSoft : Power reboot operation (soft)
+	PowerSoft = "soft"
+	// PowerCycle : Power reset operation (hard)
+	PowerCycle = "cycle"
+	// PowerState : Power state check operation
+	PowerState = "state"
+	// BootSuffix : Suffix appended to API url for power operations
+	BootSuffix = "boot"
+	// BootDisk : Boot to Disk
+	BootDisk = "disk"
+	// BootCdrom : Boot to CDROM
+	BootCdrom = "cdrom"
+	// BootPxe : Boot to PXE
+	BootPxe = "pxe"
+	// PowerBios : Boot to BIOS
+	PowerBios = "bios"
 )
 
 // -----------------------------------------------------------------------------
@@ -98,10 +98,10 @@ type foremanHostJSON struct {
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces"`
 }
 
-// BMCPower struct for marshal/unmarshal of BMC power state
+// Power struct for marshal/unmarshal of power state
 // valid states are on, off, soft, cycle, state
-// `omitempty`` lets use the same struct for power operations.BMCCommand
-type BMCPower struct {
+// `omitempty`` lets use the same struct for power operations.Command
+type Power struct {
 	PowerAction string `json:"power_action,omitempty"`
 	Power       bool   `json:"power,omitempty"`
 }
@@ -200,24 +200,24 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-// SendBMCCommand sends provided BMC Action and State to foreman.  This
-// performs an IPMI action against the provided host Expects BMCPower or
+// SendPowerCommand sends provided Action and State to foreman.  This
+// performs an IPMI action against the provided host Expects Power or
 // BMCBoot type struct populated with an action
 //
 // Example: https://<foreman>/api/hosts/<hostname>/boot
-func (c *Client) SendBMCCommand(h *ForemanHost, cmd interface{}, retryCount int) error {
+func (c *Client) SendPowerCommand(h *ForemanHost, cmd interface{}, retryCount int) error {
 	// Initialize suffix variable,
 	suffix := ""
 
 	// Defines the suffix to append to the URL per operation type
 	// Switch-Case against interface type to determine URL suffix
 	switch v := cmd.(type) {
-	case BMCPower:
-		suffix = BmcPowerSuffix
+	case Power:
+		suffix = PowerSuffix
 	case BMCBoot:
-		suffix = BmcBootSuffix
+		suffix = BootSuffix
 	default:
-		return fmt.Errorf("Invalid BMC Operation: [%v]", v)
+		return fmt.Errorf("Invalid Operation: [%v]", v)
 	}
 
 	reqHost := fmt.Sprintf("/%s/%s/%s", HostEndpointPrefix, h.Name, suffix)
@@ -235,10 +235,10 @@ func (c *Client) SendBMCCommand(h *ForemanHost, cmd interface{}, retryCount int)
 
 	retry := 0
 	var sendErr error
-	// retry until the successful BMC Operation
+	// retry until the successful Operation
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("SendBMC: Retry #[%d]", retry)
+		log.Debugf("SendPower: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &cmd)
 		if sendErr != nil {
 			retry++
@@ -251,15 +251,15 @@ func (c *Client) SendBMCCommand(h *ForemanHost, cmd interface{}, retryCount int)
 		return sendErr
 	}
 
-	// Type Assertion to access map fields for BMCPower and BMCBoot types
+	// Type Assertion to access map fields for Power and BMCBoot types
 	powerMap, _ := cmd.(map[string]interface{})
 	bootMap, _ := cmd.(map[string]map[string]interface{})
 
-	log.Debugf("BMC Response: [%+v]", cmd)
+	log.Debugf("Power Response: [%+v]", cmd)
 
-	// Test BMC operation and return an error if result is false
-	if powerMap[BmcPowerSuffix] == false || bootMap[BmcBootSuffix]["result"] == false {
-		return fmt.Errorf("Failed BMC Power Operation")
+	// Test operation and return an error if result is false
+	if powerMap[PowerSuffix] == false || bootMap[BootSuffix]["result"] == false {
+		return fmt.Errorf("Failed Power Operation")
 	}
 	return nil
 }

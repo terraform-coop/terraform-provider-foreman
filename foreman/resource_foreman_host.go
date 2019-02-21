@@ -508,7 +508,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 		return createErr
 	}
 
-	log.Debugf("Created FormanHost: [%+v]", createdHost)
+	log.Debugf("Created ForemanHost: [%+v]", createdHost)
 
 	// Enables partial state mode in the event of failure of one of API calls required for host creation
 	// This requires you to call the SetPartial function for each changed key.
@@ -519,42 +519,46 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	enablebmc := d.Get("enable_bmc").(bool)
 
+	var powerCmds []interface{}
 	// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
 	if enablebmc {
 		log.Debugf("Calling BMC Reboot/PXE Functions")
 		// List of BMC Actions to perform
-		bmcCmds := []interface{}{
-			api.BMCPower{
-				PowerAction: api.BmcPowerOff,
+		powerCmds = []interface{}{
+			api.Power{
+				PowerAction: api.PowerOff,
 			},
 			api.BMCBoot{
-				Device: api.BmcBootPxe,
+				Device: api.BootPxe,
 			},
-			api.BMCPower{
-				PowerAction: api.BmcPowerOn,
+			api.Power{
+				PowerAction: api.PowerOn,
 			},
 		}
-
-		// Loop through each of the above BMC Operations and execute.
-		// In the event fo any failure, exit with error
-		for _, cmd := range bmcCmds {
-			sendBMCErr := client.SendBMCCommand(createdHost, cmd, hostRetryCount)
-			if sendBMCErr != nil {
-				return sendBMCErr
-			}
-			// Sleep for 3 seconds between chained BMC calls
-			duration := time.Duration(3) * time.Second
-			time.Sleep(duration)
-		}
-		// When the BMC Operations succeed, set the `bmc_success` key to true.
-		d.Set("bmc_success", true)
-		// Set the `bmc_success` key as successful in partial mode
-		d.SetPartial("bmc_success")
-
 	} else {
-		log.Debugf("Skipping BMC Functions")
-
+		log.Debugf("Using default Foreman behaviour for startup")
+		powerCmds = []interface{}{
+			api.Power{
+				PowerAction: api.PowerOn,
+			},
+		}
 	}
+
+	// Loop through each of the above BMC Operations and execute.
+	// In the event fo any failure, exit with error
+	for _, cmd := range powerCmds {
+		sendErr := client.SendPowerCommand(createdHost, cmd, hostRetryCount)
+		if sendErr != nil {
+			return sendErr
+		}
+		// Sleep for 3 seconds between chained BMC calls
+		duration := time.Duration(3) * time.Second
+		time.Sleep(duration)
+	}
+	// When the BMC Operations succeed, set the `bmc_success` key to true.
+	d.Set("bmc_success", true)
+	// Set the `bmc_success` key as successful in partial mode
+	d.SetPartial("bmc_success")
 
 	// Disable partial mode
 	d.Partial(false)
@@ -665,38 +669,42 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("bmc_success") {
 		enablebmc := d.Get("enable_bmc").(bool)
 
+		var powerCmds []interface{}
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
 		if enablebmc {
 			log.Debugf("Calling BMC Reboot/PXE Functions")
 			// List of BMC Actions to perform
-			bmcCmds := []interface{}{
-				api.BMCPower{
-					PowerAction: api.BmcPowerOff,
+			powerCmds = []interface{}{
+				api.Power{
+					PowerAction: api.PowerOff,
 				},
 				api.BMCBoot{
-					Device: api.BmcBootPxe,
+					Device: api.BootPxe,
 				},
-				api.BMCPower{
-					PowerAction: api.BmcPowerOn,
+				api.Power{
+					PowerAction: api.PowerOn,
 				},
 			}
-
-			for _, cmd := range bmcCmds {
-				sendBMCErr := client.SendBMCCommand(h, cmd, hostRetryCount)
-				if sendBMCErr != nil {
-					return sendBMCErr
-				}
-				// Sleep for 3 seconds between chained BMC calls
-				duration := time.Duration(3) * time.Second
-				time.Sleep(duration)
-			}
-			d.Set("bmc_success", true)
-			d.SetPartial("bmc_success")
-
 		} else {
-			log.Debugf("Skipping BMC Functions")
-
+			powerCmds = []interface{}{
+				api.Power{
+					PowerAction: api.PowerOn,
+				},
+			}
 		}
+
+		for _, cmd := range powerCmds {
+			sendErr := client.SendPowerCommand(h, cmd, hostRetryCount)
+			if sendErr != nil {
+				return sendErr
+			}
+			// Sleep for 3 seconds between chained BMC calls
+			duration := time.Duration(3) * time.Second
+			time.Sleep(duration)
+		}
+		d.Set("bmc_success", true)
+		d.SetPartial("bmc_success")
+
 	} // end HasChange("bmc_success")
 	// Use partial state mode in the event of failure of one of API calls required for host creation
 	d.Partial(false)
@@ -717,7 +725,7 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 		log.Debugf("deleting host that has interfaces set")
 		// iterate through each of the host interfaces and tag them for
 		// removal from the list
-		for idx, _ := range h.InterfacesAttributes {
+		for idx := range h.InterfacesAttributes {
 			h.InterfacesAttributes[idx].Destroy = true
 		}
 		log.Debugf("host: [%+v]", h)
