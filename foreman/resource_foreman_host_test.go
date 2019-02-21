@@ -34,6 +34,8 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	attr["environment_id"] = strconv.Itoa(obj.EnvironmentId)
 	attr["hostgroup_id"] = strconv.Itoa(obj.HostgroupId)
 	attr["operatingsystem_id"] = strconv.Itoa(obj.OperatingSystemId)
+	attr["medium_id"] = strconv.Itoa(obj.MediumId)
+	attr["image_id"] = strconv.Itoa(obj.ImageId)
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
 	for idx, val := range obj.InterfacesAttributes {
 		key := fmt.Sprintf("interfaces_attributes.%d.id", idx)
@@ -54,6 +56,9 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 		attr[key] = val.Type
 		key = fmt.Sprintf("interfaces_attributes.%d.provider", idx)
 		attr[key] = val.Provider
+		key = fmt.Sprintf("interfaces_attributes.%d.compute_attributes", idx)
+		jsonAttr, _ := json.Marshal(val.ComputeAttributes)
+		attr[key] = string(jsonAttr)
 	}
 	state.Attributes = attr
 	return &state
@@ -87,20 +92,27 @@ func RandForemanHost() api.ForemanHost {
 	obj.DomainId = rand.Intn(100)
 	obj.HostgroupId = rand.Intn(100)
 	obj.EnvironmentId = rand.Intn(100)
+	obj.MediumId = rand.Intn(100)
+	obj.ImageId = rand.Intn(100)
 
 	obj.InterfacesAttributes = make([]api.ForemanInterfacesAttribute, rand.Intn(5))
 	for idx, _ := range obj.InterfacesAttributes {
+		compAttr := make(map[string]interface{})
+		for fil := 0; fil < rand.Intn(3); fil++ {
+			compAttr[tfrand.String(5, tfrand.Lower)] = tfrand.String(5, tfrand.Lower)
+		}
 		obj.InterfacesAttributes[idx] = api.ForemanInterfacesAttribute{
-			Id:         rand.Intn(100),
-			SubnetId:   rand.Intn(100),
-			Identifier: tfrand.String(10, tfrand.Lower),
-			Name:       tfrand.String(10, tfrand.Lower),
-			Username:   tfrand.String(10, tfrand.Lower),
-			Password:   tfrand.String(10, tfrand.Lower),
-			IP:         tfrand.IPv4Str(tfrand.IPv4PrivateClassCStart, tfrand.IPv4PrivateClassCMask),
-			MAC:        tfrand.MACAddr48Str(":"),
-			Type:       tfrand.String(12, tfrand.Lower),
-			Provider:   tfrand.String(12, tfrand.Lower),
+			Id:                rand.Intn(100),
+			SubnetId:          rand.Intn(100),
+			Identifier:        tfrand.String(10, tfrand.Lower),
+			Name:              tfrand.String(10, tfrand.Lower),
+			Username:          tfrand.String(10, tfrand.Lower),
+			Password:          tfrand.String(10, tfrand.Lower),
+			IP:                tfrand.IPv4Str(tfrand.IPv4PrivateClassCStart, tfrand.IPv4PrivateClassCMask),
+			MAC:               tfrand.MACAddr48Str(":"),
+			Type:              tfrand.String(12, tfrand.Lower),
+			Provider:          tfrand.String(12, tfrand.Lower),
+			ComputeAttributes: compAttr,
 		}
 	}
 
