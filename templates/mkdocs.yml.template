@@ -20,7 +20,7 @@ site_author: Wayfair, LLC - SRE - Orchestration Pod
 # Documentation Layout
 # ------------------------------------------------------------------------------
 
-pages:
+nav:
   - Home: 'index.md'
   - Godoc: 'godoc.md'
 {{- if ne (len .DataSources) 0 }}
@@ -70,7 +70,6 @@ extra:
 
 markdown_extensions:
   - codehilite
-  - urlize
   - toc:
       permalink: true
 #plugins
