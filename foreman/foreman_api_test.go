@@ -227,6 +227,9 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	testCases = append(testCases, ResourceForemanComputeResourceCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanComputeResourceCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanImageCorrectURLAndMethodTestCases(t)...)
+	testCases = append(testCases, DataSourceForemanImageCorrectURLAndMethodTestCases(t)...)
+
 	testCases = append(testCases, DataSourceForemanTemplateKindCorrectURLAndMethodTestCases(t)...)
 
 	cred := api.ClientCredentials{}
@@ -450,6 +453,9 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanComputeResourceStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanComputeResourceStatusCodeTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanImageStatusCodeTestCases(t)...)
+	testCases = append(testCases, DataSourceForemanImageStatusCodeTestCases(t)...)
+
 	testCases = append(testCases, DataSourceForemanTemplateKindStatusCodeTestCases(t)...)
 
 	cred := api.ClientCredentials{}
@@ -521,6 +527,9 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanComputeResourceEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanComputeResourceEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanImageEmptyResponseTestCases(t)...)
+	testCases = append(testCases, DataSourceForemanImageEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindEmptyResponseTestCases(t)...)
 
