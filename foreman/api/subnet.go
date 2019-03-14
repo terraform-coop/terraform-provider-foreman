@@ -22,6 +22,8 @@ type ForemanSubnet struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
+	// Subnet name (ie: public)
+	Name string `json:"name"`
 	// Subnet network (ie: 192.168.100.0)
 	Network string `json:"network"`
 	// Netmask for this subnet (ie: 255.255.255.0)
@@ -189,8 +191,13 @@ func (c *Client) QuerySubnet(s *ForemanSubnet) (QueryResponse, error) {
 
 	// dynamically build the query based on the attributes
 	reqQuery := req.URL.Query()
-	network := `"` + s.Network + `"`
-	reqQuery.Set("search", "network="+network)
+	if s.Name != "" {
+		name := `"` + s.Name + `"`
+		reqQuery.Set("search", "name="+name)
+	} else if s.Network != "" {
+		network := `"` + s.Network + `"`
+		reqQuery.Set("search", "network="+network)
+	}
 
 	req.URL.RawQuery = reqQuery.Encode()
 	sendErr := c.SendAndParse(req, &queryResponse)

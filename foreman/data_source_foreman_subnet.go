@@ -19,10 +19,20 @@ func dataSourceForemanSubnet() *schema.Resource {
 	// define searchable attributes for the data source
 	ds["network"] = &schema.Schema{
 		Type:     schema.TypeString,
-		Required: true,
+		Optional: true,
 		Description: fmt.Sprintf(
 			"Subnet network. "+
 				"%s \"10.228.247.0\"",
+			autodoc.MetaExample,
+		),
+	}
+
+	ds["name"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Optional: true,
+		Description: fmt.Sprintf(
+			"Name of a subnetwork. "+
+				"%s \"public\"",
 			autodoc.MetaExample,
 		),
 	}
