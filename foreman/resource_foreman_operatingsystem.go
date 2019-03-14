@@ -114,6 +114,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 			"password_hash": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "SHA512",
 				ValidateFunc: validation.StringInSlice([]string{
 					"MD5",
 					"SHA256",
@@ -194,6 +195,19 @@ func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.F
 
 func resourceForemanOperatingSystemCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_operatingsystem.go#Create")
+
+	client := meta.(*api.Client)
+	o := buildForemanOperatingSystem(d)
+
+	createdOs, createErr := client.CreateOperatingSystem(o)
+	if createErr != nil {
+		return createErr
+	}
+
+	log.Debugf("Created ForemanOperatingSystem: [%+v]", createdOs)
+
+	setResourceDataFromForemanOperatingSystem(d, createdOs)
+
 	return nil
 }
 
@@ -219,14 +233,34 @@ func resourceForemanOperatingSystemRead(d *schema.ResourceData, meta interface{}
 
 func resourceForemanOperatingSystemUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_operatingsystem.go#Update")
+
+	client := meta.(*api.Client)
+	o := buildForemanOperatingSystem(d)
+
+	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+
+	updatedOs, updateErr := client.UpdateOperatingSystem(o)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	log.Debugf("Updated ForemanOperatingSystem: [%+v]", updatedOs)
+
+	setResourceDataFromForemanOperatingSystem(d, updatedOs)
+
 	return nil
 }
 
 func resourceForemanOperatingSystemDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_operatingsystem.go#Delete")
 
+	client := meta.(*api.Client)
+	o := buildForemanOperatingSystem(d)
+
+	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return nil
+	return client.DeleteOperatingSystem(o.Id)
 }

@@ -154,6 +154,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_hostgroup":            resourceForemanHostgroup(),
 			"foreman_media":                resourceForemanMedia(),
 			"foreman_model":                resourceForemanModel(),
+			"foreman_operatingsystem":      resourceForemanOperatingSystem(),
 			"foreman_partitiontable":       resourceForemanPartitionTable(),
 			"foreman_provisioningtemplate": resourceForemanProvisioningTemplate(),
 			"foreman_smartproxy":           resourceForemanSmartProxy(),
