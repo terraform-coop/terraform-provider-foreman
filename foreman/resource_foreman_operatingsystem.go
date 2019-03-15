@@ -125,6 +125,42 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Description: "Root password hash function to use. Valid values " +
 					"include: `\"MD5\"`, `\"SHA256\"`, `\"SHA512\"`, `\"Base64\"`.",
 			},
+			"provisioning_templates": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "Identifiers of attached provisioning templates",
+			},
+			"media": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "Identifiers of attached media",
+			},
+			"architectures": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "Identifiers of attached architectures",
+			},
+			"partitiontables": &schema.Schema{
+				Type:     schema.TypeList,
+				Optional: true,
+				MinItems: 1,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "Identifiers of attached partition tables",
+			},
 		},
 	}
 }
@@ -169,6 +205,34 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 	if attr, ok = d.GetOk("password_hash"); ok {
 		os.PasswordHash = attr.(string)
 	}
+	if attr, ok = d.GetOk("provisioning_templates"); ok {
+		provisioningtemplates := make([]int, len(attr.([]interface{})))
+		for i, v := range attr.([]interface{}) {
+			provisioningtemplates[i] = v.(int)
+		}
+		os.ProvisioningTemplateIds = provisioningtemplates
+	}
+	if attr, ok = d.GetOk("media"); ok {
+		media := make([]int, len(attr.([]interface{})))
+		for i, v := range attr.([]interface{}) {
+			media[i] = v.(int)
+		}
+		os.MediumIds = media
+	}
+	if attr, ok = d.GetOk("architectures"); ok {
+		architectures := make([]int, len(attr.([]interface{})))
+		for i, v := range attr.([]interface{}) {
+			architectures[i] = v.(int)
+		}
+		os.ArchitectureIds = architectures
+	}
+	if attr, ok = d.GetOk("partitiontables"); ok {
+		partitiontables := make([]int, len(attr.([]interface{})))
+		for i, v := range attr.([]interface{}) {
+			partitiontables[i] = v.(int)
+		}
+		os.PartitiontableIds = partitiontables
+	}
 
 	return &os
 }
@@ -187,6 +251,10 @@ func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.F
 	d.Set("family", fo.Family)
 	d.Set("release_name", fo.ReleaseName)
 	d.Set("password_hash", fo.PasswordHash)
+	d.Set("provisioning_templates", fo.ProvisioningTemplateIds)
+	d.Set("media", fo.MediumIds)
+	d.Set("architectures", fo.ArchitectureIds)
+	d.Set("partitiontables", fo.PartitiontableIds)
 }
 
 // -----------------------------------------------------------------------------

@@ -41,6 +41,14 @@ type ForemanOperatingSystem struct {
 	// Root password hash function to use.  If set, valid values are "MD5",
 	// "SHA256", "SHA512", and "Base64"
 	PasswordHash string `json:"password_hash"`
+	// Provisoning Template Ids
+	ProvisioningTemplateIds []int `json:"provisioning_template_ids,omitempty"`
+	// Media Ids
+	MediumIds []int `json:"medium_ids,omitempty"`
+	// Architecture Ids
+	ArchitectureIds []int `json:"architecture_ids,omitempty"`
+	// Partitiontable Ids
+	PartitiontableIds []int `json:"ptable_ids,omitempty"`
 }
 
 // -----------------------------------------------------------------------------
@@ -56,7 +64,12 @@ func (c *Client) CreateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	reqEndpoint := fmt.Sprintf("/%s", OperatingSystemEndpointPrefix)
 
-	osJSONBytes, jsonEncErr := json.Marshal(o)
+	// Like, why?
+	wrapper := struct {
+		OperatingSystem *ForemanOperatingSystem `json:"operatingsystem"`
+	}{o}
+
+	osJSONBytes, jsonEncErr := json.Marshal(wrapper)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -120,7 +133,11 @@ func (c *Client) UpdateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, o.Id)
 
-	osJSONBytes, jsonEncErr := json.Marshal(o)
+	wrapper := struct {
+		OperatingSystem *ForemanOperatingSystem `json:"operatingsystem"`
+	}{o}
+
+	osJSONBytes, jsonEncErr := json.Marshal(wrapper)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
