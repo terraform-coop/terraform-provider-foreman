@@ -60,6 +60,8 @@ type ForemanHostgroup struct {
 	RealmId int `json:"realm_id"`
 	// ID of the subnet associated with the hostgroup
 	SubnetId int `json:"subnet_id"`
+	// Default PXELoader for the hostgroup
+	PXELoader string `json:"pxe_loader,omitempty"`
 }
 
 // Implement the Marshaler interface
@@ -85,6 +87,7 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 	fhMap["puppet_proxy_id"] = intIdToJSONString(fh.PuppetProxyId)
 	fhMap["realm_id"] = intIdToJSONString(fh.RealmId)
 	fhMap["subnet_id"] = intIdToJSONString(fh.SubnetId)
+	fhMap["pxe_loader"] = fh.PXELoader
 
 	log.Debugf("fhMap: [%v]", fhMap)
 
