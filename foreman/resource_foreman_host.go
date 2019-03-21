@@ -321,6 +321,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	host.Name = d.Get("name").(string)
 	host.Comment = d.Get("comment").(string)
+	host.Method = d.Get("method").(string)
 
 	if attr, ok = d.GetOk("domain_id"); ok {
 		host.DomainId = attr.(int)
