@@ -51,24 +51,17 @@ type ForemanOperatingSystem struct {
 	PartitiontableIds []int `json:"ptable_ids,omitempty"`
 }
 
+// ForemanOperating struct used for JSON decode.  Foreman API returns the ids
+// back as a list of ForemanObjects with some of the attributes of the data
+// types. However, we are only interested in the IDs returned.
 type foremanOsRespJSON struct {
-	ProvisioningTemplates []struct {
-		ID int `json:"id"`
-	} `json:"provisioning_templates"`
-	// Media Ids
-	Media []struct {
-		ID int `json:"id"`
-	} `json:"media"`
-	// Architecture Ids
-	Architectures []struct {
-		ID int `json:"id"`
-	} `json:"architectures"`
-	// Partitiontable Ids
-	Partitiontables []struct {
-		ID int `json:"id"`
-	} `json:"ptables"`
+	ProvisioningTemplates []ForemanObject `json:"provisioning_templates"`
+	Media                 []ForemanObject `json:"media"`
+	Architectures         []ForemanObject `json:"architectures"`
+	Partitiontables       []ForemanObject `json:"ptables"`
 }
 
+// Implement the Unmarshaler interface
 func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 	var jsonDecErr error
 
@@ -79,52 +72,24 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 		return jsonDecErr
 	}
 	o.ForemanObject = fo
-	var foMap map[string]interface{}
-	var ok bool
+	var foJSON foremanOsRespJSON
+	jsonDecErr = json.Unmarshal(b, &foJSON)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+	o.ProvisioningTemplateIds = foremanObjectArrayToIdIntArray(foJSON.ProvisioningTemplates)
+	o.ArchitectureIds = foremanObjectArrayToIdIntArray(foJSON.Architectures)
+	o.MediumIds = foremanObjectArrayToIdIntArray(foJSON.Media)
+	o.PartitiontableIds = foremanObjectArrayToIdIntArray(foJSON.Partitiontables)
 
+	var foMap map[string]interface{}
 	jsonDecErr = json.Unmarshal(b, &foMap)
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
 	log.Debugf("foMap: [%v]", foMap)
 
-	var r foremanOsRespJSON
-	jsonDecErr = json.Unmarshal(b, &r)
-	if jsonDecErr != nil {
-		var provisioningTemplateIds interface{}
-		if provisioningTemplateIds, ok = foMap["provisoning_template_ids"]; ok {
-			o.ProvisioningTemplateIds = provisioningTemplateIds.([]int)
-		}
-		var architectureIds interface{}
-		if architectureIds, ok = foMap["architecture_ids"]; ok {
-			o.ArchitectureIds = architectureIds.([]int)
-		}
-		var mediumIds interface{}
-		if mediumIds, ok = foMap["medium_ids"]; ok {
-			o.MediumIds = mediumIds.([]int)
-		}
-		var partitiontableIds interface{}
-		if partitiontableIds, ok = foMap["partitiontable_ids"]; ok {
-			o.PartitiontableIds = partitiontableIds.([]int)
-		}
-	} else {
-		o.ProvisioningTemplateIds = make([]int, len(r.ProvisioningTemplates))
-		for i, v := range r.ProvisioningTemplates {
-			o.ProvisioningTemplateIds[i] = v.ID
-		}
-		o.ArchitectureIds = make([]int, len(r.Architectures))
-		for i, v := range r.Architectures {
-			o.ArchitectureIds[i] = v.ID
-		}
-		o.PartitiontableIds = make([]int, len(r.Partitiontables))
-		for i, v := range r.Partitiontables {
-			o.PartitiontableIds[i] = v.ID
-		}
-		o.MediumIds = make([]int, len(r.Media))
-		for i, v := range r.Media {
-			o.MediumIds[i] = v.ID
-		}
-	}
+	var ok bool
 	if o.Title, ok = foMap["title"].(string); !ok {
 		o.Title = ""
 	}
