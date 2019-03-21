@@ -166,8 +166,12 @@ func (ft *ForemanProvisioningTemplate) UnmarshalJSON(b []byte) error {
 	if ft.Locked, ok = ftMap["locked"].(bool); !ok {
 		ft.Locked = false
 	}
-	if ft.TemplateKindId, ok = ftMap["template_kind_id"].(int); !ok {
+	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing
+	// Without this, properties will define as default values in state file.
+	if _, ok = ftMap["template_kind_id"].(float64); !ok {
 		ft.TemplateKindId = 0
+	} else {
+		ft.TemplateKindId = int(ftMap["template_kind_id"].(float64))
 	}
 
 	return nil
@@ -187,7 +191,11 @@ func (c *Client) CreateProvisioningTemplate(t *ForemanProvisioningTemplate) (*Fo
 
 	reqEndpoint := fmt.Sprintf("/%s", ProvisioningTemplateEndpointPrefix)
 
-	tJSONBytes, jsonEncErr := json.Marshal(t)
+	wrapper := struct {
+		ProvisioningTemplate *ForemanProvisioningTemplate `json:"provisioning_template"`
+	}{t}
+
+	tJSONBytes, jsonEncErr := json.Marshal(wrapper)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -252,7 +260,11 @@ func (c *Client) UpdateProvisioningTemplate(t *ForemanProvisioningTemplate) (*Fo
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ProvisioningTemplateEndpointPrefix, t.Id)
 
-	tJSONBytes, jsonEncErr := json.Marshal(t)
+	wrapper := struct {
+		ProvisioningTemplate *ForemanProvisioningTemplate `json:"provisioning_template"`
+	}{t}
+
+	tJSONBytes, jsonEncErr := json.Marshal(wrapper)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
