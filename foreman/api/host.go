@@ -74,7 +74,7 @@ type ForemanHost struct {
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
 type ForemanInterfacesAttribute struct {
 	Id         int    `json:"id,omitempty"`
-	SubnetId   int    `json:"subnet_id"`
+	SubnetId   int    `json:"subnet_id,omitempty"`
 	Identifier string `json:"identifier"`
 	Name       string `json:"name"`
 	Username   string `json:"username,omitempty"`
