@@ -58,6 +58,41 @@ func resourceForemanHostgroup() *schema.Resource {
 				),
 			},
 
+			"root_password": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ValidateFunc: validation.StringLenBetween(8, 256),
+				Description:  "Default root password",
+			},
+
+			"pxe_loader": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"None",
+					"PXELinux BIOS",
+					"PXELinux UEFI",
+					"Grub UEFI",
+					"Grub2 UEFI",
+					"Grub2 UEFI SecureBoot",
+					"Grub2 UEFI HTTP",
+					"Grub2 UEFI HTTPS",
+					"Grub2 UEFI HTTPS SecureBoot",
+					"iPXE Embedded",
+					"iPXE UEFI HTTP",
+					"iPXE Chain BIOS",
+					"iPXE Chain UEFI",
+					// NOTE(ALL): false - do not ignore case when comparing values
+				}, false),
+				Description: "Operating system family. Values include: " +
+					"\"None\", \"PXELinux BIOS\", \"PXELinux UEFI\", \"Grub UEFI\", " +
+					"\"Grub2 UEFI\", \"Grub2 UEFI SecureBoot\", \"Grub2 UEFI HTTP\", " +
+					"\"Grub2 UEFI HTTPS\", \"Grub2 UEFI HTTPS SecureBoot\", " +
+					"\"iPXE Embedded\", \"iPXE UEFI HTTP\", \"iPXE Chain BIOS\", " +
+					"\"iPXE Chain UEFI\"",
+			},
+
 			// -- Foreign Key Relationships --
 
 			"architecture_id": &schema.Schema{
@@ -145,33 +180,6 @@ func resourceForemanHostgroup() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the subnet associated with the hostgroup.",
 			},
-
-			"pxeloader": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"None",
-					"PXELinux BIOS",
-					"PXELinux UEFI",
-					"Grub UEFI",
-					"Grub2 UEFI",
-					"Grub2 UEFI SecureBoot",
-					"Grub2 UEFI HTTP",
-					"Grub2 UEFI HTTPS",
-					"Grub2 UEFI HTTPS SecureBoot",
-					"iPXE Embedded",
-					"iPXE UEFI HTTP",
-					"iPXE Chain BIOS",
-					"iPXE Chain UEFI",
-					// NOTE(ALL): false - do not ignore case when comparing values
-				}, false),
-				Description: "Operating system family. Values include: " +
-					"\"None\", \"PXELinux BIOS\", \"PXELinux UEFI\", \"Grub UEFI\", " +
-					"\"Grub2 UEFI\", \"Grub2 UEFI SecureBoot\", \"Grub2 UEFI HTTP\", " +
-					"\"Grub2 UEFI HTTPS\", \"Grub2 UEFI HTTPS SecureBoot\", " +
-					"\"iPXE Embedded\", \"iPXE UEFI HTTP\", \"iPXE Chain BIOS\", " +
-					"\"iPXE Chain UEFI\"",
-			},
 		},
 	}
 }
@@ -197,6 +205,14 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 
 	if attr, ok = d.GetOk("title"); ok {
 		hostgroup.Title = attr.(string)
+	}
+
+	if attr, ok = d.GetOk("root_password"); ok {
+		hostgroup.RootPassword = attr.(string)
+	}
+
+	if attr, ok = d.GetOk("pxe_loader"); ok {
+		hostgroup.PXELoader = attr.(string)
 	}
 
 	if attr, ok = d.GetOk("architecture_id"); ok {
@@ -258,6 +274,8 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.SetId(strconv.Itoa(fh.Id))
 	d.Set("title", fh.Title)
 	d.Set("name", fh.Name)
+	d.Set("root_password", fh.RootPassword)
+	d.Set("pxe_loader", fh.PXELoader)
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("domain_id", fh.DomainId)

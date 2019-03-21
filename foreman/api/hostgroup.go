@@ -34,6 +34,8 @@ type ForemanHostgroup struct {
 	// of the hostgroup tree down to this hostgroup.  The title will be
 	// in the form of: "<parent 1>/<parent 2>/.../<name>"
 	Title string `json:"title"`
+	// Default Root Password for this HostGroup
+	RootPassword string `json:"root_pass"`
 	// ID of the architecture associated with this hostgroup
 	ArchitectureId int `json:"architecture_id"`
 	// ID of the compute profile associated with this hostgroup
@@ -74,6 +76,8 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 	fhMap := map[string]interface{}{}
 
 	fhMap["name"] = fh.Name
+	fhMap["root_pass"] = fh.RootPassword
+	fhMap["pxe_loader"] = fh.PXELoader
 
 	fhMap["architecture_id"] = intIdToJSONString(fh.ArchitectureId)
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
@@ -87,7 +91,6 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 	fhMap["puppet_proxy_id"] = intIdToJSONString(fh.PuppetProxyId)
 	fhMap["realm_id"] = intIdToJSONString(fh.RealmId)
 	fhMap["subnet_id"] = intIdToJSONString(fh.SubnetId)
-	fhMap["pxe_loader"] = fh.PXELoader
 
 	log.Debugf("fhMap: [%v]", fhMap)
 
