@@ -127,7 +127,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 					"include: `\"MD5\"`, `\"SHA256\"`, `\"SHA512\"`, `\"Base64\"`.",
 			},
 			"provisioning_templates": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
@@ -136,7 +136,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Description: "Identifiers of attached provisioning templates",
 			},
 			"media": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
@@ -145,7 +145,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Description: "Identifiers of attached media",
 			},
 			"architectures": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
@@ -154,7 +154,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Description: "Identifiers of attached architectures",
 			},
 			"partitiontables": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
