@@ -51,6 +51,105 @@ type ForemanOperatingSystem struct {
 	PartitiontableIds []int `json:"ptable_ids,omitempty"`
 }
 
+type foremanOsRespJSON struct {
+	ProvisioningTemplates []struct {
+		ID int `json:"id"`
+	} `json:"provisioning_templates"`
+	// Media Ids
+	Media []struct {
+		ID int `json:"id"`
+	} `json:"media"`
+	// Architecture Ids
+	Architectures []struct {
+		ID int `json:"id"`
+	} `json:"architectures"`
+	// Partitiontable Ids
+	Partitiontables []struct {
+		ID int `json:"id"`
+	} `json:"ptables"`
+}
+
+func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
+	var jsonDecErr error
+
+	// Unmarshal the common Foreman object properties
+	var fo ForemanObject
+	jsonDecErr = json.Unmarshal(b, &fo)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+	o.ForemanObject = fo
+	var foMap map[string]interface{}
+	var ok bool
+
+	jsonDecErr = json.Unmarshal(b, &foMap)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+	log.Debugf("foMap: [%v]", foMap)
+
+	var r foremanOsRespJSON
+	jsonDecErr = json.Unmarshal(b, &r)
+	if jsonDecErr != nil {
+		var provisioningTemplateIds interface{}
+		if provisioningTemplateIds, ok = foMap["provisoning_template_ids"]; ok {
+			o.ProvisioningTemplateIds = provisioningTemplateIds.([]int)
+		}
+		var architectureIds interface{}
+		if architectureIds, ok = foMap["architecture_ids"]; ok {
+			o.ArchitectureIds = architectureIds.([]int)
+		}
+		var mediumIds interface{}
+		if mediumIds, ok = foMap["medium_ids"]; ok {
+			o.MediumIds = mediumIds.([]int)
+		}
+		var partitiontableIds interface{}
+		if partitiontableIds, ok = foMap["partitiontable_ids"]; ok {
+			o.PartitiontableIds = partitiontableIds.([]int)
+		}
+	} else {
+		o.ProvisioningTemplateIds = make([]int, len(r.ProvisioningTemplates))
+		for i, v := range r.ProvisioningTemplates {
+			o.ProvisioningTemplateIds[i] = v.ID
+		}
+		o.ArchitectureIds = make([]int, len(r.Architectures))
+		for i, v := range r.Architectures {
+			o.ArchitectureIds[i] = v.ID
+		}
+		o.PartitiontableIds = make([]int, len(r.Partitiontables))
+		for i, v := range r.Partitiontables {
+			o.PartitiontableIds[i] = v.ID
+		}
+		o.MediumIds = make([]int, len(r.Media))
+		for i, v := range r.Media {
+			o.MediumIds[i] = v.ID
+		}
+	}
+	if o.Title, ok = foMap["title"].(string); !ok {
+		o.Title = ""
+	}
+	if o.Major, ok = foMap["major"].(string); !ok {
+		o.Major = ""
+	}
+	if o.Minor, ok = foMap["minor"].(string); !ok {
+		o.Minor = ""
+	}
+	if o.Description, ok = foMap["description"].(string); !ok {
+		o.Description = ""
+	}
+	if o.Family, ok = foMap["family"].(string); !ok {
+		o.Family = ""
+	}
+	if o.ReleaseName, ok = foMap["release_name"].(string); !ok {
+		o.ReleaseName = ""
+	}
+	if o.PasswordHash, ok = foMap["password_hash"].(string); !ok {
+		o.PasswordHash = ""
+	}
+
+	return nil
+}
+
 // -----------------------------------------------------------------------------
 // CRUD Implementation
 // -----------------------------------------------------------------------------

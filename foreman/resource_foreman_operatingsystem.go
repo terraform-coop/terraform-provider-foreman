@@ -6,6 +6,7 @@ import (
 
 	"github.com/wayfair/terraform-provider-foreman/foreman/api"
 	"github.com/wayfair/terraform-provider-utils/autodoc"
+	"github.com/wayfair/terraform-provider-utils/conv"
 	"github.com/wayfair/terraform-provider-utils/log"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -206,32 +207,20 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 		os.PasswordHash = attr.(string)
 	}
 	if attr, ok = d.GetOk("provisioning_templates"); ok {
-		provisioningtemplates := make([]int, len(attr.([]interface{})))
-		for i, v := range attr.([]interface{}) {
-			provisioningtemplates[i] = v.(int)
-		}
-		os.ProvisioningTemplateIds = provisioningtemplates
+		attrSet := attr.(*schema.Set)
+		os.ProvisioningTemplateIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("media"); ok {
-		media := make([]int, len(attr.([]interface{})))
-		for i, v := range attr.([]interface{}) {
-			media[i] = v.(int)
-		}
-		os.MediumIds = media
+		attrSet := attr.(*schema.Set)
+		os.MediumIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("architectures"); ok {
-		architectures := make([]int, len(attr.([]interface{})))
-		for i, v := range attr.([]interface{}) {
-			architectures[i] = v.(int)
-		}
-		os.ArchitectureIds = architectures
+		attrSet := attr.(*schema.Set)
+		os.ArchitectureIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("partitiontables"); ok {
-		partitiontables := make([]int, len(attr.([]interface{})))
-		for i, v := range attr.([]interface{}) {
-			partitiontables[i] = v.(int)
-		}
-		os.PartitiontableIds = partitiontables
+		attrSet := attr.(*schema.Set)
+		os.PartitiontableIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 
 	return &os
