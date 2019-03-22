@@ -35,7 +35,7 @@ type ForemanHostgroup struct {
 	// in the form of: "<parent 1>/<parent 2>/.../<name>"
 	Title string `json:"title"`
 	// Default Root Password for this HostGroup
-	RootPassword string `json:"root_pass"`
+	RootPassword string `json:"root_pass,omitempty"`
 	// ID of the architecture associated with this hostgroup
 	ArchitectureId int `json:"architecture_id"`
 	// ID of the compute profile associated with this hostgroup

@@ -274,7 +274,6 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.SetId(strconv.Itoa(fh.Id))
 	d.Set("title", fh.Title)
 	d.Set("name", fh.Name)
-	d.Set("root_password", fh.RootPassword)
 	d.Set("pxe_loader", fh.PXELoader)
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
