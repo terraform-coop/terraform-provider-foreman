@@ -64,6 +64,13 @@ func buildForemanEnvironment(d *schema.ResourceData) *api.ForemanEnvironment {
 	obj := buildForemanObject(d)
 	environment.ForemanObject = *obj
 
+	var attr interface{}
+	var ok bool
+
+	if attr, ok = d.GetOk("name"); ok {
+		environment.Name = attr.(string)
+	}
+
 	return &environment
 }
 
@@ -82,6 +89,21 @@ func setResourceDataFromForemanEnvironment(d *schema.ResourceData, fe *api.Forem
 
 func resourceForemanEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_environment.go#Create")
+
+	client := meta.(*api.Client)
+	e := buildForemanEnvironment(d)
+
+	log.Debugf("ForemanEnvironment: [%+v]", e)
+
+	createdEnv, createErr := client.CreateEnvironment(e)
+	if createErr != nil {
+		return createErr
+	}
+
+	log.Debugf("Created ForemanEnvironment: [%+v]", createdEnv)
+
+	setResourceDataFromForemanEnvironment(d, createdEnv)
+
 	return nil
 }
 
@@ -107,14 +129,32 @@ func resourceForemanEnvironmentRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceForemanEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_environment.go#Update")
+
+	client := meta.(*api.Client)
+	e := buildForemanEnvironment(d)
+
+	log.Debugf("ForemanEnvironment: [%+v]", e)
+
+	updatedEnv, updateErr := client.UpdateEnvironment(e)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	log.Debugf("Updated ForemanEnvironment: [%+v]", updatedEnv)
+
+	setResourceDataFromForemanEnvironment(d, updatedEnv)
+
 	return nil
 }
 
 func resourceForemanEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_environment.go#Delete")
 
+	client := meta.(*api.Client)
+	e := buildForemanEnvironment(d)
+
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return nil
+	return client.DeleteEnvironment(e.Id)
 }

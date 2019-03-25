@@ -160,6 +160,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_smartproxy":           resourceForemanSmartProxy(),
 			"foreman_computeresource":      resourceForemanComputeResource(),
 			"foreman_image":                resourceForemanImage(),
+			"foreman_environment":          resourceForemanEnvironment(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
