@@ -37,21 +37,6 @@ func resourceForemanParameter() *schema.Resource {
 				),
 			},
 
-			"subject": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				Description: "The type of object to associate with the parameters. " +
-					"Values include: `\"host\"`, `\"hostgroup\"`, `\"operatingsystem\"`," +
-					"`\"domain\"`, `\"subnet\"`.",
-				ValidateFunc: validation.StringInSlice([]string{
-					"host",
-					"hostgroup",
-					"operatingsystem",
-					"domain",
-					"subnet",
-					// NOTE(ALL): false - do not ignore case when comparing values
-				}, false),
-			},
 			"host_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,

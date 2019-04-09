@@ -98,7 +98,9 @@ func (c *Client) CreateParameter(d *ForemanParameter) (*ForemanParameter, error)
 	}
 	log.Debugf("createdParameter: [%+v]", createdParameter)
 
-	return &createdParameter, nil
+	d.Id = createdParameter.Id
+	d.Parameter = createdParameter.Parameter
+	return d, nil
 }
 
 // ReadParameter reads the attributes of a ForemanParameter identified by the
@@ -126,7 +128,9 @@ func (c *Client) ReadParameter(d *ForemanParameter, id int) (*ForemanParameter, 
 
 	log.Debugf("readParameter: [%+v]", readParameter)
 
-	return &readParameter, nil
+	d.Id = readParameter.Id
+	d.Parameter = readParameter.Parameter
+	return d, nil
 }
 
 // UpdateParameter deletes all parameters for the subject resource and re-creates them
@@ -161,7 +165,9 @@ func (c *Client) UpdateParameter(d *ForemanParameter, id int) (*ForemanParameter
 
 	log.Debugf("updatedParameter: [%+v]", updatedParameter)
 
-	return &updatedParameter, nil
+	d.Id = updatedParameter.Id
+	d.Parameter = updatedParameter.Parameter
+	return d, nil
 }
 
 // DeleteParameter deletes the ForemanParameters for the given resource
