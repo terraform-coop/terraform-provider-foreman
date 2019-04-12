@@ -162,6 +162,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_image":                resourceForemanImage(),
 			"foreman_environment":          resourceForemanEnvironment(),
 			"foreman_parameter":            resourceForemanParameter(),
+			"foreman_defaulttemplate":      resourceForemanDefaultTemplate(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -180,6 +181,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_computeresource":      dataSourceForemanComputeResource(),
 			"foreman_image":                dataSourceForemanImage(),
 			"foreman_parameter":            dataSourceForemanParameter(),
+			"foreman_defaulttemplate":      dataSourceForemanDefaultTemplate(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
