@@ -69,6 +69,8 @@ type ForemanHost struct {
 	Comment string `json:"comment"`
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
+	// Map of HostParameters
+	HostParameter map[string]string `json:"host_parameters_attributes"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -138,6 +140,7 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 
 	fhMap["name"] = fh.Name
 	fhMap["comment"] = fh.Comment
+	fhMap["tags"] = fh.HostParameter
 	fhMap["build"] = fh.Build
 	fhMap["provision_method"] = fh.Method
 	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
@@ -194,6 +197,9 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	}
 	if fh.Comment, ok = fhMap["comment"].(string); !ok {
 		fh.Comment = ""
+	}
+	if fh.HostParameter, ok = fhMap["host_parameters_attributes"].(map[string]string); !ok {
+		fh.HostParameter = map[string]string{}
 	}
 	if _, ok = fhMap["domain_id"].(float64); !ok {
 		fh.DomainId = 0

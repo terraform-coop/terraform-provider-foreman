@@ -73,6 +73,14 @@ func resourceForemanHost() *schema.Resource {
 					"Note: Changes to this attribute will trigger a host rebuild.",
 				),
 			},
+			"tags": &schema.Schema{
+				Type:     schema.TypeMap,
+				ForceNew: false,
+				Optional: true,
+				Description: "A map of parameters that will be saved as host parameters " +
+					"in the machine config. The field name \"tags\" is used to be in-line " +
+					"with other terraform implementations",
+			},
 
 			"enable_bmc": &schema.Schema{
 				Type:     schema.TypeBool,
@@ -321,6 +329,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	host.Name = d.Get("name").(string)
 	host.Comment = d.Get("comment").(string)
+	host.HostParameter = d.Get("tags").(map[string]string)
 	host.Method = d.Get("method").(string)
 
 	if attr, ok = d.GetOk("domain_id"); ok {
@@ -493,6 +502,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
+	d.Set("tags", fh.HostParameter)
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("hostgroup_id", fh.HostgroupId)
@@ -503,6 +513,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	// In partial mode, flag keys below as completed successfully
 	d.SetPartial("name")
 	d.SetPartial("comment")
+	d.SetPartial("tags")
 	d.SetPartial("domain_id")
 	d.SetPartial("environment_id")
 	d.SetPartial("hostgroup_id")
@@ -726,6 +737,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Otherwise, a detected update caused by a unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
 		d.HasChange("comment") ||
+		d.HasChange("tags") ||
 		d.HasChange("domain_id") ||
 		d.HasChange("environment_id") ||
 		d.HasChange("hostgroup_id") ||
