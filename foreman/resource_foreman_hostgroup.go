@@ -154,6 +154,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"puppet_ca_proxy_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Default:      1,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description: "ID of the smart proxy acting as the puppet certificate " +
 					"authority server for this hostgroup.",
@@ -162,6 +163,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"puppet_proxy_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Default:      1,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description: "ID of the smart proxy acting as the puppet proxy " +
 					"server for this hostgroup.",
