@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/wayfair/terraform-provider-foreman/foreman"
+	"github.com/HanseMerkur/terraform-provider-foreman/foreman"
 
 	"github.com/hashicorp/terraform/plugin"
 )

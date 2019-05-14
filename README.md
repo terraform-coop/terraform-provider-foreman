@@ -43,13 +43,13 @@ section:
     ```sh
     $ mkdir -p "${GOPATH}/src/github.com/wayfair"
     $ cd "${GOPATH}/src/github.com/wayfair"
-    $ git clone git@github.com:wayfair/terraform-provider-foreman.git
+    $ git clone git@github.com:HanseMerkur/terraform-provider-foreman.git
     ```
 
 2. Enter the root directory of the project and install the provider:
 
     ```sh
-    $ cd "${GOPATH}/src/github.com/wayfair/terraform-provider-foreman"
+    $ cd "${GOPATH}/src/github.com/HanseMerkur/terraform-provider-foreman"
     $ make
     $ make install
     ```

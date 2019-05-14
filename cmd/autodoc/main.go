@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wayfair/terraform-provider-foreman/foreman"
+	"github.com/HanseMerkur/terraform-provider-foreman/foreman"
 	"github.com/wayfair/terraform-provider-utils/autodoc"
 
 	"github.com/hashicorp/terraform/helper/schema"

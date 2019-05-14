@@ -3,7 +3,7 @@ package foreman
 import (
 	"fmt"
 
-	"github.com/wayfair/terraform-provider-foreman/foreman/api"
+	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/wayfair/terraform-provider-utils/autodoc"
 	"github.com/wayfair/terraform-provider-utils/helper"
 	"github.com/wayfair/terraform-provider-utils/log"

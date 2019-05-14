@@ -2,13 +2,13 @@
 
 {{ template "disclaimer" }}
 
-Not displaying correctly? Try this link: [godoc](godoc/pkg/github.com/wayfair/terraform-provider-foreman.html)
+Not displaying correctly? Try this link: [godoc](godoc/pkg/github.com/HanseMerkur/terraform-provider-foreman.html)
 
 <div id="godoc-iframe-container"
   style="position: relative; padding-bottom: 56.25%; padding-top: 30px">
   <iframe id="godoc-iframe"
     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
-    src="pkg/github.com/wayfair/terraform-provider-foreman.html"
+    src="pkg/github.com/HanseMerkur/terraform-provider-foreman.html"
     onload="AdjustIframeHeight()">
   </iframe>
   <script>

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/wayfair/terraform-provider-foreman/foreman/api"
+	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/wayfair/terraform-provider-utils/autodoc"
 	"github.com/wayfair/terraform-provider-utils/log"
 

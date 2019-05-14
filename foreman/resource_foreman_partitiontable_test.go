@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/wayfair/terraform-provider-foreman/foreman/api"
+	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/wayfair/terraform-provider-utils/rand"
 
 	"github.com/hashicorp/terraform/helper/schema"
