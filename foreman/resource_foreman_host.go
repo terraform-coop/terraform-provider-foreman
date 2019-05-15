@@ -329,7 +329,6 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	host.Name = d.Get("name").(string)
 	host.Comment = d.Get("comment").(string)
-	host.HostParameter = d.Get("tags").(map[string]string)
 	host.Method = d.Get("method").(string)
 
 	if attr, ok = d.GetOk("domain_id"); ok {
@@ -349,6 +348,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	}
 	if attr, ok = d.GetOk("image_id"); ok {
 		host.ImageId = attr.(int)
+	}
+	if attr, ok = d.GetOk("tags"); ok {
+		host.HostParameter = d.Get("tags").(map[string]string)
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
