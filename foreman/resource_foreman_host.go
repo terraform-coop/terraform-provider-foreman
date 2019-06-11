@@ -350,7 +350,11 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		host.ImageId = attr.(int)
 	}
 	if attr, ok = d.GetOk("tags"); ok {
-		host.HostParameter = d.Get("tags").(map[string]string)
+		hostTags := d.Get("tags").(map[string]interface{})
+		host.HostParameter = make(map[string]string)
+		for key, value := range hostTags {
+			host.HostParameter[key] = value.(string)
+		}
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
