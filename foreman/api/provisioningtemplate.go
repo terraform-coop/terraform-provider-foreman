@@ -191,11 +191,7 @@ func (c *Client) CreateProvisioningTemplate(t *ForemanProvisioningTemplate) (*Fo
 
 	reqEndpoint := fmt.Sprintf("/%s", ProvisioningTemplateEndpointPrefix)
 
-	wrapper := struct {
-		ProvisioningTemplate *ForemanProvisioningTemplate `json:"provisioning_template"`
-	}{t}
-
-	tJSONBytes, jsonEncErr := json.Marshal(wrapper)
+	tJSONBytes, jsonEncErr := WrapJson("provisioning_template", t)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

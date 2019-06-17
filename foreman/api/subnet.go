@@ -22,8 +22,6 @@ type ForemanSubnet struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	// Subnet name (ie: public)
-	Name string `json:"name"`
 	// Subnet network (ie: 192.168.100.0)
 	Network string `json:"network"`
 	// Netmask for this subnet (ie: 255.255.255.0)
@@ -60,7 +58,7 @@ func (c *Client) CreateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s", SubnetEndpointPrefix)
 
-	sJSONBytes, jsonEncErr := json.Marshal(s)
+	sJSONBytes, jsonEncErr := WrapJson("subnet", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

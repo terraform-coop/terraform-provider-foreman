@@ -21,7 +21,7 @@ import (
 // -----------------------------------------------------------------------------
 
 const ProvisioningTemplatesURI = api.FOREMAN_API_URL_PREFIX + "/provisioning_templates"
-const ProvisioningTemplatesTestDataPath = "testdata/1.11/provisioning_templates"
+const ProvisioningTemplatesTestDataPath = "testdata/1.20/provisioning_templates"
 
 // Given a ForemanProvisioningTemplate, create a mock instance state reference
 func ForemanProvisioningTemplateToInstanceState(obj api.ForemanProvisioningTemplate) *terraform.InstanceState {
@@ -329,7 +329,7 @@ func ResourceForemanProvisioningTemplateRequestDataTestCases(t *testing.T) []Tes
 
 	rd := MockForemanProvisioningTemplateResourceData(s)
 	obj = *buildForemanProvisioningTemplate(rd)
-	reqData, _ := json.Marshal(obj)
+	reqData, _ := api.WrapJson("provisioning_template", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

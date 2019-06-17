@@ -92,6 +92,11 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
+				DiffSuppressFunc: func(k, old, neu string, d *schema.ResourceData) bool {
+					log.Tracef("DiffSuppressFunc[1]: %s;%s;%s", k, old, neu)
+					log.Tracef("DiffSuppressFunc[2]: %+v", d.Get("operatingsystem_ids"))
+					return false
+				},
 				Description: "IDs of the operating systems associated with this " +
 					"provisioning template.",
 			},
@@ -354,7 +359,9 @@ func resourceForemanProvisioningTemplateRead(d *schema.ResourceData, meta interf
 
 	log.Debugf("Read ForemanProvisioningTemplate: [%+v]", readTemplate)
 
+	log.Tracef("BeforeSet: %v", d.Get("operatingsystem_ids"))
 	setResourceDataFromForemanProvisioningTemplate(d, readTemplate)
+	log.Tracef("AfterSet: %v", d.Get("operatingsystem_ids"))
 
 	return nil
 }

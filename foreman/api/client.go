@@ -286,3 +286,10 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 	}
 	return nil
 }
+
+func WrapJson(name string, item interface{}) ([]byte, error) {
+	wrapped := map[string]interface{}{
+		name: item,
+	}
+	return json.Marshal(wrapped)
+}
