@@ -288,7 +288,7 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 					"`\"bmc\"`, `\"bond\"`, `\"bridge\"`.",
 			},
 			// Provider used for BMC/IPMI calls. (Default: IPMI)
-			"provider": &schema.Schema{
+			"bmc_provider": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -414,7 +414,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 //   username (string)
 //   password (string)
 //   type (string)
-//   provider (string)
+//   bmc_provider (string)
 //   _destroy (bool)
 
 func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterfacesAttribute {
@@ -475,7 +475,7 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 		tempIntAttr.Type = ""
 	}
 
-	if tempIntAttr.Provider, ok = m["provider"].(string); !ok {
+	if tempIntAttr.Provider, ok = m["bmc_provider"].(string); !ok {
 		tempIntAttr.Provider = ""
 	}
 
@@ -549,19 +549,19 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 		//   is only used in updates.  Anything that exists will always have it
 		//   set to "false".
 		ifaceMap := map[string]interface{}{
-			"id":        val.Id,
-			"ip":        val.IP,
-			"mac":       val.MAC,
-			"name":      val.Name,
-			"subnet_id": val.SubnetId,
-			"primary":   val.Primary,
-			"managed":   val.Managed,
-			"provision": val.Provision,
-			"virtual":   val.Virtual,
-			"type":      val.Type,
-			"provider":  val.Provider,
-			"username":  val.Username,
-			"password":  val.Password,
+			"id":           val.Id,
+			"ip":           val.IP,
+			"mac":          val.MAC,
+			"name":         val.Name,
+			"subnet_id":    val.SubnetId,
+			"primary":      val.Primary,
+			"managed":      val.Managed,
+			"provision":    val.Provision,
+			"virtual":      val.Virtual,
+			"type":         val.Type,
+			"bmc_provider": val.Provider,
+			"username":     val.Username,
+			"password":     val.Password,
 
 			// NOTE(ALL): These settings only apply to virtual machines
 			"attached_to":        val.AttachedTo,
