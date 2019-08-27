@@ -364,6 +364,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("compute_resource_id"); ok {
 		host.ComputeResourceId = attr.(int)
 	}
+	if attr, ok = d.GetOk("compute_profile_id"); ok {
+		host.ComputeProfileId = attr.(int)
+	}
 	if attr, ok = d.GetOk("tags"); ok {
 		hostTags := d.Get("tags").(map[string]interface{})
 		host.HostParameter = make(map[string]string)
@@ -528,7 +531,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("hostgroup_id", fh.HostgroupId)
 	d.Set("compute_resource_id", fh.ComputeResourceId)
-	d.Set("compute_profile_id", fh.ComputeResourceId)
+	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
 	d.Set("medium_id", fh.MediumId)
 	d.Set("image_id", fh.ImageId)

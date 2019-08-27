@@ -151,6 +151,8 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["image_id"] = intIdToJSONString(fh.ImageId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
 	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
+	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
 	if len(fh.InterfacesAttributes) > 0 {
 		fhMap["interfaces_attributes"] = fh.InterfacesAttributes
 	}
@@ -227,6 +229,16 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 		fh.MediumId = 0
 	} else {
 		fh.MediumId = int(fhMap["medium_id"].(float64))
+	}
+	if _, ok = fhMap["compute_resource_id"].(float64); !ok {
+		fh.ComputeResourceId = 0
+	} else {
+		fh.ComputeResourceId = int(fhMap["compute_resource_id"].(float64))
+	}
+	if _, ok = fhMap["compute_profile_id"].(float64); !ok {
+		fh.ComputeProfileId = 0
+	} else {
+		fh.ComputeProfileId = int(fhMap["compute_profile_id"].(float64))
 	}
 
 	return nil

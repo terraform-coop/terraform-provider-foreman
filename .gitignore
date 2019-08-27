@@ -28,3 +28,4 @@ docs/datasources/*.md
 *.tfstate.backup
 crash.log
 terraform-provider-foreman.log
+terraform-provider-foreman
