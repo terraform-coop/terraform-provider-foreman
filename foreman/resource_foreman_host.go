@@ -159,6 +159,18 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of an image to be used as base for this host when cloning",
 			},
+			"compute_resource_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+			"compute_profile_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
 
 			// -- Key Components --
 			"interfaces_attributes": &schema.Schema{
@@ -349,6 +361,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("image_id"); ok {
 		host.ImageId = attr.(int)
 	}
+	if attr, ok = d.GetOk("compute_resource_id"); ok {
+		host.ComputeResourceId = attr.(int)
+	}
 	if attr, ok = d.GetOk("tags"); ok {
 		hostTags := d.Get("tags").(map[string]interface{})
 		host.HostParameter = make(map[string]string)
@@ -512,6 +527,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("hostgroup_id", fh.HostgroupId)
+	d.Set("compute_resource_id", fh.ComputeResourceId)
+	d.Set("compute_profile_id", fh.ComputeResourceId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
 	d.Set("medium_id", fh.MediumId)
 	d.Set("image_id", fh.ImageId)
@@ -523,6 +540,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("domain_id")
 	d.SetPartial("environment_id")
 	d.SetPartial("hostgroup_id")
+	d.SetPartial("compute_resource_id")
+	d.SetPartial("compute_profile_id")
 	d.SetPartial("operatingsystem_id")
 	d.SetPartial("medium_id")
 	d.SetPartial("image_id")
@@ -747,6 +766,8 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("domain_id") ||
 		d.HasChange("environment_id") ||
 		d.HasChange("hostgroup_id") ||
+		d.HasChange("compute_resource_id") ||
+		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
 		d.HasChange("interfaces_attributes") {
 

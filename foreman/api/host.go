@@ -70,7 +70,9 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameter map[string]string `json:"host_parameters_attributes"`
+	HostParameter     map[string]string `json:"host_parameters_attributes"`
+	ComputeResourceId int               `json:"compute_resource_id,omitempty"`
+	ComputeProfileId  int               `json:"compute_profile_id,omitempty"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
