@@ -120,7 +120,7 @@ func (c *Client) UpdateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SubnetEndpointPrefix, s.Id)
 
-	sJSONBytes, jsonEncErr := json.Marshal(s)
+	sJSONBytes, jsonEncErr := WrapJson("subnet", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

@@ -36,7 +36,7 @@ func (c *Client) CreateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, 
 
 	reqEndpoint := fmt.Sprintf("/%s", EnvironmentEndpointPrefix)
 
-	environmentJSONBytes, jsonEncErr := json.Marshal(e)
+	environmentJSONBytes, jsonEncErr := WrapJson("environment", e)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -99,7 +99,7 @@ func (c *Client) UpdateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, 
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, e.Id)
 
-	environmentJSONBytes, jsonEncErr := json.Marshal(e)
+	environmentJSONBytes, jsonEncErr := WrapJson("environment", e)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

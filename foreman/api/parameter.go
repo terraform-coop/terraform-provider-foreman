@@ -76,7 +76,7 @@ func (c *Client) CreateParameter(d *ForemanParameter) (*ForemanParameter, error)
 
 	// All parameters are send individually. Yeay for that
 	var createdParameter ForemanParameter
-	parameterJSONBytes, jsonEncErr := json.Marshal(d)
+	parameterJSONBytes, jsonEncErr := WrapJson("parameter", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -141,7 +141,7 @@ func (c *Client) UpdateParameter(d *ForemanParameter, id int) (*ForemanParameter
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
 
-	parameterJSONBytes, jsonEncErr := json.Marshal(d)
+	parameterJSONBytes, jsonEncErr := WrapJson("parameter", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
