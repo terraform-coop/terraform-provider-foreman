@@ -178,6 +178,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_smartproxy":           dataSourceForemanSmartProxy(),
 			"foreman_subnet":               dataSourceForemanSubnet(),
 			"foreman_templatekind":         dataSourceForemanTemplateKind(),
+			"foreman_computeprofile":       dataSourceForemanComputeProfile(),
 			"foreman_computeresource":      dataSourceForemanComputeResource(),
 			"foreman_image":                dataSourceForemanImage(),
 			"foreman_parameter":            dataSourceForemanParameter(),
