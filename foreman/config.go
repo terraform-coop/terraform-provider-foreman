@@ -36,7 +36,7 @@ func (c *Config) Client() (*api.Client, error) {
 		},
 	)
 
-	log.Infof("Rest Client configured")
+	log.Debugf("Rest Client configured")
 
 	return client, nil
 }
