@@ -255,12 +255,7 @@ func (c *Client) UpdateProvisioningTemplate(t *ForemanProvisioningTemplate) (*Fo
 	log.Tracef("foreman/api/provisioningtemplate.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ProvisioningTemplateEndpointPrefix, t.Id)
-
-	wrapper := struct {
-		ProvisioningTemplate *ForemanProvisioningTemplate `json:"provisioning_template"`
-	}{t}
-
-	tJSONBytes, jsonEncErr := json.Marshal(wrapper)
+	tJSONBytes, jsonEncErr := WrapJson("provisioning_template", t)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

@@ -128,12 +128,7 @@ func (c *Client) CreateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	reqEndpoint := fmt.Sprintf("/%s", OperatingSystemEndpointPrefix)
 
-	// Like, why?
-	wrapper := struct {
-		OperatingSystem *ForemanOperatingSystem `json:"operatingsystem"`
-	}{o}
-
-	osJSONBytes, jsonEncErr := json.Marshal(wrapper)
+	osJSONBytes, jsonEncErr := WrapJson("operatingsystem", o)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -197,11 +192,7 @@ func (c *Client) UpdateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, o.Id)
 
-	wrapper := struct {
-		OperatingSystem *ForemanOperatingSystem `json:"operatingsystem"`
-	}{o}
-
-	osJSONBytes, jsonEncErr := json.Marshal(wrapper)
+	osJSONBytes, jsonEncErr := WrapJson("operatingsystem", o)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

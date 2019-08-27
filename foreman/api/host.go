@@ -321,7 +321,7 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	reqEndpoint := fmt.Sprintf("/%s", HostEndpointPrefix)
 
-	hJSONBytes, jsonEncErr := json.Marshal(h)
+	hJSONBytes, jsonEncErr := WrapJson("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -397,7 +397,7 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
-	hJSONBytes, jsonEncErr := json.Marshal(h)
+	hJSONBytes, jsonEncErr := WrapJson("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

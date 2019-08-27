@@ -100,7 +100,7 @@ func (c *Client) CreateMedia(m *ForemanMedia) (*ForemanMedia, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s", MediaEndpointPrefix)
 
-	mJSONBytes, jsonEncErr := json.Marshal(m)
+	mJSONBytes, jsonEncErr := WrapJson("medium", m)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -162,7 +162,7 @@ func (c *Client) UpdateMedia(m *ForemanMedia) (*ForemanMedia, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, m.Id)
 
-	mJSONBytes, jsonEncErr := json.Marshal(m)
+	mJSONBytes, jsonEncErr := WrapJson("medium", m)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
