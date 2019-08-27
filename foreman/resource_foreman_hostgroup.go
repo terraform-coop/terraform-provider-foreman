@@ -60,7 +60,7 @@ func resourceForemanHostgroup() *schema.Resource {
 
 			"root_password": &schema.Schema{
 				Type:         schema.TypeString,
-				Optional:     true,
+				Required:     true,
 				Sensitive:    true,
 				ValidateFunc: validation.StringLenBetween(8, 256),
 				Description:  "Default root password",
