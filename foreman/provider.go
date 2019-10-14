@@ -28,7 +28,7 @@ const (
 // Provider configuration default values
 const (
 	// Default log level if one is not provided
-	DefaultProviderLogLevel string = "INFO"
+	DefaultProviderLogLevel string = "NONE"
 	// Default output log file if one is not provided
 	DefaultProviderLogFile string = "terraform-provider-foreman.log"
 )
