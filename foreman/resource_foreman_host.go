@@ -642,14 +642,11 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 		log.Debugf("Calling BMC Reboot/PXE Functions")
 		// List of BMC Actions to perform
 		powerCmds = []interface{}{
-			api.Power{
-				PowerAction: api.PowerOff,
-			},
 			api.BMCBoot{
 				Device: api.BootPxe,
 			},
 			api.Power{
-				PowerAction: api.PowerOn,
+				PowerAction: api.PowerCycle,
 			},
 		}
 	} else {
