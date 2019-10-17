@@ -162,6 +162,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_image":                resourceForemanImage(),
 			"foreman_environment":          resourceForemanEnvironment(),
 			"foreman_parameter":            resourceForemanParameter(),
+			"foreman_global_parameter":     resourceForemanCommonParameter(),
 			"foreman_defaulttemplate":      resourceForemanDefaultTemplate(),
 		},
 
@@ -182,6 +183,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_computeresource":      dataSourceForemanComputeResource(),
 			"foreman_image":                dataSourceForemanImage(),
 			"foreman_parameter":            dataSourceForemanParameter(),
+			"foreman_global_parameter":     dataSourceForemanCommonParameter(),
 			"foreman_defaulttemplate":      dataSourceForemanDefaultTemplate(),
 		},
 		ConfigureFunc: providerConfigure,

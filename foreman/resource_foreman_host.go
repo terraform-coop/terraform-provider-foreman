@@ -73,13 +73,12 @@ func resourceForemanHost() *schema.Resource {
 					"Note: Changes to this attribute will trigger a host rebuild.",
 				),
 			},
-			"tags": &schema.Schema{
+			"parameters": &schema.Schema{
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,
 				Description: "A map of parameters that will be saved as host parameters " +
-					"in the machine config. The field name \"tags\" is used to be in-line " +
-					"with other terraform implementations",
+					"in the machine config.",
 			},
 
 			"enable_bmc": &schema.Schema{
@@ -367,11 +366,13 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("compute_profile_id"); ok {
 		host.ComputeProfileId = attr.(int)
 	}
-	if attr, ok = d.GetOk("tags"); ok {
-		hostTags := d.Get("tags").(map[string]interface{})
-		host.HostParameter = make(map[string]string)
+	if attr, ok = d.GetOk("parameters"); ok {
+		hostTags := d.Get("parameters").(map[string]interface{})
 		for key, value := range hostTags {
-			host.HostParameter[key] = value.(string)
+			host.HostParameters = append(host.HostParameters, api.ForemanHostParameter{
+				Name:  key,
+				Value: value.(string),
+			})
 		}
 	}
 
@@ -526,7 +527,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
-	d.Set("tags", fh.HostParameter)
+	d.Set("parameters", fh.HostParameters)
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("hostgroup_id", fh.HostgroupId)
@@ -539,7 +540,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	// In partial mode, flag keys below as completed successfully
 	d.SetPartial("name")
 	d.SetPartial("comment")
-	d.SetPartial("tags")
+	d.SetPartial("parameters")
 	d.SetPartial("domain_id")
 	d.SetPartial("environment_id")
 	d.SetPartial("hostgroup_id")
@@ -765,7 +766,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Otherwise, a detected update caused by a unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
 		d.HasChange("comment") ||
-		d.HasChange("tags") ||
+		d.HasChange("parameters") ||
 		d.HasChange("domain_id") ||
 		d.HasChange("environment_id") ||
 		d.HasChange("hostgroup_id") ||

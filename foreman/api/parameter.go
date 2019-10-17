@@ -60,6 +60,34 @@ func (fp *ForemanParameter) apiEndpoint() (string, int) {
 	return "", -1
 }
 
+func (fp *ForemanParameter) UnmarshalJSON(b []byte) error {
+	var jsonDecErr error
+
+	// Unmarshal the common Foreman object properties
+	var fo ForemanObject
+	jsonDecErr = json.Unmarshal(b, &fo)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+	fp.ForemanObject = fo
+
+	var fpMap map[string]interface{}
+	jsonDecErr = json.Unmarshal(b, &fpMap)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+
+	var ok bool
+	if fp.Parameter.Name, ok = fpMap["name"].(string); !ok {
+		fp.Parameter.Name = ""
+	}
+	if fp.Parameter.Value, ok = fpMap["value"].(string); !ok {
+		fp.Parameter.Value = ""
+	}
+
+	return nil
+}
+
 // -----------------------------------------------------------------------------
 // CRUD Implementation
 // -----------------------------------------------------------------------------
@@ -76,7 +104,7 @@ func (c *Client) CreateParameter(d *ForemanParameter) (*ForemanParameter, error)
 
 	// All parameters are send individually. Yeay for that
 	var createdParameter ForemanParameter
-	parameterJSONBytes, jsonEncErr := WrapJson("parameter", d)
+	parameterJSONBytes, jsonEncErr := json.Marshal(d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -141,7 +169,7 @@ func (c *Client) UpdateParameter(d *ForemanParameter, id int) (*ForemanParameter
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
 
-	parameterJSONBytes, jsonEncErr := WrapJson("parameter", d)
+	parameterJSONBytes, jsonEncErr := json.Marshal(d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

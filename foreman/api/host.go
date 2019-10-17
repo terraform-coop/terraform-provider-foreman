@@ -70,9 +70,19 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameter     map[string]string `json:"host_parameters_attributes"`
-	ComputeResourceId int               `json:"compute_resource_id,omitempty"`
-	ComputeProfileId  int               `json:"compute_profile_id,omitempty"`
+	HostParameters    []ForemanHostParameter `json:"host_parameters_attributes"`
+	ComputeResourceId int                    `json:"compute_resource_id,omitempty"`
+	ComputeProfileId  int                    `json:"compute_profile_id,omitempty"`
+}
+
+// Supplied Host Parameters
+type ForemanHostParameter struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type foremanHostParameterJSON struct {
+	HostParameters []ForemanHostParameter `json:"host_parameters_attributes"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -142,7 +152,6 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 
 	fhMap["name"] = fh.Name
 	fhMap["comment"] = fh.Comment
-	fhMap["tags"] = fh.HostParameter
 	fhMap["build"] = fh.Build
 	fhMap["provision_method"] = fh.Method
 	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
@@ -155,6 +164,9 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
 	if len(fh.InterfacesAttributes) > 0 {
 		fhMap["interfaces_attributes"] = fh.InterfacesAttributes
+	}
+	if len(fh.HostParameters) > 0 {
+		fhMap["host_parameters_attributes"] = fh.HostParameters
 	}
 	log.Debugf("fhMap: [%+v]", fhMap)
 
@@ -183,6 +195,13 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	}
 	fh.InterfacesAttributes = fhJSON.InterfacesAttributes
 
+	var fhParameterJSON foremanHostParameterJSON
+	jsonDecErr = json.Unmarshal(b, &fhParameterJSON)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+	fh.HostParameters = fhParameterJSON.HostParameters
+
 	// Unmarshal into mapstructure and set the rest of the struct properties
 	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing
 	// Without this, properties will define as default values in state file.
@@ -201,9 +220,6 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	}
 	if fh.Comment, ok = fhMap["comment"].(string); !ok {
 		fh.Comment = ""
-	}
-	if fh.HostParameter, ok = fhMap["host_parameters_attributes"].(map[string]string); !ok {
-		fh.HostParameter = map[string]string{}
 	}
 	if _, ok = fhMap["domain_id"].(float64); !ok {
 		fh.DomainId = 0
