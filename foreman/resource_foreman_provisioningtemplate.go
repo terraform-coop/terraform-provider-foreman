@@ -89,13 +89,9 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 			"operatingsystem_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
-				},
-				DiffSuppressFunc: func(k, old, neu string, d *schema.ResourceData) bool {
-					log.Tracef("DiffSuppressFunc[1]: %s;%s;%s", k, old, neu)
-					log.Tracef("DiffSuppressFunc[2]: %+v", d.Get("operatingsystem_ids"))
-					return false
 				},
 				Description: "IDs of the operating systems associated with this " +
 					"provisioning template.",
@@ -104,6 +100,7 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 			"template_combinations_attributes": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem:     resourceForemanTemplateCombinationsAttributes(),
 				Set:      schema.HashResource(resourceForemanTemplateCombinationsAttributes()),
 				Description: "How templates are determined:\n\n" +
