@@ -129,6 +129,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 			"provisioning_templates": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
@@ -156,6 +157,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 			"partitiontables": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				MinItems: 1,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,

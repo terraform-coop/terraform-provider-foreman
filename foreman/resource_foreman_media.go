@@ -92,6 +92,7 @@ func resourceForemanMedia() *schema.Resource {
 			"operatingsystem_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
