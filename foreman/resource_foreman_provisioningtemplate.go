@@ -100,7 +100,6 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 			"template_combinations_attributes": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem:     resourceForemanTemplateCombinationsAttributes(),
 				Set:      schema.HashResource(resourceForemanTemplateCombinationsAttributes()),
 				Description: "How templates are determined:\n\n" +
@@ -137,12 +136,14 @@ func resourceForemanTemplateCombinationsAttributes() *schema.Resource {
 			},
 			"hostgroup_id": &schema.Schema{
 				Type:         schema.TypeInt,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The hostgroup ID for this template combination.",
 			},
 			"environment_id": &schema.Schema{
 				Type:         schema.TypeInt,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The environment ID for this template combination.",
