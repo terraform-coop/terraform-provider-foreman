@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/wayfair/terraform-provider-utils/log"
 )
@@ -51,6 +52,8 @@ type ForemanHost struct {
 	Method string `json:"provision_method"`
 	// ID of the domain to assign the host
 	DomainId int `json:"domain_id"`
+	// Name of the Domain. To substract from the Machine name
+	DomainName string `json:"domain_name"`
 	// ID of the environment to assign the host
 	EnvironmentId int `json:"environment_id"`
 	// ID of the hostgroup to assign the host
@@ -226,6 +229,11 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	} else {
 		fh.DomainId = int(fhMap["domain_id"].(float64))
 	}
+	if _, ok = fhMap["domain_name"].(string); !ok {
+		fh.DomainName = ""
+	} else {
+		fh.DomainName = fhMap["domain_name"].(string)
+	}
 	if _, ok = fhMap["environment_id"].(float64); !ok {
 		fh.EnvironmentId = 0
 	} else {
@@ -255,6 +263,11 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 		fh.ComputeProfileId = 0
 	} else {
 		fh.ComputeProfileId = int(fhMap["compute_profile_id"].(float64))
+	}
+
+	// Foreman returns FQDN as Name but doesnt accept it as Name in return. Great times
+	if fh.DomainName != "" && strings.Contains(fh.ForemanObject.Name, fh.DomainName) {
+		fh.ForemanObject.Name = strings.Replace(fh.ForemanObject.Name, "."+fh.DomainName, "", 1)
 	}
 
 	return nil
