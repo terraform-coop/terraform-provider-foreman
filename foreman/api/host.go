@@ -293,7 +293,7 @@ func (c *Client) SendPowerCommand(h *ForemanHost, cmd interface{}, retryCount in
 		return fmt.Errorf("Invalid Operation: [%v]", v)
 	}
 
-	reqHost := fmt.Sprintf("/%s/%s/%s", HostEndpointPrefix, h.Name, suffix)
+	reqHost := fmt.Sprintf("/%s/%d/%s", HostEndpointPrefix, h.Id, suffix)
 
 	JSONBytes, jsonEncErr := json.Marshal(cmd)
 	if jsonEncErr != nil {
