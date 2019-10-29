@@ -113,6 +113,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 			"operatingsystem_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
@@ -122,6 +123,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 			"hostgroup_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
@@ -131,6 +133,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 			"host_ids": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
+				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
