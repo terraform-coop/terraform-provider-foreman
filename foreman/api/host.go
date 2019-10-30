@@ -73,9 +73,11 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameters    []ForemanHostParameter `json:"host_parameters_attributes"`
-	ComputeResourceId int                    `json:"compute_resource_id,omitempty"`
-	ComputeProfileId  int                    `json:"compute_profile_id,omitempty"`
+	HostParameters []ForemanHostParameter
+	// ComputeResourceId specifies the Hypervisor to deploy on
+	ComputeResourceId int `json:"compute_resource_id,omitempty"`
+	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
+	ComputeProfileId int `json:"compute_profile_id,omitempty"`
 }
 
 // Supplied Host Parameters
@@ -105,9 +107,10 @@ type ForemanInterfacesAttribute struct {
 	Type       string `json:"type"`
 	Provider   string `json:"provider"`
 
+	AttachedDevices string `json:"attached_devices,omitempty"`
+	AttachedTo      string `json:"attached_to,omitempty"`
+
 	// NOTE(ALL): These settings only apply to virtual machines
-	AttachedTo      string   `json:"attached_to,omitempty"`
-	AttachedDevices []string `json:"attached_devices,omitempty"`
 	// ComputeAttributes are hypervisor specific features
 	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
 
