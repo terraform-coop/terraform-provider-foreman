@@ -251,7 +251,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 	}
 
 	if attr, ok = d.GetOk("medium_id"); ok {
-		hostgroup.MediaId = attr.(int)
+		hostgroup.MediumId = attr.(int)
 	}
 
 	if attr, ok = d.GetOk("operatingsystem_id"); ok {
@@ -308,7 +308,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
-	d.Set("medium_id", fh.MediaId)
+	d.Set("medium_id", fh.MediumId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
 	d.Set("parent_id", fh.ParentId)
 	d.Set("ptable_id", fh.PartitionTableId)

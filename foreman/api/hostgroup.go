@@ -45,7 +45,7 @@ type ForemanHostgroup struct {
 	// ID of the environment associated with this hostgroup
 	EnvironmentId int `json:"environment_id"`
 	// ID of the media associated with this hostgroup
-	MediaId int `json:"medium_id"`
+	MediumId int `json:"medium_id"`
 	// ID of the operating system associated with this hostgroup
 	OperatingSystemId int `json:"operatingsystem_id"`
 	// ID of this hostgroup's parent hostgroup
@@ -96,7 +96,7 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
 	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
 	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
-	fhMap["medium_id"] = intIdToJSONString(fh.MediaId)
+	fhMap["medium_id"] = intIdToJSONString(fh.MediumId)
 	fhMap["operatingsystem_id"] = intIdToJSONString(fh.OperatingSystemId)
 	fhMap["parent_id"] = intIdToJSONString(fh.ParentId)
 	fhMap["ptable_id"] = intIdToJSONString(fh.PartitionTableId)
@@ -145,66 +145,20 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 	if fh.PXELoader, ok = fhMap["pxe_loader"].(string); !ok {
 		fh.PXELoader = ""
 	}
-	if _, ok = fhMap["architecture_id"].(float64); !ok {
-		fh.ArchitectureId = 0
-	} else {
-		fh.ArchitectureId = int(fhMap["architecture_id"].(float64))
-	}
-	if _, ok = fhMap["compute_profile_id"].(float64); !ok {
-		fh.ComputeProfileId = 0
-	} else {
-		fh.ComputeProfileId = int(fhMap["compute_profile_id"].(float64))
-	}
-	if _, ok = fhMap["domain_id"].(float64); !ok {
-		fh.DomainId = 0
-	} else {
-		fh.DomainId = int(fhMap["domain_id"].(float64))
-	}
-	if _, ok = fhMap["environment_id"].(float64); !ok {
-		fh.EnvironmentId = 0
-	} else {
-		fh.EnvironmentId = int(fhMap["environment_id"].(float64))
-	}
-	if _, ok = fhMap["medium_id"].(float64); !ok {
-		fh.MediaId = 0
-	} else {
-		fh.MediaId = int(fhMap["medium_id"].(float64))
-	}
-	if _, ok = fhMap["operatingsystem_id"].(float64); !ok {
-		fh.OperatingSystemId = 0
-	} else {
-		fh.OperatingSystemId = int(fhMap["operatingsystem_id"].(float64))
-	}
-	if _, ok = fhMap["parent_id"].(float64); !ok {
-		fh.ParentId = 0
-	} else {
-		fh.ParentId = int(fhMap["parent_id"].(float64))
-	}
-	if _, ok = fhMap["ptable_id"].(float64); !ok {
-		fh.PartitionTableId = 0
-	} else {
-		fh.PartitionTableId = int(fhMap["ptable_id"].(float64))
-	}
-	if _, ok = fhMap["puppet_ca_proxy_id"].(float64); !ok {
-		fh.PuppetCAProxyId = 0
-	} else {
-		fh.PuppetCAProxyId = int(fhMap["puppet_ca_proxy_id"].(float64))
-	}
-	if _, ok = fhMap["puppet_proxy_id"].(float64); !ok {
-		fh.PuppetProxyId = 0
-	} else {
-		fh.PuppetProxyId = int(fhMap["puppet_proxy_id"].(float64))
-	}
-	if _, ok = fhMap["realm_id"].(float64); !ok {
-		fh.RealmId = 0
-	} else {
-		fh.RealmId = int(fhMap["realm_id"].(float64))
-	}
-	if _, ok = fhMap["subnet_id"].(float64); !ok {
-		fh.SubnetId = 0
-	} else {
-		fh.SubnetId = int(fhMap["subnet_id"].(float64))
-	}
+
+	// Unmarshal the remaining foreign keys to their id
+	fh.ArchitectureId = unmarshalInteger(fhMap["architecture_id"])
+	fh.ComputeProfileId = unmarshalInteger(fhMap["compute_profile_id"])
+	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
+	fh.EnvironmentId = unmarshalInteger(fhMap["environment_id"])
+	fh.MediumId = unmarshalInteger(fhMap["medium_id"])
+	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
+	fh.ParentId = unmarshalInteger(fhMap["parent_id"])
+	fh.PartitionTableId = unmarshalInteger(fhMap["ptable_id"])
+	fh.PuppetCAProxyId = unmarshalInteger(fhMap["puppet_ca_proxy_id"])
+	fh.PuppetProxyId = unmarshalInteger(fhMap["puppet_proxy_id"])
+	fh.RealmId = unmarshalInteger(fhMap["realm_id"])
+	fh.SubnetId = unmarshalInteger(fhMap["subnet_id"])
 
 	return nil
 }

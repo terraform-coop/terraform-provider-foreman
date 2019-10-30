@@ -227,46 +227,18 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	if fh.Comment, ok = fhMap["comment"].(string); !ok {
 		fh.Comment = ""
 	}
-	if _, ok = fhMap["domain_id"].(float64); !ok {
-		fh.DomainId = 0
-	} else {
-		fh.DomainId = int(fhMap["domain_id"].(float64))
-	}
-	if _, ok = fhMap["domain_name"].(string); !ok {
+	if fh.DomainName, ok = fhMap["domain_name"].(string); !ok {
 		fh.DomainName = ""
-	} else {
-		fh.DomainName = fhMap["domain_name"].(string)
-	}
-	if _, ok = fhMap["environment_id"].(float64); !ok {
-		fh.EnvironmentId = 0
-	} else {
-		fh.EnvironmentId = int(fhMap["environment_id"].(float64))
-	}
-	if _, ok = fhMap["hostgroup_id"].(float64); !ok {
-		fh.HostgroupId = 0
-	} else {
-		fh.HostgroupId = int(fhMap["hostgroup_id"].(float64))
-	}
-	if _, ok = fhMap["operatingsystem_id"].(float64); !ok {
-		fh.OperatingSystemId = 0
-	} else {
-		fh.OperatingSystemId = int(fhMap["operatingsystem_id"].(float64))
-	}
-	if _, ok = fhMap["medium_id"].(float64); !ok {
-		fh.MediumId = 0
-	} else {
-		fh.MediumId = int(fhMap["medium_id"].(float64))
-	}
-	if _, ok = fhMap["compute_resource_id"].(float64); !ok {
-		fh.ComputeResourceId = 0
-	} else {
-		fh.ComputeResourceId = int(fhMap["compute_resource_id"].(float64))
-	}
-	if _, ok = fhMap["compute_profile_id"].(float64); !ok {
-		fh.ComputeProfileId = 0
-	} else {
-		fh.ComputeProfileId = int(fhMap["compute_profile_id"].(float64))
-	}
+	} 
+
+	// Unmarshal the remaining foreign keys to their id
+	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
+	fh.EnvironmentId = unmarshalInteger(fhMap["environment_id"])
+	fh.HostgroupId = unmarshalInteger(fhMap["hostgroup_id"])
+	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
+	fh.MediumId = unmarshalInteger(fhMap["medium_id"])
+	fh.ComputeResourceId = unmarshalInteger(fhMap["compute_resource_id"])
+	fh.ComputeProfileId = unmarshalInteger(fhMap["compute_profile_id"])
 
 	// Foreman returns FQDN as Name but doesnt accept it as Name in return. Great times
 	if fh.DomainName != "" && strings.Contains(fh.ForemanObject.Name, fh.DomainName) {
