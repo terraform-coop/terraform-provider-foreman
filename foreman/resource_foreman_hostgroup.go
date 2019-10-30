@@ -69,6 +69,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"pxe_loader": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
+				Computed: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"None",
 					"PXELinux BIOS",
@@ -92,12 +93,20 @@ func resourceForemanHostgroup() *schema.Resource {
 					"\"iPXE Embedded\", \"iPXE UEFI HTTP\", \"iPXE Chain BIOS\", " +
 					"\"iPXE Chain UEFI\"",
 			},
+			"parameters": &schema.Schema{
+				Type:     schema.TypeMap,
+				ForceNew: false,
+				Optional: true,
+				Description: "A map of parameters that will be saved as hostgroup parameters " +
+					"in the group config.",
+			},
 
 			// -- Foreign Key Relationships --
 
 			"architecture_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the architecture associated with this hostgroup.",
 			},
@@ -105,6 +114,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"compute_profile_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the compute profile associated with this hostgroup.",
 			},
@@ -112,6 +122,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"domain_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the domain associated with this hostgroup.",
 			},
@@ -119,6 +130,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"environment_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment associated with this hostgroup.",
 			},
@@ -126,6 +138,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"medium_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the media associated with this hostgroup.",
 			},
@@ -133,6 +146,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"operatingsystem_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the operating system associated with this hostgroup.",
 			},
@@ -147,6 +161,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"ptable_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the partition table associated with this hostgroup.",
 			},
@@ -172,6 +187,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"realm_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the realm associated with this hostgroup.",
 			},
@@ -179,6 +195,7 @@ func resourceForemanHostgroup() *schema.Resource {
 			"subnet_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the subnet associated with the hostgroup.",
 			},
@@ -264,6 +281,15 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 	if attr, ok = d.GetOk("subnet_id"); ok {
 		hostgroup.SubnetId = attr.(int)
 	}
+	if attr, ok = d.GetOk("parameters"); ok {
+		hostTags := d.Get("parameters").(map[string]interface{})
+		for key, value := range hostTags {
+			hostgroup.HostGroupParameters = append(hostgroup.HostGroupParameters, api.ForemanHostGroupParameter{
+				Name:  key,
+				Value: value.(string),
+			})
+		}
+	}
 
 	return &hostgroup
 }
@@ -277,6 +303,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("title", fh.Title)
 	d.Set("name", fh.Name)
 	d.Set("pxe_loader", fh.PXELoader)
+	d.Set("parameters", fh.HostGroupParameters)
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("domain_id", fh.DomainId)

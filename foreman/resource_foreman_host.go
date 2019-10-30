@@ -270,14 +270,10 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 				Description: "Identifier of the interface to which this interface belongs.",
 			},
 			"attached_devices": &schema.Schema{
-				Type:     schema.TypeList,
-				ForceNew: true,
-				Optional: true,
-				MinItems: 1,
-				Elem: &schema.Schema{
-					Type: schema.TypeString,
-				},
-				Description: "Identifiers of attached interfaces, e.g. 'eth1', 'eth2'.",
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    true,
+				Description: "Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list",
 			},
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
@@ -506,12 +502,12 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 		tempIntAttr.Provider = ""
 	}
 
-	if tempIntAttr.AttachedTo, ok = m["attached"].(string); !ok {
+	if tempIntAttr.AttachedTo, ok = m["attached_to"].(string); !ok {
 		tempIntAttr.AttachedTo = ""
 	}
 
-	if tempIntAttr.AttachedDevices, ok = m["attached_devices"].([]string); !ok {
-		tempIntAttr.AttachedDevices = nil
+	if tempIntAttr.AttachedDevices, ok = m["attached_devices"].(string); !ok {
+		tempIntAttr.AttachedDevices = ""
 	}
 
 	if tempIntAttr.ComputeAttributes, ok = m["compute_attributes"].(map[string]interface{}); !ok {
@@ -594,9 +590,10 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 			"username":     val.Username,
 			"password":     val.Password,
 
+			"attached_devices": val.AttachedDevices,
+			"attached_to":      val.AttachedTo,
+
 			// NOTE(ALL): These settings only apply to virtual machines
-			"attached_to":        val.AttachedTo,
-			"attached_dev":       val.AttachedDevices,
 			"compute_attributes": val.ComputeAttributes,
 		}
 		ifaceArr[idx] = ifaceMap
