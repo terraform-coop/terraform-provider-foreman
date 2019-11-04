@@ -163,6 +163,8 @@ func Provider() terraform.ResourceProvider {
 			"foreman_environment":          resourceForemanEnvironment(),
 			"foreman_parameter":            resourceForemanParameter(),
 			"foreman_global_parameter":     resourceForemanCommonParameter(),
+			"foreman_subnet":               resourceForemanSubnet(),
+			"foreman_domain":               resourceForemanDomain(),
 			"foreman_defaulttemplate":      resourceForemanDefaultTemplate(),
 		},
 
