@@ -284,7 +284,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 	if attr, ok = d.GetOk("parameters"); ok {
 		hostTags := d.Get("parameters").(map[string]interface{})
 		for key, value := range hostTags {
-			hostgroup.HostGroupParameters = append(hostgroup.HostGroupParameters, api.ForemanHostGroupParameter{
+			hostgroup.HostGroupParameters = append(hostgroup.HostGroupParameters, api.ForemanKVParameter{
 				Name:  key,
 				Value: value.(string),
 			})

@@ -58,6 +58,12 @@ type Client struct {
 	httpClient *http.Client
 }
 
+// KVParameters are used in all inline Parameter Maps. i.e. Host, HostGroup
+type ForemanKVParameter struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
 // NewClient creates a new instance of the REST client for communication with
 // the API gateway.
 func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {

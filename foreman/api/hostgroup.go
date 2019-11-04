@@ -66,17 +66,11 @@ type ForemanHostgroup struct {
 	PXELoader string `json:"pxe_loader,omitempty"`
 
 	// Map of HostGroupParameters
-	HostGroupParameters []ForemanHostGroupParameter
-}
-
-// Supplied Host Parameters
-type ForemanHostGroupParameter struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	HostGroupParameters []ForemanKVParameter
 }
 
 type foremanHostGroupParameterJSON struct {
-	HostGroupParameters []ForemanHostGroupParameter `json:"group_parameters_attributes"`
+	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes"`
 }
 
 // Implement the Marshaler interface

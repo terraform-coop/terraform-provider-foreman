@@ -17,13 +17,6 @@ const (
 // Struct Definition and Helpers
 // -----------------------------------------------------------------------------
 
-// ForemanParameterObject describes the actual Parameter that is to do be send
-// to Foreman
-type ForemanParameterObject struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 // The ForemanParameter API model represents the parameter name. Parameters serve as an
 // identification string that defines autonomy, authority, or control for
 // a portion of a network.
@@ -42,7 +35,7 @@ type ForemanParameter struct {
 	OperatingSystemID int `json:"operatingsystem_id,omitempty"`
 	SubnetID          int `json:"subnet_id,omitempty"`
 	// The Parameter we actually send
-	Parameter ForemanParameterObject `json:"parameter"`
+	Parameter ForemanKVParameter `json:"parameter"`
 }
 
 func (fp *ForemanParameter) apiEndpoint() (string, int) {

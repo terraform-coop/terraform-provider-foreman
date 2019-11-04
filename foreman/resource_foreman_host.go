@@ -373,7 +373,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("parameters"); ok {
 		hostTags := d.Get("parameters").(map[string]interface{})
 		for key, value := range hostTags {
-			host.HostParameters = append(host.HostParameters, api.ForemanHostParameter{
+			host.HostParameters = append(host.HostParameters, api.ForemanKVParameter{
 				Name:  key,
 				Value: value.(string),
 			})

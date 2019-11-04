@@ -73,21 +73,15 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameters []ForemanHostParameter
+	HostParameters []ForemanKVParameter
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
 	ComputeProfileId int `json:"compute_profile_id,omitempty"`
 }
 
-// Supplied Host Parameters
-type ForemanHostParameter struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
 type foremanHostParameterJSON struct {
-	HostParameters []ForemanHostParameter `json:"host_parameters_attributes"`
+	HostParameters []ForemanKVParameter `json:"host_parameters_attributes"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -229,7 +223,7 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	}
 	if fh.DomainName, ok = fhMap["domain_name"].(string); !ok {
 		fh.DomainName = ""
-	} 
+	}
 
 	// Unmarshal the remaining foreign keys to their id
 	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
