@@ -10,7 +10,7 @@ repo_url: https://github.com/HanseMerkur/terraform-provider-foreman
 repo_name: terraform-provider-foreman
 #edit_uri:
 #site_description:
-site_author: Wayfair, LLC - SRE - Orchestration Pod
+site_author: HanseMerkur Cloud Platform
 #copyright:
 #google_analytics
 #remote_branch
@@ -41,7 +41,7 @@ nav:
 # ------------------------------------------------------------------------------
 
 theme:
-  name: material
+  name: readthedocs
 docs_dir: {{.DocsDir}}
 site_dir: html
 #extra_css:
