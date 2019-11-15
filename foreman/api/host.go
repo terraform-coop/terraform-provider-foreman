@@ -395,6 +395,9 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
+	// Cannot update interfaces in-place. And causes errors if the object is set
+	h.InterfacesAttributes = nil
+
 	hJSONBytes, jsonEncErr := WrapJson("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
