@@ -22,7 +22,7 @@ func dataSourceForemanImage() *schema.Resource {
 		Required:    true,
 		Description: fmt.Sprintf("The name of the compute resource. %s", autodoc.MetaExample),
 	}
-	ds["compute_ressource_id"] = &schema.Schema{
+	ds["compute_resource_id"] = &schema.Schema{
 		Type:        schema.TypeInt,
 		Required:    true,
 		Description: fmt.Sprintf("The id of the Compute Resource the image is associated with"),
