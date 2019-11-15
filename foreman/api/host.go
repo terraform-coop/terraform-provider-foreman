@@ -64,6 +64,8 @@ type ForemanHost struct {
 	MediumId int `json:"medium_id"`
 	// ID of the image that should be cloned for this host
 	ImageId int `json:"image_id"`
+	// ID of the hardware model
+	ModelId int `json:"model_id"`
 	// Whether or not to Enable BMC Functionality on this host
 	EnableBMC bool
 	// Boolean to track success of BMC Calls
@@ -158,6 +160,7 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["operatingsystem_id"] = intIdToJSONString(fh.OperatingSystemId)
 	fhMap["medium_id"] = intIdToJSONString(fh.MediumId)
 	fhMap["image_id"] = intIdToJSONString(fh.ImageId)
+	fhMap["model_id"] = intIdToJSONString(fh.ModelId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
 	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
 	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
@@ -231,6 +234,8 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	fh.HostgroupId = unmarshalInteger(fhMap["hostgroup_id"])
 	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
 	fh.MediumId = unmarshalInteger(fhMap["medium_id"])
+	fh.ImageId = unmarshalInteger(fhMap["image_id"])
+	fh.ModelId = unmarshalInteger(fhMap["model_id"])
 	fh.ComputeResourceId = unmarshalInteger(fhMap["compute_resource_id"])
 	fh.ComputeProfileId = unmarshalInteger(fhMap["compute_profile_id"])
 

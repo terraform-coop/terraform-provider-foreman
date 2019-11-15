@@ -163,6 +163,13 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of an image to be used as base for this host when cloning",
 			},
+			"model_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the hardware model if applicable",
+			},
 			"compute_resource_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -364,6 +371,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("image_id"); ok {
 		host.ImageId = attr.(int)
 	}
+	if attr, ok = d.GetOk("model_id"); ok {
+		host.ModelId = attr.(int)
+	}
 	if attr, ok = d.GetOk("compute_resource_id"); ok {
 		host.ComputeResourceId = attr.(int)
 	}
@@ -540,6 +550,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
 	d.Set("medium_id", fh.MediumId)
 	d.Set("image_id", fh.ImageId)
+	d.Set("model_id", fh.ImageId)
 
 	// In partial mode, flag keys below as completed successfully
 	d.SetPartial("name")
@@ -553,6 +564,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("operatingsystem_id")
 	d.SetPartial("medium_id")
 	d.SetPartial("image_id")
+	d.SetPartial("model_id")
 	d.SetPartial("enable_bmc")
 
 	setResourceDataFromForemanInterfacesAttributes(d, fh.InterfacesAttributes)
