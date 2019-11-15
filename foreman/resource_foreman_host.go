@@ -550,7 +550,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
 	d.Set("medium_id", fh.MediumId)
 	d.Set("image_id", fh.ImageId)
-	d.Set("model_id", fh.ImageId)
+	d.Set("model_id", fh.ModelId)
 
 	// In partial mode, flag keys below as completed successfully
 	d.SetPartial("name")
