@@ -1,188 +1,188 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/godoc/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_architecture/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_computeprofile/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_computeresource/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_defaulttemplate/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_domain/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_environment/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_global_parameter/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_hostgroup/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_image/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_media/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_model/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_operatingsystem/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_parameter/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_partitiontable/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_provisioningtemplate/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_smartproxy/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_subnet/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/datasources/foreman_templatekind/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_architecture/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_computeresource/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_defaulttemplate/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_domain/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_environment/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_global_parameter/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_host/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_hostgroup/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_image/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_media/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_model/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_operatingsystem/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_parameter/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_partitiontable/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_provisioningtemplate/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_smartproxy/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc></loc>
-     
+     <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_subnet/</loc>
+     <lastmod>2019-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
