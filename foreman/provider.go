@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
-	logger "github.com/wayfair/terraform-provider-utils/log"
+	logger "github.com/HanseMerkur/terraform-provider-utils/log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/wayfair/terraform-provider-utils/log"
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (

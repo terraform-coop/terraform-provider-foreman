@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
-	"github.com/wayfair/terraform-provider-utils/autodoc"
-	"github.com/wayfair/terraform-provider-utils/log"
+	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/helper/validation"

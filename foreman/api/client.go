@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/wayfair/terraform-provider-utils/log"
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 )

@@ -2,7 +2,7 @@ package foreman
 
 import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
-	"github.com/wayfair/terraform-provider-utils/log"
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 // Config struct defines the necessary information needed to configure the

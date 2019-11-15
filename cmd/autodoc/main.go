@@ -3,7 +3,7 @@
 // style documentation for the Terraform provider.
 //
 // For more information on the autodoc tool, its arguments, etc see:
-// pkg/github.com/wayfair/terraform-provider-utils/autodoc
+// pkg/github.com/HanseMerkur/terraform-provider-utils/autodoc
 package main
 
 import (
@@ -11,7 +11,7 @@ import (
 	"os"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman"
-	"github.com/wayfair/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 
 	"github.com/hashicorp/terraform/helper/schema"
 )
