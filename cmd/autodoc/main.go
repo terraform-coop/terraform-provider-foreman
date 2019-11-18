@@ -13,7 +13,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 func main() {

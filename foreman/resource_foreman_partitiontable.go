@@ -9,8 +9,8 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceForemanPartitionTable() *schema.Resource {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 
-	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
 // buildForemanObject constructs a base ForemanObject reference from a

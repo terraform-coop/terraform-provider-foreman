@@ -8,9 +8,9 @@ import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	logger "github.com/HanseMerkur/terraform-provider-utils/log"
 
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/hashicorp/terraform/helper/validation"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 // Environment variables the provider recognizes for configuration

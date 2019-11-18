@@ -66,7 +66,7 @@ func foremanObjectArrayToIdIntArray(foa []ForemanObject) []int {
 	return intArr
 }
 
-// unmarshalInteger is used to grab a clean copy of the integer from the 
+// unmarshalInteger is used to grab a clean copy of the integer from the
 // interface{} inside the JSON map. For some reason a simple integer conversion
 // does not do the trick here.
 // TODO: Investigate the reason for this issue
