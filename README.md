@@ -23,10 +23,8 @@ and have the ipmitool installed.
 
 ## Requirements:
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 0.10.x
-- [Golang](https://golang.org/doc/install) >= 1.8
-- [Dep](https://golang.github.io/dep/docs/installation.html) >= 0.4.1
-- [GNU Make](https://www.gnu.org/software/make/) >= 4.2.1
+- [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
+- [Golang](https://golang.org/doc/install) >= 1.13
 
 Follow the setup instructions provided on the install sections of their
 respective websites. Windows environments should have a \*nix-style terminal
@@ -41,22 +39,14 @@ section:
 1. Clone the repository with `ssh`:
 
     ```sh
-    $ mkdir -p "${GOPATH}/src/github.com/wayfair"
-    $ cd "${GOPATH}/src/github.com/wayfair"
-    $ git clone git@github.com:HanseMerkur/terraform-provider-foreman.git
+    $ go get -u github.com:HanseMerkur/terraform-provider-foreman
     ```
 
 2. Enter the root directory of the project and install the provider:
 
     ```sh
-    $ cd "${GOPATH}/src/github.com/HanseMerkur/terraform-provider-foreman"
-    $ make
-    $ make install
+    $ go build
     ```
-
-    The default target, `build`, will run a codebase vet/lint check and compile
-    the binary. The `install` target will then move the binary to the Terraform
-    plugins directory.
 
     **NOTE:** See the Third-party Plugins section on Terraform's website over
     [here](https://www.terraform.io/docs/configuration/providers.html#third-party-plugins)
@@ -75,7 +65,7 @@ section:
     installed as part of the Requirements.
 
     ```
-    Terraform v0.11.3
+    Terraform v0.12.15
     + provider.foreman (unversioned)
     ```
 
