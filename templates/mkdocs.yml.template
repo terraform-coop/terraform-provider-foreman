@@ -22,7 +22,6 @@ site_author: HanseMerkur Cloud Platform
 
 nav:
   - Home: 'index.md'
-  - Godoc: 'godoc.md'
 {{- if ne (len .DataSources) 0 }}
   - Data Sources:
   {{- range .DataSources }}
@@ -44,15 +43,6 @@ theme:
   name: readthedocs
 docs_dir: {{.DocsDir}}
 site_dir: html
-#extra_css:
-#  - 'godoc/lib/godoc/jquery.treeview.css'
-#  - 'godoc/lib/godoc/style.css'
-#extra_javascript:
-#  - 'godoc/lib/godoc/godocs.js'
-#  - 'godoc/lib/godoc/jquery.js'
-#  - 'godoc/lib/godoc/jquery.treeview.edit.js'
-#  - 'godoc/lib/godoc/jquery.treeview.js'
-#extra_templates
 extra:
   repo_icon: github
 
