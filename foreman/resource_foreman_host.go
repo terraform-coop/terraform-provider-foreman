@@ -94,7 +94,7 @@ func resourceForemanHost() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      2,
-				Description:  "Number of times to retry on a failed attempt to register a new host in foreman.",
+				Description:  "Number of times to retry on a failed attempt to register or delete a host in foreman.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 
@@ -885,5 +885,20 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteHost(h.Id)
+	returnDelete := client.DeleteHost(h.Id)
+	if returnDelete != nil {
+		return returnDelete
+	}
+	retry := 0
+	for retry < hostRetryCount {
+		log.Debugf("ForemanHostDelete: Waiting for deletion #[%d]", retry)
+		_, deleting := client.ReadHost(h.Id)
+		if deleting == nil {
+			retry++
+			time.Sleep(2 * time.Second)
+		} else {
+			return nil
+		}
+	}
+	return fmt.Errorf("Failed to delete host in retry_count* 2 seconds")
 }
