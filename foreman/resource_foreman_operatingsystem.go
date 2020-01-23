@@ -164,6 +164,13 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				},
 				Description: "Identifiers of attached partition tables",
 			},
+			"parameters": &schema.Schema{
+				Type:     schema.TypeMap,
+				ForceNew: false,
+				Optional: true,
+				Description: "A map of parameters that will be saved as operating system parameters " +
+					"in the os config.",
+			},
 		},
 	}
 }
@@ -224,6 +231,15 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 		attrSet := attr.(*schema.Set)
 		os.PartitiontableIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
+	if attr, ok = d.GetOk("parameters"); ok {
+		hostTags := d.Get("parameters").(map[string]interface{})
+		for key, value := range hostTags {
+			os.OperatingSystemParameters = append(os.OperatingSystemParameters, api.ForemanKVParameter{
+				Name:  key,
+				Value: value.(string),
+			})
+		}
+	}
 
 	return &os
 }
@@ -246,6 +262,7 @@ func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.F
 	d.Set("media", fo.MediumIds)
 	d.Set("architectures", fo.ArchitectureIds)
 	d.Set("partitiontables", fo.PartitiontableIds)
+	d.Set("parameters", fo.OperatingSystemParameters)
 }
 
 // -----------------------------------------------------------------------------
