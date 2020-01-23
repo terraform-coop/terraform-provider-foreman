@@ -274,18 +274,17 @@ repetitive tasks, quickly deploy applications, and proactively manage servers,
 on-premise or in the cloud.</p>
 </blockquote>
 <h2 id="configuring-the-provider">Configuring the Provider<a class="headerlink" href="#configuring-the-provider" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span><span class="n">provider</span> <span class="ss">&quot;foreman&quot;</span> <span class="err">{</span>
-  <span class="n">provider_loglevel</span> <span class="o">=</span> <span class="ss">&quot;INFO&quot;</span>
-  <span class="n">provider_logfile</span> <span class="o">=</span> <span class="ss">&quot;terraform-provider-foreman.log&quot;</span>
+<pre class="codehilite"><code>provider &quot;foreman&quot; {
+  provider_loglevel = &quot;INFO&quot;
+  provider_logfile = &quot;terraform-provider-foreman.log&quot;
 
-  <span class="n">client_username</span> <span class="o">=</span> <span class="ss">&quot;admin&quot;</span>
-  <span class="n">client_password</span> <span class="o">=</span> <span class="ss">&quot;changeme&quot;</span>
-  <span class="n">client_tls_insecure</span> <span class="o">=</span> <span class="ss">&quot;true&quot;</span>
+  client_username = &quot;admin&quot;
+  client_password = &quot;changeme&quot;
+  client_tls_insecure = &quot;true&quot;
 
-  <span class="n">server_hostname</span> <span class="o">=</span> <span class="ss">&quot;127.0.0.1&quot;</span>
-  <span class="n">server_protocol</span> <span class="o">=</span> <span class="ss">&quot;https&quot;</span>
-<span class="err">}</span>
-</pre></div>
+  server_hostname = &quot;127.0.0.1&quot;
+  server_protocol = &quot;https&quot;
+}</code></pre>
 
 
 <h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
@@ -299,12 +298,11 @@ correspond to options in the provider schema definition:</p>
 <li><code>FOREMAN_CLIENT_PASSWORD</code></li>
 </ul>
 <p>Example Usage:</p>
-<div class="codehilite"><pre><span></span><span class="err">$&gt; export FOREMAN_PROVIDER_LOGLEVEL=&#39;INFO&#39;</span>
-<span class="err">$&gt; export FOREMAN_PROVIDER_LOGFILE=&#39;-&#39;</span>
-<span class="err">$&gt; export FOREMAN_CLIENT_USERNAME=&#39;admin&#39;</span>
-<span class="err">$&gt; export FOREMAN_CLIENT_PASSWORD=&#39;changeme&#39;</span>
-<span class="err">$&gt; terraform init &amp;&amp; terraform plan</span>
-</pre></div>
+<pre class="codehilite"><code>$&gt; export FOREMAN_PROVIDER_LOGLEVEL='INFO'
+$&gt; export FOREMAN_PROVIDER_LOGFILE='-'
+$&gt; export FOREMAN_CLIENT_USERNAME='admin'
+$&gt; export FOREMAN_CLIENT_PASSWORD='changeme'
+$&gt; terraform init &amp;&amp; terraform plan</code></pre>
 
 
 <h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
@@ -366,5 +364,5 @@ correspond to options in the provider schema definition:</p>
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2020-01-23 15:40:29
+Build Date UTC : 2020-01-23 16:56:02
 -->
