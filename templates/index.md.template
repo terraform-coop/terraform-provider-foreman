@@ -5,8 +5,9 @@
 The Foreman provider is used to interact with the many resources supported by
 Foreman through the Foreman REST API.
 
-This project is developed, owned, and maintained by the SRE - Orchestration
-pod at Wayfair.
+This project way previously developed, owned, and maintained by the SRE -
+Orchestration pod at Wayfair. Current development is happening at
+[Github](https://github.com/HanseMerkur/terraform-provider-foreman)
 
 ## What is Foreman?
 

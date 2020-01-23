@@ -6,12 +6,12 @@ This project is a component of Project Argo.
 
 ## Project Info
 
-This project is developed, owned, and maintained by the SRE - Orchestration
-pod at Wayfair.
+This is a fork of the project previously developed, owned, and maintained by
+the SRE - Orchestration pod at Wayfair.
 
-This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation
-and [`dep`](https://golang.github.io/dep/) for dependency management.
-Dependencies are tracked as part of the repository.
+This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation and
+Go modules for dependency management.  Dependencies are tracked as part of the
+repository.
 
 ## Foreman Requirements:
 
@@ -20,6 +20,10 @@ Dependencies are tracked as part of the repository.
 
 Foreman Smart proxies will need to be provisioned with the Foreman BMC plugin
 and have the ipmitool installed.
+
+Currently supported Foreman versions are all >= 1.16 and <= 1.20. Above 1.20
+the API was changed with some new required parameters which are not yet
+implemented in the provider.
 
 ## Requirements:
 
@@ -80,18 +84,12 @@ section:
     binary is located at `terraform.d/plugins/windows_amd64/terraform-provider-foreman.exe`
     and then try step 3 again.
 
-## Documentation
+## [Documentation](https://hansemerkur.github.io/terraform-provider-foreman/)
 
 This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation.
-Repository documentation can be found in the `doc` directory. Follow the
-installation instructions on [`mkdocs`](https://www.mkdocs.org/#installation)
-to get started.
-
-The `Makefile` exposes a `godoc` target which can be used to generate and save
-the project's Godoc to the local filesystem in `docs/godoc`. These pages are
-used by `mkdocs` to generate the full project documentation. The `godoc` target
-only saves the necessary package documentation for this repository and does
-save the entire webroot.
+Follow the installation instructions on
+[`mkdocs`](https://www.mkdocs.org/#installation) to get started or use the
+auto-generated documentation available on the Github Pages for this project.
 
 The `mkdocs` configuration and associated markdown is auto-generated for the
 provider using the `autodoc` package from the utility repository. The
@@ -102,27 +100,9 @@ resources. The `autodoc` command is located in `cmd/autodoc/main.go`.
 To generate and view the entire repository and in-depth provider documentation:
 
 ```
-$> make build-autodoc
-Compiling codebase to build/windows_amd64/autodoc.exe Platform:windows Arch:amd64
-<...output truncated...>
-
-$> make godoc
-Generating godoc to docs/godoc...
-Creating docs/godoc
-godoc PID: [5084]
-Sleeping while godoc initializes...
-Downloading pages...
-<...output truncated...>
-done.
-Killing godoc process [5084]
-
-$> make mkdocs
-Generating mkdocs documentation...
-Creating docs
-Creating docs/datasources
-Creating docs/resources
-<...output truncated...>
-
+$> go build -v -o autodoc $(go list ./cmd/autodoc)
+$> mkdir -p docs/{datasources,resources}
+$> ./autodoc
 $> mkdocs serve
 INFO    -  Building documentation...
 INFO    -  Cleaning site directory
@@ -133,16 +113,6 @@ INFO    -  Cleaning site directory
 
 The documentation can then be viewed by accessing localhost in your favorite
 browser or viewport.
-
-Cleaning up the generated `godoc` and `mkdocs` can be done with the
-`clean-godoc` and `clean-mkdoc` targets.
-
-```
-$> make clean-godoc
-Cleaning godoc files...
-$> make clean-mkdoc
-Cleaning mkdocs file...
-```
 
 ## Logging
 
