@@ -9,6 +9,8 @@
   <meta name="author" content="HanseMerkur Cloud Platform">
   <link rel="shortcut icon" href="../../img/favicon.ico">
   <title>foreman_hostgroup - Terraform Provider Foreman</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
@@ -266,9 +268,9 @@
 <h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
 <p>Hostgroups are organized in a tree-like structure and inherit values from their parent hostgroup(s). When hosts get associated with a hostgroup, it will inherit attributes from the hostgroup. This allows for easy, shared configuration of various hosts based on common attributes.</p>
 <h2 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span>data &quot;foreman_hostgroup&quot; &quot;example&quot; {
-  title = &quot;BO1/VM/DEVP4&quot;
-}
+<div class="codehilite"><pre><span></span><span class="err">data &quot;foreman_hostgroup&quot; &quot;example&quot; {</span>
+<span class="err">  title = &quot;BO1/VM/DEVP4&quot;</span>
+<span class="err">}</span>
 </pre></div>
 
 

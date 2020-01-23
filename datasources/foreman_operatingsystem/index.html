@@ -9,6 +9,8 @@
   <meta name="author" content="HanseMerkur Cloud Platform">
   <link rel="shortcut icon" href="../../img/favicon.ico">
   <title>foreman_operatingsystem - Terraform Provider Foreman</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
@@ -266,9 +268,9 @@
 <h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
 <p>Foreman representation of an operating system.</p>
 <h2 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span>data &quot;foreman_operatingsystem&quot; &quot;example&quot; {
-  title = &quot;CentOS 7.5&quot;
-}
+<div class="codehilite"><pre><span></span><span class="err">data &quot;foreman_operatingsystem&quot; &quot;example&quot; {</span>
+<span class="err">  title = &quot;CentOS 7.5&quot;</span>
+<span class="err">}</span>
 </pre></div>
 
 
@@ -287,6 +289,7 @@
 <li><code>media</code> - (<code>schema.TypeSet</code> of <code>schema.TypeInt</code>) Identifiers of attached media</li>
 <li><code>minor</code> - (<code>schema.TypeString</code>) Minor release version.</li>
 <li><code>name</code> - (<code>schema.TypeString</code>) Operating system name.</li>
+<li><code>parameters</code> - (<code>schema.TypeMap</code>) A map of parameters that will be saved as operating system parameters in the os config.</li>
 <li><code>partitiontables</code> - (<code>schema.TypeSet</code> of <code>schema.TypeInt</code>) Identifiers of attached partition tables</li>
 <li><code>password_hash</code> - (<code>schema.TypeString</code>) Root password hash function to use. Valid values include: <code>"MD5"</code>, <code>"SHA256"</code>, <code>"SHA512"</code>, <code>"Base64"</code>.</li>
 <li><code>provisioning_templates</code> - (<code>schema.TypeSet</code> of <code>schema.TypeInt</code>) Identifiers of attached provisioning templates</li>

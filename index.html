@@ -9,6 +9,8 @@
   <meta name="author" content="HanseMerkur Cloud Platform">
   <link rel="shortcut icon" href="img/favicon.ico">
   <title>Home - Terraform Provider Foreman</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
   <link rel="stylesheet" href="css/theme.css" type="text/css" />
   <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
@@ -272,17 +274,17 @@ repetitive tasks, quickly deploy applications, and proactively manage servers,
 on-premise or in the cloud.</p>
 </blockquote>
 <h2 id="configuring-the-provider">Configuring the Provider<a class="headerlink" href="#configuring-the-provider" title="Permanent link">&para;</a></h2>
-<div class="codehilite"><pre><span></span>provider &quot;foreman&quot; {
-  provider_loglevel = &quot;INFO&quot;
-  provider_logfile = &quot;terraform-provider-foreman.log&quot;
+<div class="codehilite"><pre><span></span><span class="n">provider</span> <span class="ss">&quot;foreman&quot;</span> <span class="err">{</span>
+  <span class="n">provider_loglevel</span> <span class="o">=</span> <span class="ss">&quot;INFO&quot;</span>
+  <span class="n">provider_logfile</span> <span class="o">=</span> <span class="ss">&quot;terraform-provider-foreman.log&quot;</span>
 
-  client_username = &quot;admin&quot;
-  client_password = &quot;changeme&quot;
-  client_tls_insecure = &quot;true&quot;
+  <span class="n">client_username</span> <span class="o">=</span> <span class="ss">&quot;admin&quot;</span>
+  <span class="n">client_password</span> <span class="o">=</span> <span class="ss">&quot;changeme&quot;</span>
+  <span class="n">client_tls_insecure</span> <span class="o">=</span> <span class="ss">&quot;true&quot;</span>
 
-  server_hostname = &quot;127.0.0.1&quot;
-  server_protocol = &quot;https&quot;
-}
+  <span class="n">server_hostname</span> <span class="o">=</span> <span class="ss">&quot;127.0.0.1&quot;</span>
+  <span class="n">server_protocol</span> <span class="o">=</span> <span class="ss">&quot;https&quot;</span>
+<span class="err">}</span>
 </pre></div>
 
 
@@ -297,11 +299,11 @@ correspond to options in the provider schema definition:</p>
 <li><code>FOREMAN_CLIENT_PASSWORD</code></li>
 </ul>
 <p>Example Usage:</p>
-<div class="codehilite"><pre><span></span>$&gt; export FOREMAN_PROVIDER_LOGLEVEL=&#39;INFO&#39;
-$&gt; export FOREMAN_PROVIDER_LOGFILE=&#39;-&#39;
-$&gt; export FOREMAN_CLIENT_USERNAME=&#39;admin&#39;
-$&gt; export FOREMAN_CLIENT_PASSWORD=&#39;changeme&#39;
-$&gt; terraform init &amp;&amp; terraform plan
+<div class="codehilite"><pre><span></span><span class="err">$&gt; export FOREMAN_PROVIDER_LOGLEVEL=&#39;INFO&#39;</span>
+<span class="err">$&gt; export FOREMAN_PROVIDER_LOGFILE=&#39;-&#39;</span>
+<span class="err">$&gt; export FOREMAN_CLIENT_USERNAME=&#39;admin&#39;</span>
+<span class="err">$&gt; export FOREMAN_CLIENT_PASSWORD=&#39;changeme&#39;</span>
+<span class="err">$&gt; terraform init &amp;&amp; terraform plan</span>
 </pre></div>
 
 
@@ -364,5 +366,5 @@ $&gt; terraform init &amp;&amp; terraform plan
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-11-18 17:45:56
+Build Date UTC : 2020-01-23 15:40:29
 -->
