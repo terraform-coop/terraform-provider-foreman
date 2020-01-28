@@ -24,10 +24,6 @@ type ForemanParameter struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	// Subject tells us what this parameter is actually referencing
-	// Currently supports "host", "hostgroup", "domain", "operatingsystem" "subnet"
-	Subject string
-
 	// One of the ID fields should be set
 	HostID            int `json:"host_id,omitempty"`
 	HostGroupID       int `json:"hostgroup_id,omitempty"`

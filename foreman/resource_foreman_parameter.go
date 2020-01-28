@@ -40,30 +40,35 @@ func resourceForemanParameter() *schema.Resource {
 			"host_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "ID of the host to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"hostgroup_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "ID of the host group to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"operatingsystem_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "ID of the operating system to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"domain_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "ID of the domain to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			"subnet_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				ForceNew:     true,
 				Description:  "ID of the subnet to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
@@ -99,9 +104,6 @@ func buildForemanParameter(d *schema.ResourceData) *api.ForemanParameter {
 	var attr interface{}
 	var ok bool
 
-	if attr, ok = d.GetOk("subject"); ok {
-		parameter.Subject = attr.(string)
-	}
 	if attr, ok = d.GetOk("host_id"); ok {
 		parameter.HostID = attr.(int)
 	}
@@ -132,9 +134,9 @@ func setResourceDataFromForemanParameter(d *schema.ResourceData, fd *api.Foreman
 	log.Tracef("resource_foreman_parameter.go#setResourceDataFromForemanParameter")
 
 	d.SetId(strconv.Itoa(fd.Id))
-	d.Set("subject", fd.Subject)
 	d.Set("host_id", fd.HostID)
 	d.Set("hostgroup_id", fd.HostGroupID)
+	d.Set("domain_id", fd.DomainID)
 	d.Set("operatingsystem_id", fd.OperatingSystemID)
 	d.Set("subnet_id", fd.SubnetID)
 	d.Set("name", fd.Parameter.Name)
