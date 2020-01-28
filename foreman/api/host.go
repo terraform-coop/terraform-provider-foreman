@@ -75,15 +75,11 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameters []ForemanKVParameter
+	HostParameters []ForemanKVParameter `json:"host_parameters_attributes"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
 	ComputeProfileId int `json:"compute_profile_id,omitempty"`
-}
-
-type foremanHostParameterJSON struct {
-	HostParameters []ForemanKVParameter `json:"host_parameters_attributes"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -198,13 +194,6 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	}
 	fh.InterfacesAttributes = fhJSON.InterfacesAttributes
 
-	var fhParameterJSON foremanHostParameterJSON
-	jsonDecErr = json.Unmarshal(b, &fhParameterJSON)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fh.HostParameters = fhParameterJSON.HostParameters
-
 	// Unmarshal into mapstructure and set the rest of the struct properties
 	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing
 	// Without this, properties will define as default values in state file.
@@ -226,6 +215,9 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	}
 	if fh.DomainName, ok = fhMap["domain_name"].(string); !ok {
 		fh.DomainName = ""
+	}
+	if fh.HostParameters, ok = fhMap["host_parameters_attributes"].([]ForemanKVParameter); !ok {
+		fh.HostParameters = []ForemanKVParameter{}
 	}
 
 	// Unmarshal the remaining foreign keys to their id

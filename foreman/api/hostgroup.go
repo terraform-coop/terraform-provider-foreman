@@ -66,10 +66,6 @@ type ForemanHostgroup struct {
 	PXELoader string `json:"pxe_loader,omitempty"`
 
 	// Map of HostGroupParameters
-	HostGroupParameters []ForemanKVParameter
-}
-
-type foremanHostGroupParameterJSON struct {
 	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes"`
 }
 
@@ -119,13 +115,6 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 	}
 	fh.ForemanObject = fo
 
-	var fhParameterJSON foremanHostGroupParameterJSON
-	jsonDecErr = json.Unmarshal(b, &fhParameterJSON)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fh.HostGroupParameters = fhParameterJSON.HostGroupParameters
-
 	// Unmarshal into mapstructure and set the rest of the struct properties
 	var fhMap map[string]interface{}
 	jsonDecErr = json.Unmarshal(b, &fhMap)
@@ -138,6 +127,9 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 	}
 	if fh.PXELoader, ok = fhMap["pxe_loader"].(string); !ok {
 		fh.PXELoader = ""
+	}
+	if fh.HostGroupParameters, ok = fhMap["group_parameters_attributes"].([]ForemanKVParameter); !ok {
+		fh.HostGroupParameters = []ForemanKVParameter{}
 	}
 
 	// Unmarshal the remaining foreign keys to their id

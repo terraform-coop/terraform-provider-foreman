@@ -51,7 +51,7 @@ type ForemanOperatingSystem struct {
 	PartitiontableIds []int `json:"ptable_ids,omitempty"`
 
 	// Map of OperatingSystemParameters
-	OperatingSystemParameters []ForemanKVParameter
+	OperatingSystemParameters []ForemanKVParameter `json:"os_parameters_attributes"`
 }
 
 // ForemanOperating struct used for JSON decode.  Foreman API returns the ids
@@ -62,10 +62,6 @@ type foremanOsRespJSON struct {
 	Media                 []ForemanObject `json:"media"`
 	Architectures         []ForemanObject `json:"architectures"`
 	Partitiontables       []ForemanObject `json:"ptables"`
-}
-
-type foremanOperatingSystemParameterJSON struct {
-	OperatingSystemParameters []ForemanKVParameter `json:"os_parameters_attributes"`
 }
 
 // Implement the Unmarshaler interface
@@ -79,13 +75,6 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 		return jsonDecErr
 	}
 	o.ForemanObject = fo
-
-	var oParameterJSON foremanOperatingSystemParameterJSON
-	jsonDecErr = json.Unmarshal(b, &oParameterJSON)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	o.OperatingSystemParameters = oParameterJSON.OperatingSystemParameters
 
 	var foJSON foremanOsRespJSON
 	jsonDecErr = json.Unmarshal(b, &foJSON)
@@ -126,40 +115,11 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 	if o.PasswordHash, ok = foMap["password_hash"].(string); !ok {
 		o.PasswordHash = ""
 	}
+	if o.OperatingSystemParameters, ok = foMap["os_parameters_attributes"].([]ForemanKVParameter); !ok {
+		o.OperatingSystemParameters = []ForemanKVParameter{}
+	}
 
 	return nil
-}
-
-func (o *ForemanOperatingSystem) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/operatingsystem.go#MarshalJSON")
-	foMap := map[string]interface{}{}
-
-	foMap["name"] = o.Name
-	foMap["major"] = o.Major
-	foMap["minor"] = o.Minor
-	foMap["description"] = o.Description
-	foMap["family"] = o.Family
-	foMap["release_name"] = o.ReleaseName
-	foMap["password_hash"] = o.PasswordHash
-
-	if len(o.ProvisioningTemplateIds) > 0 {
-		foMap["provisioning_template_ids"] = o.ProvisioningTemplateIds
-	}
-
-	if len(o.ArchitectureIds) > 0 {
-		foMap["architecture_ids"] = o.ArchitectureIds
-	}
-
-	if len(o.PartitiontableIds) > 0 {
-		foMap["ptable_ids"] = o.PartitiontableIds
-	}
-
-	if len(o.OperatingSystemParameters) > 0 {
-		foMap["os_parameters_attributes"] = o.OperatingSystemParameters
-	}
-
-	log.Debugf("foMap: [%v]", foMap)
-	return json.Marshal(foMap)
 }
 
 // -----------------------------------------------------------------------------
