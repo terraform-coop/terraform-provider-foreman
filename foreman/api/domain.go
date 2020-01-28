@@ -26,6 +26,9 @@ type ForemanDomain struct {
 
 	// Fully qualified domain name
 	Fullname string `json:"fullname"`
+
+	// Map of DomainParameters
+	DomainParameters []ForemanKVParameter `json:"domain_parameters_attributes"`
 }
 
 // -----------------------------------------------------------------------------
@@ -98,10 +101,10 @@ func (c *Client) ReadDomain(id int) (*ForemanDomain, error) {
 // UpdateDomain updates a ForemanDomain's attributes.  The domain with the ID
 // of the supplied ForemanDomain will be updated. A new ForemanDomain reference
 // is returned with the attributes from the result of the update operation.
-func (c *Client) UpdateDomain(d *ForemanDomain) (*ForemanDomain, error) {
+func (c *Client) UpdateDomain(d *ForemanDomain, id int) (*ForemanDomain, error) {
 	log.Tracef("foreman/api/domain.go#Update")
 
-	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, d.Id)
+	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
 	domainJSONBytes, jsonEncErr := WrapJson("domain", d)
 	if jsonEncErr != nil {

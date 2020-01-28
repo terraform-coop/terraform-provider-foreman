@@ -51,6 +51,15 @@ func resourceForemanDomain() *schema.Resource {
 				Optional:    true,
 				Description: "Description of the domain",
 			},
+
+			"parameters": &schema.Schema{
+				Type:     schema.TypeMap,
+				ForceNew: false,
+				Optional: true,
+				Computed: true,
+				Description: "A map of parameters that will be saved as domain parameters " +
+					"in the domain config.",
+			},
 		},
 	}
 }
@@ -78,6 +87,16 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 		domain.Fullname = attr.(string)
 	}
 
+	if attr, ok = d.GetOk("parameters"); ok {
+		domainTags := d.Get("parameters").(map[string]interface{})
+		for key, value := range domainTags {
+			domain.DomainParameters = append(domain.DomainParameters, api.ForemanKVParameter{
+				Name:  key,
+				Value: value.(string),
+			})
+		}
+	}
+
 	return &domain
 }
 
@@ -89,6 +108,7 @@ func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDom
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
 	d.Set("fullname", fd.Fullname)
+	d.Set("parameters", fd.DomainParameters)
 }
 
 // -----------------------------------------------------------------------------
@@ -97,6 +117,21 @@ func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDom
 
 func resourceForemanDomainCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_domain.go#Create")
+
+	client := meta.(*api.Client)
+	p := buildForemanDomain(d)
+
+	log.Debugf("ForemanDomain: [%+v]", d)
+
+	createdDomain, createErr := client.CreateDomain(p)
+	if createErr != nil {
+		return createErr
+	}
+
+	log.Debugf("Created ForemanDomain: [%+v]", createdDomain)
+
+	setResourceDataFromForemanDomain(d, createdDomain)
+
 	return nil
 }
 
@@ -122,14 +157,30 @@ func resourceForemanDomainRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceForemanDomainUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_domain.go#Update")
+	client := meta.(*api.Client)
+	do := buildForemanDomain(d)
+
+	log.Debugf("ForemanDomain: [%+v]", do)
+
+	updatedDomain, updateErr := client.UpdateDomain(do, do.Id)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	log.Debugf("Updated ForemanDomain: [%+v]", updatedDomain)
+
+	setResourceDataFromForemanDomain(d, updatedDomain)
+
 	return nil
 }
 
 func resourceForemanDomainDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_domain.go#Delete")
 
-	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
-	//   returns no errors
+	client := meta.(*api.Client)
+	do := buildForemanDomain(d)
 
-	return nil
+	log.Debugf("ForemanDomain: [%+v]", do)
+
+	return client.DeleteDomain(do.Id)
 }
