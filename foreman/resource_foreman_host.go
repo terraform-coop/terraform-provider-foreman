@@ -724,11 +724,6 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	// NOTE(ALL): Set the build flag to true on host create
-	if h.Method == "build" {
-		h.Build = true
-	}
-
 	log.Debugf("ForemanHost: [%+v]", h)
 
 	// Enable partial mode in the event of failure of one of API calls required for host update
