@@ -279,6 +279,7 @@
 <pre class="codehilite"><code>resource &quot;foreman_domain&quot; &quot;example&quot; {
 
   name = &quot;dev.dc1.company.com&quot;
+
 }</code></pre>
 
 
@@ -287,12 +288,14 @@
 <ul>
 <li><code>fullname</code> - (Optional; <code>schema.TypeString</code>) Description of the domain</li>
 <li><code>name</code> - (<code>schema.TypeString</code>) The name of the domain - the full DNS domain name.</li>
+<li><code>parameters</code> - (Optional; <code>schema.TypeMap</code>) A map of parameters that will be saved as domain parameters in the domain config.</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>fullname</code> - (<code>schema.TypeString</code>) Description of the domain</li>
 <li><code>name</code> - (<code>schema.TypeString</code>) The name of the domain - the full DNS domain name.</li>
+<li><code>parameters</code> - (<code>schema.TypeMap</code>) A map of parameters that will be saved as domain parameters in the domain config.</li>
 </ul>
               
             </div>
