@@ -75,7 +75,7 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameters []ForemanKVParameter `json:"host_parameters_attributes"`
+	HostParameters []ForemanKVParameter `json:"host_parameters_attributes,omitempty"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor

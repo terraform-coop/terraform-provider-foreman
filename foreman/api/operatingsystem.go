@@ -51,7 +51,7 @@ type ForemanOperatingSystem struct {
 	PartitiontableIds []int `json:"ptable_ids,omitempty"`
 
 	// Map of OperatingSystemParameters
-	OperatingSystemParameters []ForemanKVParameter `json:"os_parameters_attributes"`
+	OperatingSystemParameters []ForemanKVParameter `json:"os_parameters_attributes,omitempty"`
 }
 
 // ForemanOperating struct used for JSON decode.  Foreman API returns the ids

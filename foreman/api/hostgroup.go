@@ -66,7 +66,7 @@ type ForemanHostgroup struct {
 	PXELoader string `json:"pxe_loader,omitempty"`
 
 	// Map of HostGroupParameters
-	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes"`
+	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes,omitempty"`
 }
 
 // Implement the Marshaler interface

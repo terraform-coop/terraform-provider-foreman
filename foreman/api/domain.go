@@ -28,7 +28,7 @@ type ForemanDomain struct {
 	Fullname string `json:"fullname"`
 
 	// Map of DomainParameters
-	DomainParameters []ForemanKVParameter `json:"domain_parameters_attributes"`
+	DomainParameters []ForemanKVParameter `json:"domain_parameters_attributes,omitempty"`
 }
 
 // -----------------------------------------------------------------------------
