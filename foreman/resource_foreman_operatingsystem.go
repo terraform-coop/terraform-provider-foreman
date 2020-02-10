@@ -168,7 +168,6 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,
-				Computed: true,
 				Description: "A map of parameters that will be saved as operating system parameters " +
 					"in the os config.",
 			},

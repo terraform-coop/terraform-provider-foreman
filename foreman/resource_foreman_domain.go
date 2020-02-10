@@ -56,7 +56,6 @@ func resourceForemanDomain() *schema.Resource {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,
-				Computed: true,
 				Description: "A map of parameters that will be saved as domain parameters " +
 					"in the domain config.",
 			},
