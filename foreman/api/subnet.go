@@ -43,6 +43,8 @@ type ForemanSubnet struct {
 	// Default boot mode for instances assigned to this subnet.  If set, valid
 	// values are "Static" and "DHCP".
 	BootMode string `json:"boot_mode"`
+	// Network CIDR
+	NetworkAddress string `json:"network_address"`
 }
 
 // -----------------------------------------------------------------------------

@@ -127,6 +127,11 @@ func resourceForemanSubnet() *schema.Resource {
 				Description: "Default boot mode for instances assigned to this subnet. " +
 					"Values include: `\"Static\"`, `\"DHCP\"`.",
 			},
+			"network_address": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "The Subnets CIDR in the format 169.254.0.0/16",
+			},
 		},
 	}
 }
@@ -174,6 +179,9 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("boot_mode"); ok {
 		s.BootMode = attr.(string)
 	}
+	if attr, ok = d.GetOk("network_address"); ok {
+		s.BootMode = attr.(string)
+	}
 
 	return &s
 }
@@ -194,6 +202,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("from", fs.From)
 	d.Set("to", fs.To)
 	d.Set("boot_mode", fs.BootMode)
+	d.Set("network_address", fs.NetworkAddress)
 }
 
 // -----------------------------------------------------------------------------
