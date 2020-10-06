@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <meta name="author" content="HanseMerkur Cloud Platform">
-  <link rel="canonical" href="https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_hostgroup/">
+  <link rel="canonical" href="https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_hostgroup/">
   <link rel="shortcut icon" href="../../img/favicon.ico">
   <title>foreman_hostgroup - Terraform Provider Foreman</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
@@ -19,8 +19,8 @@
   <script>
     // Current page data
     var mkdocs_page_name = "foreman_hostgroup";
-    var mkdocs_page_input_path = "resources/foreman_hostgroup.md";
-    var mkdocs_page_url = "/HanseMerkur/terraform-provider-foreman/resources/foreman_hostgroup/";
+    var mkdocs_page_input_path = "data-sources/foreman_hostgroup.md";
+    var mkdocs_page_url = "/HanseMerkur/terraform-provider-foreman/data-sources/foreman_hostgroup/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js" defer></script>
@@ -52,47 +52,10 @@
                     </li>
                 </ul>
                 <p class="caption"><span class="caption-text">Data Sources</span></p>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_architecture/">foreman_architecture</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_computeprofile/">foreman_computeprofile</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_computeresource/">foreman_computeresource</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_defaulttemplate/">foreman_defaulttemplate</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_domain/">foreman_domain</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_environment/">foreman_environment</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_global_parameter/">foreman_global_parameter</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_hostgroup/">foreman_hostgroup</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_image/">foreman_image</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_media/">foreman_media</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_model/">foreman_model</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_operatingsystem/">foreman_operatingsystem</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_parameter/">foreman_parameter</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_partitiontable/">foreman_partitiontable</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartproxy/">foreman_smartproxy</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_subnet/">foreman_subnet</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templatekind/">foreman_templatekind</a>
-                    </li>
-                </ul>
-                <p class="caption"><span class="caption-text">Resources</span></p>
                 <ul class="current">
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_architecture/">foreman_architecture</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../foreman_computeprofile/">foreman_computeprofile</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_computeresource/">foreman_computeresource</a>
                     </li>
@@ -103,8 +66,6 @@
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_environment/">foreman_environment</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_global_parameter/">foreman_global_parameter</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../foreman_host/">foreman_host</a>
                     </li>
                     <li class="toctree-l1 current"><a class="reference internal current" href="./">foreman_hostgroup</a>
     <ul class="current">
@@ -134,6 +95,45 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
                     </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../foreman_templatekind/">foreman_templatekind</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Resources</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_architecture/">foreman_architecture</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_computeresource/">foreman_computeresource</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_defaulttemplate/">foreman_defaulttemplate</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_domain/">foreman_domain</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_environment/">foreman_environment</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_global_parameter/">foreman_global_parameter</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_host/">foreman_host</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_hostgroup/">foreman_hostgroup</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_image/">foreman_image</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_media/">foreman_media</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_model/">foreman_model</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_operatingsystem/">foreman_operatingsystem</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_parameter/">foreman_parameter</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_partitiontable/">foreman_partitiontable</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_smartproxy/">foreman_smartproxy</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_subnet/">foreman_subnet</a>
+                    </li>
                 </ul>
       </div>
     </div>
@@ -156,14 +156,14 @@
     
       
         
-          <li>Resources &raquo;</li>
+          <li>Data Sources &raquo;</li>
         
       
     
     <li>foreman_hostgroup</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/HanseMerkur/terraform-provider-foreman/edit/master/docs/resources/foreman_hostgroup.md"> Edit on terraform-provider-foreman</a>
+        <a href="https://github.com/HanseMerkur/terraform-provider-foreman/edit/master/docs/data-sources/foreman_hostgroup.md"> Edit on terraform-provider-foreman</a>
       
     </li>
   </ul>
@@ -177,30 +177,15 @@
 <p>Hostgroups are organized in a tree-like structure and inherit values from their parent hostgroup(s). When hosts get associated with a hostgroup, it will inherit attributes from the hostgroup. This allows for easy, shared configuration of various hosts based on common attributes.</p>
 <h2 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h2>
 <pre class="codehilite"><code># Autogenerated example with required keys
-resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
-  name = &quot;compute&quot;
+data &quot;foreman_hostgroup&quot; &quot;example&quot; {
+  title = &quot;BO1/VM/DEVP4&quot;
 }</code></pre>
 
 
 <h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
 <p>The following arguments are supported:</p>
 <ul>
-<li><code>architecture_id</code> - (Optional) ID of the architecture associated with this hostgroup.</li>
-<li><code>compute_profile_id</code> - (Optional) ID of the compute profile associated with this hostgroup.</li>
-<li><code>domain_id</code> - (Optional) ID of the domain associated with this hostgroup.</li>
-<li><code>environment_id</code> - (Optional) ID of the environment associated with this hostgroup.</li>
-<li><code>medium_id</code> - (Optional) ID of the media associated with this hostgroup.</li>
-<li><code>name</code> - (Required) Hostgroup name.</li>
-<li><code>operatingsystem_id</code> - (Optional) ID of the operating system associated with this hostgroup.</li>
-<li><code>parameters</code> - (Optional) A map of parameters that will be saved as hostgroup parameters in the group config.</li>
-<li><code>parent_id</code> - (Optional) ID of the parent hostgroup.</li>
-<li><code>ptable_id</code> - (Optional) ID of the partition table associated with this hostgroup.</li>
-<li><code>puppet_ca_proxy_id</code> - (Optional) ID of the smart proxy acting as the puppet certificate authority server for this hostgroup.</li>
-<li><code>puppet_proxy_id</code> - (Optional) ID of the smart proxy acting as the puppet proxy server for this hostgroup.</li>
-<li><code>pxe_loader</code> - (Optional) Operating system family. Values include: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"</li>
-<li><code>realm_id</code> - (Optional) ID of the realm associated with this hostgroup.</li>
-<li><code>root_password</code> - (Required) Default root password</li>
-<li><code>subnet_id</code> - (Optional) ID of the subnet associated with the hostgroup.</li>
+<li><code>title</code> - (Required) The title is the fullname of the hostgroup.  A hostgroup's title is a path-like string from the head of the hostgroup tree down to this hostgroup.  The title will be in the form of: "<parent 1>/<parent 2>/.../<name>".</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
 <p>The following attributes are exported:</p>
@@ -233,7 +218,7 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
         <a href="../foreman_image/" class="btn btn-neutral float-right" title="foreman_image">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../foreman_host/" class="btn btn-neutral" title="foreman_host"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../foreman_global_parameter/" class="btn btn-neutral" title="foreman_global_parameter"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -259,7 +244,7 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../foreman_host/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../foreman_global_parameter/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
         <span style="margin-left: 15px"><a href="../foreman_image/" style="color: #fcfcfc">Next &raquo;</a></span>
