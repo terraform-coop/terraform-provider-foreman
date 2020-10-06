@@ -3,6 +3,6 @@
 
 The following arguments are supported:
 {{ range .Arguments}}
-- `{{ .Name }}` - ({{ if .Optional }}Optional; {{ end }}{{if .ForceNew}}Force New; {{end}}{{ .Type }}) {{ .Description -}}
+- `{{ .Name }}` - ({{ if .Optional }}Optional{{ else }}Required{{ end }}{{if .ForceNew}}, Force New{{end}}) {{ .Description -}}
 {{ end }}
 {{ end }}

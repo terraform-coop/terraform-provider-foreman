@@ -1,4 +1,3 @@
-{{ template "disclaimer" }}
 {{ template "title" . }}
 {{ template "description" . }}
 {{ template "example" . }}

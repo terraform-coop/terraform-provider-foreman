@@ -3,6 +3,6 @@
 
 The following attributes are exported:
 {{ range .Attributes }}
-- `{{ .Name }}` - ({{ .Type }}) {{ .Description -}}
+- `{{ .Name }}` - {{ .Description -}}
 {{ end }}
 {{ end }}

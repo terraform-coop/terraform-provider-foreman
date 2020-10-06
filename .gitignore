@@ -8,11 +8,6 @@ build/
 
 # godoc files
 docs/godoc/**
-# mkdocs files
-mkdocs.yml
-docs/*.md
-docs/resources/*.md
-docs/datasources/*.md
 
 # Test binary, build with `go test -c`
 *.test

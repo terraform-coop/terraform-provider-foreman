@@ -25,7 +25,7 @@ nav:
 {{- if ne (len .DataSources) 0 }}
   - Data Sources:
   {{- range .DataSources }}
-    - '{{ . }}': 'datasources/{{ . }}.md'
+    - '{{ . }}': 'data-sources/{{ . }}.md'
   {{- end }}
 {{- end }}
 {{- if ne (len .Resources) 0 }}

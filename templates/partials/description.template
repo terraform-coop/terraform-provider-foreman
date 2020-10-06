@@ -1,5 +1,3 @@
 {{define "description"}}
-## Description
-
 {{ .Meta.Summary }}
 {{end}}
