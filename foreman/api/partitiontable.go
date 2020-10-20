@@ -115,7 +115,7 @@ func (c *Client) CreatePartitionTable(t *ForemanPartitionTable) (*ForemanPartiti
 
 	reqEndpoint := fmt.Sprintf("/%s", PartitionTableEndpointPrefix)
 
-	tJSONBytes, jsonEncErr := WrapJson("ptable", t)
+	tJSONBytes, jsonEncErr := c.WrapJSON("ptable", t)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -178,7 +178,7 @@ func (c *Client) UpdatePartitionTable(t *ForemanPartitionTable) (*ForemanPartiti
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, t.Id)
 
-	tJSONBytes, jsonEncErr := WrapJson("ptable", t)
+	tJSONBytes, jsonEncErr := c.WrapJSON("ptable", t)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

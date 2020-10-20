@@ -146,6 +146,22 @@ func Provider() terraform.ResourceProvider {
 					"also be set through the environment variable `FOREMAN_CLIENT_PASSWORD`. " +
 					"Defaults to `\"\"`.",
 			},
+
+			// -- provider organization and location --
+			"organization_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
+				Description: "The organization for all resource requsted and created by the Provier " +
+					"Defaults to \"0\"",
+			},
+			"location_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  0,
+				Description: "The location for all resources requested and created by the provider" +
+					"Defaults to \"0\"",
+			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -262,6 +278,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			Username: d.Get("client_username").(string),
 			Password: d.Get("client_password").(string),
 		},
+		LocationID:     d.Get("location_id").(int),
+		OrganizationID: d.Get("organization_id").(int),
 	}
 
 	return config.Client()

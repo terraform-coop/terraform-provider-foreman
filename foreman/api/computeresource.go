@@ -113,7 +113,7 @@ func (c *Client) CreateComputeResource(d *ForemanComputeResource) (*ForemanCompu
 
 	reqEndpoint := fmt.Sprintf("/%s", ComputeResourceEndpointPrefix)
 
-	computeresourceJSONBytes, jsonEncErr := WrapJson("compute_resource", d)
+	computeresourceJSONBytes, jsonEncErr := c.WrapJSON("compute_resource", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -175,7 +175,7 @@ func (c *Client) UpdateComputeResource(d *ForemanComputeResource) (*ForemanCompu
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, d.Id)
 
-	computeresourceJSONBytes, jsonEncErr := WrapJson("compute_resource", d)
+	computeresourceJSONBytes, jsonEncErr := c.WrapJSON("compute_resource", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

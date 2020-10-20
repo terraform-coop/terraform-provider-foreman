@@ -19,6 +19,10 @@ type Config struct {
 	ClientTLSInsecure bool
 	// Set of credentials needed to authenticate against Foreman
 	ClientCredentials api.ClientCredentials
+	// Location for all API Calls
+	LocationID int
+	// Organization for all API Calls
+	OrganizationID int
 }
 
 // Client creates a client reference for the Foreman REST API given the
@@ -33,6 +37,8 @@ func (c *Config) Client() (*api.Client, error) {
 		c.ClientCredentials,
 		api.ClientConfig{
 			TLSInsecureEnabled: c.ClientTLSInsecure,
+			LocationID:         c.LocationID,
+			OrganizationID:     c.OrganizationID,
 		},
 	)
 

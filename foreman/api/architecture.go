@@ -74,7 +74,7 @@ func (c *Client) CreateArchitecture(a *ForemanArchitecture) (*ForemanArchitectur
 
 	reqEndpoint := fmt.Sprintf("/%s", ArchitectureEndpointPrefix)
 
-	archJSONBytes, jsonEncErr := WrapJson("architecture", a)
+	archJSONBytes, jsonEncErr := c.WrapJSON("architecture", a)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -137,7 +137,7 @@ func (c *Client) UpdateArchitecture(a *ForemanArchitecture) (*ForemanArchitectur
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, a.Id)
 
-	archJSONBytes, jsonEncErr := WrapJson("architecture", a)
+	archJSONBytes, jsonEncErr := c.WrapJSON("architecture", a)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
