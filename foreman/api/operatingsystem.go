@@ -135,7 +135,7 @@ func (c *Client) CreateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	reqEndpoint := fmt.Sprintf("/%s", OperatingSystemEndpointPrefix)
 
-	osJSONBytes, jsonEncErr := WrapJson("operatingsystem", o)
+	osJSONBytes, jsonEncErr := c.WrapJSON("operatingsystem", o)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -199,7 +199,7 @@ func (c *Client) UpdateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, o.Id)
 
-	osJSONBytes, jsonEncErr := WrapJson("operatingsystem", o)
+	osJSONBytes, jsonEncErr := c.WrapJSON("operatingsystem", o)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

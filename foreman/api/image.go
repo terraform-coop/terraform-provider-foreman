@@ -99,7 +99,7 @@ func (c *Client) CreateImage(d *ForemanImage, compute_resource int) (*ForemanIma
 
 	reqEndpoint := fmt.Sprintf("%s/%d/images", ComputeResourceEndpoint, compute_resource)
 
-	imageJSONBytes, jsonEncErr := WrapJson("image", d)
+	imageJSONBytes, jsonEncErr := c.WrapJSON("image", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -161,7 +161,7 @@ func (c *Client) UpdateImage(d *ForemanImage) (*ForemanImage, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, d.ComputeResourceID, d.Id)
 
-	imageJSONBytes, jsonEncErr := WrapJson("image", d)
+	imageJSONBytes, jsonEncErr := c.WrapJSON("image", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

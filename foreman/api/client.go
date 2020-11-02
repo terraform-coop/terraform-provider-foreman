@@ -45,6 +45,10 @@ type ClientConfig struct {
 	//
 	// See 'pkg/crypto/tls/#Config.InsecureSkipVerify' for more information
 	TLSInsecureEnabled bool
+
+	// Information as required by all API calls
+	LocationID     int
+	OrganizationID int
 }
 
 type Client struct {
@@ -56,6 +60,9 @@ type Client struct {
 	// the intial setup, the client should never modify or interact directly with
 	// the underlying HTTP client and should instead use the helper functions.
 	httpClient *http.Client
+
+	// Keep a copy of the client configuration for use in API calls
+	clientConfig ClientConfig
 }
 
 // KVParameters are used in all inline Parameter Maps. i.e. Host, HostGroup
@@ -87,9 +94,10 @@ func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 	cleanClient.Transport = transCfg
 	// Initialize and return the unauthenticated client.
 	client := Client{
-		httpClient:  cleanClient,
-		server:      s,
-		credentials: c,
+		httpClient:   cleanClient,
+		server:       s,
+		credentials:  c,
+		clientConfig: cfg,
 	}
 	return &client
 }
@@ -293,9 +301,13 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 	return nil
 }
 
-func WrapJson(name string, item interface{}) ([]byte, error) {
+// WrapJSON wraps the given parameters as an object of its own name and
+// includes additional information for the api call
+func (client *Client) WrapJSON(name string, item interface{}) ([]byte, error) {
 	wrapped := map[string]interface{}{
-		name: item,
+		name:              item,
+		"location_id":     client.clientConfig.LocationID,
+		"organization_id": client.clientConfig.OrganizationID,
 	}
 	return json.Marshal(wrapped)
 }

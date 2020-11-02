@@ -44,7 +44,7 @@ func (c *Client) CreateCommonParameter(d *ForemanCommonParameter) (*ForemanCommo
 
 	// All commonParameters are send individually. Yeay for that
 	var createdCommonParameter ForemanCommonParameter
-	commonParameterJSONBytes, jsonEncErr := WrapJson("common_parameter", d)
+	commonParameterJSONBytes, jsonEncErr := c.WrapJSON("common_parameter", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -109,7 +109,7 @@ func (c *Client) UpdateCommonParameter(d *ForemanCommonParameter, id int) (*Fore
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
 
-	commonParameterJSONBytes, jsonEncErr := WrapJson("common_parameter", d)
+	commonParameterJSONBytes, jsonEncErr := c.WrapJSON("common_parameter", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

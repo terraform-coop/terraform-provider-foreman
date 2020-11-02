@@ -43,7 +43,7 @@ func (c *Client) CreateModel(m *ForemanModel) (*ForemanModel, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s", ModelEndpointPrefix)
 
-	mJSONBytes, jsonEncErr := WrapJson("model", m)
+	mJSONBytes, jsonEncErr := c.WrapJSON("model", m)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -105,7 +105,7 @@ func (c *Client) UpdateModel(m *ForemanModel) (*ForemanModel, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, m.Id)
 
-	mJSONBytes, jsonEncErr := WrapJson("model", m)
+	mJSONBytes, jsonEncErr := c.WrapJSON("model", m)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

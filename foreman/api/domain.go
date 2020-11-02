@@ -44,7 +44,7 @@ func (c *Client) CreateDomain(d *ForemanDomain) (*ForemanDomain, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s", DomainEndpointPrefix)
 
-	domainJSONBytes, jsonEncErr := WrapJson("domain", d)
+	domainJSONBytes, jsonEncErr := c.WrapJSON("domain", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -106,7 +106,7 @@ func (c *Client) UpdateDomain(d *ForemanDomain, id int) (*ForemanDomain, error) 
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
-	domainJSONBytes, jsonEncErr := WrapJson("domain", d)
+	domainJSONBytes, jsonEncErr := c.WrapJSON("domain", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

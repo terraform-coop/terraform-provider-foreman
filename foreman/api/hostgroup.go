@@ -162,7 +162,7 @@ func (c *Client) CreateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error)
 
 	reqEndpoint := fmt.Sprintf("/%s", HostgroupEndpointPrefix)
 
-	hJSONBytes, jsonEncErr := WrapJson("hostgroup", h)
+	hJSONBytes, jsonEncErr := c.WrapJSON("hostgroup", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -225,7 +225,7 @@ func (c *Client) UpdateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error)
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, h.Id)
 
-	hJSONBytes, jsonEncErr := WrapJson("hostgroup", h)
+	hJSONBytes, jsonEncErr := c.WrapJSON("hostgroup", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

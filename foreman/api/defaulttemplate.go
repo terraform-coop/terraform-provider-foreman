@@ -43,7 +43,7 @@ func (c *Client) CreateDefaultTemplate(d *ForemanDefaultTemplate) (*ForemanDefau
 
 	// All parameters are send individually. Yeay for that
 	var createdDefaultTemplate ForemanDefaultTemplate
-	parameterJSONBytes, jsonEncErr := WrapJson("os_default_template", d)
+	parameterJSONBytes, jsonEncErr := c.WrapJSON("os_default_template", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -101,7 +101,7 @@ func (c *Client) UpdateDefaultTemplate(d *ForemanDefaultTemplate, id int) (*Fore
 	log.Tracef("foreman/api/parameter.go#Update")
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
-	parameterJSONBytes, jsonEncErr := WrapJson("os_default_template", d)
+	parameterJSONBytes, jsonEncErr := c.WrapJSON("os_default_template", d)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
