@@ -211,6 +211,21 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 
 func resourceForemanSubnetCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_subnet.go#Create")
+
+	client := meta.(*api.Client)
+	s := buildForemanSubnet(d)
+
+	log.Debugf("ForemanSubnet: [%+v]", d)
+
+	createdSubnet, createErr := client.CreateSubnet(s)
+	if createErr != nil {
+		return createErr
+	}
+
+	log.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
+
+	setResourceDataFromForemanSubnet(d, createdSubnet)
+
 	return nil
 }
 
