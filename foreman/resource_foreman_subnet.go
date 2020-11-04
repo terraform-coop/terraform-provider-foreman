@@ -95,11 +95,12 @@ func resourceForemanSubnet() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"DHCP",
 					"Internal DB",
+					"Random DB",
 					"None",
 					// NOTE(ALL): false - do not ignore case when comparing values
 				}, false),
 				Description: "IP address auto-suggestion for this subnet. Valid " +
-					"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"None\"`.",
+					"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"Random DB\"`,`\"None\"`.",
 			},
 
 			"from": &schema.Schema{
@@ -180,7 +181,7 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 		s.BootMode = attr.(string)
 	}
 	if attr, ok = d.GetOk("network_address"); ok {
-		s.BootMode = attr.(string)
+		s.NetworkAddress = attr.(string)
 	}
 
 	return &s
