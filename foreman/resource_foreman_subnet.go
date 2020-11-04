@@ -252,14 +252,30 @@ func resourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceForemanSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_subnet.go#Update")
+	client := meta.(*api.Client)
+	s := buildForemanSubnet(d)
+
+	log.Debugf("ForemanSubnet: [%+v]", s)
+
+	updatedSubnet, updateErr := client.UpdateSubnet(s)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	log.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
+
+	setResourceDataFromForemanSubnet(d, updatedSubnet)
+
 	return nil
 }
 
 func resourceForemanSubnetDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_subnet.go#Delete")
 
-	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
-	//   returns no errors
+	client := meta.(*api.Client)
+	s := buildForemanSubnet(d)
 
-	return nil
+	log.Debugf("ForemanSubnet: [%+v]", s)
+
+	return client.DeleteSubnet(s.Id)
 }
