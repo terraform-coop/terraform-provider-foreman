@@ -143,6 +143,26 @@ func resourceForemanSubnet() *schema.Resource {
 				Optional:    true,
 				Description: "MTU value for the subnet",
 			},
+			"template_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Template HTTP(S) Proxy ID to use within this subnet",
+			},
+			"dhcp_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "DHCP Proxy ID to use within this subnet",
+			},
+			"tftp_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "TFTP Proxy ID to use within this subnet",
+			},
+			"httpboot_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "HTTPBoot Proxy ID to use within this subnet",
+			},
 		},
 	}
 }
@@ -199,7 +219,18 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("mtu"); ok {
 		s.Mtu = attr.(int)
 	}
-
+	if attr, ok = d.GetOk("template_id"); ok {
+		s.TemplateID = attr.(int)
+	}
+	if attr, ok = d.GetOk("dhcp_id"); ok {
+		s.DhcpID = attr.(int)
+	}
+	if attr, ok = d.GetOk("tftp_id"); ok {
+		s.TftpID = attr.(int)
+	}
+	if attr, ok = d.GetOk("httpboot_id"); ok {
+		s.HTTPBootID = attr.(int)
+	}
 	return &s
 }
 
@@ -222,6 +253,10 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("network_address", fs.NetworkAddress)
 	d.Set("vlan_id", fs.VlanID)
 	d.Set("mtu", fs.Mtu)
+	d.Set("template_id", fs.TemplateID)
+	d.Set("dhcp_id", fs.DhcpID)
+	d.Set("tftp_id", fs.TftpID)
+	d.Set("httpboot_id", fs.HTTPBootID)
 }
 
 // -----------------------------------------------------------------------------
