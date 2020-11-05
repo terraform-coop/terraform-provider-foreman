@@ -133,6 +133,16 @@ func resourceForemanSubnet() *schema.Resource {
 				Optional:    true,
 				Description: "The Subnets CIDR in the format 169.254.0.0/16",
 			},
+			"vlan_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "VLAN id that is in use in the subnet",
+			},
+			"mtu": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "MTU value for the subnet",
+			},
 		},
 	}
 }
@@ -183,6 +193,12 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("network_address"); ok {
 		s.NetworkAddress = attr.(string)
 	}
+	if attr, ok = d.GetOk("vlan_id"); ok {
+		s.VlanID = attr.(int)
+	}
+	if attr, ok = d.GetOk("mtu"); ok {
+		s.Mtu = attr.(int)
+	}
 
 	return &s
 }
@@ -204,6 +220,8 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("to", fs.To)
 	d.Set("boot_mode", fs.BootMode)
 	d.Set("network_address", fs.NetworkAddress)
+	d.Set("vlan_id", fs.VlanID)
+	d.Set("mtu", fs.Mtu)
 }
 
 // -----------------------------------------------------------------------------
