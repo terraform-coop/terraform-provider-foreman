@@ -45,6 +45,12 @@ type ForemanSubnet struct {
 	BootMode string `json:"boot_mode"`
 	// Network CIDR
 	NetworkAddress string `json:"network_address"`
+	// VLAN id that is in use in the subnet
+	VlanID int `json:"vlan_id"`
+	// Description for the subnet
+	Description string `json:"description"`
+	// MTU Default for the subnet
+	Mtu int `json:"mtu"`
 }
 
 // -----------------------------------------------------------------------------
