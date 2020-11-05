@@ -95,11 +95,12 @@ func resourceForemanSubnet() *schema.Resource {
 				ValidateFunc: validation.StringInSlice([]string{
 					"DHCP",
 					"Internal DB",
+					"Random DB",
 					"None",
 					// NOTE(ALL): false - do not ignore case when comparing values
 				}, false),
 				Description: "IP address auto-suggestion for this subnet. Valid " +
-					"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"None\"`.",
+					"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"Random DB\"`,`\"None\"`.",
 			},
 
 			"from": &schema.Schema{
@@ -180,7 +181,7 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 		s.BootMode = attr.(string)
 	}
 	if attr, ok = d.GetOk("network_address"); ok {
-		s.BootMode = attr.(string)
+		s.NetworkAddress = attr.(string)
 	}
 
 	return &s
@@ -211,6 +212,21 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 
 func resourceForemanSubnetCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_subnet.go#Create")
+
+	client := meta.(*api.Client)
+	s := buildForemanSubnet(d)
+
+	log.Debugf("ForemanSubnet: [%+v]", d)
+
+	createdSubnet, createErr := client.CreateSubnet(s)
+	if createErr != nil {
+		return createErr
+	}
+
+	log.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
+
+	setResourceDataFromForemanSubnet(d, createdSubnet)
+
 	return nil
 }
 
@@ -236,14 +252,30 @@ func resourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceForemanSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_subnet.go#Update")
+	client := meta.(*api.Client)
+	s := buildForemanSubnet(d)
+
+	log.Debugf("ForemanSubnet: [%+v]", s)
+
+	updatedSubnet, updateErr := client.UpdateSubnet(s)
+	if updateErr != nil {
+		return updateErr
+	}
+
+	log.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
+
+	setResourceDataFromForemanSubnet(d, updatedSubnet)
+
 	return nil
 }
 
 func resourceForemanSubnetDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Tracef("resource_foreman_subnet.go#Delete")
 
-	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
-	//   returns no errors
+	client := meta.(*api.Client)
+	s := buildForemanSubnet(d)
 
-	return nil
+	log.Debugf("ForemanSubnet: [%+v]", s)
+
+	return client.DeleteSubnet(s.Id)
 }
