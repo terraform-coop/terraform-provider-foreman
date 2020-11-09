@@ -59,6 +59,8 @@ type ForemanSubnet struct {
 	TftpID int `json:"tftp_id"`
 	// HTTP Boot ID
 	HTTPBootID int `json:"httpboot_id"`
+	// Domain IDs
+	DomainIDs []int `json:"domain_ids"`
 }
 
 // -----------------------------------------------------------------------------

@@ -6,6 +6,7 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -163,6 +164,14 @@ func resourceForemanSubnet() *schema.Resource {
 				Optional:    true,
 				Description: "HTTPBoot Proxy ID to use within this subnet",
 			},
+			"domain_ids": &schema.Schema{
+				Type: schema.TypeSet,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Optional:    true,
+				Description: "Domains in which this subnet is part",
+			},
 		},
 	}
 }
@@ -231,6 +240,10 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("httpboot_id"); ok {
 		s.HTTPBootID = attr.(int)
 	}
+	if attr, ok = d.GetOk("domain_ids"); ok {
+		attrSet := attr.(*schema.Set)
+		s.DomainIDs = conv.InterfaceSliceToIntSlice(attrSet.List())
+	}
 	return &s
 }
 
@@ -257,6 +270,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("dhcp_id", fs.DhcpID)
 	d.Set("tftp_id", fs.TftpID)
 	d.Set("httpboot_id", fs.HTTPBootID)
+	d.Set("domain_ids", fs.DomainIDs)
 }
 
 // -----------------------------------------------------------------------------
