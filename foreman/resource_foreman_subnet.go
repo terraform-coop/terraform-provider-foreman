@@ -172,6 +172,15 @@ func resourceForemanSubnet() *schema.Resource {
 				Optional:    true,
 				Description: "Domains in which this subnet is part",
 			},
+			"network_type": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"IPv4",
+					"IPv6",
+				}, false),
+				Description: "Type or protocol, IPv4 or IPv6, defaults to IPv4.",
+			},
 		},
 	}
 }
@@ -244,6 +253,9 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 		attrSet := attr.(*schema.Set)
 		s.DomainIDs = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
+	if attr, ok = d.GetOk("network_type"); ok {
+		s.NetworkType = attr.(string)
+	}
 	return &s
 }
 
@@ -271,6 +283,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("tftp_id", fs.TftpID)
 	d.Set("httpboot_id", fs.HTTPBootID)
 	d.Set("domain_ids", fs.DomainIDs)
+	d.Set("network_type", fs.NetworkType)
 }
 
 // -----------------------------------------------------------------------------

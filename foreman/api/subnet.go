@@ -61,6 +61,8 @@ type ForemanSubnet struct {
 	HTTPBootID int `json:"httpboot_id"`
 	// Domain IDs
 	DomainIDs []int `json:"domain_ids"`
+	// Network Type
+	NetworkType string `json:"network_type"`
 }
 
 // -----------------------------------------------------------------------------
