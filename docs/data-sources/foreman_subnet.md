@@ -29,14 +29,22 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `boot_mode` - Default boot mode for instances assigned to this subnet. Values include: `"Static"`, `"DHCP"`.
+- `dhcp_id` - DHCP Proxy ID to use within this subnet
 - `dns_primary` - Primary DNS server for this subnet.
 - `dns_secondary` - Secondary DNS sever for this subnet.
+- `domain_ids` - Domains in which this subnet is part
 - `from` - Start IP address for IP auto suggestion.
 - `gateway` - Gateway server to use when connecting/communicating to anything not on the same network.
-- `ipam` - IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"None"`.
+- `httpboot_id` - HTTPBoot Proxy ID to use within this subnet
+- `ipam` - IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"Random DB"`,`"None"`.
 - `mask` - Netmask for this subnet.
+- `mtu` - MTU value for the subnet
 - `name` - Name of a subnetwork.
 - `network` - Subnet network.
 - `network_address` - The Subnets CIDR in the format 169.254.0.0/16
+- `network_type` - Type or protocol, IPv4 or IPv6, defaults to IPv4.
+- `template_id` - Template HTTP(S) Proxy ID to use within this subnet
+- `tftp_id` - TFTP Proxy ID to use within this subnet
 - `to` - Ending IP address for IP auto suggestion.
+- `vlanid` - VLAN id that is in use in the subnet
 

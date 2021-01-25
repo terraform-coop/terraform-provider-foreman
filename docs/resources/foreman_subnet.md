@@ -22,16 +22,24 @@ resource "foreman_subnet" "example" {
 The following arguments are supported:
 
 - `boot_mode` - (Optional) Default boot mode for instances assigned to this subnet. Values include: `"Static"`, `"DHCP"`.
+- `dhcp_id` - (Optional) DHCP Proxy ID to use within this subnet
 - `dns_primary` - (Optional) Primary DNS server for this subnet.
 - `dns_secondary` - (Optional) Secondary DNS sever for this subnet.
+- `domain_ids` - (Optional) Domains in which this subnet is part
 - `from` - (Optional) Start IP address for IP auto suggestion.
 - `gateway` - (Optional) Gateway server to use when connecting/communicating to anything not on the same network.
-- `ipam` - (Optional) IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"None"`.
+- `httpboot_id` - (Optional) HTTPBoot Proxy ID to use within this subnet
+- `ipam` - (Optional) IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"Random DB"`,`"None"`.
 - `mask` - (Required) Netmask for this subnet.
+- `mtu` - (Optional) MTU value for the subnet
 - `name` - (Required) Subnet name.
 - `network` - (Required) Subnet network.
 - `network_address` - (Optional) The Subnets CIDR in the format 169.254.0.0/16
+- `network_type` - (Optional) Type or protocol, IPv4 or IPv6, defaults to IPv4.
+- `template_id` - (Optional) Template HTTP(S) Proxy ID to use within this subnet
+- `tftp_id` - (Optional) TFTP Proxy ID to use within this subnet
 - `to` - (Optional) Ending IP address for IP auto suggestion.
+- `vlanid` - (Optional) VLAN id that is in use in the subnet
 
 
 ## Attributes Reference
@@ -39,14 +47,22 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `boot_mode` - Default boot mode for instances assigned to this subnet. Values include: `"Static"`, `"DHCP"`.
+- `dhcp_id` - DHCP Proxy ID to use within this subnet
 - `dns_primary` - Primary DNS server for this subnet.
 - `dns_secondary` - Secondary DNS sever for this subnet.
+- `domain_ids` - Domains in which this subnet is part
 - `from` - Start IP address for IP auto suggestion.
 - `gateway` - Gateway server to use when connecting/communicating to anything not on the same network.
-- `ipam` - IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"None"`.
+- `httpboot_id` - HTTPBoot Proxy ID to use within this subnet
+- `ipam` - IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"Random DB"`,`"None"`.
 - `mask` - Netmask for this subnet.
+- `mtu` - MTU value for the subnet
 - `name` - Subnet name.
 - `network` - Subnet network.
 - `network_address` - The Subnets CIDR in the format 169.254.0.0/16
+- `network_type` - Type or protocol, IPv4 or IPv6, defaults to IPv4.
+- `template_id` - Template HTTP(S) Proxy ID to use within this subnet
+- `tftp_id` - TFTP Proxy ID to use within this subnet
 - `to` - Ending IP address for IP auto suggestion.
+- `vlanid` - VLAN id that is in use in the subnet
 
