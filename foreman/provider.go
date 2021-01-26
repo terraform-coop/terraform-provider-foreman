@@ -182,6 +182,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_subnet":               resourceForemanSubnet(),
 			"foreman_domain":               resourceForemanDomain(),
 			"foreman_defaulttemplate":      resourceForemanDefaultTemplate(),
+			"foreman_httpproxy":            resourceForemanHTTPProxy(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -203,6 +204,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_parameter":            dataSourceForemanParameter(),
 			"foreman_global_parameter":     dataSourceForemanCommonParameter(),
 			"foreman_defaulttemplate":      dataSourceForemanDefaultTemplate(),
+			"foreman_httpproxy":            dataSourceForemanHTTPProxy(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
