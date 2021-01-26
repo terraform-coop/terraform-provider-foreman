@@ -79,6 +79,8 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_hostgroup/">foreman_hostgroup</a>
                     </li>
+                    <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_httpproxy/">foreman_httpproxy</a>
+                    </li>
                     <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_image/">foreman_image</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_media/">foreman_media</a>
@@ -117,6 +119,8 @@
                     <li class="toctree-l1"><a class="reference internal" href="resources/foreman_host/">foreman_host</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="resources/foreman_hostgroup/">foreman_hostgroup</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="resources/foreman_httpproxy/">foreman_httpproxy</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="resources/foreman_image/">foreman_image</a>
                     </li>
@@ -224,6 +228,8 @@ $&gt; terraform init &amp;&amp; terraform plan
 <li><code>client_password</code> - (Optional) The username to authenticate against Foreman. This can also be set through the environment variable <code>FOREMAN_CLIENT_PASSWORD</code>. Defaults to <code>""</code>.</li>
 <li><code>client_tls_insecure</code> - (Optional) Whether or not to verify the server's certificate. Defaults to <code>false</code>.</li>
 <li><code>client_username</code> - (Optional) The username to authenticate against Foreman. This can also be set through the environment variable <code>FOREMAN_CLIENT_USERNAME</code>. Defaults to <code>""</code>.</li>
+<li><code>location_id</code> - (Optional) The location for all resources requested and created by the providerDefaults to "0"</li>
+<li><code>organization_id</code> - (Optional) The organization for all resource requsted and created by the Provier Defaults to "0"</li>
 <li><code>provider_logfile</code> - (Optional) Where to deirect provider-specific log output. A value of '-' preserves the default behavior of the log package from Golang stdlib and will be combined with the main terraform.log file produced by terraform. If the desired output file does not exist, it will be created. If the file already exists, logs will be appended to the file. This can also be set through the enviornment variable <code>FOREMAN_PROVIDER_LOGFILE</code>. Defaults to <code>'terraform-provider-foreman.log'</code>.</li>
 <li><code>provider_loglevel</code> - (Optional) The level of verbosity for the provider's log file. This setting determines which types of log messages are written and which are ignored. Possible values (from most verbose to least verbose) include 'DEBUG', 'TRACE', 'INFO', 'WARNING', 'ERROR', and 'NONE'.  The provider's logs will be written to the location specified by <code>provider_logfile</code>. This can also be set through the environment variable <code>FOREMAN_PROVIDER_LOGLEVEL</code>. Defaults to <code>'INFO'</code>.</li>
 <li><code>server_hostname</code> - (Required) The hostname / IP address of the Foreman REST API server</li>
@@ -282,5 +288,5 @@ $&gt; terraform init &amp;&amp; terraform plan
 
 <!--
 MkDocs version : 1.1.2
-Build Date UTC : 2020-11-12 14:21:14.228866+00:00
+Build Date UTC : 2021-01-26 10:27:53.868152+00:00
 -->

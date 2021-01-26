@@ -69,6 +69,8 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_hostgroup/">foreman_hostgroup</a>
                     </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../foreman_httpproxy/">foreman_httpproxy</a>
+                    </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_image/">foreman_image</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_media/">foreman_media</a>
@@ -115,6 +117,8 @@
                     <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_host/">foreman_host</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_hostgroup/">foreman_hostgroup</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_httpproxy/">foreman_httpproxy</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_image/">foreman_image</a>
                     </li>
@@ -193,16 +197,24 @@ data &quot;foreman_subnet&quot; &quot;example&quot; {
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>boot_mode</code> - Default boot mode for instances assigned to this subnet. Values include: <code>"Static"</code>, <code>"DHCP"</code>.</li>
+<li><code>dhcp_id</code> - DHCP Proxy ID to use within this subnet</li>
 <li><code>dns_primary</code> - Primary DNS server for this subnet.</li>
 <li><code>dns_secondary</code> - Secondary DNS sever for this subnet.</li>
+<li><code>domain_ids</code> - Domains in which this subnet is part</li>
 <li><code>from</code> - Start IP address for IP auto suggestion.</li>
 <li><code>gateway</code> - Gateway server to use when connecting/communicating to anything not on the same network.</li>
-<li><code>ipam</code> - IP address auto-suggestion for this subnet. Valid values include: <code>"DHCP"</code>, <code>"Internal DB"</code>, <code>"None"</code>.</li>
+<li><code>httpboot_id</code> - HTTPBoot Proxy ID to use within this subnet</li>
+<li><code>ipam</code> - IP address auto-suggestion for this subnet. Valid values include: <code>"DHCP"</code>, <code>"Internal DB"</code>, <code>"Random DB"</code>,<code>"None"</code>.</li>
 <li><code>mask</code> - Netmask for this subnet.</li>
+<li><code>mtu</code> - MTU value for the subnet</li>
 <li><code>name</code> - Name of a subnetwork.</li>
 <li><code>network</code> - Subnet network.</li>
 <li><code>network_address</code> - The Subnets CIDR in the format 169.254.0.0/16</li>
+<li><code>network_type</code> - Type or protocol, IPv4 or IPv6, defaults to IPv4.</li>
+<li><code>template_id</code> - Template HTTP(S) Proxy ID to use within this subnet</li>
+<li><code>tftp_id</code> - TFTP Proxy ID to use within this subnet</li>
 <li><code>to</code> - Ending IP address for IP auto suggestion.</li>
+<li><code>vlanid</code> - VLAN id that is in use in the subnet</li>
 </ul>
               
             </div>
