@@ -153,14 +153,16 @@ func Provider() terraform.ResourceProvider {
 				Optional: true,
 				Default:  0,
 				Description: "The organization for all resource requsted and created by the Provier " +
-					"Defaults to \"0\"",
+					"Defaults to \"0\". Set organization_id and location_id to a value < 0 if you need " +
+					"to disable Locations and Organizations on Foreman older than 1.21",
 			},
 			"location_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
 				Description: "The location for all resources requested and created by the provider" +
-					"Defaults to \"0\"",
+					"Defaults to \"0\". Set organization_id and location_id to a value < 0 if you need " +
+					"to disable Locations and Organizations on Foreman older than 1.21",
 			},
 		},
 

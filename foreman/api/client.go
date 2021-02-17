@@ -305,9 +305,12 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 // includes additional information for the api call
 func (client *Client) WrapJSON(name string, item interface{}) ([]byte, error) {
 	wrapped := map[string]interface{}{
-		name:              item,
-		"location_id":     client.clientConfig.LocationID,
-		"organization_id": client.clientConfig.OrganizationID,
+		name: item,
+	}
+	// Workaround for Foreman versions < 1.21 in case no default location/organization was defined for resources
+	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {
+		wrapped["location_id"] = client.clientConfig.LocationID
+		wrapped["organization_id"] = client.clientConfig.OrganizationID
 	}
 	return json.Marshal(wrapped)
 }
