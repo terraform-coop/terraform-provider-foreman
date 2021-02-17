@@ -21,7 +21,7 @@ The following arguments are supported:
 
 - `bmc_success` - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
 - `comment` - (Optional, Force New) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
-- `compute_profile_id` - (Optional, Force New) 
+- `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
 - `enable_bmc` - (Optional) Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
