@@ -179,6 +179,7 @@ func resourceForemanHost() *schema.Resource {
 			"compute_profile_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ForceNew:     false,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
