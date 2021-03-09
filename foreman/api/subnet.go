@@ -17,6 +17,12 @@ const (
 // Struct Definition and Helpers
 // -----------------------------------------------------------------------------
 
+// Domain represents a domain structure inside a ForemanSubnet
+type Domain struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 // The ForemanSubnet API model represents a subnet
 type ForemanSubnet struct {
 	// Inherits the base object's attributes
@@ -61,6 +67,8 @@ type ForemanSubnet struct {
 	HTTPBootID int `json:"httpboot_id"`
 	// Domain IDs
 	DomainIDs []int `json:"domain_ids"`
+	// Domains (for internal use)
+	Domains []Domain `json:"domains"`
 	// Network Type
 	NetworkType string `json:"network_type"`
 }
@@ -121,10 +129,19 @@ func (c *Client) ReadSubnet(id int) (*ForemanSubnet, error) {
 		return nil, reqErr
 	}
 
+	log.Debugf("readSubnet req: [%+v]", req)
+
 	var readSubnet ForemanSubnet
 	sendErr := c.SendAndParse(req, &readSubnet)
 	if sendErr != nil {
 		return nil, sendErr
+	}
+
+	log.Debugf("readSubnet: %+v", readSubnet)
+
+	// copy domain ids from readSubnet.Domains to readSubnet.DomainIDs
+	for _, m := range readSubnet.Domains {
+		readSubnet.DomainIDs = append(readSubnet.DomainIDs, m.ID)
 	}
 
 	log.Debugf("readSubnet: [%+v]", readSubnet)
