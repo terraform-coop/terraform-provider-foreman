@@ -52,7 +52,7 @@ type ForemanSubnet struct {
 	// Network CIDR
 	NetworkAddress string `json:"network_address"`
 	// VLAN id that is in use in the subnet
-	VlanID interface{} `json:"vlanid"`
+	VlanID int `json:"vlanid"`
 	// Description for the subnet
 	Description string `json:"description"`
 	// MTU Default for the subnet
@@ -129,15 +129,11 @@ func (c *Client) ReadSubnet(id int) (*ForemanSubnet, error) {
 		return nil, reqErr
 	}
 
-	log.Debugf("readSubnet req: [%+v]", req)
-
 	var readSubnet ForemanSubnet
 	sendErr := c.SendAndParse(req, &readSubnet)
 	if sendErr != nil {
 		return nil, sendErr
 	}
-
-	log.Debugf("readSubnet: %+v", readSubnet)
 
 	// copy domain ids from readSubnet.Domains to readSubnet.DomainIDs
 	for _, m := range readSubnet.Domains {
