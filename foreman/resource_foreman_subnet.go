@@ -135,7 +135,7 @@ func resourceForemanSubnet() *schema.Resource {
 				Description: "The Subnets CIDR in the format 169.254.0.0/16",
 			},
 			"vlanid": &schema.Schema{
-				Type:        schema.TypeString,
+				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "VLAN id that is in use in the subnet",
 			},
@@ -232,7 +232,7 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 		s.NetworkAddress = attr.(string)
 	}
 	if attr, ok = d.GetOk("vlanid"); ok {
-		s.VlanID = attr.(string)
+		s.VlanID = attr.(int)
 	}
 	if attr, ok = d.GetOk("mtu"); ok {
 		s.Mtu = attr.(int)
@@ -276,7 +276,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("to", fs.To)
 	d.Set("boot_mode", fs.BootMode)
 	d.Set("network_address", fs.NetworkAddress)
-	d.Set("vlanid", fmt.Sprintf("%.0f", fs.VlanID))
+	d.Set("vlanid", fs.VlanID)
 	d.Set("mtu", fs.Mtu)
 	d.Set("template_id", fs.TemplateID)
 	d.Set("dhcp_id", fs.DhcpID)
@@ -296,7 +296,7 @@ func resourceForemanSubnetCreate(d *schema.ResourceData, meta interface{}) error
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", d)
+	log.Debugf("ForemanSubnet: [%+v]", s)
 
 	createdSubnet, createErr := client.CreateSubnet(s)
 	if createErr != nil {
