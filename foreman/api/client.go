@@ -19,6 +19,8 @@ const (
 	// of the URL.  The client hepler functions utilize this to automatically
 	// create endpoint URLs.
 	FOREMAN_API_URL_PREFIX = "/api"
+	// FOREMAN_KATELLO_API_URL_PREFIX is the Foreman Katello API endpoint
+	FOREMAN_KATELLO_API_URL_PREFIX = "/katello/api"
 	// The Foreman API allows you to request a specific API version in the
 	// Accept header of the HTTP request.  The two supported versions (at
 	// the time of writing) are 1 and 2, which version 1 planning on being
@@ -143,12 +145,20 @@ func (client *Client) NewRequest(method string, endpoint string, body io.Reader)
 		return nil, fmt.Errorf("Invalid HTTP request method: [%s]", method)
 	}
 
+	var version_append string = ""
+
 	// Build the URL for the request
 	reqURL := client.server.URL
-	if strings.HasPrefix(endpoint, "/") {
-		reqURL.Path = FOREMAN_API_URL_PREFIX + endpoint
+	// Check for katello endpoint
+	if strings.HasPrefix(endpoint, "katello") {
+		reqURL.Path = FOREMAN_KATELLO_API_URL_PREFIX + strings.TrimPrefix(endpoint, "katello")
 	} else {
-		reqURL.Path = FOREMAN_API_URL_PREFIX + "/" + endpoint
+		if strings.HasPrefix(endpoint, "/") {
+			reqURL.Path = FOREMAN_API_URL_PREFIX + endpoint
+		} else {
+			reqURL.Path = FOREMAN_API_URL_PREFIX + "/" + endpoint
+		}
+		version_append = "version=" + FOREMAN_API_VERSION
 	}
 
 	log.Debugf(
@@ -172,7 +182,7 @@ func (client *Client) NewRequest(method string, endpoint string, body io.Reader)
 	}
 	// Add common meta-data and header information for the request
 	req.Header.Add("User-Agent", "terraform-provider-foreman")
-	req.Header.Add("Accept", "application/json,version="+FOREMAN_API_VERSION)
+	req.Header.Add("Accept", "application/json,"+version_append)
 	req.Header.Add("Content-Type", "application/json")
 	req.SetBasicAuth(client.credentials.Username, client.credentials.Password)
 	return req, nil
@@ -303,14 +313,28 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 
 // WrapJSON wraps the given parameters as an object of its own name and
 // includes additional information for the api call
-func (client *Client) WrapJSON(name string, item interface{}) ([]byte, error) {
-	wrapped := map[string]interface{}{
-		name: item,
+func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, error) {
+	var wrapped map[string]interface{}
+	if name != nil {
+		wrapped = map[string]interface{}{
+			fmt.Sprintf("%v", name): item,
+		}
+	} else {
+		data, err := json.Marshal(item)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := json.Unmarshal(data, &wrapped); err != nil {
+			return nil, err
+		}
 	}
+
 	// Workaround for Foreman versions < 1.21 in case no default location/organization was defined for resources
 	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {
 		wrapped["location_id"] = client.clientConfig.LocationID
 		wrapped["organization_id"] = client.clientConfig.OrganizationID
+		log.Debugf("client.go#WrapJSON: item %+v", wrapped)
 	}
 	return json.Marshal(wrapped)
 }
