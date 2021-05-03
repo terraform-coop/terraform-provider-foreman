@@ -54,6 +54,10 @@ type ForemanHost struct {
 	DomainId int `json:"domain_id"`
 	// Name of the Domain. To substract from the Machine name
 	DomainName string `json:"domain_name"`
+	// ID of the owner user or group to assign the host
+	OwnerId int `json:"owner_id"`
+	// Type of the owner, either user or group
+	OwnerType string `json:"owner_type"`
 	// ID of the environment to assign the host
 	EnvironmentId int `json:"environment_id"`
 	// ID of the hostgroup to assign the host
@@ -150,6 +154,7 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 
 	fhMap["name"] = fh.Name
 	fhMap["comment"] = fh.Comment
+	fhMap["owner_type"] = fh.OwnerType
 	fhMap["build"] = fh.Build
 	fhMap["provision_method"] = fh.Method
 	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
@@ -158,6 +163,7 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["image_id"] = intIdToJSONString(fh.ImageId)
 	fhMap["model_id"] = intIdToJSONString(fh.ModelId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
+	fhMap["owner_id"] = intIdToJSONString(fh.OwnerId)
 	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
 	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
@@ -213,6 +219,9 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	if fh.Comment, ok = fhMap["comment"].(string); !ok {
 		fh.Comment = ""
 	}
+	if fh.OwnerType, ok = fhMap["owner_type"].(string); !ok {
+		fh.OwnerType = ""
+	}
 	if fh.DomainName, ok = fhMap["domain_name"].(string); !ok {
 		fh.DomainName = ""
 	}
@@ -222,6 +231,7 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 
 	// Unmarshal the remaining foreign keys to their id
 	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
+	fh.OwnerId = unmarshalInteger(fhMap["owner_id"])
 	fh.EnvironmentId = unmarshalInteger(fhMap["environment_id"])
 	fh.HostgroupId = unmarshalInteger(fhMap["hostgroup_id"])
 	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
