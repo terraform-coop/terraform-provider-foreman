@@ -20,7 +20,7 @@ resource "foreman_host" "example" {
 The following arguments are supported:
 
 - `bmc_success` - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
-- `comment` - (Optional, Force New) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
+- `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
@@ -34,6 +34,8 @@ The following arguments are supported:
 - `model_id` - (Optional) ID of the hardware model if applicable
 - `name` - (Required, Force New) Host fully qualified domain name.
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
+- `owner_id` - (Optional) ID of the user or usergroup that owns the host.
+- `owner_type` - (Optional) Owner of the host, must be either User ot Usergroup
 - `parameters` - (Optional) A map of parameters that will be saved as host parameters in the machine config.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
 
@@ -56,6 +58,8 @@ The following attributes are exported:
 - `model_id` - ID of the hardware model if applicable
 - `name` - Host fully qualified domain name.
 - `operatingsystem_id` - ID of the operating system to put on the host.
+- `owner_id` - ID of the user or usergroup that owns the host.
+- `owner_type` - Owner of the host, must be either User ot Usergroup
 - `parameters` - A map of parameters that will be saved as host parameters in the machine config.
 - `retry_count` - Number of times to retry on a failed attempt to register or delete a host in foreman.
 

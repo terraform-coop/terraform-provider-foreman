@@ -66,7 +66,7 @@ func resourceForemanHost() *schema.Resource {
 
 			"comment": &schema.Schema{
 				Type:         schema.TypeString,
-				ForceNew:     true,
+				ForceNew:     false,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 				Description: fmt.Sprintf("Add additional information about this host." +
@@ -113,7 +113,24 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 
+			"owner_type": &schema.Schema{
+				Type:         schema.TypeString,
+				ForceNew:     false,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 255),
+				Description:  fmt.Sprintf("Owner of the host, must be either User ot Usergroup"),
+			},
+
 			// -- Foreign Key Relationships --
+
+			"owner_id": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				ForceNew: false,
+				//Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the user or usergroup that owns the host.",
+			},
 
 			"domain_id": &schema.Schema{
 				Type:         schema.TypeInt,
@@ -351,7 +368,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	host.Name = d.Get("name").(string)
 	host.Comment = d.Get("comment").(string)
+	host.OwnerType = d.Get("owner_type").(string)
 	host.Method = d.Get("method").(string)
+	host.OwnerId = d.Get("owner_id").(int)
 
 	if attr, ok = d.GetOk("domain_id"); ok {
 		host.DomainId = attr.(int)
@@ -544,6 +563,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("parameters", fh.HostParameters)
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
+	d.Set("owner_id", fh.OwnerId)
+	d.Set("owner_type", fh.OwnerType)
 	d.Set("hostgroup_id", fh.HostgroupId)
 	d.Set("compute_resource_id", fh.ComputeResourceId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
@@ -558,6 +579,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("parameters")
 	d.SetPartial("domain_id")
 	d.SetPartial("environment_id")
+	d.SetPartial("owner_id")
+	d.SetPartial("owner_type")
 	d.SetPartial("hostgroup_id")
 	d.SetPartial("compute_resource_id")
 	d.SetPartial("compute_profile_id")
@@ -778,6 +801,8 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("parameters") ||
 		d.HasChange("domain_id") ||
 		d.HasChange("environment_id") ||
+		d.HasChange("owner_id") ||
+		d.HasChange("owner_type") ||
 		d.HasChange("hostgroup_id") ||
 		d.HasChange("compute_resource_id") ||
 		d.HasChange("compute_profile_id") ||
