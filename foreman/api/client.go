@@ -313,7 +313,8 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 
 // WrapJSON wraps the given parameters as an object of its own name and
 // includes additional information for the api call
-func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, error) {
+func (client *Client) WrapJSON(name interface{}, item interface{}, global ...bool) ([]byte, error) {
+
 	var wrapped map[string]interface{}
 	if name != nil {
 		wrapped = map[string]interface{}{
@@ -331,7 +332,7 @@ func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, erro
 	}
 
 	// Workaround for Foreman versions < 1.21 in case no default location/organization was defined for resources
-	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {
+	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 && len(global) == 0 {
 		wrapped["location_id"] = client.clientConfig.LocationID
 		wrapped["organization_id"] = client.clientConfig.OrganizationID
 		log.Debugf("client.go#WrapJSON: item %+v", wrapped)

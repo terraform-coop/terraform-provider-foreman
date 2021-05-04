@@ -187,6 +187,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_httpproxy":                  resourceForemanHTTPProxy(),
 			"foreman_katello_content_credential": resourceForemanKatelloContentCredential(),
 			"foreman_katello_sync_plan":          resourceForemanKatelloSyncPlan(),
+			"foreman_usergroup":                  resourceForemanUsergroup(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -211,6 +212,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_httpproxy":                  dataSourceForemanHTTPProxy(),
 			"foreman_katello_content_credential": dataSourceForemanKatelloContentCredential(),
 			"foreman_katello_sync_plan":          dataSourceForemanKatelloSyncPlan(),
+			"foreman_usergroup":                  dataSourceForemanUsergroup(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
