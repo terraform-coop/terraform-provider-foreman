@@ -201,6 +201,12 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 
+			"compute_attributes": &schema.Schema{
+				Type:        schema.TypeMap,
+				Optional:    true,
+				Description: "Hypervisor specific VM options",
+			},
+
 			// -- Key Components --
 			"interfaces_attributes": &schema.Schema{
 				Type:        schema.TypeSet,
@@ -409,6 +415,10 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		}
 	}
 
+	if attr, ok = d.GetOk("compute_attributes"); ok {
+		host.ComputeAttributes = d.Get("compute_attributes").(map[string]interface{})
+	}
+
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
 
 	return &host
@@ -558,9 +568,23 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
+	host_parameters := make(map[string]string)
+	for _, parameter := range fh.HostParameters {
+		host_parameters[parameter.Name] = parameter.Value
+	}
+
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
-	d.Set("parameters", fh.HostParameters)
+	d.Set("parameters", host_parameters)
+
+	ca := make(map[string]interface{})
+	for k := range d.Get("compute_attributes").(map[string]interface{}) {
+		if v, ok := fh.ComputeAttributes[k]; ok {
+			ca[k] = v
+		}
+	}
+	d.Set("compute_attributes", ca)
+
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("owner_id", fh.OwnerId)
@@ -577,6 +601,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("name")
 	d.SetPartial("comment")
 	d.SetPartial("parameters")
+	d.SetPartial("compute_attributes")
 	d.SetPartial("domain_id")
 	d.SetPartial("environment_id")
 	d.SetPartial("owner_id")
@@ -799,6 +824,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("name") ||
 		d.HasChange("comment") ||
 		d.HasChange("parameters") ||
+		d.HasChange("compute_attributes") ||
 		d.HasChange("domain_id") ||
 		d.HasChange("environment_id") ||
 		d.HasChange("owner_id") ||

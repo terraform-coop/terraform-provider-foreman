@@ -61,7 +61,7 @@ func (fh *ForemanUsergroup) UnmarshalJSON(b []byte) error {
 		return jsonDecErr
 	}
 
-  var ok bool
+	var ok bool
 	if fh.Admin, ok = fhMap["admin"].(bool); !ok {
 		fh.Admin = false
 	}
