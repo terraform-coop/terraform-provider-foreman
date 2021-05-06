@@ -22,8 +22,12 @@ func DataSourceForemanOperatingSystemCorrectURLAndMethodTestCases(t *testing.T) 
 				crudFunc:     dataSourceForemanOperatingSystemRead,
 				resourceData: MockForemanOperatingSystemResourceData(s),
 			},
-			expectedURI:    OperatingSystemsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    OperatingSystemsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

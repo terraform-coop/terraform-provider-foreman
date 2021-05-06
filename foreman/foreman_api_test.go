@@ -170,16 +170,19 @@ type TestCase struct {
 	resourceData *schema.ResourceData
 }
 
+type ExpectedUri struct {
+	// Expected URL to be requested
+	expectedURI string
+	// Which method is expected to be used for this URL
+	expectedMethod string
+}
+
 // Test case struct definition for checking if the expected URL is called
 // with the correct HTTP method
 type TestCaseCorrectURLAndMethod struct {
 	TestCase
-	// The expected API endpoint to be hit - a mock Foreman API server will
-	// be instantiated and the server's mux will be initialized to handle
-	// requests to this endpoint
-	expectedURI string
-	// The expected HTTP method to be used for that URI
-	expectedMethod string
+	// Map of expected URLs and their methods to be called
+	expectedURIs []ExpectedUri
 }
 
 // TestCRUDFunction_CorrectURLAndMethod ensures each of the CRUD functions
@@ -236,33 +239,35 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		t.Logf("test case: [%+v]", testCase)
+		//t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
 
 		// expected handler to be called
-		mux.HandleFunc(testCase.expectedURI, func(w http.ResponseWriter, r *http.Request) {
-			// assert expected HTTP method
-			if !strings.EqualFold(testCase.expectedMethod, r.Method) {
-				t.Fatalf(
-					"[%s] did not use the correct HTTP method. Expected [%s], "+
-						"got [%s] for URI [%s].",
-					testCase.funcName,
-					testCase.expectedMethod,
-					r.Method,
-					testCase.expectedURI,
-				)
-			}
-			w.WriteHeader(http.StatusOK)
-		})
+		for _, uri := range testCase.expectedURIs {
+			mux.HandleFunc(uri.expectedURI, func(w http.ResponseWriter, r *http.Request) {
+				// assert expected HTTP method
+				if !strings.EqualFold(uri.expectedMethod, r.Method) {
+					t.Fatalf(
+						"[%s] did not use the correct HTTP method. Expected [%s], "+
+							"got [%s] for URI [%s].",
+						testCase.funcName,
+						uri.expectedMethod,
+						r.Method,
+						uri.expectedURI,
+					)
+				}
+				w.WriteHeader(http.StatusOK)
+			})
+		}
 		// match all other patterns - this should not be invoked
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			t.Fatalf(
 				"[%s] did not call the correct Foreman API URL.  Expected [%s], got "+
 					"[%s]",
 				testCase.funcName,
-				testCase.expectedURI,
+				testCase.expectedURIs,
 				r.URL.String(),
 			)
 			w.WriteHeader(http.StatusOK)
@@ -321,7 +326,7 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		t.Logf("test case: [%+v]", testCase)
+		//t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
@@ -362,7 +367,6 @@ type TestCaseRequestData struct {
 func TestCRUDFunction_RequestData(t *testing.T) {
 	testCases := []TestCaseRequestData{}
 	testCases = append(testCases, ResourceForemanArchitectureRequestDataTestCases(t)...)
-	testCases = append(testCases, ResourceForemanHostRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanHostgroupRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanMediaRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanModelRequestDataTestCases(t)...)
@@ -373,7 +377,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		t.Logf("test case: [%+v]", testCase)
+		//t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
@@ -384,7 +388,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 			if bodyLen == 0 {
 				t.Fatalf(
 					"[%s] did not send data as part of the request body to [%s].  "+
-						"Expected length [0], got [%d].",
+						"Expected ength [0], got [%d].",
 					testCase.funcName,
 					r.URL.String(),
 					bodyLen,
@@ -469,7 +473,7 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	})
 
 	for _, testCase := range testCases {
-		t.Logf("test case: [%+v]", testCase)
+		//t.Logf("test case: [%+v]", testCase)
 
 		err := testCase.crudFunc(testCase.resourceData, client)
 		if err == nil {
@@ -544,7 +548,7 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	})
 
 	for _, testCase := range testCases {
-		t.Logf("test case: [%+v]", testCase)
+		//t.Logf("test case: [%+v]", testCase)
 
 		err := testCase.crudFunc(testCase.resourceData, client)
 		if err == nil {
@@ -644,7 +648,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		t.Logf("test case: [%+v]", testCase)
+		//t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()

@@ -290,8 +290,12 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				crudFunc:     resourceForemanPartitionTableCreate,
 				resourceData: MockForemanPartitionTableResourceData(s),
 			},
-			expectedURI:    PartitionTablesURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    PartitionTablesURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -299,8 +303,12 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				crudFunc:     resourceForemanPartitionTableRead,
 				resourceData: MockForemanPartitionTableResourceData(s),
 			},
-			expectedURI:    partitionTablesURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    partitionTablesURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -308,8 +316,12 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				crudFunc:     resourceForemanPartitionTableUpdate,
 				resourceData: MockForemanPartitionTableResourceData(s),
 			},
-			expectedURI:    partitionTablesURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    partitionTablesURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -317,8 +329,12 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				crudFunc:     resourceForemanPartitionTableDelete,
 				resourceData: MockForemanPartitionTableResourceData(s),
 			},
-			expectedURI:    partitionTablesURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    partitionTablesURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -354,7 +370,9 @@ func ResourceForemanPartitionTableRequestDataTestCases(t *testing.T) []TestCaseR
 
 	rd := MockForemanPartitionTableResourceData(s)
 	obj = *buildForemanPartitionTable(rd)
-	reqData, _ := json.Marshal(obj)
+
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSON("ptable", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

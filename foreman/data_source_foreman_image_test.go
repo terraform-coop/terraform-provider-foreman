@@ -24,8 +24,12 @@ func DataSourceForemanImageCorrectURLAndMethodTestCases(t *testing.T) []TestCase
 				crudFunc:     dataSourceForemanImageRead,
 				resourceData: MockForemanImageResourceData(s),
 			},
-			expectedURI:    imageURIByResource,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    imageURIByResource,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

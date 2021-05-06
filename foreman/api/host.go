@@ -234,12 +234,14 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 		fh.DomainName = ""
 	}
 
-	for _, parameter := range fhMap["parameters"].([]interface{}) {
-		param := parameter.(map[string]interface{})
-		fh.HostParameters = append(fh.HostParameters, ForemanKVParameter{
-			Name:  param["name"].(string),
-			Value: param["value"].(string),
-		})
+	if _, ok = fhMap["parameters"]; ok {
+		for _, parameter := range fhMap["parameters"].([]interface{}) {
+			param := parameter.(map[string]interface{})
+			fh.HostParameters = append(fh.HostParameters, ForemanKVParameter{
+				Name:  param["name"].(string),
+				Value: param["value"].(string),
+			})
+		}
 	}
 
 	// Unmarshal the remaining foreign keys to their id

@@ -56,7 +56,7 @@ func RandForemanUsergroup() api.ForemanUsergroup {
 	fo := RandForemanObject()
 	obj.ForemanObject = fo
 
-	obj.Name = tfrand.String(15)
+	obj.Name = tfrand.String(15, tfrand.Lower)
 
 	return obj
 }
@@ -180,8 +180,12 @@ func ResourceForemanUsergroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanUsergroupCreate,
 				resourceData: MockForemanUsergroupResourceData(s),
 			},
-			expectedURI:    UsergroupsURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    UsergroupsURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -189,8 +193,12 @@ func ResourceForemanUsergroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanUsergroupRead,
 				resourceData: MockForemanUsergroupResourceData(s),
 			},
-			expectedURI:    usergroupsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    usergroupsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -198,8 +206,12 @@ func ResourceForemanUsergroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanUsergroupUpdate,
 				resourceData: MockForemanUsergroupResourceData(s),
 			},
-			expectedURI:    usergroupsURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    usergroupsURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -207,8 +219,12 @@ func ResourceForemanUsergroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanUsergroupDelete,
 				resourceData: MockForemanUsergroupResourceData(s),
 			},
-			expectedURI:    usergroupsURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    usergroupsURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 

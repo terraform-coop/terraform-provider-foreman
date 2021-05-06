@@ -22,8 +22,12 @@ func DataSourceForemanEnvironmentCorrectURLAndMethodTestCases(t *testing.T) []Te
 				crudFunc:     dataSourceForemanEnvironmentRead,
 				resourceData: MockForemanEnvironmentResourceData(s),
 			},
-			expectedURI:    EnvironmentsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    EnvironmentsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

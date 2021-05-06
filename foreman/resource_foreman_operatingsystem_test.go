@@ -172,8 +172,12 @@ func ResourceForemanOperatingSystemCorrectURLAndMethodTestCases(t *testing.T) []
 				crudFunc:     resourceForemanOperatingSystemRead,
 				resourceData: MockForemanOperatingSystemResourceData(s),
 			},
-			expectedURI:    operatingSystemsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    operatingSystemsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

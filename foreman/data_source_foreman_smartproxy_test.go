@@ -22,8 +22,12 @@ func DataSourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				crudFunc:     dataSourceForemanSmartProxyRead,
 				resourceData: MockForemanSmartProxyResourceData(s),
 			},
-			expectedURI:    SmartProxiesURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    SmartProxiesURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

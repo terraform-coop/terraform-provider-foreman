@@ -22,8 +22,12 @@ func DataSourceForemanComputeResourceCorrectURLAndMethodTestCases(t *testing.T) 
 				crudFunc:     dataSourceForemanComputeResourceRead,
 				resourceData: MockForemanComputeResourceResourceData(s),
 			},
-			expectedURI:    ComputeResourcesURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ComputeResourcesURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

@@ -34,7 +34,7 @@ func ForemanHostgroupToInstanceState(obj api.ForemanHostgroup) *terraform.Instan
 	attr["compute_profile_id"] = strconv.Itoa(obj.ComputeProfileId)
 	attr["domain_id"] = strconv.Itoa(obj.DomainId)
 	attr["environment_id"] = strconv.Itoa(obj.EnvironmentId)
-	attr["medium_id"] = strconv.Itoa(obj.MediaId)
+	attr["medium_id"] = strconv.Itoa(obj.MediumId)
 	attr["operatingsystem_id"] = strconv.Itoa(obj.OperatingSystemId)
 	attr["parent_id"] = strconv.Itoa(obj.ParentId)
 	attr["ptable_id"] = strconv.Itoa(obj.PartitionTableId)
@@ -74,7 +74,7 @@ func RandForemanHostgroup() api.ForemanHostgroup {
 	obj.ComputeProfileId = rand.Intn(100)
 	obj.DomainId = rand.Intn(100)
 	obj.EnvironmentId = rand.Intn(100)
-	obj.MediaId = rand.Intn(100)
+	obj.MediumId = rand.Intn(100)
 	obj.OperatingSystemId = rand.Intn(100)
 	obj.ParentId = rand.Intn(100)
 	obj.PartitionTableId = rand.Intn(100)
@@ -205,8 +205,12 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHostgroupCreate,
 				resourceData: MockForemanHostgroupResourceData(s),
 			},
-			expectedURI:    HostgroupsURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    HostgroupsURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -214,8 +218,12 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHostgroupRead,
 				resourceData: MockForemanHostgroupResourceData(s),
 			},
-			expectedURI:    hostgroupsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    hostgroupsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -223,8 +231,12 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHostgroupUpdate,
 				resourceData: MockForemanHostgroupResourceData(s),
 			},
-			expectedURI:    hostgroupsURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    hostgroupsURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -232,8 +244,12 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHostgroupDelete,
 				resourceData: MockForemanHostgroupResourceData(s),
 			},
-			expectedURI:    hostgroupsURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    hostgroupsURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -269,7 +285,9 @@ func ResourceForemanHostgroupRequestDataTestCases(t *testing.T) []TestCaseReques
 
 	rd := MockForemanHostgroupResourceData(s)
 	obj = *buildForemanHostgroup(rd)
-	reqData, _ := json.Marshal(obj)
+
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSON("hostgroup", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

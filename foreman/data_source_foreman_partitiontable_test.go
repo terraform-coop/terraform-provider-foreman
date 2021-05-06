@@ -27,8 +27,12 @@ func DataSourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) [
 				crudFunc:     dataSourceForemanPartitionTableRead,
 				resourceData: MockForemanPartitionTableResourceData(s),
 			},
-			expectedURI:    PartitionTablesURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    PartitionTablesURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

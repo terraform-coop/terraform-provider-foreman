@@ -181,8 +181,12 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				crudFunc:     resourceForemanSmartProxyCreate,
 				resourceData: MockForemanSmartProxyResourceData(s),
 			},
-			expectedURI:    SmartProxiesURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    SmartProxiesURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -190,8 +194,12 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				crudFunc:     resourceForemanSmartProxyRead,
 				resourceData: MockForemanSmartProxyResourceData(s),
 			},
-			expectedURI:    smartProxiesURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    smartProxiesURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -199,8 +207,12 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				crudFunc:     resourceForemanSmartProxyUpdate,
 				resourceData: MockForemanSmartProxyResourceData(s),
 			},
-			expectedURI:    smartProxiesURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    smartProxiesURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -208,8 +220,12 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				crudFunc:     resourceForemanSmartProxyDelete,
 				resourceData: MockForemanSmartProxyResourceData(s),
 			},
-			expectedURI:    smartProxiesURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    smartProxiesURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -245,7 +261,11 @@ func ResourceForemanSmartProxyRequestDataTestCases(t *testing.T) []TestCaseReque
 
 	rd := MockForemanSmartProxyResourceData(s)
 	obj = *buildForemanSmartProxy(rd)
-	reqData, _ := json.Marshal(obj)
+	cred := api.ClientCredentials{}
+	conf := api.ClientConfig{}
+
+	_, _, client := NewForemanAPIAndClient(cred, conf)
+	reqData, _ := client.WrapJSON("smart_proxy", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

@@ -167,8 +167,12 @@ func ResourceForemanImageCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanImageRead,
 				resourceData: MockForemanImageResourceData(s),
 			},
-			expectedURI:    imageURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    imageURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

@@ -160,8 +160,12 @@ func ResourceForemanDomainCorrectURLAndMethodTestCases(t *testing.T) []TestCaseC
 				crudFunc:     resourceForemanDomainRead,
 				resourceData: MockForemanDomainResourceData(s),
 			},
-			expectedURI:    domainsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    domainsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

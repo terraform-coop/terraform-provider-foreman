@@ -98,8 +98,12 @@ func DataSourceForemanTemplateKindCorrectURLAndMethodTestCases(t *testing.T) []T
 				crudFunc:     dataSourceForemanTemplateKindRead,
 				resourceData: MockForemanTemplateKindResourceData(s),
 			},
-			expectedURI:    TemplateKindsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    TemplateKindsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

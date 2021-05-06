@@ -22,8 +22,12 @@ func DataSourceForemanModelCorrectURLAndMethodTestCases(t *testing.T) []TestCase
 				crudFunc:     dataSourceForemanModelRead,
 				resourceData: MockForemanModelResourceData(s),
 			},
-			expectedURI:    ModelsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ModelsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

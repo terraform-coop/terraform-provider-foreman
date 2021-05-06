@@ -181,8 +181,12 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHTTPProxyCreate,
 				resourceData: MockForemanHTTPProxyResourceData(s),
 			},
-			expectedURI:    HTTPProxiesURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    HTTPProxiesURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -190,8 +194,12 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHTTPProxyRead,
 				resourceData: MockForemanHTTPProxyResourceData(s),
 			},
-			expectedURI:    httpProxiesURIByID,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    httpProxiesURIByID,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -199,8 +207,12 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHTTPProxyUpdate,
 				resourceData: MockForemanHTTPProxyResourceData(s),
 			},
-			expectedURI:    httpProxiesURIByID,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    httpProxiesURIByID,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -208,8 +220,12 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				crudFunc:     resourceForemanHTTPProxyDelete,
 				resourceData: MockForemanHTTPProxyResourceData(s),
 			},
-			expectedURI:    httpProxiesURIByID,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    httpProxiesURIByID,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 

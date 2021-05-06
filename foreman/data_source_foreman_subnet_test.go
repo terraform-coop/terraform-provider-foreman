@@ -22,8 +22,12 @@ func DataSourceForemanSubnetCorrectURLAndMethodTestCases(t *testing.T) []TestCas
 				crudFunc:     dataSourceForemanSubnetRead,
 				resourceData: MockForemanSubnetResourceData(s),
 			},
-			expectedURI:    SubnetsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    SubnetsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

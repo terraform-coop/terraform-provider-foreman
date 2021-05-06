@@ -22,8 +22,12 @@ func DataSourceForemanUsergroupCorrectURLAndMethodTestCases(t *testing.T) []Test
 				crudFunc:     dataSourceForemanUsergroupRead,
 				resourceData: MockForemanUsergroupResourceData(s),
 			},
-			expectedURI:    UsergroupsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    UsergroupsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 
