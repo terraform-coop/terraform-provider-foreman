@@ -61,7 +61,7 @@ func (fh *ForemanUsergroup) UnmarshalJSON(b []byte) error {
 		return jsonDecErr
 	}
 
-  var ok bool
+	var ok bool
 	if fh.Admin, ok = fhMap["admin"].(bool); !ok {
 		fh.Admin = false
 	}
@@ -82,7 +82,7 @@ func (c *Client) CreateUsergroup(h *ForemanUsergroup) (*ForemanUsergroup, error)
 
 	reqEndpoint := fmt.Sprintf("/%s", UsergroupEndpointPrefix)
 
-	hJSONBytes, jsonEncErr := c.WrapJSON("usergroup", h)
+	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("usergroup", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -145,7 +145,7 @@ func (c *Client) UpdateUsergroup(h *ForemanUsergroup) (*ForemanUsergroup, error)
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, h.Id)
 
-	hJSONBytes, jsonEncErr := c.WrapJSON("usergroup", h, false)
+	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("usergroup", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

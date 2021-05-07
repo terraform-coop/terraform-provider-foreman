@@ -172,7 +172,7 @@ func TestNewRequest_BadHTTPMethodError(t *testing.T) {
 		"get\n",
 	}
 	for _, value := range badHTTPMethods {
-		_, badReqErr := client.NewRequest(value, "/foo", nil)
+		_, badReqErr := client.NewRequest(value, "/bar", nil)
 		if badReqErr == nil {
 			t.Fatalf(
 				"Client.NewRequest did not return error when given invalid HTTP method [%s]. "+
@@ -207,7 +207,7 @@ func TestNewRequest_GoodHTTPMethodNoError(t *testing.T) {
 		http.MethodPatch,
 	}
 	for _, value := range goodHTTPMethods {
-		_, reqErr := client.NewRequest(value, "/foo", nil)
+		_, reqErr := client.NewRequest(value, "/bar", nil)
 		if reqErr != nil {
 			t.Fatalf(
 				"Client.NewRequest returned an error when given valid HTTP method [%s]. "+
@@ -241,7 +241,7 @@ func TestNewRequest_RequestMethodToUpper(t *testing.T) {
 	expectedMethod := "GET"
 
 	for _, value := range testMethods {
-		req, _ := client.NewRequest(value, "/foo", nil)
+		req, _ := client.NewRequest(value, "/bar", nil)
 		if req.Method != expectedMethod {
 			t.Fatalf(
 				"http.Request returned by Client.NewRequest() has incorrect Method. "+
@@ -271,7 +271,7 @@ func TestNewRequest_Header(t *testing.T) {
 		[]byte(cred.Username+":"+cred.Password),
 	)
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequest(http.MethodGet, "/bar", nil)
 
 	expectedHeader := http.Header{}
 	expectedHeader.Add("User-Agent", "terraform-provider-foreman")
@@ -304,11 +304,11 @@ func TestNewRequest_URL(t *testing.T) {
 	// map with the endpoint as key and the expected constructed URL path as
 	// the value
 	testEndpoints := map[string]string{
-		"/foo":     FOREMAN_API_URL_PREFIX + "/foo",
+		"/bar":     FOREMAN_API_URL_PREFIX + "/bar",
 		"/":        FOREMAN_API_URL_PREFIX + "/",
 		"":         FOREMAN_API_URL_PREFIX + "/",
-		"/foo/bar": FOREMAN_API_URL_PREFIX + "/foo/bar",
-		"foo/bar":  FOREMAN_API_URL_PREFIX + "/foo/bar",
+		"/bar/bar": FOREMAN_API_URL_PREFIX + "/bar/bar",
+		"bar/bar":  FOREMAN_API_URL_PREFIX + "/bar/bar",
 	}
 
 	for key, value := range testEndpoints {
@@ -356,12 +356,12 @@ func TestSend_StatusCode(t *testing.T) {
 	mux, server, client := NewForemanAPIAndClient(cred, conf)
 	defer server.Close()
 
-	// dummy '[GET] /foo' endpoint - just returns 200
-	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/foo", func(w http.ResponseWriter, r *http.Request) {
+	// dummy '[GET] /bar' endpoint - just returns 200
+	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/bar", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequest(http.MethodGet, "/bar", nil)
 	statusCode, _, _ := client.Send(req)
 
 	if statusCode != http.StatusOK {
@@ -385,13 +385,13 @@ func TestSend_ResponseBody(t *testing.T) {
 	expectedRespStr := "Hello, World!"
 	expectedRespBody := []byte(expectedRespStr)
 
-	// dummy '[GET] /foo' endpoint - returns "Hello, World!"
-	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/foo", func(w http.ResponseWriter, r *http.Request) {
+	// dummy '[GET] /bar' endpoint - returns "Hello, World!"
+	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/bar", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(expectedRespBody)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequest(http.MethodGet, "/bar", nil)
 	_, respBody, _ := client.Send(req)
 
 	if string(respBody) != expectedRespStr {
@@ -420,12 +420,12 @@ func TestSendAndParseStatusCodeError(t *testing.T) {
 	mux, server, client := NewForemanAPIAndClient(cred, conf)
 	defer server.Close()
 
-	// dummy '[GET] /foo' endpoint - returns 500 Internal server error
-	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/foo", func(w http.ResponseWriter, r *http.Request) {
+	// dummy '[GET] /bar' endpoint - returns 500 Internal server error
+	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/bar", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequest(http.MethodGet, "/bar", nil)
 	sendErr := client.SendAndParse(req, nil)
 	if sendErr == nil {
 		t.Errorf(
@@ -446,12 +446,12 @@ func TestSendAndParseStatusCodeNoError(t *testing.T) {
 	mux, server, client := NewForemanAPIAndClient(cred, conf)
 	defer server.Close()
 
-	// dummy '[GET] /foo' endpoint - returns 500 Internal server error
-	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/foo", func(w http.ResponseWriter, r *http.Request) {
+	// dummy '[GET] /bar' endpoint - returns 500 Internal server error
+	mux.HandleFunc(FOREMAN_API_URL_PREFIX+"/bar", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequest(http.MethodGet, "/bar", nil)
 	sendErr := client.SendAndParse(req, nil)
 	if sendErr != nil {
 		t.Errorf(

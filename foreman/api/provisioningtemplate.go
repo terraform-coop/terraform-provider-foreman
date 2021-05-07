@@ -191,7 +191,7 @@ func (c *Client) CreateProvisioningTemplate(t *ForemanProvisioningTemplate) (*Fo
 
 	reqEndpoint := fmt.Sprintf("/%s", ProvisioningTemplateEndpointPrefix)
 
-	tJSONBytes, jsonEncErr := c.WrapJSON("provisioning_template", t)
+	tJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("provisioning_template", t)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -255,7 +255,7 @@ func (c *Client) UpdateProvisioningTemplate(t *ForemanProvisioningTemplate) (*Fo
 	log.Tracef("foreman/api/provisioningtemplate.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ProvisioningTemplateEndpointPrefix, t.Id)
-	tJSONBytes, jsonEncErr := c.WrapJSON("provisioning_template", t)
+	tJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("provisioning_template", t)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
