@@ -40,7 +40,7 @@ func (c *Client) CreateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error)
 
 	reqEndpoint := fmt.Sprintf("/%s", HTTPProxyEndpointPrefix)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON("http_proxy", s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("http_proxy", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -103,7 +103,7 @@ func (c *Client) UpdateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error)
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, s.Id)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON("http_proxy", s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("http_proxy", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

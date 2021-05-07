@@ -326,7 +326,7 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	reqEndpoint := fmt.Sprintf("/%s", HostEndpointPrefix)
 
-	hJSONBytes, jsonEncErr := c.WrapJSON("host", h)
+	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -405,7 +405,7 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 	// Cannot update interfaces in-place. And causes errors if the object is set
 	h.InterfacesAttributes = nil
 
-	hJSONBytes, jsonEncErr := c.WrapJSON("host", h)
+	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

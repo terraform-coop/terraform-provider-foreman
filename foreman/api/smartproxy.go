@@ -48,7 +48,7 @@ func (c *Client) CreateSmartProxy(s *ForemanSmartProxy) (*ForemanSmartProxy, err
 
 	reqEndpoint := fmt.Sprintf("/%s", SmartProxyEndpointPrefix)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON("smart_proxy", s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("smart_proxy", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -111,7 +111,7 @@ func (c *Client) UpdateSmartProxy(s *ForemanSmartProxy) (*ForemanSmartProxy, err
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SmartProxyEndpointPrefix, s.Id)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON("smart_proxy", s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("smart_proxy", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
