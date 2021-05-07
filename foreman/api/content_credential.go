@@ -40,7 +40,7 @@ type ForemanKatelloContentCredential struct {
 func (c *Client) CreateKatelloContentCredential(s *ForemanKatelloContentCredential) (*ForemanKatelloContentCredential, error) {
 	log.Tracef("foreman/api/content_credential.go#Create")
 
-	sJSONBytes, jsonEncErr := c.WrapJSON(nil, s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -103,7 +103,7 @@ func (c *Client) UpdateKatelloContentCredential(s *ForemanKatelloContentCredenti
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloContentCredentialEndpointPrefix, s.Id)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON(nil, s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -160,7 +160,7 @@ func (c *Client) QueryKatelloContentCredential(s *ForemanKatelloContentCredentia
 
 	queryResponse := QueryResponse{}
 
-	sJSONBytes, jsonEncErr := c.WrapJSON(nil, s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, s)
 	if jsonEncErr != nil {
 		return queryResponse, jsonEncErr
 	}

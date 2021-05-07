@@ -86,7 +86,7 @@ func (c *Client) CreateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s", SubnetEndpointPrefix)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON("subnet", s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("subnet", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -153,7 +153,7 @@ func (c *Client) UpdateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SubnetEndpointPrefix, s.Id)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON("subnet", s)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("subnet", s)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

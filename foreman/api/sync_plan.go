@@ -47,7 +47,7 @@ func (c *Client) CreateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKate
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON(nil, sp)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, sp)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
@@ -113,7 +113,7 @@ func (c *Client) UpdateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKate
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
 	reqEndpoint = fmt.Sprintf("%s/%d", reqEndpoint, sp.Id)
 
-	sJSONBytes, jsonEncErr := c.WrapJSON(nil, sp)
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, sp)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
