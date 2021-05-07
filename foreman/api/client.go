@@ -311,8 +311,7 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 	return nil
 }
 
-// WrapJSONWithTaxonomyWithTaxonomy wraps the given parameters as an object of its own name and
-// includes additional information for the api call
+// wrapParameter wraps the given parameters as an object of its own name
 func (client *Client) wrapParameters(name interface{}, item interface{}) (map[string]interface{}, error) {
 
 	var wrapped map[string]interface{}
@@ -335,8 +334,7 @@ func (client *Client) wrapParameters(name interface{}, item interface{}) (map[st
 	return wrapped, nil
 }
 
-// WrapJSONWithTaxonomyWithTaxonomy wraps the given parameters as an object of its own name and
-// includes additional information for the api call
+// WrapJSON wraps the given parameters as an object of its own name and marshals it to JSON
 func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, error) {
 
 	wrapped, _ := client.wrapParameters(name, item)
@@ -344,8 +342,8 @@ func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, erro
 	return json.Marshal(wrapped)
 }
 
-// WrapJSONWithTaxonomyWithTaxonomy wraps the given parameters as an object of its own name and
-// includes additional information for the api call
+// WrapJSONWithTaxonomy wraps the given parameters as an object of its own name,
+// includes additional information for the api call and marshals it to JSON
 func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) ([]byte, error) {
 
 	wrapped, _ := client.wrapParameters(name, item)
@@ -354,7 +352,7 @@ func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) (
 	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {
 		wrapped["location_id"] = client.clientConfig.LocationID
 		wrapped["organization_id"] = client.clientConfig.OrganizationID
-		log.Debugf("client.go#WrapJSONWithTaxonomyWithTaxonomy: item %+v", wrapped)
+		log.Debugf("client.go#WrapJSONWithTaxonomy: item %+v", wrapped)
 	}
 	return json.Marshal(wrapped)
 }
