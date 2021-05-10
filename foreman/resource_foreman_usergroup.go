@@ -46,14 +46,13 @@ func resourceForemanUsergroup() *schema.Resource {
 
 			"admin": &schema.Schema{
 				Type:     schema.TypeBool,
-				Optional:    true,
+				Optional: true,
 				Description: fmt.Sprintf(
 					"Is an admin user group."+
 						"%s true",
 					autodoc.MetaExample,
 				),
 			},
-
 		},
 	}
 }
@@ -81,7 +80,7 @@ func buildForemanUsergroup(d *schema.ResourceData) *api.ForemanUsergroup {
 		usergroup.Name = attr.(string)
 	}
 
-  usergroup.Admin = d.Get("admin").(bool)
+	usergroup.Admin = d.Get("admin").(bool)
 
 	return &usergroup
 }
@@ -93,7 +92,7 @@ func setResourceDataFromForemanUsergroup(d *schema.ResourceData, fh *api.Foreman
 
 	d.SetId(strconv.Itoa(fh.Id))
 	d.Set("name", fh.Name)
-  d.Set("admin", fh.Admin)
+	d.Set("admin", fh.Admin)
 }
 
 // -----------------------------------------------------------------------------

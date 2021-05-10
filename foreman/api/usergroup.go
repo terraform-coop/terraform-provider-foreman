@@ -82,7 +82,7 @@ func (c *Client) CreateUsergroup(h *ForemanUsergroup) (*ForemanUsergroup, error)
 
 	reqEndpoint := fmt.Sprintf("/%s", UsergroupEndpointPrefix)
 
-	hJSONBytes, jsonEncErr := c.WrapJSON("usergroup", h)
+	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("usergroup", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
