@@ -145,7 +145,7 @@ func (c *Client) UpdateUsergroup(h *ForemanUsergroup) (*ForemanUsergroup, error)
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, h.Id)
 
-	hJSONBytes, jsonEncErr := c.WrapJSON("usergroup", h, false)
+	hJSONBytes, jsonEncErr := c.WrapJSON("usergroup", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
