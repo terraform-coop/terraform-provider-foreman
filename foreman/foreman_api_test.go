@@ -239,7 +239,7 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		//t.Logf("test case: [%+v]", testCase)
+		t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
@@ -326,7 +326,7 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		//t.Logf("test case: [%+v]", testCase)
+		t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
@@ -377,7 +377,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		//t.Logf("test case: [%+v]", testCase)
+		t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
@@ -473,7 +473,7 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	})
 
 	for _, testCase := range testCases {
-		//t.Logf("test case: [%+v]", testCase)
+		t.Logf("test case: [%+v]", testCase)
 
 		err := testCase.crudFunc(testCase.resourceData, client)
 		if err == nil {
@@ -548,7 +548,7 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	})
 
 	for _, testCase := range testCases {
-		//t.Logf("test case: [%+v]", testCase)
+		t.Logf("test case: [%+v]", testCase)
 
 		err := testCase.crudFunc(testCase.resourceData, client)
 		if err == nil {
@@ -648,7 +648,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	conf := api.ClientConfig{}
 
 	for _, testCase := range testCases {
-		//t.Logf("test case: [%+v]", testCase)
+		t.Logf("test case: [%+v]", testCase)
 
 		mux, server, client := NewForemanAPIAndClient(cred, conf)
 		defer server.Close()
