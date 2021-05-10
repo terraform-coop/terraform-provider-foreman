@@ -297,7 +297,7 @@ func ResourceForemanMediaRequestDataTestCases(t *testing.T) []TestCaseRequestDat
 	obj = *buildForemanMedia(rd)
 
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("medium", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("medium", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

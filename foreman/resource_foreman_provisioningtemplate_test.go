@@ -346,7 +346,7 @@ func ResourceForemanProvisioningTemplateRequestDataTestCases(t *testing.T) []Tes
 	rd := MockForemanProvisioningTemplateResourceData(s)
 	obj = *buildForemanProvisioningTemplate(rd)
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("provisioning_template", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("provisioning_template", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

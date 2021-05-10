@@ -388,7 +388,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 			if bodyLen == 0 {
 				t.Fatalf(
 					"[%s] did not send data as part of the request body to [%s].  "+
-						"Expected ength [0], got [%d].",
+						"Expected length [0], got [%d].",
 					testCase.funcName,
 					r.URL.String(),
 					bodyLen,

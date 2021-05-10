@@ -372,7 +372,7 @@ func ResourceForemanPartitionTableRequestDataTestCases(t *testing.T) []TestCaseR
 	obj = *buildForemanPartitionTable(rd)
 
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("ptable", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("ptable", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

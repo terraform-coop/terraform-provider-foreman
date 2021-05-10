@@ -266,7 +266,7 @@ func ResourceForemanModelRequestDataTestCases(t *testing.T) []TestCaseRequestDat
 	rd := MockForemanModelResourceData(s)
 	obj = *buildForemanModel(rd)
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("model", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("model", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

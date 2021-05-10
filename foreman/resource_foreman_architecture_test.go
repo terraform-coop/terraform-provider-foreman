@@ -293,7 +293,7 @@ func ResourceForemanArchitectureRequestDataTestCases(t *testing.T) []TestCaseReq
 	obj = *buildForemanArchitecture(rd)
 
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("architecture", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("architecture", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

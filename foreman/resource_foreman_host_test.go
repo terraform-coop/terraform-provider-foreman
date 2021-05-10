@@ -360,7 +360,7 @@ func ResourceForemanHostRequestDataTestCases(t *testing.T) []TestCaseRequestData
 	obj.Build = true
 
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("host", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("host", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

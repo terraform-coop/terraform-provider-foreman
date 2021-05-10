@@ -287,7 +287,7 @@ func ResourceForemanHostgroupRequestDataTestCases(t *testing.T) []TestCaseReques
 	obj = *buildForemanHostgroup(rd)
 
 	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
-	reqData, _ := client.WrapJSON("hostgroup", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("hostgroup", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

@@ -265,7 +265,7 @@ func ResourceForemanSmartProxyRequestDataTestCases(t *testing.T) []TestCaseReque
 	conf := api.ClientConfig{}
 
 	_, _, client := NewForemanAPIAndClient(cred, conf)
-	reqData, _ := client.WrapJSON("smart_proxy", obj)
+	reqData, _ := client.WrapJSONWithTaxonomy("smart_proxy", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{
