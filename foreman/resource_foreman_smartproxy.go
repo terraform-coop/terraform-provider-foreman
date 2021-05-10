@@ -19,13 +19,13 @@ const (
 	//
 	// 1. Starts with http or https followed by '://'
 	//   => http(s)?://
-	// 2. A number of repeating alpha-numeric character blocks seperated by a period
+	// 2. A number of repeating alpha-numeric and dash character blocks seperated by a period
 	//   => ([[:alnum:]]+\.)*
 	// 3. The last alpha-numeric block should not end with a period
 	//   => [[:alnum:]]+
 	// 4. Optionally end with a colon and the port
 	//   => (:[[:digit:]]{1,5})?
-	smartProxyURLRegex = `^http(s)?://([[:alnum:]]+\.)*[[:alnum:]]+(:[[:digit:]]{1,5})?$`
+	smartProxyURLRegex = `^http(s)?://([[:alnum:]|-]+\.)*[[:alnum:]|-]+(:[[:digit:]]{1,5})?$`
 )
 
 func resourceForemanSmartProxy() *schema.Resource {
