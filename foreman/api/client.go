@@ -311,8 +311,7 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 	return nil
 }
 
-// WrapJSONWithTaxonomy wraps the given parameters as an object of its own name and
-// includes additional information for the api call
+// wrapParameter wraps the given parameters as an object of its own name
 func (client *Client) wrapParameters(name interface{}, item interface{}) (map[string]interface{}, error) {
 
 	var wrapped map[string]interface{}
@@ -335,8 +334,7 @@ func (client *Client) wrapParameters(name interface{}, item interface{}) (map[st
 	return wrapped, nil
 }
 
-// WrapJSONWithTaxonomy wraps the given parameters as an object of its own name and
-// includes additional information for the api call
+// WrapJSON wraps the given parameters as an object of its own name and marshals it to JSON
 func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, error) {
 
 	wrapped, _ := client.wrapParameters(name, item)
@@ -344,8 +342,8 @@ func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, erro
 	return json.Marshal(wrapped)
 }
 
-// WrapJSONWithTaxonomy wraps the given parameters as an object of its own name and
-// includes additional information for the api call
+// WrapJSONWithTaxonomy wraps the given parameters as an object of its own name,
+// includes additional information for the api call and marshals it to JSON
 func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) ([]byte, error) {
 
 	wrapped, _ := client.wrapParameters(name, item)
