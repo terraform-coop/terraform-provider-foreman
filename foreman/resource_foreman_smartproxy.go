@@ -2,7 +2,6 @@ package foreman
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -11,21 +10,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
-)
-
-const (
-	// Regex validation for the smart proxy URL.  The URL should adhere to the
-	// following format:
-	//
-	// 1. Starts with http or https followed by '://'
-	//   => http(s)?://
-	// 2. A number of repeating alpha-numeric character blocks seperated by a period
-	//   => ([[:alnum:]]+\.)*
-	// 3. The last alpha-numeric block should not end with a period
-	//   => [[:alnum:]]+
-	// 4. Optionally end with a colon and the port
-	//   => (:[[:digit:]]{1,5})?
-	smartProxyURLRegex = `^http(s)?://([[:alnum:]]+\.)*[[:alnum:]]+(:[[:digit:]]{1,5})?$`
 )
 
 func resourceForemanSmartProxy() *schema.Resource {
@@ -65,14 +49,9 @@ func resourceForemanSmartProxy() *schema.Resource {
 			},
 
 			"url": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
-				ValidateFunc: validation.StringMatch(
-					regexp.MustCompile(smartProxyURLRegex),
-					"URL does not adhere to smart proxy format. Must begin with "+
-						"'http://' or 'https://' followed by the hostname and optionally "+
-						"ending with a colon and port number",
-				),
+				Type:         schema.TypeString,
+				Required:     true,
+				ValidateFunc: validation.IsURLWithHTTPorHTTPS,
 				Description: fmt.Sprintf(
 					"Uniform resource locator of the proxy. "+
 						"%s \"https://dns.dc1.company.com:8443\"",
