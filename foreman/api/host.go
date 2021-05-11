@@ -15,6 +15,8 @@ const (
 	HostEndpointPrefix = "hosts"
 	// PowerSuffix : Suffix appended to API url for power operations
 	PowerSuffix = "power"
+	// ComputeAttributesSuffix : Suffix appended to API url for getting the VM attributes
+	ComputeAttributesSuffix = "vm_compute_attributes"
 	// PowerOn : Power on operation
 	PowerOn = "on"
 	// PowerOff : Power off operation
@@ -80,6 +82,9 @@ type ForemanHost struct {
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
 	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
+	// NOTE(ALL): These settings only apply to virtual machines
+	// Hypervisor specific map of ComputeAttributes
+	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
@@ -172,6 +177,9 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	}
 	if len(fh.HostParameters) > 0 {
 		fhMap["host_parameters_attributes"] = fh.HostParameters
+	}
+	if len(fh.ComputeAttributes) > 0 {
+		fhMap["compute_attributes"] = fh.ComputeAttributes
 	}
 	log.Debugf("fhMap: [%+v]", fhMap)
 
@@ -369,6 +377,8 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 		return nil, sendErr
 	}
 
+	createdHost.ComputeAttributes, _ = c.readComputeAttributes(createdHost.Id)
+
 	log.Debugf("createdHost: [%+v]", createdHost)
 
 	return &createdHost, nil
@@ -396,7 +406,7 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 		return nil, sendErr
 	}
 
-	log.Debugf("readHost: [%+v]", readHost)
+	readHost.ComputeAttributes, _ = c.readComputeAttributes(id)
 
 	return &readHost, nil
 }
@@ -447,6 +457,7 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 		return nil, sendErr
 	}
 
+	updatedHost.ComputeAttributes, _ = c.readComputeAttributes(h.Id)
 	log.Debugf("updatedHost: [%+v]", updatedHost)
 
 	return &updatedHost, nil
@@ -470,3 +481,32 @@ func (c *Client) DeleteHost(id int) error {
 	return c.SendAndParse(req, nil)
 }
 
+// Compute Attributes are only available via dedicated API endpoint. readComputeAttributes gets this endpoint.
+func (c *Client) readComputeAttributes(id int) (map[string]interface{}, error) {
+
+	reqEndpoint := fmt.Sprintf("/%s/%d/%s", HostEndpointPrefix, id, ComputeAttributesSuffix)
+
+	req, reqErr := c.NewRequest(
+		http.MethodGet,
+		reqEndpoint,
+		nil,
+	)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	var readVmAttributes map[string]interface{}
+	sendErr := c.SendAndParse(req, &readVmAttributes)
+	if sendErr != nil {
+		return nil, sendErr
+	}
+
+	readVmAttributesStr := make(map[string]interface{}, len(readVmAttributes))
+
+	for idx, val := range readVmAttributes {
+		readVmAttributesStr[idx] = fmt.Sprint(val)
+		//readVmAttributesStr[idx], _ = json.Marshal(val)
+	}
+
+	return readVmAttributesStr, nil
+}

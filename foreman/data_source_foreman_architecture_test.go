@@ -22,8 +22,12 @@ func DataSourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []T
 				crudFunc:     dataSourceForemanArchitectureRead,
 				resourceData: MockForemanArchitectureResourceData(s),
 			},
-			expectedURI:    ArchitecturesURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ArchitecturesURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

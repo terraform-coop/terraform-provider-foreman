@@ -22,8 +22,12 @@ func DataSourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCase
 				crudFunc:     dataSourceForemanMediaRead,
 				resourceData: MockForemanMediaResourceData(s),
 			},
-			expectedURI:    MediasURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    MediasURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

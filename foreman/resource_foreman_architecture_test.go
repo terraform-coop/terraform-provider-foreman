@@ -211,8 +211,12 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				crudFunc:     resourceForemanArchitectureCreate,
 				resourceData: MockForemanArchitectureResourceData(s),
 			},
-			expectedURI:    ArchitecturesURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ArchitecturesURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -220,8 +224,12 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				crudFunc:     resourceForemanArchitectureRead,
 				resourceData: MockForemanArchitectureResourceData(s),
 			},
-			expectedURI:    architecturesURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    architecturesURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -229,8 +237,12 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				crudFunc:     resourceForemanArchitectureUpdate,
 				resourceData: MockForemanArchitectureResourceData(s),
 			},
-			expectedURI:    architecturesURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    architecturesURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -238,8 +250,12 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				crudFunc:     resourceForemanArchitectureDelete,
 				resourceData: MockForemanArchitectureResourceData(s),
 			},
-			expectedURI:    architecturesURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    architecturesURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -275,7 +291,9 @@ func ResourceForemanArchitectureRequestDataTestCases(t *testing.T) []TestCaseReq
 
 	rd := MockForemanArchitectureResourceData(s)
 	obj = *buildForemanArchitecture(rd)
-	reqData, _ := json.Marshal(obj)
+
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSONWithTaxonomy("architecture", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

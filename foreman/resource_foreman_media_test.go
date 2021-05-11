@@ -215,8 +215,12 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanMediaCreate,
 				resourceData: MockForemanMediaResourceData(s),
 			},
-			expectedURI:    MediasURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    MediasURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -224,8 +228,12 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanMediaRead,
 				resourceData: MockForemanMediaResourceData(s),
 			},
-			expectedURI:    mediasURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    mediasURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -233,8 +241,12 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanMediaUpdate,
 				resourceData: MockForemanMediaResourceData(s),
 			},
-			expectedURI:    mediasURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    mediasURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -242,8 +254,12 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanMediaDelete,
 				resourceData: MockForemanMediaResourceData(s),
 			},
-			expectedURI:    mediasURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    mediasURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -279,7 +295,9 @@ func ResourceForemanMediaRequestDataTestCases(t *testing.T) []TestCaseRequestDat
 
 	rd := MockForemanMediaResourceData(s)
 	obj = *buildForemanMedia(rd)
-	reqData, _ := json.Marshal(obj)
+
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSONWithTaxonomy("medium", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

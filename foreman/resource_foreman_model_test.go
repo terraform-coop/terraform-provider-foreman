@@ -185,8 +185,12 @@ func ResourceForemanModelCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanModelCreate,
 				resourceData: MockForemanModelResourceData(s),
 			},
-			expectedURI:    ModelsURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ModelsURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -194,8 +198,12 @@ func ResourceForemanModelCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanModelRead,
 				resourceData: MockForemanModelResourceData(s),
 			},
-			expectedURI:    modelsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    modelsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -203,8 +211,12 @@ func ResourceForemanModelCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanModelUpdate,
 				resourceData: MockForemanModelResourceData(s),
 			},
-			expectedURI:    modelsURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    modelsURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -212,8 +224,12 @@ func ResourceForemanModelCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				crudFunc:     resourceForemanModelDelete,
 				resourceData: MockForemanModelResourceData(s),
 			},
-			expectedURI:    modelsURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    modelsURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -249,7 +265,8 @@ func ResourceForemanModelRequestDataTestCases(t *testing.T) []TestCaseRequestDat
 
 	rd := MockForemanModelResourceData(s)
 	obj = *buildForemanModel(rd)
-	reqData, _ := json.Marshal(obj)
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSONWithTaxonomy("model", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

@@ -22,8 +22,12 @@ func DataSourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testin
 				crudFunc:     dataSourceForemanProvisioningTemplateRead,
 				resourceData: MockForemanProvisioningTemplateResourceData(s),
 			},
-			expectedURI:    ProvisioningTemplatesURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ProvisioningTemplatesURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

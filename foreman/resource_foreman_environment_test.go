@@ -156,8 +156,12 @@ func ResourceForemanEnvironmentCorrectURLAndMethodTestCases(t *testing.T) []Test
 				crudFunc:     resourceForemanEnvironmentRead,
 				resourceData: MockForemanEnvironmentResourceData(s),
 			},
-			expectedURI:    environmentsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    environmentsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

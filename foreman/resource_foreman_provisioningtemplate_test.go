@@ -265,8 +265,12 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				crudFunc:     resourceForemanProvisioningTemplateCreate,
 				resourceData: MockForemanProvisioningTemplateResourceData(s),
 			},
-			expectedURI:    ProvisioningTemplatesURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    ProvisioningTemplatesURI,
+					expectedMethod: http.MethodPost,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -274,8 +278,12 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				crudFunc:     resourceForemanProvisioningTemplateRead,
 				resourceData: MockForemanProvisioningTemplateResourceData(s),
 			},
-			expectedURI:    provisioningTemplatesURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    provisioningTemplatesURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -283,8 +291,12 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				crudFunc:     resourceForemanProvisioningTemplateUpdate,
 				resourceData: MockForemanProvisioningTemplateResourceData(s),
 			},
-			expectedURI:    provisioningTemplatesURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    provisioningTemplatesURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -292,8 +304,12 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				crudFunc:     resourceForemanProvisioningTemplateDelete,
 				resourceData: MockForemanProvisioningTemplateResourceData(s),
 			},
-			expectedURI:    provisioningTemplatesURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    provisioningTemplatesURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -329,7 +345,8 @@ func ResourceForemanProvisioningTemplateRequestDataTestCases(t *testing.T) []Tes
 
 	rd := MockForemanProvisioningTemplateResourceData(s)
 	obj = *buildForemanProvisioningTemplate(rd)
-	reqData, _ := api.WrapJson("provisioning_template", obj)
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSONWithTaxonomy("provisioning_template", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

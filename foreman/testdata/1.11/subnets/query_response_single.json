@@ -14,7 +14,7 @@
       "cidr": 24,
       "mask": "255.255.255.0",
       "priority": null,
-      "vlanid": "2192",
+      "vlanid": 2192,
       "gateway": "10.228.192.1",
       "dns_primary": "10.225.18.202",
       "dns_secondary": "10.225.18.203",

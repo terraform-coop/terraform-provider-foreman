@@ -30,12 +30,14 @@ func ForemanSubnetToInstanceState(obj api.ForemanSubnet) *terraform.InstanceStat
 	attr := map[string]string{}
 	attr["name"] = obj.Name
 	attr["network"] = obj.Network
+	attr["network_address"] = obj.NetworkAddress
 	attr["mask"] = obj.Mask
 	attr["gateway"] = obj.Gateway
 	attr["dns_primary"] = obj.DnsPrimary
 	attr["dns_secondary"] = obj.DnsSecondary
 	attr["ipam"] = obj.Ipam
 	attr["from"] = obj.From
+	attr["vlanid"] = strconv.Itoa(obj.VlanID)
 	attr["to"] = obj.To
 	attr["boot_mode"] = obj.BootMode
 	state.Attributes = attr
@@ -176,8 +178,12 @@ func ResourceForemanSubnetCorrectURLAndMethodTestCases(t *testing.T) []TestCaseC
 				crudFunc:     resourceForemanSubnetRead,
 				resourceData: MockForemanSubnetResourceData(s),
 			},
-			expectedURI:    architecturesURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    architecturesURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

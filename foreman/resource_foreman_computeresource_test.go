@@ -174,8 +174,12 @@ func ResourceForemanComputeResourceCorrectURLAndMethodTestCases(t *testing.T) []
 				crudFunc:     resourceForemanComputeResourceRead,
 				resourceData: MockForemanComputeResourceResourceData(s),
 			},
-			expectedURI:    compute_resourcesURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    compute_resourcesURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

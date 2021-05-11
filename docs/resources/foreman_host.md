@@ -21,6 +21,7 @@ The following arguments are supported:
 
 - `bmc_success` - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
+- `compute_attributes` - (Optional) Hypervisor specific VM options
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
@@ -45,6 +46,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
+- `compute_attributes` - Hypervisor specific VM options
 - `compute_profile_id` - 
 - `compute_resource_id` - 
 - `domain_id` - ID of the domain to assign to the host.

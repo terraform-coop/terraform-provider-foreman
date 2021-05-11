@@ -22,8 +22,12 @@ func DataSourceForemanDomainCorrectURLAndMethodTestCases(t *testing.T) []TestCas
 				crudFunc:     dataSourceForemanDomainRead,
 				resourceData: MockForemanDomainResourceData(s),
 			},
-			expectedURI:    DomainsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    DomainsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 

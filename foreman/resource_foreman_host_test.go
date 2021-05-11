@@ -36,7 +36,13 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	attr["operatingsystem_id"] = strconv.Itoa(obj.OperatingSystemId)
 	attr["medium_id"] = strconv.Itoa(obj.MediumId)
 	attr["image_id"] = strconv.Itoa(obj.ImageId)
+	attr["owner_id"] = strconv.Itoa(obj.OwnerId)
+	attr["owner_type"] = obj.OwnerType
+	attr["bmc_success"] = strconv.FormatBool(obj.BMCSuccess)
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
+	attr["retry_count"] = "1"
+	compute_attributes, _ := json.Marshal(obj.ComputeAttributes)
+	attr["compute_attributes"] = string(compute_attributes)
 	for idx, val := range obj.InterfacesAttributes {
 		key := fmt.Sprintf("interfaces_attributes.%d.id", idx)
 		attr[key] = strconv.Itoa(val.Id)
@@ -94,6 +100,8 @@ func RandForemanHost() api.ForemanHost {
 	obj.EnvironmentId = rand.Intn(100)
 	obj.MediumId = rand.Intn(100)
 	obj.ImageId = rand.Intn(100)
+	obj.OwnerId = rand.Intn(100)
+	obj.OwnerType = "Usergroup"
 
 	obj.InterfacesAttributes = make([]api.ForemanInterfacesAttribute, rand.Intn(5))
 	for idx, _ := range obj.InterfacesAttributes {
@@ -253,6 +261,7 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 	obj := api.ForemanHost{}
 	obj.Id = rand.Intn(100)
 	s := ForemanHostToInstanceState(obj)
+	s.Attributes["retry_count"] = "0"
 	hostsURIById := HostsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
@@ -262,8 +271,16 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				crudFunc:     resourceForemanHostCreate,
 				resourceData: MockForemanHostResourceData(s),
 			},
-			expectedURI:    HostsURI,
-			expectedMethod: http.MethodPost,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    HostsURI,
+					expectedMethod: http.MethodPost,
+				},
+				{
+					expectedURI:    HostsURI + "/0/vm_compute_attributes",
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -271,8 +288,12 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				crudFunc:     resourceForemanHostRead,
 				resourceData: MockForemanHostResourceData(s),
 			},
-			expectedURI:    hostsURIById,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    hostsURIById,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -280,8 +301,12 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				crudFunc:     resourceForemanHostUpdate,
 				resourceData: MockForemanHostResourceData(s),
 			},
-			expectedURI:    hostsURIById,
-			expectedMethod: http.MethodPut,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    hostsURIById,
+					expectedMethod: http.MethodPut,
+				},
+			},
 		},
 		TestCaseCorrectURLAndMethod{
 			TestCase: TestCase{
@@ -289,8 +314,12 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				crudFunc:     resourceForemanHostDelete,
 				resourceData: MockForemanHostResourceData(s),
 			},
-			expectedURI:    hostsURIById,
-			expectedMethod: http.MethodDelete,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    hostsURIById,
+					expectedMethod: http.MethodDelete,
+				},
+			},
 		},
 	}
 
@@ -329,7 +358,9 @@ func ResourceForemanHostRequestDataTestCases(t *testing.T) []TestCaseRequestData
 	// NOTE(ALL): See note in Create and Update functions for build flag
 	//   override
 	obj.Build = true
-	reqData, _ := json.Marshal(obj)
+
+	_, _, client := NewForemanAPIAndClient(api.ClientCredentials{}, api.ClientConfig{})
+	reqData, _ := client.WrapJSONWithTaxonomy("host", obj)
 
 	return []TestCaseRequestData{
 		TestCaseRequestData{

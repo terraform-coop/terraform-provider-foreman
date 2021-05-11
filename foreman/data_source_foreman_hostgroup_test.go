@@ -22,8 +22,12 @@ func DataSourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []Test
 				crudFunc:     dataSourceForemanHostgroupRead,
 				resourceData: MockForemanHostgroupResourceData(s),
 			},
-			expectedURI:    HostgroupsURI,
-			expectedMethod: http.MethodGet,
+			expectedURIs: []ExpectedUri{
+				{
+					expectedURI:    HostgroupsURI,
+					expectedMethod: http.MethodGet,
+				},
+			},
 		},
 	}
 
