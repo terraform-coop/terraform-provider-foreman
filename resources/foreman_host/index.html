@@ -199,6 +199,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <ul>
 <li><code>bmc_success</code> - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain <code>false</code>. On the next <code>terraform apply</code> will trigger the host update to pick back up with the BMC operations.</li>
 <li><code>comment</code> - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
+<li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options</li>
 <li><code>compute_profile_id</code> - (Optional) </li>
 <li><code>compute_resource_id</code> - (Optional, Force New) </li>
 <li><code>domain_id</code> - (Optional, Force New) ID of the domain to assign to the host.</li>
@@ -221,6 +222,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>comment</code> - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
+<li><code>compute_attributes</code> - Hypervisor specific VM options</li>
 <li><code>compute_profile_id</code> - </li>
 <li><code>compute_resource_id</code> - </li>
 <li><code>domain_id</code> - ID of the domain to assign to the host.</li>
