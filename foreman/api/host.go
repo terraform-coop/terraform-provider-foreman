@@ -82,9 +82,12 @@ type ForemanHost struct {
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
 	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
+<<<<<<< HEAD
 	// NOTE(ALL): These settings only apply to virtual machines
 	// Hypervisor specific map of ComputeAttributes
 	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
+=======
+>>>>>>> ad19df611763ef24ec17978daaf3bbafdd094f0e
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
