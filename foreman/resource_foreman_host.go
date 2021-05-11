@@ -558,9 +558,15 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
+	host_parameters := make(map[string]string)
+	for _, parameter := range fh.HostParameters {
+		host_parameters[parameter.Name] = parameter.Value
+	}
+
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
-	d.Set("parameters", fh.HostParameters)
+	d.Set("parameters", host_parameters)
+
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("owner_id", fh.OwnerId)

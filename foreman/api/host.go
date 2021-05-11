@@ -79,7 +79,7 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
 	// Map of HostParameters
-	HostParameters []ForemanKVParameter `json:"host_parameters_attributes,omitempty"`
+	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
@@ -225,8 +225,15 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 	if fh.DomainName, ok = fhMap["domain_name"].(string); !ok {
 		fh.DomainName = ""
 	}
-	if fh.HostParameters, ok = fhMap["host_parameters_attributes"].([]ForemanKVParameter); !ok {
-		fh.HostParameters = []ForemanKVParameter{}
+
+	if _, ok = fhMap["parameters"]; ok {
+		for _, parameter := range fhMap["parameters"].([]interface{}) {
+			param := parameter.(map[string]interface{})
+			fh.HostParameters = append(fh.HostParameters, ForemanKVParameter{
+				Name:  param["name"].(string),
+				Value: param["value"].(string),
+			})
+		}
 	}
 
 	// Unmarshal the remaining foreign keys to their id
@@ -462,3 +469,4 @@ func (c *Client) DeleteHost(id int) error {
 
 	return c.SendAndParse(req, nil)
 }
+
