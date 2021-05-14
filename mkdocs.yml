@@ -44,6 +44,7 @@ nav:
     - 'foreman_smartproxy': 'data-sources/foreman_smartproxy.md'
     - 'foreman_subnet': 'data-sources/foreman_subnet.md'
     - 'foreman_templatekind': 'data-sources/foreman_templatekind.md'
+    - 'foreman_usergroup': 'data-sources/foreman_usergroup.md'
   - Resources:
     - 'foreman_architecture': 'resources/foreman_architecture.md'
     - 'foreman_computeresource': 'resources/foreman_computeresource.md'
@@ -65,6 +66,7 @@ nav:
     - 'foreman_provisioningtemplate': 'resources/foreman_provisioningtemplate.md'
     - 'foreman_smartproxy': 'resources/foreman_smartproxy.md'
     - 'foreman_subnet': 'resources/foreman_subnet.md'
+    - 'foreman_usergroup': 'resources/foreman_usergroup.md'
 
 # ------------------------------------------------------------------------------
 # Build Directories
