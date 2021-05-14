@@ -26,6 +26,8 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+- `cron_expression` - Custom cron logic for sync plan.
+- `description` - Sync plan description.
 - `enabled` - Enables or disables synchronization.
 - `interval` - How often synchronization should run. Valid values include: `"hourly"`, `"daily"`, `"weekly"`,`"custom cron"`.
 - `name` - sync plan name.
