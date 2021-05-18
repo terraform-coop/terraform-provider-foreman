@@ -186,7 +186,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_defaulttemplate":            resourceForemanDefaultTemplate(),
 			"foreman_httpproxy":                  resourceForemanHTTPProxy(),
 			"foreman_katello_content_credential": resourceForemanKatelloContentCredential(),
-            "foreman_katello_product":            resourceForemanKatelloProduct(),
+			"foreman_katello_product":            resourceForemanKatelloProduct(),
 			"foreman_katello_sync_plan":          resourceForemanKatelloSyncPlan(),
 			"foreman_usergroup":                  resourceForemanUsergroup(),
 		},

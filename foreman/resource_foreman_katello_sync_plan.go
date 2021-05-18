@@ -88,7 +88,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-            "cron_expression": &schema.Schema{
+			"cron_expression": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -121,7 +121,7 @@ func buildForemanKatelloSyncPlan(d *schema.ResourceData) *api.ForemanKatelloSync
 	syncPlan.SyncDate = d.Get("sync_date").(string)
 	syncPlan.Description = d.Get("description").(string)
 	syncPlan.Enabled = d.Get("enabled").(bool)
-    syncPlan.CronExpression = d.Get("cron_expression").(string)
+	syncPlan.CronExpression = d.Get("cron_expression").(string)
 
 	return &syncPlan
 }

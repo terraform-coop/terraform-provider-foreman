@@ -30,7 +30,7 @@ type ForemanKatelloSyncPlan struct {
 	Interval string `json:"interval"`
 	// start datetime of synchronization
 	SyncDate string `json:"sync_date"`
-    // sync plan description
+	// sync plan description
 	Description string `json:"description"`
 	// enables or disables synchronization, Must be one of: true, false, 1, 0.
 	Enabled bool `json:"enabled"`

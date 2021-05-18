@@ -10,7 +10,7 @@ import (
 )
 
 const (
-    // KatelloProductEndpointPrefix api endpoint prefix for katello products
+	// KatelloProductEndpointPrefix api endpoint prefix for katello products
 	// 'katello/ will be removed, it's a marker to detect talking with katello api
 	KatelloProductEndpointPrefix = "katello/products"
 )
@@ -25,12 +25,12 @@ type ForemanKatelloProduct struct {
 	ForemanObject
 
 	Description string `json:"description"`
-	GpgKeyId int `json:"gpg_key_id"`
-/* 	SslCaCertId int `json:"ssl_ca_cert_id"`
-	SslClientCertId int `json:"ssl_client_cert_id"`
-	SslClientKeyId  int `json:"ssl_client_key_id"` */
-	SyncPlanId int `json:"sync_plan_id"`
-	Label string `json:"label"`
+	GpgKeyId    int    `json:"gpg_key_id"`
+	/* 	SslCaCertId int `json:"ssl_ca_cert_id"`
+	   	SslClientCertId int `json:"ssl_client_cert_id"`
+	   	SslClientKeyId  int `json:"ssl_client_key_id"` */
+	SyncPlanId int    `json:"sync_plan_id"`
+	Label      string `json:"label"`
 }
 
 // -----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ func (c *Client) CreateKatelloProduct(p *ForemanKatelloProduct) (*ForemanKatello
 func (c *Client) ReadKatelloProduct(id int) (*ForemanKatelloProduct, error) {
 	log.Tracef("foreman/api/product.go#Read")
 
-    reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, id)
+	reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, id)
 
 	req, reqErr := c.NewRequest(
 		http.MethodGet,
@@ -105,7 +105,7 @@ func (c *Client) ReadKatelloProduct(id int) (*ForemanKatelloProduct, error) {
 func (c *Client) UpdateKatelloProduct(p *ForemanKatelloProduct) (*ForemanKatelloProduct, error) {
 	log.Tracef("foreman/api/product.go#Update")
 
-    reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, p.Id)
+	reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, p.Id)
 
 	sJSONBytes, jsonEncErr := c.WrapJSON(nil, p)
 	if jsonEncErr != nil {
@@ -138,7 +138,7 @@ func (c *Client) UpdateKatelloProduct(p *ForemanKatelloProduct) (*ForemanKatello
 func (c *Client) DeleteKatelloProduct(id int) error {
 	log.Tracef("foreman/api/product.go#Delete")
 
-    reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, id)
+	reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, id)
 
 	req, reqErr := c.NewRequest(
 		http.MethodDelete,

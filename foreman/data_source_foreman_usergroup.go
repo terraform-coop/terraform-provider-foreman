@@ -22,7 +22,7 @@ func dataSourceForemanUsergroup() *schema.Resource {
 		Type:     schema.TypeString,
 		Required: true,
 		Description: fmt.Sprintf(
- 			"The name of the usergroup."+
+			"The name of the usergroup."+
 				"%s \"my_usergroup\"",
 			autodoc.MetaExample,
 		),
