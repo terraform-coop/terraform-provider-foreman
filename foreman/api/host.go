@@ -169,7 +169,9 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["model_id"] = intIdToJSONString(fh.ModelId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
 	fhMap["owner_id"] = intIdToJSONString(fh.OwnerId)
-	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	if fh.EnvironmentId > 0 {
+		fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	}
 	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
 	if len(fh.InterfacesAttributes) > 0 {

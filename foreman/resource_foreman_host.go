@@ -144,7 +144,6 @@ func resourceForemanHost() *schema.Resource {
 			"environment_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
