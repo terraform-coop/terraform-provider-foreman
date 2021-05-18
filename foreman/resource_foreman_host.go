@@ -655,10 +655,13 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 
 			"attached_devices": val.AttachedDevices,
 			"attached_to":      val.AttachedTo,
-
-			// NOTE(ALL): These settings only apply to virtual machines
-			"compute_attributes": interfaces_compute_attributes[val.MAC],
 		}
+
+		// NOTE(ALL): These settings only apply to virtual machines
+		if ifaceMap["compute_attributes"], ok = interfaces_compute_attributes[val.MAC]; !ok {
+			ifaceMap["compute_attributes"] = val.ComputeAttributes
+		}
+
 		ifaceArr[idx] = ifaceMap
 	}
 	// with the array set up, create the *schema.Set and set the ResourceData's
