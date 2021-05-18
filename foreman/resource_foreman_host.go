@@ -209,11 +209,9 @@ func resourceForemanHost() *schema.Resource {
 
 			// -- Key Components --
 			"interfaces_attributes": &schema.Schema{
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        resourceForemanInterfacesAttributes(),
-				Set:         schema.HashResource(resourceForemanInterfacesAttributes()),
 				Description: "Host interface information.",
 			},
 		},
@@ -240,28 +238,32 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"primary": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this is the primary interface.",
 			},
 			"ip": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
+				Computed:     true,
 				ValidateFunc: validation.SingleIP(),
 				Description:  "IP address associated with the interface.",
+			},
+			"name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    false,
+				Computed:    true,
+				Description: "Name of the interface",
 			},
 			"mac": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: "MAC address associated with the interface.",
 			},
 			"subnet_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the subnet to associate with this interface.",
@@ -269,59 +271,50 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"identifier": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Identifier of this interface local to the host.",
 			},
 			"managed": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this interface is managed by Foreman.",
 			},
 			"provision": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this interface is used to provision the host.",
 			},
 			"virtual": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this is a virtual interface.",
 			},
 			"attached_to": &schema.Schema{
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Identifier of the interface to which this interface belongs.",
 			},
 			"attached_devices": &schema.Schema{
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list",
 			},
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Username used for BMC/IPMI functionality.",
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Sensitive:   true,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Associated password used for BMC/IPMI functionality.",
 			},
 			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"interface",
 					"bmc",
@@ -336,7 +329,6 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"bmc_provider": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"IPMI",
 					// NOTE(ALL): false - do not ignore case when comparing values
@@ -440,8 +432,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 	}
 
 	// type assert the underlying *schema.Set and convert to a list
-	attrSet := attr.(*schema.Set)
-	attrList := attrSet.List()
+	attrList := attr.([]interface{})
 	attrListLen := len(attrList)
 	tempIntAttr = make([]api.ForemanInterfacesAttribute, attrListLen)
 	// iterate over each of the map structure entires in the set and convert that
@@ -615,20 +606,31 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("model_id")
 	d.SetPartial("enable_bmc")
 
-	setResourceDataFromForemanInterfacesAttributes(d, fh.InterfacesAttributes)
+	setResourceDataFromForemanInterfacesAttributes(d, fh)
 }
 
 // setResourceDataFromInterfacesAttributes sets a ResourceData's
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
-func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia []api.ForemanInterfacesAttribute) {
+func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
 	// entries.  The hash function will be based on the resource definition
-	hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
+	//hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
 	// underneath, a *schema.Set stores an array of map[string]interface{} entries.
 	// convert each ForemanInterfaces struct in the supplied array to a
 	// mapstructure and then add it to the set
+	fhia := fh.InterfacesAttributes
+	interfaces_compute_attributes := make(map[string]interface{})
+	var ok bool
+
+	if _, ok = fh.ComputeAttributes["interfaces_attributes"]; ok {
+		for _, attrs := range fh.ComputeAttributes["interfaces_attributes"].(map[string]interface{}) {
+			a := attrs.(map[string]interface{})
+			interfaces_compute_attributes[a["mac"].(string)] = a["compute_attributes"]
+		}
+	}
+
 	ifaceArr := make([]interface{}, len(fhia))
 	for idx, val := range fhia {
 		// NOTE(ALL): we ommit the "_destroy" property here - this does not need
@@ -643,6 +645,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 			"subnet_id":    val.SubnetId,
 			"primary":      val.Primary,
 			"managed":      val.Managed,
+			"identifier":   val.Identifier,
 			"provision":    val.Provision,
 			"virtual":      val.Virtual,
 			"type":         val.Type,
@@ -654,14 +657,13 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 			"attached_to":      val.AttachedTo,
 
 			// NOTE(ALL): These settings only apply to virtual machines
-			"compute_attributes": val.ComputeAttributes,
+			"compute_attributes": interfaces_compute_attributes[val.MAC],
 		}
 		ifaceArr[idx] = ifaceMap
 	}
 	// with the array set up, create the *schema.Set and set the ResourceData's
 	// "interfaces_attributes" property
-	tempIntAttrSet := schema.NewSet(hashFunc, ifaceArr)
-	d.Set("interfaces_attributes", tempIntAttrSet)
+	d.Set("interfaces_attributes", ifaceArr)
 
 	// For partial state, passing a prefix will flag all nested keys as successful
 	d.SetPartial("interfaces_attributes")
@@ -780,39 +782,19 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	//   in ForemanInterfacesAttribute's Destroy property
 	if d.HasChange("interfaces_attributes") {
 		oldVal, newVal := d.GetChange("interfaces_attributes")
-		oldValSet, newValSet := oldVal.(*schema.Set), newVal.(*schema.Set)
-
-		// NOTE(ALL): The set difference operation is anticommutative (because math)
-		//   ie: [A - B] =/= [B - A].
-		//
-		//   When performing an update, we need to figure out which interfaces
-		//   were removed from the set and tag the destroy property
-		//   to true and instruct Foreman which ones to delete from the list. We do
-		//   this by performing a set difference between the old set and the new
-		//   set (ie: [old - new]) which will return the items that used to be in
-		//   the set but are no longer included.
-		//
-		//   The values that were added to the set or remained unchanged are already
-		//   part of the interfaces.  They are present in the
-		//   ResourceData and already exist from the
-		//   buildForemanHost() call.
-
-		setDiff := oldValSet.Difference(newValSet)
-		setDiffList := setDiff.List()
-		log.Debugf("setDiffList: [%v]", setDiffList)
+		oldValList, newValList := oldVal.([]interface{}), newVal.([]interface{})
 
 		// iterate over the removed items, add them back to the interface's
 		// array, but tag them for removal.
-		//
-		// each of the set's items is stored as a map[string]interface{} - use
-		// type assertion and construct the struct
-		for _, rmVal := range setDiffList {
-			// construct, tag for deletion from list of interfaces
-			rmValMap := rmVal.(map[string]interface{})
-			rmInterface := mapToForemanInterfacesAttribute(rmValMap)
-			rmInterface.Destroy = true
-			// append back to interface's list
-			h.InterfacesAttributes = append(h.InterfacesAttributes, rmInterface)
+		for idx, rmVal := range oldValList {
+			if idx+1 > len(newValList) {
+				// construct, tag for deletion from list of interfaces
+				rmValMap := rmVal.(map[string]interface{})
+				rmInterface := mapToForemanInterfacesAttribute(rmValMap)
+				rmInterface.Destroy = true
+				// append back to interface's list
+				h.InterfacesAttributes = append(h.InterfacesAttributes, rmInterface)
+			}
 		}
 
 	} // end HasChange("interfaces_attributes")
