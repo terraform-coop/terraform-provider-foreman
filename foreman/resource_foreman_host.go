@@ -624,13 +624,15 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 	// mapstructure and then add it to the set
 	fhia := fh.InterfacesAttributes
 	interfaces_compute_attributes := make(map[string]interface{})
-	var ifs interface{}
-	var ok bool
 
-	if ifs, ok = fh.ComputeAttributes.(map[string]interface{})["interfaces_attributes"]; ok {
-		for _, attrs := range ifs.(map[string]interface{}) {
-			a := attrs.(map[string]interface{})
-			interfaces_compute_attributes[a["mac"].(string)] = a["compute_attributes"]
+	if fh.ComputeAttributes != nil {
+		var ifs interface{}
+		var ok bool
+		if ifs, ok = fh.ComputeAttributes.(map[string]interface{})["interfaces_attributes"]; ok {
+			for _, attrs := range ifs.(map[string]interface{}) {
+				a := attrs.(map[string]interface{})
+				interfaces_compute_attributes[a["mac"].(string)] = a["compute_attributes"]
+			}
 		}
 	}
 
@@ -661,6 +663,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 		}
 
 		// NOTE(ALL): These settings only apply to virtual machines
+		var ok bool
 		if ifaceMap["compute_attributes"], ok = interfaces_compute_attributes[val.MAC]; !ok {
 			ifaceMap["compute_attributes"] = val.ComputeAttributes
 		}
@@ -972,7 +975,6 @@ func resourceForemanHostCustomizeDiff(d *schema.ResourceDiff, m interface{}) err
 	oldMap := expandComputeAttributes(oldVal).(map[string]interface{})
 	newMap := expandComputeAttributes(newVal).(map[string]interface{})
 
-	log.Printf("OLD: [%v]", newMap)
 	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
 
 	if err != nil {
