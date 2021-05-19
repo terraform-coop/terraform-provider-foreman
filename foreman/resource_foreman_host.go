@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -8,18 +9,21 @@ import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/imdario/mergo"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceForemanHost() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanHostCreate,
-		Read:   resourceForemanHostRead,
-		Update: resourceForemanHostUpdate,
-		Delete: resourceForemanHostDelete,
+		Create:        resourceForemanHostCreate,
+		Read:          resourceForemanHostRead,
+		Update:        resourceForemanHostUpdate,
+		Delete:        resourceForemanHostDelete,
+		CustomizeDiff: resourceForemanHostCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -202,9 +206,12 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			"compute_attributes": &schema.Schema{
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Hypervisor specific VM options",
+				Type:             schema.TypeString,
+				ValidateFunc:     validation.ValidateJsonString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema",
+				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 
 			// -- Key Components --
@@ -416,7 +423,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	}
 
 	if attr, ok = d.GetOk("compute_attributes"); ok {
-		host.ComputeAttributes = d.Get("compute_attributes").(map[string]interface{})
+		host.ComputeAttributes = expandComputeAttributes(attr)
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -577,13 +584,9 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("comment", fh.Comment)
 	d.Set("parameters", host_parameters)
 
-	ca := make(map[string]interface{})
-	for k := range d.Get("compute_attributes").(map[string]interface{}) {
-		if v, ok := fh.ComputeAttributes[k]; ok {
-			ca[k] = v
-		}
+	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
+		log.Printf("[WARN] error setting compute attributes: %s", err)
 	}
-	d.Set("compute_attributes", ca)
 
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
@@ -947,4 +950,45 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	return fmt.Errorf("Failed to delete host in retry_count* 2 seconds")
+}
+
+func expandComputeAttributes(v interface{}) interface{} {
+	var attrs interface{}
+	if v == "" {
+		v = "{}"
+	}
+
+	if err := json.Unmarshal([]byte(v.(string)), &attrs); err != nil {
+		log.Printf("[ERROR] Could not unmarshal compute attributes %s: %v", v.(string), err)
+		return nil
+	}
+
+	return attrs
+}
+
+func flattenComputeAttributes(attrs interface{}) interface{} {
+	json, err := json.Marshal(attrs)
+	if err != nil {
+		log.Printf("[ERROR] Could not marshal compute attributes %s: %v", attrs.(string), err)
+		return nil
+	}
+	return string(json)
+}
+
+func resourceForemanHostCustomizeDiff(d *schema.ResourceDiff, m interface{}) error {
+
+	oldVal, newVal := d.GetChange("compute_attributes")
+
+	oldMap := expandComputeAttributes(oldVal).(map[string]interface{})
+	newMap := expandComputeAttributes(newVal).(map[string]interface{})
+
+	log.Printf("OLD: [%v]", newMap)
+	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
+
+	if err != nil {
+		log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
+	}
+
+	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
+	return nil
 }
