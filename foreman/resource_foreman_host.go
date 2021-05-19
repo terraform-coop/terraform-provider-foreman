@@ -784,6 +784,11 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Enable partial mode in the event of failure of one of API calls required for host update
 	d.Partial(true)
 
+	// NOTE(ALL): Do not make requests to compute provider if no changes to compute attributes are needed
+	if !d.HasChange("compute_attributes") {
+		h.ComputeAttributes = nil
+	}
+
 	// NOTE(ALL): Handling the removal of a Interfaces.  See the note
 	//   in ForemanInterfacesAttribute's Destroy property
 	if d.HasChange("interfaces_attributes") {
