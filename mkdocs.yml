@@ -34,6 +34,7 @@ nav:
     - 'foreman_httpproxy': 'data-sources/foreman_httpproxy.md'
     - 'foreman_image': 'data-sources/foreman_image.md'
     - 'foreman_katello_content_credential': 'data-sources/foreman_katello_content_credential.md'
+    - 'foreman_katello_product': 'data-sources/foreman_katello_product.md'
     - 'foreman_katello_sync_plan': 'data-sources/foreman_katello_sync_plan.md'
     - 'foreman_media': 'data-sources/foreman_media.md'
     - 'foreman_model': 'data-sources/foreman_model.md'
@@ -44,6 +45,7 @@ nav:
     - 'foreman_smartproxy': 'data-sources/foreman_smartproxy.md'
     - 'foreman_subnet': 'data-sources/foreman_subnet.md'
     - 'foreman_templatekind': 'data-sources/foreman_templatekind.md'
+    - 'foreman_usergroup': 'data-sources/foreman_usergroup.md'
   - Resources:
     - 'foreman_architecture': 'resources/foreman_architecture.md'
     - 'foreman_computeresource': 'resources/foreman_computeresource.md'
@@ -56,6 +58,7 @@ nav:
     - 'foreman_httpproxy': 'resources/foreman_httpproxy.md'
     - 'foreman_image': 'resources/foreman_image.md'
     - 'foreman_katello_content_credential': 'resources/foreman_katello_content_credential.md'
+    - 'foreman_katello_product': 'resources/foreman_katello_product.md'
     - 'foreman_katello_sync_plan': 'resources/foreman_katello_sync_plan.md'
     - 'foreman_media': 'resources/foreman_media.md'
     - 'foreman_model': 'resources/foreman_model.md'
@@ -65,6 +68,7 @@ nav:
     - 'foreman_provisioningtemplate': 'resources/foreman_provisioningtemplate.md'
     - 'foreman_smartproxy': 'resources/foreman_smartproxy.md'
     - 'foreman_subnet': 'resources/foreman_subnet.md'
+    - 'foreman_usergroup': 'resources/foreman_usergroup.md'
 
 # ------------------------------------------------------------------------------
 # Build Directories

@@ -70,12 +70,30 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
+			"description": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: fmt.Sprintf(
+					"Sync plan description."+
+						"%s \"A sync plan description\"",
+					autodoc.MetaExample,
+				),
+			},
 			"enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Required: true,
 				Description: fmt.Sprintf(
 					"Enables or disables synchronization."+
 						"%s true",
+					autodoc.MetaExample,
+				),
+			},
+			"cron_expression": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: fmt.Sprintf(
+					"Custom cron logic for sync plan."+
+						"%s \"*/5 * * * *\"",
 					autodoc.MetaExample,
 				),
 			},
@@ -101,7 +119,9 @@ func buildForemanKatelloSyncPlan(d *schema.ResourceData) *api.ForemanKatelloSync
 
 	syncPlan.Interval = d.Get("interval").(string)
 	syncPlan.SyncDate = d.Get("sync_date").(string)
+	syncPlan.Description = d.Get("description").(string)
 	syncPlan.Enabled = d.Get("enabled").(bool)
+	syncPlan.CronExpression = d.Get("cron_expression").(string)
 
 	return &syncPlan
 }
@@ -115,7 +135,9 @@ func setResourceDataFromForemanKatelloSyncPlan(d *schema.ResourceData, syncPlan 
 	d.Set("name", syncPlan.Name)
 	d.Set("interval", syncPlan.Interval)
 	d.Set("sync_date", syncPlan.SyncDate)
+	d.Set("description", syncPlan.Description)
 	d.Set("enabled", syncPlan.Enabled)
+	d.Set("cron_expression", syncPlan.CronExpression)
 }
 
 // -----------------------------------------------------------------------------
