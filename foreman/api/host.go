@@ -419,9 +419,6 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
-	// Cannot update interfaces in-place. And causes errors if the object is set
-	h.InterfacesAttributes = nil
-
 	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
@@ -504,8 +501,7 @@ func (c *Client) readComputeAttributes(id int) (map[string]interface{}, error) {
 	readVmAttributesStr := make(map[string]interface{}, len(readVmAttributes))
 
 	for idx, val := range readVmAttributes {
-		readVmAttributesStr[idx] = fmt.Sprint(val)
-		//readVmAttributesStr[idx], _ = json.Marshal(val)
+		readVmAttributesStr[idx] = val
 	}
 
 	return readVmAttributesStr, nil
