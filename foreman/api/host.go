@@ -169,7 +169,9 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["model_id"] = intIdToJSONString(fh.ModelId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
 	fhMap["owner_id"] = intIdToJSONString(fh.OwnerId)
-	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	if fh.EnvironmentId > 0 {
+		fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	}
 	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
 	if len(fh.InterfacesAttributes) > 0 {
@@ -416,9 +418,6 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 	log.Tracef("foreman/api/host.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
-
-	// Cannot update interfaces in-place. And causes errors if the object is set
-	h.InterfacesAttributes = nil
 
 	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("host", h)
 	if jsonEncErr != nil {

@@ -22,7 +22,8 @@ func dataSourceForemanComputeProfile() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
-					"Compute Profile %s",
+					"Compute profile name."+
+						"%s \"2-Medium\"",
 					autodoc.MetaExample,
 				),
 			},
