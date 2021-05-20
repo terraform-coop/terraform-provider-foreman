@@ -947,7 +947,9 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 
 func expandComputeAttributes(v interface{}) interface{} {
 	var attrs interface{}
-	if v == "" {
+
+	// If Foreman fails to connect to compute provider, it might just return null
+	if v.(string) == "" || v.(string) == "null" {
 		v = "{}"
 	}
 
