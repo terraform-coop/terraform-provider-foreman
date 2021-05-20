@@ -971,7 +971,6 @@ func flattenComputeAttributes(attrs interface{}) interface{} {
 }
 
 func resourceForemanHostCustomizeDiff(d *schema.ResourceDiff, m interface{}) error {
-
 	oldVal, newVal := d.GetChange("compute_attributes")
 
 	oldMap := expandComputeAttributes(oldVal).(map[string]interface{})
