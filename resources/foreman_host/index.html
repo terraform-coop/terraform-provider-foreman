@@ -75,7 +75,7 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
                     </li>
-                    <li class="toctree-l1"><a class="" href="../../data-sources/foreman_katello_product.md">foreman_katello_product</a>
+                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_product/">foreman_katello_product</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_sync_plan/">foreman_katello_sync_plan</a>
                     </li>
@@ -132,7 +132,7 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_credential/">foreman_katello_content_credential</a>
                     </li>
-                    <li class="toctree-l1"><a class="" href="../foreman_katello_product.md">foreman_katello_product</a>
+                    <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_product/">foreman_katello_product</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_sync_plan/">foreman_katello_sync_plan</a>
                     </li>
@@ -207,15 +207,15 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <ul>
 <li><code>bmc_success</code> - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain <code>false</code>. On the next <code>terraform apply</code> will trigger the host update to pick back up with the BMC operations.</li>
 <li><code>comment</code> - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
-<li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options</li>
+<li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - (Optional) </li>
 <li><code>compute_resource_id</code> - (Optional, Force New) </li>
 <li><code>domain_id</code> - (Optional, Force New) ID of the domain to assign to the host.</li>
 <li><code>enable_bmc</code> - (Optional) Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to <code>false</code>.</li>
-<li><code>environment_id</code> - (Optional, Force New) ID of the environment to assign to the host.</li>
+<li><code>environment_id</code> - (Optional) ID of the environment to assign to the host.</li>
 <li><code>hostgroup_id</code> - (Optional, Force New) ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - (Optional, Force New) ID of an image to be used as base for this host when cloning</li>
-<li><code>interfaces_attributes</code> - (Optional, Force New) Host interface information.</li>
+<li><code>interfaces_attributes</code> - (Optional) Host interface information.</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
 <li><code>method</code> - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"</li>
 <li><code>model_id</code> - (Optional) ID of the hardware model if applicable</li>
@@ -230,7 +230,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>comment</code> - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
-<li><code>compute_attributes</code> - Hypervisor specific VM options</li>
+<li><code>compute_attributes</code> - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - </li>
 <li><code>compute_resource_id</code> - </li>
 <li><code>domain_id</code> - ID of the domain to assign to the host.</li>
