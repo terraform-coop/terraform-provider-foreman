@@ -84,7 +84,7 @@ type ForemanHost struct {
 	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
 	// NOTE(ALL): These settings only apply to virtual machines
 	// Hypervisor specific map of ComputeAttributes
-	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
+	ComputeAttributes interface{} `json:"compute_attributes,omitempty"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
@@ -180,9 +180,7 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	if len(fh.HostParameters) > 0 {
 		fhMap["host_parameters_attributes"] = fh.HostParameters
 	}
-	if len(fh.ComputeAttributes) > 0 {
-		fhMap["compute_attributes"] = fh.ComputeAttributes
-	}
+	fhMap["compute_attributes"] = fh.ComputeAttributes
 	log.Debugf("fhMap: [%+v]", fhMap)
 
 	return json.Marshal(fhMap)

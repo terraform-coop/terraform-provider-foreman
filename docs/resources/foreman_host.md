@@ -21,15 +21,15 @@ The following arguments are supported:
 
 - `bmc_success` - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
-- `compute_attributes` - (Optional) Hypervisor specific VM options
+- `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
 - `enable_bmc` - (Optional) Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
-- `environment_id` - (Optional, Force New) ID of the environment to assign to the host.
+- `environment_id` - (Optional) ID of the environment to assign to the host.
 - `hostgroup_id` - (Optional, Force New) ID of the hostgroup to assign to the host.
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
-- `interfaces_attributes` - (Optional, Force New) Host interface information.
+- `interfaces_attributes` - (Optional) Host interface information.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
 - `method` - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"
 - `model_id` - (Optional) ID of the hardware model if applicable
@@ -46,7 +46,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
-- `compute_attributes` - Hypervisor specific VM options
+- `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
 - `compute_resource_id` - 
 - `domain_id` - ID of the domain to assign to the host.

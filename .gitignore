@@ -5,6 +5,7 @@ build/
 *.dll
 *.so
 *.dylib
+*.code-workspace
 
 # godoc files
 docs/godoc/**
