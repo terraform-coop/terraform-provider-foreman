@@ -58,13 +58,13 @@ type ForemanSubnet struct {
 	// MTU Default for the subnet
 	Mtu int `json:"mtu"`
 	// Template ID
-	TemplateID int `json:"template_id"`
+	TemplateID int `json:"template_id,omitempty"`
 	// DHCP ID
-	DhcpID int `json:"dhcp_id"`
+	DhcpID int `json:"dhcp_id,omitempty"`
 	// TFTP ID
-	TftpID int `json:"tftp_id"`
+	TftpID int `json:"tftp_id,omitempty"`
 	// HTTP Boot ID
-	HTTPBootID int `json:"httpboot_id"`
+	HTTPBootID int `json:"httpboot_id,omitempty"`
 	// Domain IDs
 	DomainIDs []int `json:"domain_ids"`
 	// Domains (for internal use)
