@@ -37,31 +37,31 @@ type ForemanHostgroup struct {
 	// Default Root Password for this HostGroup
 	RootPassword string `json:"root_pass,omitempty"`
 	// ID of the architecture associated with this hostgroup
-	ArchitectureId int `json:"architecture_id"`
+	ArchitectureId int `json:"architecture_id,omitempty"`
 	// ID of the compute profile associated with this hostgroup
-	ComputeProfileId int `json:"compute_profile_id"`
+	ComputeProfileId int `json:"compute_profile_id,omitempty"`
 	// ID of the domain associated with this hostgroup
-	DomainId int `json:"domain_id"`
+	DomainId int `json:"domain_id,omitempty"`
 	// ID of the environment associated with this hostgroup
-	EnvironmentId int `json:"environment_id"`
+	EnvironmentId int `json:"environment_id,omitempty"`
 	// ID of the media associated with this hostgroup
-	MediumId int `json:"medium_id"`
+	MediumId int `json:"medium_id,omitempty"`
 	// ID of the operating system associated with this hostgroup
-	OperatingSystemId int `json:"operatingsystem_id"`
+	OperatingSystemId int `json:"operatingsystem_id,omitempty"`
 	// ID of this hostgroup's parent hostgroup
-	ParentId int `json:"parent_id"`
+	ParentId int `json:"parent_id,omitempty"`
 	// ID of the partition table to use with this hostgroup
-	PartitionTableId int `json:"ptable_id"`
+	PartitionTableId int `json:"ptable_id,omitempty"`
 	// ID of the smart proxy acting as the puppet certificate authority
 	// server for the hostgroup
-	PuppetCAProxyId int `json:"puppet_ca_proxy_id"`
+	PuppetCAProxyId int `json:"puppet_ca_proxy_id,omitempty"`
 	// ID of the smart proxy acting as the puppet proxy server for the
 	// hostgroup
-	PuppetProxyId int `json:"puppet_proxy_id"`
+	PuppetProxyId int `json:"puppet_proxy_id,omitempty"`
 	// ID of the realm associated with the hostgroup
-	RealmId int `json:"realm_id"`
+	RealmId int `json:"realm_id,omitempty"`
 	// ID of the subnet associated with the hostgroup
-	SubnetId int `json:"subnet_id"`
+	SubnetId int `json:"subnet_id,omitempty"`
 	// Default PXELoader for the hostgroup
 	PXELoader string `json:"pxe_loader,omitempty"`
 

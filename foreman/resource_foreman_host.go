@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
@@ -8,18 +9,21 @@ import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/imdario/mergo"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 )
 
 func resourceForemanHost() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanHostCreate,
-		Read:   resourceForemanHostRead,
-		Update: resourceForemanHostUpdate,
-		Delete: resourceForemanHostDelete,
+		Create:        resourceForemanHostCreate,
+		Read:          resourceForemanHostRead,
+		Update:        resourceForemanHostUpdate,
+		Delete:        resourceForemanHostDelete,
+		CustomizeDiff: resourceForemanHostCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -144,7 +148,6 @@ func resourceForemanHost() *schema.Resource {
 			"environment_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
@@ -202,18 +205,19 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			"compute_attributes": &schema.Schema{
-				Type:        schema.TypeMap,
-				Optional:    true,
-				Description: "Hypervisor specific VM options",
+				Type:             schema.TypeString,
+				ValidateFunc:     validation.ValidateJsonString,
+				Optional:         true,
+				Computed:         true,
+				Description:      "Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema",
+				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 
 			// -- Key Components --
 			"interfaces_attributes": &schema.Schema{
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
-				ForceNew:    true,
 				Elem:        resourceForemanInterfacesAttributes(),
-				Set:         schema.HashResource(resourceForemanInterfacesAttributes()),
 				Description: "Host interface information.",
 			},
 		},
@@ -240,28 +244,32 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"primary": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this is the primary interface.",
 			},
 			"ip": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ForceNew:     true,
+				Computed:     true,
 				ValidateFunc: validation.SingleIP(),
 				Description:  "IP address associated with the interface.",
+			},
+			"name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				ForceNew:    false,
+				Computed:    true,
+				Description: "Name of the interface",
 			},
 			"mac": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Computed:    true,
 				Description: "MAC address associated with the interface.",
 			},
 			"subnet_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				ForceNew:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the subnet to associate with this interface.",
@@ -269,59 +277,50 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"identifier": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				ForceNew:    true,
 				Description: "Identifier of this interface local to the host.",
 			},
 			"managed": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this interface is managed by Foreman.",
 			},
 			"provision": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this interface is used to provision the host.",
 			},
 			"virtual": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				ForceNew:    true,
 				Default:     false,
 				Description: "Whether or not this is a virtual interface.",
 			},
 			"attached_to": &schema.Schema{
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Identifier of the interface to which this interface belongs.",
 			},
 			"attached_devices": &schema.Schema{
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list",
 			},
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Username used for BMC/IPMI functionality.",
 			},
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Sensitive:   true,
-				ForceNew:    true,
 				Optional:    true,
 				Description: "Associated password used for BMC/IPMI functionality.",
 			},
 			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"interface",
 					"bmc",
@@ -336,7 +335,6 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"bmc_provider": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"IPMI",
 					// NOTE(ALL): false - do not ignore case when comparing values
@@ -416,7 +414,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	}
 
 	if attr, ok = d.GetOk("compute_attributes"); ok {
-		host.ComputeAttributes = d.Get("compute_attributes").(map[string]interface{})
+		host.ComputeAttributes = expandComputeAttributes(attr)
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -440,8 +438,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 	}
 
 	// type assert the underlying *schema.Set and convert to a list
-	attrSet := attr.(*schema.Set)
-	attrList := attrSet.List()
+	attrList := attr.([]interface{})
 	attrListLen := len(attrList)
 	tempIntAttr = make([]api.ForemanInterfacesAttribute, attrListLen)
 	// iterate over each of the map structure entires in the set and convert that
@@ -577,13 +574,9 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("comment", fh.Comment)
 	d.Set("parameters", host_parameters)
 
-	ca := make(map[string]interface{})
-	for k := range d.Get("compute_attributes").(map[string]interface{}) {
-		if v, ok := fh.ComputeAttributes[k]; ok {
-			ca[k] = v
-		}
+	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
+		log.Printf("[WARN] error setting compute attributes: %s", err)
 	}
-	d.Set("compute_attributes", ca)
 
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
@@ -615,20 +608,34 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.SetPartial("model_id")
 	d.SetPartial("enable_bmc")
 
-	setResourceDataFromForemanInterfacesAttributes(d, fh.InterfacesAttributes)
+	setResourceDataFromForemanInterfacesAttributes(d, fh)
 }
 
 // setResourceDataFromInterfacesAttributes sets a ResourceData's
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
-func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia []api.ForemanInterfacesAttribute) {
+func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
 	// entries.  The hash function will be based on the resource definition
-	hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
+	//hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
 	// underneath, a *schema.Set stores an array of map[string]interface{} entries.
 	// convert each ForemanInterfaces struct in the supplied array to a
 	// mapstructure and then add it to the set
+	fhia := fh.InterfacesAttributes
+	interfaces_compute_attributes := make(map[string]interface{})
+
+	if fh.ComputeAttributes != nil {
+		var ifs interface{}
+		var ok bool
+		if ifs, ok = fh.ComputeAttributes.(map[string]interface{})["interfaces_attributes"]; ok {
+			for _, attrs := range ifs.(map[string]interface{}) {
+				a := attrs.(map[string]interface{})
+				interfaces_compute_attributes[a["mac"].(string)] = a["compute_attributes"]
+			}
+		}
+	}
+
 	ifaceArr := make([]interface{}, len(fhia))
 	for idx, val := range fhia {
 		// NOTE(ALL): we ommit the "_destroy" property here - this does not need
@@ -643,6 +650,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 			"subnet_id":    val.SubnetId,
 			"primary":      val.Primary,
 			"managed":      val.Managed,
+			"identifier":   val.Identifier,
 			"provision":    val.Provision,
 			"virtual":      val.Virtual,
 			"type":         val.Type,
@@ -652,16 +660,19 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fhia
 
 			"attached_devices": val.AttachedDevices,
 			"attached_to":      val.AttachedTo,
-
-			// NOTE(ALL): These settings only apply to virtual machines
-			"compute_attributes": val.ComputeAttributes,
 		}
+
+		// NOTE(ALL): These settings only apply to virtual machines
+		var ok bool
+		if ifaceMap["compute_attributes"], ok = interfaces_compute_attributes[val.MAC]; !ok {
+			ifaceMap["compute_attributes"] = val.ComputeAttributes
+		}
+
 		ifaceArr[idx] = ifaceMap
 	}
 	// with the array set up, create the *schema.Set and set the ResourceData's
 	// "interfaces_attributes" property
-	tempIntAttrSet := schema.NewSet(hashFunc, ifaceArr)
-	d.Set("interfaces_attributes", tempIntAttrSet)
+	d.Set("interfaces_attributes", ifaceArr)
 
 	// For partial state, passing a prefix will flag all nested keys as successful
 	d.SetPartial("interfaces_attributes")
@@ -776,43 +787,28 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Enable partial mode in the event of failure of one of API calls required for host update
 	d.Partial(true)
 
+	// NOTE(ALL): Do not make requests to compute provider if no changes to compute attributes are needed
+	if !d.HasChange("compute_attributes") {
+		h.ComputeAttributes = nil
+	}
+
 	// NOTE(ALL): Handling the removal of a Interfaces.  See the note
 	//   in ForemanInterfacesAttribute's Destroy property
 	if d.HasChange("interfaces_attributes") {
 		oldVal, newVal := d.GetChange("interfaces_attributes")
-		oldValSet, newValSet := oldVal.(*schema.Set), newVal.(*schema.Set)
-
-		// NOTE(ALL): The set difference operation is anticommutative (because math)
-		//   ie: [A - B] =/= [B - A].
-		//
-		//   When performing an update, we need to figure out which interfaces
-		//   were removed from the set and tag the destroy property
-		//   to true and instruct Foreman which ones to delete from the list. We do
-		//   this by performing a set difference between the old set and the new
-		//   set (ie: [old - new]) which will return the items that used to be in
-		//   the set but are no longer included.
-		//
-		//   The values that were added to the set or remained unchanged are already
-		//   part of the interfaces.  They are present in the
-		//   ResourceData and already exist from the
-		//   buildForemanHost() call.
-
-		setDiff := oldValSet.Difference(newValSet)
-		setDiffList := setDiff.List()
-		log.Debugf("setDiffList: [%v]", setDiffList)
+		oldValList, newValList := oldVal.([]interface{}), newVal.([]interface{})
 
 		// iterate over the removed items, add them back to the interface's
 		// array, but tag them for removal.
-		//
-		// each of the set's items is stored as a map[string]interface{} - use
-		// type assertion and construct the struct
-		for _, rmVal := range setDiffList {
-			// construct, tag for deletion from list of interfaces
-			rmValMap := rmVal.(map[string]interface{})
-			rmInterface := mapToForemanInterfacesAttribute(rmValMap)
-			rmInterface.Destroy = true
-			// append back to interface's list
-			h.InterfacesAttributes = append(h.InterfacesAttributes, rmInterface)
+		for idx, rmVal := range oldValList {
+			if idx+1 > len(newValList) {
+				// construct, tag for deletion from list of interfaces
+				rmValMap := rmVal.(map[string]interface{})
+				rmInterface := mapToForemanInterfacesAttribute(rmValMap)
+				rmInterface.Destroy = true
+				// append back to interface's list
+				h.InterfacesAttributes = append(h.InterfacesAttributes, rmInterface)
+			}
 		}
 
 	} // end HasChange("interfaces_attributes")
@@ -947,4 +943,45 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 		}
 	}
 	return fmt.Errorf("Failed to delete host in retry_count* 2 seconds")
+}
+
+func expandComputeAttributes(v interface{}) interface{} {
+	var attrs interface{}
+
+	// If Foreman fails to connect to compute provider, it might just return null
+	if v.(string) == "" || v.(string) == "null" {
+		v = "{}"
+	}
+
+	if err := json.Unmarshal([]byte(v.(string)), &attrs); err != nil {
+		log.Printf("[ERROR] Could not unmarshal compute attributes %s: %v", v.(string), err)
+		return nil
+	}
+
+	return attrs
+}
+
+func flattenComputeAttributes(attrs interface{}) interface{} {
+	json, err := json.Marshal(attrs)
+	if err != nil {
+		log.Printf("[ERROR] Could not marshal compute attributes %s: %v", attrs.(string), err)
+		return nil
+	}
+	return string(json)
+}
+
+func resourceForemanHostCustomizeDiff(d *schema.ResourceDiff, m interface{}) error {
+	oldVal, newVal := d.GetChange("compute_attributes")
+
+	oldMap := expandComputeAttributes(oldVal).(map[string]interface{})
+	newMap := expandComputeAttributes(newVal).(map[string]interface{})
+
+	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
+
+	if err != nil {
+		log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
+	}
+
+	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
+	return nil
 }

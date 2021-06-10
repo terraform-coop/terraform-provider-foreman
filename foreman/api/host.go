@@ -84,7 +84,7 @@ type ForemanHost struct {
 	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
 	// NOTE(ALL): These settings only apply to virtual machines
 	// Hypervisor specific map of ComputeAttributes
-	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
+	ComputeAttributes interface{} `json:"compute_attributes,omitempty"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
@@ -169,7 +169,9 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	fhMap["model_id"] = intIdToJSONString(fh.ModelId)
 	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
 	fhMap["owner_id"] = intIdToJSONString(fh.OwnerId)
-	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	if fh.EnvironmentId > 0 {
+		fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	}
 	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
 	if len(fh.InterfacesAttributes) > 0 {
@@ -178,9 +180,7 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 	if len(fh.HostParameters) > 0 {
 		fhMap["host_parameters_attributes"] = fh.HostParameters
 	}
-	if len(fh.ComputeAttributes) > 0 {
-		fhMap["compute_attributes"] = fh.ComputeAttributes
-	}
+	fhMap["compute_attributes"] = fh.ComputeAttributes
 	log.Debugf("fhMap: [%+v]", fhMap)
 
 	return json.Marshal(fhMap)
@@ -419,9 +419,6 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
-	// Cannot update interfaces in-place. And causes errors if the object is set
-	h.InterfacesAttributes = nil
-
 	hJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("host", h)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
@@ -504,8 +501,7 @@ func (c *Client) readComputeAttributes(id int) (map[string]interface{}, error) {
 	readVmAttributesStr := make(map[string]interface{}, len(readVmAttributes))
 
 	for idx, val := range readVmAttributes {
-		readVmAttributesStr[idx] = fmt.Sprint(val)
-		//readVmAttributesStr[idx], _ = json.Marshal(val)
+		readVmAttributesStr[idx] = val
 	}
 
 	return readVmAttributesStr, nil
