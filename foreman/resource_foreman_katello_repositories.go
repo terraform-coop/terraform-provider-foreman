@@ -82,7 +82,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Description: fmt.Sprintf(
 					"Product the repository belongs to. Valid values include:"+
 						"`\"deb\"`, \"docker\"`, \"file\"`, \"puppet\"`, \"yum\"`."+
-						"%s \"deb\"",
+						"%s \"yum\"",
 					autodoc.MetaExample,
 				),
 			},
@@ -104,33 +104,6 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			/* "ssl_ca_cert_id": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: fmt.Sprintf(
-								"Idenifier of the SSL CA Cert."+
-									"%s",
-								autodoc.MetaExample,
-							),
-						},
-			            "ssl_client_cert_id": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: fmt.Sprintf(
-								"Identifier of the SSL Client Cert."+
-									"%s",
-								autodoc.MetaExample,
-							),
-						},
-			            "ssl_client_key_id": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: fmt.Sprintf(
-								"Identifier of the SSL Client Key."+
-									"%s",
-								autodoc.MetaExample,
-							),
-						}, */
 			"unprotected": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -225,30 +198,6 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Description: fmt.Sprintf(
 					"Password of the upstream repository user used for authentication."+
 						"%s \"S3cr3t123!\"",
-					autodoc.MetaExample,
-				),
-			},
-			"ostree_upstream_sync_policy": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"latest",
-					"all",
-					"custom",
-				}, false),
-				Description: fmt.Sprintf(
-					"Policies for syncing upstream ostree repositories. Valid values include:"+
-						"`\"latest\"`, \"all\"`, \"custom\"`."+
-						"%s \"latest\"",
-					autodoc.MetaExample,
-				),
-			},
-			"ostree_upstream_sync_depth": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				Description: fmt.Sprintf(
-					"If a custom sync policy is chosen for ostree repositories then a 'depth' value must be provided."+
-						"%s",
 					autodoc.MetaExample,
 				),
 			},
@@ -357,9 +306,6 @@ func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRe
 	Repository.ContentType = d.Get("content_type").(string)
 	Repository.Url = d.Get("url").(string)
 	Repository.GpgKeyId = d.Get("gpg_key_id").(int)
-	/* 	Repository.SslCaCertId = d.Get("ssl_ca_cert_id").(int)
-	   	Repository.SslClientCertId = d.Get("ssl_client_cert_id").(int)
-	   	Repository.SslClientKeyId = d.Get("ssl_client_key_id").(int) */
 	Repository.Unprotected = d.Get("unprotected").(bool)
 	Repository.ChecksumType = d.Get("checksum_type").(string)
 	Repository.DockerUpstreamName = d.Get("docker_upstream_name").(string)
@@ -370,8 +316,6 @@ func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRe
 	Repository.VerifySslOnSync = d.Get("verify_ssl_on_sync").(bool)
 	Repository.UpstreamUsername = d.Get("upstream_username").(string)
 	Repository.UpstreamPassword = d.Get("upstream_password").(string)
-	Repository.OstreeUpstreamSyncPolicy = d.Get("ostree_upstream_sync_policy").(string)
-	Repository.OstreeUpstreamSyncDepth = d.Get("ostree_upstream_sync_depth").(int)
 	Repository.DebReleases = d.Get("deb_releases").(string)
 	Repository.DebComponents = d.Get("deb_components").(string)
 	Repository.DebArchitectures = d.Get("deb_architectures").(string)
@@ -397,9 +341,6 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, Reposit
 	d.Set("content_type", Repository.ContentType)
 	d.Set("url", Repository.Url)
 	d.Set("gpg_key_id", Repository.GpgKeyId)
-	/* 	d.Set("ssl_ca_cert_id", Repository.SslCaCertId)
-	   	d.Set("ssl_client_cert_id", Repository.SslClientCertId)
-	   	d.Set("ssl_client_key_id", Repository.SslClientKeyId) */
 	d.Set("unprotected", Repository.Unprotected)
 	d.Set("checksum_type", Repository.ChecksumType)
 	d.Set("docker_upstream_name", Repository.DockerUpstreamName)
@@ -410,8 +351,6 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, Reposit
 	d.Set("verify_ssl_on_sync", Repository.VerifySslOnSync)
 	d.Set("upstream_username", Repository.UpstreamUsername)
 	d.Set("upstream_password", Repository.UpstreamPassword)
-	d.Set("ostree_upstream_sync_policy", Repository.OstreeUpstreamSyncPolicy)
-	d.Set("ostree_upstream_sync_depth", Repository.OstreeUpstreamSyncDepth)
 	d.Set("deb_releases", Repository.DebReleases)
 	d.Set("deb_components", Repository.DebComponents)
 	d.Set("deb_architectures", Repository.DebArchitectures)

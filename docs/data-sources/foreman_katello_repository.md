@@ -45,8 +45,6 @@ The following attributes are exported:
 - `label` - 
 - `mirror_on_sync` - true if this repository when synced has to be mirrored from the source and stale rpms removed.
 - `name` - Repository name.
-- `ostree_upstream_sync_depth` - If a custom sync policy is chosen for ostree repositories then a 'depth' value must be provided.
-- `ostree_upstream_sync_policy` - Policies for syncing upstream ostree repositories. Valid values include:`"latest"`, "all"`, "custom"`.
 - `product_id` - Product the repository belongs to.
 - `unprotected` - true if this repository can be published via HTTP.
 - `upstream_password` - Password of the upstream repository user used for authentication.
