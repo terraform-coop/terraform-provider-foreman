@@ -189,6 +189,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_katello_product":            resourceForemanKatelloProduct(),
 			"foreman_katello_repository":         resourceForemanKatelloRepository(),
 			"foreman_katello_sync_plan":          resourceForemanKatelloSyncPlan(),
+			"foreman_user":                       resourceForemanUser(),
 			"foreman_usergroup":                  resourceForemanUsergroup(),
 		},
 
@@ -216,6 +217,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_katello_product":            dataSourceForemanKatelloProduct(),
 			"foreman_katello_repository":         dataSourceForemanKatelloRepository(),
 			"foreman_katello_sync_plan":          dataSourceForemanKatelloSyncPlan(),
+			"foreman_user":                       dataSourceForemanUser(),
 			"foreman_usergroup":                  dataSourceForemanUsergroup(),
 		},
 		ConfigureFunc: providerConfigure,
