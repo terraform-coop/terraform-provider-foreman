@@ -2,11 +2,15 @@ package api
 
 import (
 	"encoding/base64"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"reflect"
 	"testing"
+
+	logger "github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 // ----------------------------------------------------------------------------
@@ -44,6 +48,11 @@ func NewForemanAPIAndClient(cred ClientCredentials, conf ClientConfig) (*http.Se
 	// use unsafe TLS when talking to the mock server
 	client := NewClient(s, cred, conf)
 	return urlMux, server, client
+}
+
+func TestMain(m *testing.M) {
+	logger.SetOutput(ioutil.Discard)
+	os.Exit(m.Run())
 }
 
 // ----------------------------------------------------------------------------
