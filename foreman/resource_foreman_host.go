@@ -899,32 +899,6 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
-	if len(h.InterfacesAttributes) > 0 {
-		log.Debugf("deleting host that has interfaces set")
-		// iterate through each of the host interfaces and tag them for
-		// removal from the list
-		for idx := range h.InterfacesAttributes {
-			h.InterfacesAttributes[idx].Destroy = true
-		}
-		log.Debugf("host: [%+v]", h)
-
-		updatedHost, updateErr := client.UpdateHost(h, hostRetryCount)
-		if updateErr != nil {
-			return updateErr
-		}
-
-		log.Debugf("updated Host: [%+v]", updatedHost)
-
-		// NOTE(ALL): set the resource data's properties to what comes back from
-		//   the update call. This allows us to recover from a partial state if
-		//   delete encounters an error after this point - at least the resource's
-		//   state will be saved with the correct interfaces.
-		setResourceDataFromForemanHost(d, updatedHost)
-
-		log.Debugf("completed the interface deletion")
-
-	} // end if len(host.InterfacesAttributes) > 0
-
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 	returnDelete := client.DeleteHost(h.Id)
