@@ -103,6 +103,12 @@ func RandForemanHost() api.ForemanHost {
 	obj.OwnerId = rand.Intn(100)
 	obj.OwnerType = "Usergroup"
 
+	hostCompAttr := make(map[string]interface{})
+	for fil := 0; fil < rand.Intn(3); fil++ {
+		hostCompAttr[tfrand.String(5, tfrand.Lower)] = tfrand.String(5, tfrand.Lower)
+	}
+	obj.ComputeAttributes = flattenComputeAttributes(hostCompAttr)
+
 	obj.InterfacesAttributes = make([]api.ForemanInterfacesAttribute, rand.Intn(5))
 	for idx, _ := range obj.InterfacesAttributes {
 		compAttr := make(map[string]interface{})
