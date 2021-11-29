@@ -107,10 +107,10 @@ func RandForemanHost() api.ForemanHost {
 	for fil := 0; fil < rand.Intn(3); fil++ {
 		hostCompAttr[tfrand.String(5, tfrand.Lower)] = tfrand.String(5, tfrand.Lower)
 	}
-	obj.ComputeAttributes = flattenComputeAttributes(hostCompAttr)
+	obj.ComputeAttributes = hostCompAttr
 
 	obj.InterfacesAttributes = make([]api.ForemanInterfacesAttribute, rand.Intn(5))
-	for idx, _ := range obj.InterfacesAttributes {
+	for idx := range obj.InterfacesAttributes {
 		compAttr := make(map[string]interface{})
 		for fil := 0; fil < rand.Intn(3); fil++ {
 			compAttr[tfrand.String(5, tfrand.Lower)] = tfrand.String(5, tfrand.Lower)
