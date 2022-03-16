@@ -119,6 +119,22 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the compute profile associated with this hostgroup.",
 			},
 
+			"content_source_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the content source associated with this hostgroup.",
+			},
+
+			"content_view_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the content view associated with this hostgroup.",
+			},
+
 			"domain_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -133,6 +149,14 @@ func resourceForemanHostgroup() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment associated with this hostgroup.",
+			},
+
+			"lifecycle_environment_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the lifecycle environment associated with this hostgroup.",
 			},
 
 			"medium_id": &schema.Schema{
@@ -240,12 +264,24 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 		hostgroup.ComputeProfileId = attr.(int)
 	}
 
+	if attr, ok = d.GetOk("content_source_id"); ok {
+		hostgroup.ContentSourceId = attr.(int)
+	}
+
+	if attr, ok = d.GetOk("content_view_id"); ok {
+		hostgroup.ContentViewId = attr.(int)
+	}
+
 	if attr, ok = d.GetOk("domain_id"); ok {
 		hostgroup.DomainId = attr.(int)
 	}
 
 	if attr, ok = d.GetOk("environment_id"); ok {
 		hostgroup.EnvironmentId = attr.(int)
+	}
+
+	if attr, ok = d.GetOk("lifecycle_environment_id"); ok {
+		hostgroup.LifecycleId = attr.(int)
 	}
 
 	if attr, ok = d.GetOk("medium_id"); ok {
@@ -304,8 +340,11 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("parameters", fh.HostGroupParameters)
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
+	d.Set("content_source_id", fh.ContentSourceId)
+	d.Set("content_view_id", fh.ContentViewId)
 	d.Set("domain_id", fh.DomainId)
 	d.Set("environment_id", fh.EnvironmentId)
+	d.Set("lifecycle_environment_id", fh.LifecycleId)
 	d.Set("medium_id", fh.MediumId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)
 	d.Set("parent_id", fh.ParentId)
