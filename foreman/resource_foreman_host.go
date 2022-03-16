@@ -94,6 +94,13 @@ func resourceForemanHost() *schema.Resource {
 					"boot to PXE and power on. Defaults to `false`.",
 			},
 
+			"manage_build": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Create host only, don't set build status or manage power states",
+			},
+
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -688,8 +695,10 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
+	manageBuild := d.Get("manage_build").(bool)
+
 	// NOTE(ALL): Set the build flag to true on host create
-	if h.Method == "build" {
+	if h.Method == "build" && manageBuild {
 		h.Build = true
 	}
 
@@ -714,6 +723,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	var powerCmds []interface{}
 	// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
+	// Don't modify power state at all if we're not managing the build
 	if enablebmc {
 		log.Debugf("Calling BMC Reboot/PXE Functions")
 		// List of BMC Actions to perform
@@ -725,7 +735,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 				PowerAction: api.PowerCycle,
 			},
 		}
-	} else {
+	} else if manageBuild {
 		log.Debugf("Using default Foreman behaviour for startup")
 		powerCmds = []interface{}{
 			api.Power{
