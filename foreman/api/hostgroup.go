@@ -64,6 +64,12 @@ type ForemanHostgroup struct {
 	SubnetId int `json:"subnet_id,omitempty"`
 	// Default PXELoader for the hostgroup
 	PXELoader string `json:"pxe_loader,omitempty"`
+	// ID of the Katello Lifecycle Environment
+	LifecycleId int `json:"lifecycle_environment_id,omitempty"`
+	// ID of the Katello content view
+	ContentViewId int `json:"content_view_id,omitempty"`
+	// ID of Smart Proxy serving the content
+	ContentSourceId int `json:"content_source_id,omitempty"`
 
 	// Map of HostGroupParameters
 	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes,omitempty"`
@@ -84,8 +90,11 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 
 	fhMap["architecture_id"] = intIdToJSONString(fh.ArchitectureId)
 	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
+	fhMap["content_source_id"] = intIdToJSONString(fh.ContentSourceId)
+	fhMap["content_view_id"] = intIdToJSONString(fh.ContentViewId)
 	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
 	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
+	fhMap["lifecycle_environment_id"] = intIdToJSONString(fh.LifecycleId)
 	fhMap["medium_id"] = intIdToJSONString(fh.MediumId)
 	fhMap["operatingsystem_id"] = intIdToJSONString(fh.OperatingSystemId)
 	fhMap["parent_id"] = intIdToJSONString(fh.ParentId)
@@ -135,8 +144,11 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 	// Unmarshal the remaining foreign keys to their id
 	fh.ArchitectureId = unmarshalInteger(fhMap["architecture_id"])
 	fh.ComputeProfileId = unmarshalInteger(fhMap["compute_profile_id"])
+	fh.ContentSourceId = unmarshalInteger(fhMap["content_source_id"])
+	fh.ContentViewId = unmarshalInteger(fhMap["content_view_id"])
 	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
 	fh.EnvironmentId = unmarshalInteger(fhMap["environment_id"])
+	fh.LifecycleId = unmarshalInteger(fhMap["lifecycle_environment_id"])
 	fh.MediumId = unmarshalInteger(fhMap["medium_id"])
 	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
 	fh.ParentId = unmarshalInteger(fhMap["parent_id"])
