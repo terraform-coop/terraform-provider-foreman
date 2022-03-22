@@ -98,6 +98,8 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templatekind/">foreman_templatekind</a>
                     </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_user/">foreman_user</a>
+                    </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_usergroup/">foreman_usergroup</a>
                     </li>
                 </ul>
@@ -154,6 +156,8 @@
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_smartproxy/">foreman_smartproxy</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../foreman_user/">foreman_user</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_usergroup/">foreman_usergroup</a>
                     </li>
@@ -220,6 +224,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>hostgroup_id</code> - (Optional, Force New) ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - (Optional, Force New) ID of an image to be used as base for this host when cloning</li>
 <li><code>interfaces_attributes</code> - (Optional) Host interface information.</li>
+<li><code>manage_build</code> - (Optional) Create host only, don't set build status or manage power states</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
 <li><code>method</code> - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"</li>
 <li><code>model_id</code> - (Optional) ID of the hardware model if applicable</li>
@@ -243,6 +248,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>hostgroup_id</code> - ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - ID of an image to be used as base for this host when cloning</li>
 <li><code>interfaces_attributes</code> - Host interface information.</li>
+<li><code>manage_build</code> - Create host only, don't set build status or manage power states</li>
 <li><code>medium_id</code> - ID of the medium mounted on the host.</li>
 <li><code>method</code> - Chooses a method with which to provision the HostOptions are "build" and "image"</li>
 <li><code>model_id</code> - ID of the hardware model if applicable</li>

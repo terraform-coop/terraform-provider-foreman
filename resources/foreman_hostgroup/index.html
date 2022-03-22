@@ -98,6 +98,8 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templatekind/">foreman_templatekind</a>
                     </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_user/">foreman_user</a>
+                    </li>
                     <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_usergroup/">foreman_usergroup</a>
                     </li>
                 </ul>
@@ -155,6 +157,8 @@
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
                     </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../foreman_user/">foreman_user</a>
+                    </li>
                     <li class="toctree-l1"><a class="reference internal" href="../foreman_usergroup/">foreman_usergroup</a>
                     </li>
                 </ul>
@@ -211,8 +215,11 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
 <ul>
 <li><code>architecture_id</code> - (Optional) ID of the architecture associated with this hostgroup.</li>
 <li><code>compute_profile_id</code> - (Optional) ID of the compute profile associated with this hostgroup.</li>
+<li><code>content_source_id</code> - (Optional) ID of the content source associated with this hostgroup.</li>
+<li><code>content_view_id</code> - (Optional) ID of the content view associated with this hostgroup.</li>
 <li><code>domain_id</code> - (Optional) ID of the domain associated with this hostgroup.</li>
 <li><code>environment_id</code> - (Optional) ID of the environment associated with this hostgroup.</li>
+<li><code>lifecycle_environment_id</code> - (Optional) ID of the lifecycle environment associated with this hostgroup.</li>
 <li><code>medium_id</code> - (Optional) ID of the media associated with this hostgroup.</li>
 <li><code>name</code> - (Required) Hostgroup name.</li>
 <li><code>operatingsystem_id</code> - (Optional) ID of the operating system associated with this hostgroup.</li>
@@ -223,7 +230,7 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
 <li><code>puppet_proxy_id</code> - (Optional) ID of the smart proxy acting as the puppet proxy server for this hostgroup.</li>
 <li><code>pxe_loader</code> - (Optional) Operating system family. Values include: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"</li>
 <li><code>realm_id</code> - (Optional) ID of the realm associated with this hostgroup.</li>
-<li><code>root_password</code> - (Required) Default root password</li>
+<li><code>root_password</code> - (Optional) Default root password</li>
 <li><code>subnet_id</code> - (Optional) ID of the subnet associated with the hostgroup.</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
@@ -231,8 +238,11 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
 <ul>
 <li><code>architecture_id</code> - ID of the architecture associated with this hostgroup.</li>
 <li><code>compute_profile_id</code> - ID of the compute profile associated with this hostgroup.</li>
+<li><code>content_source_id</code> - ID of the content source associated with this hostgroup.</li>
+<li><code>content_view_id</code> - ID of the content view associated with this hostgroup.</li>
 <li><code>domain_id</code> - ID of the domain associated with this hostgroup.</li>
 <li><code>environment_id</code> - ID of the environment associated with this hostgroup.</li>
+<li><code>lifecycle_environment_id</code> - ID of the lifecycle environment associated with this hostgroup.</li>
 <li><code>medium_id</code> - ID of the media associated with this hostgroup.</li>
 <li><code>name</code> - Hostgroup name.</li>
 <li><code>operatingsystem_id</code> - ID of the operating system associated with this hostgroup.</li>
