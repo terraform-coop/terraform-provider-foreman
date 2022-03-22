@@ -21,8 +21,11 @@ The following arguments are supported:
 
 - `architecture_id` - (Optional) ID of the architecture associated with this hostgroup.
 - `compute_profile_id` - (Optional) ID of the compute profile associated with this hostgroup.
+- `content_source_id` - (Optional) ID of the content source associated with this hostgroup.
+- `content_view_id` - (Optional) ID of the content view associated with this hostgroup.
 - `domain_id` - (Optional) ID of the domain associated with this hostgroup.
 - `environment_id` - (Optional) ID of the environment associated with this hostgroup.
+- `lifecycle_environment_id` - (Optional) ID of the lifecycle environment associated with this hostgroup.
 - `medium_id` - (Optional) ID of the media associated with this hostgroup.
 - `name` - (Required) Hostgroup name.
 - `operatingsystem_id` - (Optional) ID of the operating system associated with this hostgroup.
@@ -33,7 +36,7 @@ The following arguments are supported:
 - `puppet_proxy_id` - (Optional) ID of the smart proxy acting as the puppet proxy server for this hostgroup.
 - `pxe_loader` - (Optional) Operating system family. Values include: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"
 - `realm_id` - (Optional) ID of the realm associated with this hostgroup.
-- `root_password` - (Required) Default root password
+- `root_password` - (Optional) Default root password
 - `subnet_id` - (Optional) ID of the subnet associated with the hostgroup.
 
 
@@ -43,8 +46,11 @@ The following attributes are exported:
 
 - `architecture_id` - ID of the architecture associated with this hostgroup.
 - `compute_profile_id` - ID of the compute profile associated with this hostgroup.
+- `content_source_id` - ID of the content source associated with this hostgroup.
+- `content_view_id` - ID of the content view associated with this hostgroup.
 - `domain_id` - ID of the domain associated with this hostgroup.
 - `environment_id` - ID of the environment associated with this hostgroup.
+- `lifecycle_environment_id` - ID of the lifecycle environment associated with this hostgroup.
 - `medium_id` - ID of the media associated with this hostgroup.
 - `name` - Hostgroup name.
 - `operatingsystem_id` - ID of the operating system associated with this hostgroup.

@@ -28,8 +28,11 @@ The following attributes are exported:
 
 - `architecture_id` - ID of the architecture associated with this hostgroup.
 - `compute_profile_id` - ID of the compute profile associated with this hostgroup.
+- `content_source_id` - ID of the content source associated with this hostgroup.
+- `content_view_id` - ID of the content view associated with this hostgroup.
 - `domain_id` - ID of the domain associated with this hostgroup.
 - `environment_id` - ID of the environment associated with this hostgroup.
+- `lifecycle_environment_id` - ID of the lifecycle environment associated with this hostgroup.
 - `medium_id` - ID of the media associated with this hostgroup.
 - `name` - Hostgroup name.
 - `operatingsystem_id` - ID of the operating system associated with this hostgroup.
