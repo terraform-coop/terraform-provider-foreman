@@ -30,10 +30,11 @@ The following arguments are supported:
 - `parent_id` - (Optional) ID of the parent hostgroup.
 - `ptable_id` - (Optional) ID of the partition table associated with this hostgroup.
 - `puppet_ca_proxy_id` - (Optional) ID of the smart proxy acting as the puppet certificate authority server for this hostgroup.
+- `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `puppet_proxy_id` - (Optional) ID of the smart proxy acting as the puppet proxy server for this hostgroup.
 - `pxe_loader` - (Optional) Operating system family. Values include: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"
 - `realm_id` - (Optional) ID of the realm associated with this hostgroup.
-- `root_password` - (Required) Default root password
+- `root_password` - (Optional) Default root password
 - `subnet_id` - (Optional) ID of the subnet associated with the hostgroup.
 
 
@@ -52,6 +53,7 @@ The following attributes are exported:
 - `parent_id` - ID of the parent hostgroup.
 - `ptable_id` - ID of the partition table associated with this hostgroup.
 - `puppet_ca_proxy_id` - ID of the smart proxy acting as the puppet certificate authority server for this hostgroup.
+- `puppet_class_ids` - IDs of the applied puppet classes.
 - `puppet_proxy_id` - ID of the smart proxy acting as the puppet proxy server for this hostgroup.
 - `pxe_loader` - Operating system family. Values include: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"
 - `realm_id` - ID of the realm associated with this hostgroup.

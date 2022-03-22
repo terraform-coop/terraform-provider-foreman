@@ -55,6 +55,8 @@ type ForemanHostgroup struct {
 	// ID of the smart proxy acting as the puppet certificate authority
 	// server for the hostgroup
 	PuppetCAProxyId int `json:"puppet_ca_proxy_id,omitempty"`
+	// IDs of the puppet classes applied to the host group
+	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
 	// ID of the smart proxy acting as the puppet proxy server for the
 	// hostgroup
 	PuppetProxyId int `json:"puppet_proxy_id,omitempty"`
@@ -67,6 +69,13 @@ type ForemanHostgroup struct {
 
 	// Map of HostGroupParameters
 	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes,omitempty"`
+}
+
+// ForemanHostgroup struct used for JSON decode.  Foreman API returns the ids
+// back as a list of ForemanObjects with some of the attributes of the data
+// types. However, we are only interested in the IDs returned.
+type foremanHgRespJSON struct {
+	PuppetClasses []ForemanObject `json:"puppetclasses"`
 }
 
 // Implement the Marshaler interface
@@ -99,6 +108,10 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 		fhMap["group_parameters_attributes"] = fh.HostGroupParameters
 	}
 
+	if len(fh.PuppetClassIds) > 0 {
+		fhMap["puppetclass_ids"] = fh.PuppetClassIds
+	}
+
 	log.Debugf("fhMap: [%v]", fhMap)
 
 	return json.Marshal(fhMap)
@@ -114,6 +127,13 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 		return jsonDecErr
 	}
 	fh.ForemanObject = fo
+
+	var foJSON foremanHgRespJSON
+	jsonDecErr = json.Unmarshal(b, &foJSON)
+	if jsonDecErr != nil {
+		return jsonDecErr
+	}
+	fh.PuppetClassIds = foremanObjectArrayToIdIntArray(foJSON.PuppetClasses)
 
 	// Unmarshal into mapstructure and set the rest of the struct properties
 	var fhMap map[string]interface{}

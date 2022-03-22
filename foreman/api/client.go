@@ -21,6 +21,8 @@ const (
 	FOREMAN_API_URL_PREFIX = "/api"
 	// FOREMAN_KATELLO_API_URL_PREFIX is the Foreman Katello API endpoint
 	FOREMAN_KATELLO_API_URL_PREFIX = "/katello/api"
+	// API Prefix for Puppet plugin
+	FOREMAN_PUPPET_API_URL_PREFIX = "/foreman_puppet/api"
 	// The Foreman API allows you to request a specific API version in the
 	// Accept header of the HTTP request.  The two supported versions (at
 	// the time of writing) are 1 and 2, which version 1 planning on being
@@ -152,6 +154,8 @@ func (client *Client) NewRequest(method string, endpoint string, body io.Reader)
 	// Check for katello endpoint
 	if strings.HasPrefix(endpoint, "katello") {
 		reqURL.Path = FOREMAN_KATELLO_API_URL_PREFIX + strings.TrimPrefix(endpoint, "katello")
+	} else if strings.HasPrefix(endpoint, "puppet") {
+		reqURL.Path = FOREMAN_PUPPET_API_URL_PREFIX + strings.TrimPrefix(endpoint, "puppet")
 	} else {
 		if strings.HasPrefix(endpoint, "/") {
 			reqURL.Path = FOREMAN_API_URL_PREFIX + endpoint

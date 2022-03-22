@@ -6,6 +6,7 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -174,6 +175,16 @@ func resourceForemanHostgroup() *schema.Resource {
 					"authority server for this hostgroup.",
 			},
 
+			"puppet_class_ids": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "IDs of the applied puppet classes.",
+			},
+
 			"puppet_proxy_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -268,6 +279,11 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 		hostgroup.PuppetCAProxyId = attr.(int)
 	}
 
+	if attr, ok = d.GetOk("puppet_class_ids"); ok {
+		attrSet := attr.(*schema.Set)
+		hostgroup.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
+	}
+
 	if attr, ok = d.GetOk("puppet_proxy_id"); ok {
 		hostgroup.PuppetProxyId = attr.(int)
 	}
@@ -311,6 +327,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("parent_id", fh.ParentId)
 	d.Set("ptable_id", fh.PartitionTableId)
 	d.Set("puppet_ca_proxy_id", fh.PuppetCAProxyId)
+	d.Set("puppet_class_ids", fh.PuppetClassIds)
 	d.Set("puppet_proxy_id", fh.PuppetProxyId)
 	d.Set("realm_id", fh.RealmId)
 	d.Set("subnet_id", fh.SubnetId)
