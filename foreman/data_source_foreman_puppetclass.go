@@ -18,12 +18,20 @@ func dataSourceForemanPuppetClass() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
+			autodoc.MetaAttribute: &schema.Schema{
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: fmt.Sprintf(
+					"%s Foreman representation of a Puppet class.",
+					autodoc.MetaSummary,
+				),
+			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
 					"Puppet class name."+
-						"%s \"2-Medium\"",
+						"%s \"example_class\"",
 					autodoc.MetaExample,
 				),
 			},
@@ -35,7 +43,7 @@ func dataSourceForemanPuppetClass() *schema.Resource {
 // Conversion Helpers
 // -----------------------------------------------------------------------------
 
-// buildForemanComputeProfile constructs a ForemanComputeProfile reference from a
+// buildForemanPuppetClass constructs a ForemanPuppetClass reference from a
 // resource data reference.  The struct's  members are populated from the data
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
@@ -46,8 +54,8 @@ func buildForemanPuppetClass(d *schema.ResourceData) *api.ForemanPuppetClass {
 	return &t
 }
 
-// setResourceDataFromForemanComputeProfile sets a ResourceData's attributes from
-// the attributes of the supplied ForemanComputeProfile reference
+// setResourceDataFromForemanPuppetClass sets a ResourceData's attributes from
+// the attributes of the supplied ForemanPuppetClass reference
 func setResourceDataFromForemanPuppetClass(d *schema.ResourceData, fk *api.ForemanPuppetClass) {
 	d.SetId(strconv.Itoa(fk.Id))
 	d.Set("name", fk.Name)

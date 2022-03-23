@@ -17,7 +17,7 @@ const (
 // Struct Definition and Helpers
 // -----------------------------------------------------------------------------
 
-// The ForemanSmartClassParameter API model represents a Puppet class
+// The ForemanSmartClassParameter API model represents a smart class parameter
 type ForemanSmartClassParameter struct {
 	// Inherits the base object's attributes
 	ForemanObject
@@ -32,8 +32,8 @@ type ForemanSmartClassParameter struct {
 // CRUD Implementation
 // -----------------------------------------------------------------------------
 
-// ReadComputeProfile reads the attributes of a ForemanComputeProfile identified by
-// the supplied ID and returns a ForemanComputeProfile reference.
+// ReadSmartClassParamter reads the attributes of a ForemanSmartClassParameter identified by
+// the supplied ID and returns a ForemanSmartClassParameter reference.
 func (c *Client) ReadSmartClassParameter(id int) (*ForemanSmartClassParameter, error) {
 	log.Tracef("foreman/api/smartsclassparameter.go#Read")
 
@@ -61,9 +61,9 @@ func (c *Client) ReadSmartClassParameter(id int) (*ForemanSmartClassParameter, e
 // Query Implementation
 // -----------------------------------------------------------------------------
 
-// QueryComputeProfile queries for a ForemanComputeProfile based on the attributes
-// of the supplied ForemanComputeProfile reference and returns a QueryResponse
-// struct containing query/response metadata and the matching template kinds
+// QuerySmartClassParameter queries for a ForemanSmartClassParameter based on the attributes
+// of the supplied ForemanSmartClassParameter reference and returns a QueryResponse
+// struct containing query/response metadata
 func (c *Client) QuerySmartClassParameter(t *ForemanSmartClassParameter) (QueryResponse, error) {
 	log.Tracef("foreman/api/smartclassparameter.go#Search")
 

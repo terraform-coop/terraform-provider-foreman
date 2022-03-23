@@ -25,12 +25,10 @@ type ForemanPuppetClass struct {
 // CRUD Implementation
 // -----------------------------------------------------------------------------
 
-// ReadComputeProfile reads the attributes of a ForemanComputeProfile identified by
-// the supplied ID and returns a ForemanComputeProfile reference.
+// ReadPuppetClass reads the attributes of a ForemanPuppetClass identified by
+// the supplied ID and returns a ForemanPuppetClass reference.
 func (c *Client) ReadPuppetClass(id int) (*ForemanPuppetClass, error) {
 	log.Tracef("foreman/api/puppetclass.go#Read")
-
-	//reqEndpoint := fmt.Sprintf("/%s/%d", PuppetClassEndpointPrefix, id)
 
 	req, reqErr := c.NewRequest(
 		http.MethodGet,
@@ -56,14 +54,16 @@ func (c *Client) ReadPuppetClass(id int) (*ForemanPuppetClass, error) {
 // Query Implementation
 // -----------------------------------------------------------------------------
 
-// QueryComputeProfile queries for a ForemanComputeProfile based on the attributes
-// of the supplied ForemanComputeProfile reference and returns a QueryResponse
-// struct containing query/response metadata and the matching template kinds
+// QueryPuppetClass queries for a ForemanPuppetClass based on the attributes
+// of the supplied ForemanPuppetClass reference and returns a QueryResponse
+// struct containing query/response metadata
+// The Puppet module search API has a different response format to normal. Results
+// are returned in a map instead of an array, with the class name as the key.
+// To work around this the results field is unmarshalled and then remarshalled
+// into an array to normalise it
 func (c *Client) QueryPuppetClass(t *ForemanPuppetClass) (QueryResponse, error) {
 	log.Tracef("foreman/api/puppetclass.go#Search")
 
-	// The Puppet module search API has a different response format to normal. Results
-	// are returned in a map instead of an array, with the class name as the key
 	queryResponse := QueryResponsePuppet{}
 	realQueryResponse := QueryResponse{}
 
@@ -98,8 +98,6 @@ func (c *Client) QueryPuppetClass(t *ForemanPuppetClass) (QueryResponse, error) 
 	if jsonEncErr != nil {
 		return QueryResponse{}, jsonEncErr
 	}
-
-	log.Debugf("ReMarshall: [%+v]", resultsBytes)
 
 	jsonDecErr := json.Unmarshal(resultsBytes, &results)
 	if jsonDecErr != nil {

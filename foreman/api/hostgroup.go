@@ -141,7 +141,11 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
+
 	var ok bool
+	if fh.Title, ok = fhMap["title"].(string); !ok {
+		fh.Title = ""
+	}
 	if fh.RootPassword, ok = fhMap["root_password"].(string); !ok {
 		fh.RootPassword = ""
 	}

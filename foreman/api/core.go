@@ -112,19 +112,10 @@ type QueryResponseSort struct {
 	By string `json:"by,omitempty"`
 }
 
+// Need a modified version of QueryResponse for the puppet endpoint as the results are wrapped
+// in an additional hash - this may be a Foreman bug
 type QueryResponsePuppet struct {
-	// Total number of objects of that resource type in Foreman
-	Total int `json:"total"`
-	// Number of results matching the search criteria
-	Subtotal int `json:"subtotal"`
-	// Current result page (if using pagination in searches)
-	Page int `json:"page"`
-	// How many results to display per page (if using pagination in searches)
-	PerPage int `json:"per_page"`
-	// The search filter string in the form property=value&property=value&...
-	Search string `json:"search,omitempty"`
-	// Sorting options provided for the search
-	Sort QueryResponseSort `json:"sort,omitempty"`
+	QueryResponse
 	// Foreman API objects that matched the search criteria for the query.
 	Results map[string]interface{} `json:"results"`
 }

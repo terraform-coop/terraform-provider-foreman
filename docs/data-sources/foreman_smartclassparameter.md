@@ -2,7 +2,7 @@
 # foreman_smartclassparameter
 
 
-
+Foreman representation of a smart class parameter.
 
 
 ## Example Usage

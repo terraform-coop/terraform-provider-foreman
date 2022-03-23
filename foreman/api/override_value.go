@@ -106,7 +106,6 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 
 	log.Tracef("foreman/api/override_value.go#UnarshalJSON/postMatch")
 
-	// Try all the possible types to get value
 	var ok bool
 	if ov.Value, ok = tmpMap["value"].(string); !ok {
 		vb, _ := json.Marshal(tmpMap["value"])

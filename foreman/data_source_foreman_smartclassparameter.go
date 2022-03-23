@@ -18,6 +18,15 @@ func dataSourceForemanSmartClassParameter() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
+			autodoc.MetaAttribute: &schema.Schema{
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: fmt.Sprintf(
+					"%s Foreman representation of a smart class parameter.",
+					autodoc.MetaSummary,
+				),
+			},
+
 			"parameter": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
@@ -45,7 +54,7 @@ func dataSourceForemanSmartClassParameter() *schema.Resource {
 // Conversion Helpers
 // -----------------------------------------------------------------------------
 
-// buildForemanComputeProfile constructs a ForemanComputeProfile reference from a
+// buildForemanSmartClassParameter constructs a ForemanSmartClassParameter reference from a
 // resource data reference.  The struct's  members are populated from the data
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
@@ -60,8 +69,8 @@ func buildForemanSmartClassParameter(d *schema.ResourceData) *api.ForemanSmartCl
 	return &t
 }
 
-// setResourceDataFromForemanComputeProfile sets a ResourceData's attributes from
-// the attributes of the supplied ForemanComputeProfile reference
+// setResourceDataFromForemanSmartClassParameter sets a ResourceData's attributes from
+// the attributes of the supplied ForemanSmartClassParameter reference
 func setResourceDataFromForemanSmartClassParameter(d *schema.ResourceData, fk *api.ForemanSmartClassParameter) {
 	d.SetId(strconv.Itoa(fk.Id))
 	d.Set("parameter", fk.Parameter)
