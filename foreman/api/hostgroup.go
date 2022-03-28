@@ -56,7 +56,7 @@ type ForemanHostgroup struct {
 	// server for the hostgroup
 	PuppetCAProxyId int `json:"puppet_ca_proxy_id,omitempty"`
 	// IDs of the puppet classes applied to the host group
-	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
+	PuppetClassIds []int `json:"puppet_class_ids"`
 	// ID of the smart proxy acting as the puppet proxy server for the
 	// hostgroup
 	PuppetProxyId int `json:"puppet_proxy_id,omitempty"`
@@ -117,8 +117,12 @@ func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
 		fhMap["group_parameters_attributes"] = fh.HostGroupParameters
 	}
 
+	// Prevent empty slice being ecoded as null
 	if len(fh.PuppetClassIds) > 0 {
 		fhMap["puppetclass_ids"] = fh.PuppetClassIds
+	} else {
+		no_ids := make([]int, 0)
+		fhMap["puppetclass_ids"] = no_ids
 	}
 
 	log.Debugf("fhMap: [%v]", fhMap)
