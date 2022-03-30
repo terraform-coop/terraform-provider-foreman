@@ -108,7 +108,7 @@ func (c *Client) QuerySmartClassParameter(t *ForemanSmartClassParameter) (QueryR
 	}
 	// convert the search results from []ForemanSmartParameterClass to []interface
 	// and set the search results on the query
-	iArr := make([]interface{}, 1)
+	iArr := make([]interface{}, len(results))
 	for idx, val := range results {
 		iArr[idx] = val
 	}
