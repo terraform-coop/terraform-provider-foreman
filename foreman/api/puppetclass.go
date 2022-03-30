@@ -89,12 +89,21 @@ func (c *Client) QueryPuppetClass(t *ForemanPuppetClass) (QueryResponse, error) 
 
 	log.Debugf("queryResponse: [%+v]", queryResponse)
 
+	// Get the first (and only) key from the results map
+	// We could just use the search name that's passed in, but then
+	// the unit test will fail as it passes in empty string for name
+	resultKey := make([]string, len(queryResponse.Results))
+	i := 0
+	for k := range queryResponse.Results {
+		resultKey[i] = k
+		i++
+	}
+
 	// Results will be Unmarshaled into a []map[string]interface{}
-	//
 	// Encode back to JSON, then Unmarshal into []ForemanPuppetClass for
 	// the results
 	results := []ForemanPuppetClass{}
-	resultsBytes, jsonEncErr := json.Marshal(queryResponse.Results[t.Name])
+	resultsBytes, jsonEncErr := json.Marshal(queryResponse.Results[resultKey[0]])
 	if jsonEncErr != nil {
 		return QueryResponse{}, jsonEncErr
 	}

@@ -221,6 +221,8 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	testCases = append(testCases, ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, DataSourceForemanPuppetClassCorrectURLAndMethodTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyCorrectURLAndMethodTestCases(t)...)
 
@@ -313,6 +315,8 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassRequestDataEmptyTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyRequestDataEmptyTestCases(t)...)
@@ -448,6 +452,8 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanProvisioningTemplateStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateStatusCodeTestCases(t)...)
 
+	testCases = append(testCases, DataSourceForemanPuppetClassStatusCodeTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanSmartProxyStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyStatusCodeTestCases(t)...)
 
@@ -522,6 +528,8 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyEmptyResponseTestCases(t)...)
@@ -635,6 +643,8 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateMockResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassMockResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyMockResponseTestCases(t)...)
