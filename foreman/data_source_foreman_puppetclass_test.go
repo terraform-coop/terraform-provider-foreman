@@ -51,6 +51,9 @@ func RandForemanPuppetClass() api.ForemanPuppetClass {
 	fo := RandForemanObject()
 	obj.ForemanObject = fo
 
+	// The name must be hardcoded to match the test data
+	obj.Name = "testing"
+
 	return obj
 }
 
