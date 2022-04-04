@@ -84,9 +84,12 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 	}
 	log.Debugf("tmpMap: [%v]", tmpMap)
 
-	ov.Omit = tmpMap["omit"].(bool)
+	var ok bool
+	var match string
+	if match, ok = tmpMap["match"].(string); !ok {
+		match = ""
+	}
 
-	var match = tmpMap["match"].(string)
 	if strings.HasPrefix(match, "fqdn") {
 		ov.MatchType = "fqdn"
 		ov.MatchValue = strings.TrimPrefix(match, "fqdn=")
@@ -106,7 +109,10 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 
 	log.Tracef("foreman/api/override_value.go#UnarshalJSON/postMatch")
 
-	var ok bool
+	if ov.Omit, ok = tmpMap["omit"].(bool); !ok {
+		ov.Omit = false
+	}
+
 	if ov.Value, ok = tmpMap["value"].(string); !ok {
 		vb, _ := json.Marshal(tmpMap["value"])
 		ov.Value = string(vb)
@@ -198,7 +204,7 @@ func (c *Client) UpdateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverride
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", ov.SmartClassParameterId, ov.Id)
 
-	ovJSONBytes, jsonEncErr := c.WrapJSON(nil, ov)
+	ovJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("override_value", ov)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}

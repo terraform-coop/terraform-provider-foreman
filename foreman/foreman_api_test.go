@@ -215,6 +215,8 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueCorrectURLAndMethodTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableCorrectURLAndMethodTestCases(t)...)
 
@@ -312,6 +314,8 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemRequestDataEmptyTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueRequestDataEmptyTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableRequestDataEmptyTestCases(t)...)
 
@@ -378,6 +382,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 	testCases = append(testCases, ResourceForemanHostgroupRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanMediaRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanModelRequestDataTestCases(t)...)
+	testCases = append(testCases, ResourceForemanOverrideValueRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanPartitionTableRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanProvisioningTemplateRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanSmartProxyRequestDataTestCases(t)...)
@@ -449,6 +454,8 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanOperatingSystemStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemStatusCodeTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanOverrideValueStatusCodeTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanPartitionTableStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableStatusCodeTestCases(t)...)
@@ -528,6 +535,8 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanOperatingSystemEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanOverrideValueEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanPartitionTableEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableEmptyResponseTestCases(t)...)
@@ -646,6 +655,8 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemMockResponseTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueMockResponseTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableMockResponseTestCases(t)...)
 
@@ -705,9 +716,10 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 				t.Fatalf(
 					"[%s] returned an error when the server responded with "+
 						"the contents of [%s] as the response body. The "+
-						"operation was expected to succeed.",
+						"operation was expected to succeed. Error: [%s]",
 					testCase.funcName,
 					testCase.responseFile,
+					err,
 				)
 			}
 			// operation succeeded, validate the end state (if we are expecting
