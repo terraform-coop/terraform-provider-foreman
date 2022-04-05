@@ -839,7 +839,8 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("compute_resource_id") ||
 		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
-		d.HasChange("interfaces_attributes") {
+		d.HasChange("interfaces_attributes") ||
+		d.Get("manage_build") == false {
 
 		log.Debugf("host: [%+v]", h)
 
@@ -856,6 +857,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Perform BMC operations on update only if the bmc_success boolean has a change
 	if d.HasChange("bmc_success") {
 		enablebmc := d.Get("enable_bmc").(bool)
+		manageBuild := d.Get("manage_build").(bool)
 
 		var powerCmds []interface{}
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
@@ -873,7 +875,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 					PowerAction: api.PowerOn,
 				},
 			}
-		} else {
+		} else if manageBuild {
 			powerCmds = []interface{}{
 				api.Power{
 					PowerAction: api.PowerOn,

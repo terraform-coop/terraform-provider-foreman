@@ -441,7 +441,7 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanEnvironmentStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanEnvironmentStatusCodeTestCases(t)...)
 
-	//testCases = append(testCases, ResourceForemanHostStatusCodeTestCases(t)...)
+	testCases = append(testCases, ResourceForemanHostStatusCodeTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanHostgroupStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanHostgroupStatusCodeTestCases(t)...)
@@ -522,7 +522,7 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanEnvironmentEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanEnvironmentEmptyResponseTestCases(t)...)
 
-	//testCases = append(testCases, ResourceForemanHostEmptyResponseTestCases(t)...)
+	testCases = append(testCases, ResourceForemanHostEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanHostgroupEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanHostgroupEmptyResponseTestCases(t)...)
@@ -641,7 +641,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	testCases = append(testCases, ResourceForemanEnvironmentMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanEnvironmentMockResponseTestCases(t)...)
 
-	//testCases = append(testCases, ResourceForemanHostMockResponseTestCases(t)...)
+	testCases = append(testCases, ResourceForemanHostMockResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanHostgroupMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanHostgroupMockResponseTestCases(t)...)
