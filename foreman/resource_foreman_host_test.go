@@ -31,6 +31,7 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	attr := map[string]string{}
 	attr["name"] = obj.Name
 	attr["domain_id"] = strconv.Itoa(obj.DomainId)
+	attr["domain_name"] = obj.DomainName
 	attr["environment_id"] = strconv.Itoa(obj.EnvironmentId)
 	attr["hostgroup_id"] = strconv.Itoa(obj.HostgroupId)
 	attr["operatingsystem_id"] = strconv.Itoa(obj.OperatingSystemId)

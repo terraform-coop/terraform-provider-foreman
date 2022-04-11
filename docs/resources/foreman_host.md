@@ -39,6 +39,7 @@ The following arguments are supported:
 - `owner_id` - (Optional) ID of the user or usergroup that owns the host.
 - `owner_type` - (Optional) Owner of the host, must be either User ot Usergroup
 - `parameters` - (Optional) A map of parameters that will be saved as host parameters in the machine config.
+- `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
 
 
@@ -51,6 +52,7 @@ The following attributes are exported:
 - `compute_profile_id` - 
 - `compute_resource_id` - 
 - `domain_id` - ID of the domain to assign to the host.
+- `domain_name` - The fully qualified domain name of the host. This is a computed, read-only value.
 - `enable_bmc` - Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
 - `environment_id` - ID of the environment to assign to the host.
 - `hostgroup_id` - ID of the hostgroup to assign to the host.
@@ -65,5 +67,6 @@ The following attributes are exported:
 - `owner_id` - ID of the user or usergroup that owns the host.
 - `owner_type` - Owner of the host, must be either User ot Usergroup
 - `parameters` - A map of parameters that will be saved as host parameters in the machine config.
+- `puppet_class_ids` - IDs of the applied puppet classes.
 - `retry_count` - Number of times to retry on a failed attempt to register or delete a host in foreman.
 
