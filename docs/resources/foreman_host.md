@@ -52,7 +52,7 @@ The following attributes are exported:
 - `compute_profile_id` - 
 - `compute_resource_id` - 
 - `domain_id` - ID of the domain to assign to the host.
-- `domain_name` - The fully qualified domain name of the host. This is a computed, read-only value.
+- `domain_name` - The domain name of the host.
 - `enable_bmc` - Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
 - `environment_id` - ID of the environment to assign to the host.
 - `hostgroup_id` - ID of the hostgroup to assign to the host.
