@@ -70,23 +70,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
-				ValidateFunc: validation.StringInSlice([]string{
-					"None",
-					"PXELinux BIOS",
-					"PXELinux UEFI",
-					"Grub UEFI",
-					"Grub2 UEFI",
-					"Grub2 UEFI SecureBoot",
-					"Grub2 UEFI HTTP",
-					"Grub2 UEFI HTTPS",
-					"Grub2 UEFI HTTPS SecureBoot",
-					"iPXE Embedded",
-					"iPXE UEFI HTTP",
-					"iPXE Chain BIOS",
-					"iPXE Chain UEFI",
-					// NOTE(ALL): false - do not ignore case when comparing values
-				}, false),
-				Description: "Operating system family. Values include: " +
+				Description: "Operating system family. Value examples: " +
 					"\"None\", \"PXELinux BIOS\", \"PXELinux UEFI\", \"Grub UEFI\", " +
 					"\"Grub2 UEFI\", \"Grub2 UEFI SecureBoot\", \"Grub2 UEFI HTTP\", " +
 					"\"Grub2 UEFI HTTPS\", \"Grub2 UEFI HTTPS SecureBoot\", " +
