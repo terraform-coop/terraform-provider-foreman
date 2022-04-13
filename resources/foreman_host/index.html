@@ -86,6 +86,10 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_puppetclass/">foreman_puppetclass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_subnet/">foreman_subnet</a>
@@ -140,6 +144,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_model/">foreman_model</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_operatingsystem/">foreman_operatingsystem</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_override_value/">foreman_override_value</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_parameter/">foreman_parameter</a>
                   </li>
@@ -213,6 +219,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>owner_id</code> - (Optional) ID of the user or usergroup that owns the host.</li>
 <li><code>owner_type</code> - (Optional) Owner of the host, must be either User ot Usergroup</li>
 <li><code>parameters</code> - (Optional) A map of parameters that will be saved as host parameters in the machine config.</li>
+<li><code>puppet_class_ids</code> - (Optional) IDs of the applied puppet classes.</li>
 <li><code>retry_count</code> - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
@@ -223,6 +230,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>compute_profile_id</code> - </li>
 <li><code>compute_resource_id</code> - </li>
 <li><code>domain_id</code> - ID of the domain to assign to the host.</li>
+<li><code>domain_name</code> - The domain name of the host.</li>
 <li><code>enable_bmc</code> - Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to <code>false</code>.</li>
 <li><code>environment_id</code> - ID of the environment to assign to the host.</li>
 <li><code>hostgroup_id</code> - ID of the hostgroup to assign to the host.</li>
@@ -237,6 +245,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>owner_id</code> - ID of the user or usergroup that owns the host.</li>
 <li><code>owner_type</code> - Owner of the host, must be either User ot Usergroup</li>
 <li><code>parameters</code> - A map of parameters that will be saved as host parameters in the machine config.</li>
+<li><code>puppet_class_ids</code> - IDs of the applied puppet classes.</li>
 <li><code>retry_count</code> - Number of times to retry on a failed attempt to register or delete a host in foreman.</li>
 </ul>
               

@@ -86,6 +86,10 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_puppetclass/">foreman_puppetclass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_subnet/">foreman_subnet</a>
@@ -140,6 +144,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_model/">foreman_model</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_operatingsystem/">foreman_operatingsystem</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_override_value/">foreman_override_value</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_parameter/">foreman_parameter</a>
                   </li>
@@ -207,6 +213,7 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
 <li><code>parent_id</code> - (Optional) ID of the parent hostgroup.</li>
 <li><code>ptable_id</code> - (Optional) ID of the partition table associated with this hostgroup.</li>
 <li><code>puppet_ca_proxy_id</code> - (Optional) ID of the smart proxy acting as the puppet certificate authority server for this hostgroup.</li>
+<li><code>puppet_class_ids</code> - (Optional) IDs of the applied puppet classes.</li>
 <li><code>puppet_proxy_id</code> - (Optional) ID of the smart proxy acting as the puppet proxy server for this hostgroup.</li>
 <li><code>pxe_loader</code> - (Optional) Operating system family. Value examples: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"</li>
 <li><code>realm_id</code> - (Optional) ID of the realm associated with this hostgroup.</li>
@@ -230,6 +237,7 @@ resource &quot;foreman_hostgroup&quot; &quot;example&quot; {
 <li><code>parent_id</code> - ID of the parent hostgroup.</li>
 <li><code>ptable_id</code> - ID of the partition table associated with this hostgroup.</li>
 <li><code>puppet_ca_proxy_id</code> - ID of the smart proxy acting as the puppet certificate authority server for this hostgroup.</li>
+<li><code>puppet_class_ids</code> - IDs of the applied puppet classes.</li>
 <li><code>puppet_proxy_id</code> - ID of the smart proxy acting as the puppet proxy server for this hostgroup.</li>
 <li><code>pxe_loader</code> - Operating system family. Value examples: "None", "PXELinux BIOS", "PXELinux UEFI", "Grub UEFI", "Grub2 UEFI", "Grub2 UEFI SecureBoot", "Grub2 UEFI HTTP", "Grub2 UEFI HTTPS", "Grub2 UEFI HTTPS SecureBoot", "iPXE Embedded", "iPXE UEFI HTTP", "iPXE Chain BIOS", "iPXE Chain UEFI"</li>
 <li><code>realm_id</code> - ID of the realm associated with this hostgroup.</li>

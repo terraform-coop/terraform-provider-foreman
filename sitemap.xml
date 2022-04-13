@@ -106,6 +106,16 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_puppetclass/</loc>
+         <lastmod>2022-04-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_smartclassparameter/</loc>
+         <lastmod>2022-04-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_smartproxy/</loc>
          <lastmod>2022-04-13</lastmod>
          <changefreq>daily</changefreq>
@@ -212,6 +222,11 @@
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_operatingsystem/</loc>
+         <lastmod>2022-04-13</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_override_value/</loc>
          <lastmod>2022-04-13</lastmod>
          <changefreq>daily</changefreq>
     </url>
