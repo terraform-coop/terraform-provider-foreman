@@ -89,6 +89,8 @@ type ForemanHost struct {
 	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
 	ComputeProfileId int `json:"compute_profile_id,omitempty"`
+	// IDs of the puppet classes applied to the host
+	PuppetClassIds []int `json:"puppet_class_ids"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -130,6 +132,7 @@ type ForemanInterfacesAttribute struct {
 // foremanHostJSON struct used for JSON decode.
 type foremanHostJSON struct {
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces"`
+	PuppetClasses        []ForemanObject              `json:"puppetclasses"`
 }
 
 // Power struct for marshal/unmarshal of power state
@@ -181,6 +184,15 @@ func (fh ForemanHost) MarshalJSON() ([]byte, error) {
 		fhMap["host_parameters_attributes"] = fh.HostParameters
 	}
 	fhMap["compute_attributes"] = fh.ComputeAttributes
+
+	// Prevent empty slice being ecoded as null
+	if len(fh.PuppetClassIds) > 0 {
+		fhMap["puppetclass_ids"] = fh.PuppetClassIds
+	} else {
+		no_ids := make([]int, 0)
+		fhMap["puppetclass_ids"] = no_ids
+	}
+
 	log.Debugf("fhMap: [%+v]", fhMap)
 
 	return json.Marshal(fhMap)
@@ -207,6 +219,7 @@ func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
 		return jsonDecErr
 	}
 	fh.InterfacesAttributes = fhJSON.InterfacesAttributes
+	fh.PuppetClassIds = foremanObjectArrayToIdIntArray(fhJSON.PuppetClasses)
 
 	// Unmarshal into mapstructure and set the rest of the struct properties
 	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing

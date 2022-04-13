@@ -8,6 +8,7 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/imdario/mergo"
 
@@ -152,6 +153,12 @@ func resourceForemanHost() *schema.Resource {
 				Description:  "ID of the domain to assign to the host.",
 			},
 
+			"domain_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The domain name of the host.",
+			},
+
 			"environment_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -196,6 +203,15 @@ func resourceForemanHost() *schema.Resource {
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the hardware model if applicable",
+			},
+			"puppet_class_ids": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "IDs of the applied puppet classes.",
 			},
 			"compute_resource_id": &schema.Schema{
 				Type:         schema.TypeInt,
@@ -386,6 +402,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("domain_id"); ok {
 		host.DomainId = attr.(int)
 	}
+	if attr, ok = d.GetOk("domain_name"); ok {
+		host.DomainName = attr.(string)
+	}
 	if attr, ok = d.GetOk("environment_id"); ok {
 		host.EnvironmentId = attr.(int)
 	}
@@ -409,6 +428,10 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	}
 	if attr, ok = d.GetOk("compute_profile_id"); ok {
 		host.ComputeProfileId = attr.(int)
+	}
+	if attr, ok = d.GetOk("puppet_class_ids"); ok {
+		attrSet := attr.(*schema.Set)
+		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
 		hostTags := d.Get("parameters").(map[string]interface{})
@@ -586,6 +609,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	}
 
 	d.Set("domain_id", fh.DomainId)
+	d.Set("domain_name", fh.DomainName)
 	d.Set("environment_id", fh.EnvironmentId)
 	d.Set("owner_id", fh.OwnerId)
 	d.Set("owner_type", fh.OwnerType)
@@ -596,6 +620,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("medium_id", fh.MediumId)
 	d.Set("image_id", fh.ImageId)
 	d.Set("model_id", fh.ModelId)
+	d.Set("puppet_class_ids", fh.PuppetClassIds)
 
 	// In partial mode, flag keys below as completed successfully
 	d.SetPartial("name")
@@ -839,7 +864,8 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("compute_resource_id") ||
 		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
-		d.HasChange("interfaces_attributes") {
+		d.HasChange("interfaces_attributes") ||
+		d.Get("manage_build") == false {
 
 		log.Debugf("host: [%+v]", h)
 
@@ -856,6 +882,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Perform BMC operations on update only if the bmc_success boolean has a change
 	if d.HasChange("bmc_success") {
 		enablebmc := d.Get("enable_bmc").(bool)
+		manageBuild := d.Get("manage_build").(bool)
 
 		var powerCmds []interface{}
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
@@ -873,7 +900,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 					PowerAction: api.PowerOn,
 				},
 			}
-		} else {
+		} else if manageBuild {
 			powerCmds = []interface{}{
 				api.Power{
 					PowerAction: api.PowerOn,

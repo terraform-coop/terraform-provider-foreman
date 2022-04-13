@@ -1,0 +1,36 @@
+{
+    "created_at": "2022-03-16 13:24:15 UTC",
+    "updated_at": "2022-03-16 13:24:15 UTC",
+    "id": 2,
+    "name": "testing",
+    "module_name": "testing",
+    "environments": [
+      {
+        "name": "production",
+        "id": 1
+      }
+    ],
+    "hostgroups": [],
+    "smart_class_parameters": [
+      {
+        "parameter": "dead",
+        "id": 5
+      },
+      {
+        "parameter": "happy",
+        "id": 1
+      },
+      {
+        "parameter": "red",
+        "id": 4
+      },
+      {
+        "parameter": "sad",
+        "id": 3
+      },
+      {
+        "parameter": "times",
+        "id": 6
+      }
+    ]
+  }

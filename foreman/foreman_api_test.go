@@ -215,11 +215,17 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueCorrectURLAndMethodTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableCorrectURLAndMethodTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassCorrectURLAndMethodTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanSmartClassParameterCorrectURLAndMethodTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyCorrectURLAndMethodTestCases(t)...)
@@ -308,11 +314,17 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemRequestDataEmptyTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueRequestDataEmptyTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableRequestDataEmptyTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanSmartClassParameterRequestDataEmptyTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyRequestDataEmptyTestCases(t)...)
@@ -370,6 +382,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 	testCases = append(testCases, ResourceForemanHostgroupRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanMediaRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanModelRequestDataTestCases(t)...)
+	testCases = append(testCases, ResourceForemanOverrideValueRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanPartitionTableRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanProvisioningTemplateRequestDataTestCases(t)...)
 	testCases = append(testCases, ResourceForemanSmartProxyRequestDataTestCases(t)...)
@@ -428,7 +441,7 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanEnvironmentStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanEnvironmentStatusCodeTestCases(t)...)
 
-	//testCases = append(testCases, ResourceForemanHostStatusCodeTestCases(t)...)
+	testCases = append(testCases, ResourceForemanHostStatusCodeTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanHostgroupStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanHostgroupStatusCodeTestCases(t)...)
@@ -442,11 +455,17 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemStatusCodeTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueStatusCodeTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableStatusCodeTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateStatusCodeTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassStatusCodeTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanSmartClassParameterStatusCodeTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyStatusCodeTestCases(t)...)
@@ -503,7 +522,7 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanEnvironmentEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanEnvironmentEmptyResponseTestCases(t)...)
 
-	//testCases = append(testCases, ResourceForemanHostEmptyResponseTestCases(t)...)
+	testCases = append(testCases, ResourceForemanHostEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanHostgroupEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanHostgroupEmptyResponseTestCases(t)...)
@@ -517,11 +536,17 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemEmptyResponseTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueEmptyResponseTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanSmartClassParameterEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyEmptyResponseTestCases(t)...)
@@ -616,7 +641,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	testCases = append(testCases, ResourceForemanEnvironmentMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanEnvironmentMockResponseTestCases(t)...)
 
-	//testCases = append(testCases, ResourceForemanHostMockResponseTestCases(t)...)
+	testCases = append(testCases, ResourceForemanHostMockResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanHostgroupMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanHostgroupMockResponseTestCases(t)...)
@@ -630,11 +655,17 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	testCases = append(testCases, ResourceForemanOperatingSystemMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanOperatingSystemMockResponseTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanOverrideValueMockResponseTestCases(t)...)
+
 	testCases = append(testCases, ResourceForemanPartitionTableMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanPartitionTableMockResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanProvisioningTemplateMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanProvisioningTemplateMockResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanPuppetClassMockResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanSmartClassParameterMockResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSmartProxyMockResponseTestCases(t)...)
@@ -685,9 +716,10 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 				t.Fatalf(
 					"[%s] returned an error when the server responded with "+
 						"the contents of [%s] as the response body. The "+
-						"operation was expected to succeed.",
+						"operation was expected to succeed. Error: [%s]",
 					testCase.funcName,
 					testCase.responseFile,
+					err,
 				)
 			}
 			// operation succeeded, validate the end state (if we are expecting

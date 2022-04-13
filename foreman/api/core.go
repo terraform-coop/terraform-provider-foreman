@@ -111,3 +111,11 @@ type QueryResponseSort struct {
 	// Which field to order by
 	By string `json:"by,omitempty"`
 }
+
+// Need a modified version of QueryResponse for the puppet endpoint as the results are wrapped
+// in an additional hash - this may be a Foreman bug
+type QueryResponsePuppet struct {
+	QueryResponse
+	// Foreman API objects that matched the search criteria for the query.
+	Results map[string]interface{} `json:"results"`
+}

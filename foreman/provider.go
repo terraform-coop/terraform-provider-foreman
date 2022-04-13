@@ -191,6 +191,7 @@ func Provider() terraform.ResourceProvider {
 			"foreman_katello_sync_plan":          resourceForemanKatelloSyncPlan(),
 			"foreman_user":                       resourceForemanUser(),
 			"foreman_usergroup":                  resourceForemanUsergroup(),
+			"foreman_override_value":             resourceForemanOverrideValue(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -203,6 +204,8 @@ func Provider() terraform.ResourceProvider {
 			"foreman_operatingsystem":            dataSourceForemanOperatingSystem(),
 			"foreman_partitiontable":             dataSourceForemanPartitionTable(),
 			"foreman_provisioningtemplate":       dataSourceForemanProvisioningTemplate(),
+			"foreman_puppetclass":                dataSourceForemanPuppetClass(),
+			"foreman_smartclassparameter":        dataSourceForemanSmartClassParameter(),
 			"foreman_smartproxy":                 dataSourceForemanSmartProxy(),
 			"foreman_subnet":                     dataSourceForemanSubnet(),
 			"foreman_templatekind":               dataSourceForemanTemplateKind(),
