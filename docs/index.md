@@ -59,6 +59,7 @@ $> terraform init && terraform plan
 
 The following arguments are supported:
 
+- `client_auth_negotiate` - (Optional) Whether or not the client should try to authenticate through the HTTP negotiate mechanism. Defaults to `false`.
 - `client_password` - (Optional) The username to authenticate against Foreman. This can also be set through the environment variable `FOREMAN_CLIENT_PASSWORD`. Defaults to `""`.
 - `client_tls_insecure` - (Optional) Whether or not to verify the server's certificate. Defaults to `false`.
 - `client_username` - (Optional) The username to authenticate against Foreman. This can also be set through the environment variable `FOREMAN_CLIENT_USERNAME`. Defaults to `""`.

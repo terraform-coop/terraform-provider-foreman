@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/dpotapov/go-spnego"
 
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
 )
@@ -49,6 +50,10 @@ type ClientConfig struct {
 	//
 	// See 'pkg/crypto/tls/#Config.InsecureSkipVerify' for more information
 	TLSInsecureEnabled bool
+
+	// Whether or not the client should try to authenticate to foreman
+	// through the HTTP negotiate mechanism.
+	NegotiateAuthEnabled bool
 
 	// Information as required by all API calls
 	LocationID     int
@@ -90,12 +95,19 @@ func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 	// from the provider config is used when configuring the TLS settings of
 	// the HTTP client.
 	cleanClient := cleanhttp.DefaultClient()
-	transCfg := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: cfg.TLSInsecureEnabled,
-		},
+	tlsClientConfig := &tls.Config{
+		InsecureSkipVerify: cfg.TLSInsecureEnabled,
 	}
-	cleanClient.Transport = transCfg
+	if cfg.NegotiateAuthEnabled {
+		transCfg := &spnego.Transport{}
+		transCfg.TLSClientConfig = tlsClientConfig
+		cleanClient.Transport = transCfg
+	} else {
+		transCfg := &http.Transport{}
+		transCfg.TLSClientConfig = tlsClientConfig
+		cleanClient.Transport = transCfg
+	}
+
 	// Initialize and return the unauthenticated client.
 	client := Client{
 		httpClient:   cleanClient,
