@@ -17,6 +17,9 @@ type Config struct {
 	//
 	// See 'pkg/crypto/tls/#Config.InsecureSkipVerify' for more information.
 	ClientTLSInsecure bool
+	// Whether or not the client should try to authenticate to foreman
+	// through the HTTP negotiate mechanism.
+	NegotiateAuthEnabled bool
 	// Set of credentials needed to authenticate against Foreman
 	ClientCredentials api.ClientCredentials
 	// Location for all API Calls
@@ -36,9 +39,10 @@ func (c *Config) Client() (*api.Client, error) {
 		c.Server,
 		c.ClientCredentials,
 		api.ClientConfig{
-			TLSInsecureEnabled: c.ClientTLSInsecure,
-			LocationID:         c.LocationID,
-			OrganizationID:     c.OrganizationID,
+			TLSInsecureEnabled:   c.ClientTLSInsecure,
+			LocationID:           c.LocationID,
+			OrganizationID:       c.OrganizationID,
+			NegotiateAuthEnabled: c.NegotiateAuthEnabled,
 		},
 	)
 

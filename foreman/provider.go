@@ -122,6 +122,14 @@ func Provider() terraform.ResourceProvider {
 					"Defaults to `false`.",
 			},
 
+			"client_auth_negotiate": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: "Whether or not the client should try to authenticate " +
+					"through the HTTP negotiate mechanism. Defaults to `false`.",
+			},
+
 			// -- client credentials --
 
 			"client_username": &schema.Schema{
