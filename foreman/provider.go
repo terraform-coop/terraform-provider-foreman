@@ -300,7 +300,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 			},
 		},
 		// -- client configuration --
-		ClientTLSInsecure: d.Get("client_tls_insecure").(bool),
+		ClientTLSInsecure:    d.Get("client_tls_insecure").(bool),
+		NegotiateAuthEnabled: d.Get("client_auth_negotiate").(bool),
 		ClientCredentials: api.ClientCredentials{
 			Username: d.Get("client_username").(string),
 			Password: d.Get("client_password").(string),
