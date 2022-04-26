@@ -182,8 +182,8 @@ func (c *Client) DeleteUser(id int) error {
 	return c.SendAndParse(req, nil)
 }
 
-// QueryUser queries for a ForemanSubnet based on the attributes of the
-// supplied ForemanSubnet reference and returns a QueryResponse struct
+// QueryUser queries for a ForemanUser based on the attributes of the
+// supplied ForemanUser reference and returns a QueryResponse struct
 // containing query/response metadata and the matching subnets
 func (c *Client) QueryUser(s *ForemanUser) (QueryResponse, error) {
 	log.Tracef("foreman/api/user.go#Search")
@@ -230,9 +230,9 @@ func (c *Client) QueryUser(s *ForemanUser) (QueryResponse, error) {
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//
-	// Encode back to JSON, then Unmarshal into []ForemanSubnet for
+	// Encode back to JSON, then Unmarshal into []ForemanUser for
 	// the results
-	results := []ForemanSubnet{}
+	results := []ForemanUser{}
 	resultsBytes, jsonEncErr := json.Marshal(queryResponse.Results)
 	if jsonEncErr != nil {
 		return queryResponse, jsonEncErr
@@ -241,7 +241,7 @@ func (c *Client) QueryUser(s *ForemanUser) (QueryResponse, error) {
 	if jsonDecErr != nil {
 		return queryResponse, jsonDecErr
 	}
-	// convert the search results from []ForemanSubnet to []interface
+	// convert the search results from []ForemanUser to []interface
 	// and set the search results on the query
 	iArr := make([]interface{}, len(results))
 	for idx, val := range results {
