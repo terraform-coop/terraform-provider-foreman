@@ -95,6 +95,13 @@ func resourceForemanHost() *schema.Resource {
 					"boot to PXE and power on. Defaults to `false`.",
 			},
 
+			"managed": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Whether or not this host is managed by Foreman.",
+			},
+
 			"manage_build": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -398,6 +405,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	host.OwnerType = d.Get("owner_type").(string)
 	host.Method = d.Get("method").(string)
 	host.OwnerId = d.Get("owner_id").(int)
+	host.Managed = d.Get("managed").(bool)
 
 	if attr, ok = d.GetOk("domain_id"); ok {
 		host.DomainId = attr.(int)

@@ -31,6 +31,7 @@ The following arguments are supported:
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - (Optional) Host interface information.
 - `manage_build` - (Optional) Create host only, don't set build status or manage power states
+- `managed` - (Optional) Whether or not this host is managed by Foreman.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
 - `method` - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"
 - `model_id` - (Optional) ID of the hardware model if applicable
@@ -59,6 +60,7 @@ The following attributes are exported:
 - `image_id` - ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - Host interface information.
 - `manage_build` - Create host only, don't set build status or manage power states
+- `managed` - Whether or not this host is managed by Foreman.
 - `medium_id` - ID of the medium mounted on the host.
 - `method` - Chooses a method with which to provision the HostOptions are "build" and "image"
 - `model_id` - ID of the hardware model if applicable

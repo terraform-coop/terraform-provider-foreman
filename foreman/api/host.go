@@ -76,6 +76,8 @@ type ForemanHost struct {
 	EnableBMC bool
 	// Boolean to track success of BMC Calls
 	BMCSuccess bool
+	// Whether or not the host is managed by foreman
+	Managed bool `json:"managed"`
 	// Additional information about this host
 	Comment string `json:"comment"`
 	// Nested struct defining any interfaces associated with the Host
