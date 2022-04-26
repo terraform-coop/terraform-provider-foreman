@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -51,48 +50,48 @@ type ForemanHost struct {
 	// Whether or not to rebuild the host on reboot
 	Build bool `json:"build"`
 	// Describes the way this host will be provisioned by Foreman
-	Method string `json:"provision_method"`
+	Method string `json:"provision_method,omitempty"`
 	// ID of the domain to assign the host
-	DomainId int `json:"domain_id"`
+	DomainId *int `json:"domain_id,omitempty"`
 	// Name of the Domain. To substract from the Machine name
-	DomainName string `json:"domain_name"`
+	DomainName string `json:"domain_name,omitempty"`
 	// ID of the owner user or group to assign the host
-	OwnerId int `json:"owner_id"`
+	OwnerId *int `json:"owner_id,omitempty"`
 	// Type of the owner, either user or group
-	OwnerType string `json:"owner_type"`
+	OwnerType string `json:"owner_type,omitempty"`
 	// ID of the environment to assign the host
-	EnvironmentId int `json:"environment_id"`
+	EnvironmentId *int `json:"environment_id,omitempty"`
 	// ID of the hostgroup to assign the host
-	HostgroupId int `json:"hostgroup_id"`
+	HostgroupId *int `json:"hostgroup_id,omitempty"`
 	// ID of the operating system to put on the host
-	OperatingSystemId int `json:"operatingsystem_id"`
+	OperatingSystemId *int `json:"operatingsystem_id,omitempty"`
 	// ID of the medium that should be mounted
-	MediumId int `json:"medium_id"`
+	MediumId *int `json:"medium_id,omitempty"`
 	// ID of the image that should be cloned for this host
-	ImageId int `json:"image_id"`
+	ImageId *int `json:"image_id,omitempty"`
 	// ID of the hardware model
-	ModelId int `json:"model_id"`
+	ModelId *int `json:"model_id,omitempty"`
 	// Whether or not to Enable BMC Functionality on this host
-	EnableBMC bool
+	EnableBMC bool `json:"-"`
 	// Boolean to track success of BMC Calls
-	BMCSuccess bool
+	BMCSuccess bool `json:"-"`
 	// Whether or not the host is managed by foreman
 	Managed bool `json:"managed"`
 	// Additional information about this host
 	Comment string `json:"comment"`
 	// Nested struct defining any interfaces associated with the Host
-	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes"`
+	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes,omitempty"`
 	// Map of HostParameters
 	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
 	// NOTE(ALL): These settings only apply to virtual machines
 	// Hypervisor specific map of ComputeAttributes
-	ComputeAttributes interface{} `json:"compute_attributes,omitempty"`
+	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
 	// ComputeResourceId specifies the Hypervisor to deploy on
-	ComputeResourceId int `json:"compute_resource_id,omitempty"`
+	ComputeResourceId *int `json:"compute_resource_id,omitempty"`
 	// ComputeProfileId specifies the Attributes via the Profile Id on the Hypervisor
-	ComputeProfileId int `json:"compute_profile_id,omitempty"`
+	ComputeProfileId *int `json:"compute_profile_id,omitempty"`
 	// IDs of the puppet classes applied to the host
-	PuppetClassIds []int `json:"puppet_class_ids"`
+	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -154,129 +153,6 @@ type BMCBoot struct {
 		Action string `json:"action,omitempty"`
 		Result bool   `json:"result,omitempty"`
 	} `json:"boot,omitempty"`
-}
-
-// Implement the Marshaler interface
-func (fh ForemanHost) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/host.go#MarshalJSON")
-
-	fhMap := map[string]interface{}{}
-
-	fhMap["name"] = fh.Name
-	fhMap["comment"] = fh.Comment
-	fhMap["owner_type"] = fh.OwnerType
-	fhMap["build"] = fh.Build
-	fhMap["provision_method"] = fh.Method
-	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
-	fhMap["operatingsystem_id"] = intIdToJSONString(fh.OperatingSystemId)
-	fhMap["medium_id"] = intIdToJSONString(fh.MediumId)
-	fhMap["image_id"] = intIdToJSONString(fh.ImageId)
-	fhMap["model_id"] = intIdToJSONString(fh.ModelId)
-	fhMap["hostgroup_id"] = intIdToJSONString(fh.HostgroupId)
-	fhMap["owner_id"] = intIdToJSONString(fh.OwnerId)
-	if fh.EnvironmentId > 0 {
-		fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
-	}
-	fhMap["compute_resource_id"] = intIdToJSONString(fh.ComputeResourceId)
-	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
-	if len(fh.InterfacesAttributes) > 0 {
-		fhMap["interfaces_attributes"] = fh.InterfacesAttributes
-	}
-	if len(fh.HostParameters) > 0 {
-		fhMap["host_parameters_attributes"] = fh.HostParameters
-	}
-	fhMap["compute_attributes"] = fh.ComputeAttributes
-
-	// Prevent empty slice being ecoded as null
-	if len(fh.PuppetClassIds) > 0 {
-		fhMap["puppetclass_ids"] = fh.PuppetClassIds
-	} else {
-		no_ids := make([]int, 0)
-		fhMap["puppetclass_ids"] = no_ids
-	}
-
-	log.Debugf("fhMap: [%+v]", fhMap)
-
-	return json.Marshal(fhMap)
-}
-
-// Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
-// and then convert over to a ForemanHost struct.
-func (fh *ForemanHost) UnmarshalJSON(b []byte) error {
-	var jsonDecErr error
-
-	// Unmarshal the common Foreman object properties
-	var fo ForemanObject
-	jsonDecErr = json.Unmarshal(b, &fo)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fh.ForemanObject = fo
-
-	// Unmarshal to temporary JSON struct to get the properties with differently
-	// named keys
-	var fhJSON foremanHostJSON
-	jsonDecErr = json.Unmarshal(b, &fhJSON)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fh.InterfacesAttributes = fhJSON.InterfacesAttributes
-	fh.PuppetClassIds = foremanObjectArrayToIdIntArray(fhJSON.PuppetClasses)
-
-	// Unmarshal into mapstructure and set the rest of the struct properties
-	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing
-	// Without this, properties will define as default values in state file.
-	var fhMap map[string]interface{}
-	jsonDecErr = json.Unmarshal(b, &fhMap)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	log.Debugf("fhMap: [%v]", fhMap)
-	var ok bool
-	if fh.Build, ok = fhMap["build"].(bool); !ok {
-		fh.Build = false
-	}
-	if fh.Method, ok = fhMap["method"].(string); !ok {
-		fh.Method = "build"
-	}
-	if fh.Comment, ok = fhMap["comment"].(string); !ok {
-		fh.Comment = ""
-	}
-	if fh.OwnerType, ok = fhMap["owner_type"].(string); !ok {
-		fh.OwnerType = ""
-	}
-	if fh.DomainName, ok = fhMap["domain_name"].(string); !ok {
-		fh.DomainName = ""
-	}
-
-	if _, ok = fhMap["parameters"]; ok {
-		for _, parameter := range fhMap["parameters"].([]interface{}) {
-			param := parameter.(map[string]interface{})
-			fh.HostParameters = append(fh.HostParameters, ForemanKVParameter{
-				Name:  param["name"].(string),
-				Value: param["value"].(string),
-			})
-		}
-	}
-
-	// Unmarshal the remaining foreign keys to their id
-	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
-	fh.OwnerId = unmarshalInteger(fhMap["owner_id"])
-	fh.EnvironmentId = unmarshalInteger(fhMap["environment_id"])
-	fh.HostgroupId = unmarshalInteger(fhMap["hostgroup_id"])
-	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
-	fh.MediumId = unmarshalInteger(fhMap["medium_id"])
-	fh.ImageId = unmarshalInteger(fhMap["image_id"])
-	fh.ModelId = unmarshalInteger(fhMap["model_id"])
-	fh.ComputeResourceId = unmarshalInteger(fhMap["compute_resource_id"])
-	fh.ComputeProfileId = unmarshalInteger(fhMap["compute_profile_id"])
-
-	// Foreman returns FQDN as Name but doesnt accept it as Name in return. Great times
-	if fh.DomainName != "" && strings.Contains(fh.ForemanObject.Name, fh.DomainName) {
-		fh.ForemanObject.Name = strings.Replace(fh.ForemanObject.Name, "."+fh.DomainName, "", 1)
-	}
-
-	return nil
 }
 
 // SendPowerCommand sends provided Action and State to foreman.  This
@@ -392,7 +268,10 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 		return nil, sendErr
 	}
 
-	createdHost.ComputeAttributes, _ = c.readComputeAttributes(createdHost.Id)
+	computeAttributes, _ := c.readComputeAttributes(createdHost.Id)
+	if len(computeAttributes) > 0 {
+		createdHost.ComputeAttributes = computeAttributes
+	}
 
 	log.Debugf("createdHost: [%+v]", createdHost)
 
@@ -421,7 +300,10 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 		return nil, sendErr
 	}
 
-	readHost.ComputeAttributes, _ = c.readComputeAttributes(id)
+	computeAttributes, _ := c.readComputeAttributes(id)
+	if len(computeAttributes) > 0 {
+		readHost.ComputeAttributes = computeAttributes
+	}
 
 	return &readHost, nil
 }
@@ -469,7 +351,10 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 		return nil, sendErr
 	}
 
-	updatedHost.ComputeAttributes, _ = c.readComputeAttributes(h.Id)
+	computeAttributes, _ := c.readComputeAttributes(h.Id)
+	if len(computeAttributes) > 0 {
+		updatedHost.ComputeAttributes = computeAttributes
+	}
 	log.Debugf("updatedHost: [%+v]", updatedHost)
 
 	return &updatedHost, nil
