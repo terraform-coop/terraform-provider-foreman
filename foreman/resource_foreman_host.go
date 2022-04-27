@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -52,6 +53,13 @@ func resourceForemanHost() *schema.Resource {
 						"%s \"compute01.dc1.company.com\"",
 					autodoc.MetaExample,
 				),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					domainName := d.Get("domain_name").(string)
+					if domainName == "" || !(strings.Contains(new, domainName) || strings.Contains(old, domainName)) {
+						return false
+					}
+					return strings.Replace(old, "."+domainName, "", 1) == strings.Replace(new, "."+domainName, "", 1)
+				},
 			},
 
 			// -- Optional --
