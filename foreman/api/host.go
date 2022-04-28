@@ -130,10 +130,11 @@ type ForemanInterfacesAttribute struct {
 	Destroy bool `json:"_destroy,omitempty"`
 }
 
-// foremanHostJSON struct used for JSON decode.
-type foremanHostJSON struct {
-	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces"`
-	PuppetClasses        []ForemanObject              `json:"puppetclasses"`
+// foremanHostDecode struct used for JSON decode.
+type foremanHostDecode struct {
+	ForemanHost
+	InterfacesAttributesDecode []ForemanInterfacesAttribute `json:"interfaces"`
+	PuppetClassesDecode        []ForemanObject              `json:"puppetclasses"`
 }
 
 // Power struct for marshal/unmarshal of power state
@@ -294,7 +295,7 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 		return nil, reqErr
 	}
 
-	var readHost ForemanHost
+	var readHost foremanHostDecode
 	sendErr := c.SendAndParse(req, &readHost)
 	if sendErr != nil {
 		return nil, sendErr
@@ -304,8 +305,10 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 	if len(computeAttributes) > 0 {
 		readHost.ComputeAttributes = computeAttributes
 	}
+	readHost.InterfacesAttributes = readHost.InterfacesAttributesDecode
+	readHost.PuppetClassIds = foremanObjectArrayToIdIntArray(readHost.PuppetClassesDecode)
 
-	return &readHost, nil
+	return &readHost.ForemanHost, nil
 }
 
 // UpdateHost updates a ForemanHost's attributes.  The host with the ID of the
