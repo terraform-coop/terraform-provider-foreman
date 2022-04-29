@@ -105,18 +105,21 @@ func resourceForemanHost() *schema.Resource {
 					"boot to PXE and power on. Defaults to `false`.",
 			},
 
-			"managed": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Whether or not this host is managed by Foreman.",
+			"manage_build": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Removed:  "The feature was merged into the new key managed",
+				Description: "REMOVED, please use the new 'managed' key instead." +
+					" Create host only, don't set build status or manage power states",
 			},
 
-			"manage_build": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Create host only, don't set build status or manage power states",
+			"managed": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: "Whether or not this host is managed by Foreman." +
+					" Create host only, don't set build status or manage power states.",
 			},
 
 			"retry_count": &schema.Schema{
@@ -752,10 +755,10 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	manageBuild := d.Get("manage_build").(bool)
+	managed := d.Get("managed").(bool)
 
 	// NOTE(ALL): Set the build flag to true on host create
-	if h.Method == "build" && manageBuild {
+	if h.Method == "build" && managed {
 		h.Build = true
 	}
 
@@ -792,7 +795,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 				PowerAction: api.PowerCycle,
 			},
 		}
-	} else if manageBuild {
+	} else if managed {
 		log.Debugf("Using default Foreman behaviour for startup")
 		powerCmds = []interface{}{
 			api.Power{
@@ -897,7 +900,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
 		d.HasChange("interfaces_attributes") ||
-		d.Get("manage_build") == false {
+		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)
 
@@ -914,7 +917,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Perform BMC operations on update only if the bmc_success boolean has a change
 	if d.HasChange("bmc_success") {
 		enablebmc := d.Get("enable_bmc").(bool)
-		manageBuild := d.Get("manage_build").(bool)
+		managed := d.Get("managed").(bool)
 
 		var powerCmds []interface{}
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
@@ -932,7 +935,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 					PowerAction: api.PowerOn,
 				},
 			}
-		} else if manageBuild {
+		} else if managed {
 			powerCmds = []interface{}{
 				api.Power{
 					PowerAction: api.PowerOn,
