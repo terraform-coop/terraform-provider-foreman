@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -52,6 +53,13 @@ func resourceForemanHost() *schema.Resource {
 						"%s \"compute01.dc1.company.com\"",
 					autodoc.MetaExample,
 				),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					domainName := d.Get("domain_name").(string)
+					if domainName == "" || !(strings.Contains(new, domainName) || strings.Contains(old, domainName)) {
+						return false
+					}
+					return strings.Replace(old, "."+domainName, "", 1) == strings.Replace(new, "."+domainName, "", 1)
+				},
 			},
 
 			// -- Optional --
@@ -72,6 +80,7 @@ func resourceForemanHost() *schema.Resource {
 			"comment": &schema.Schema{
 				Type:         schema.TypeString,
 				ForceNew:     false,
+				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 				Description: fmt.Sprintf("Add additional information about this host." +
@@ -81,6 +90,7 @@ func resourceForemanHost() *schema.Resource {
 			"parameters": &schema.Schema{
 				Type:     schema.TypeMap,
 				ForceNew: false,
+				Computed: true,
 				Optional: true,
 				Description: "A map of parameters that will be saved as host parameters " +
 					"in the machine config.",
@@ -96,10 +106,20 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			"manage_build": &schema.Schema{
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     true,
-				Description: "Create host only, don't set build status or manage power states",
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Removed:  "The feature was merged into the new key managed",
+				Description: "REMOVED, please use the new 'managed' key instead." +
+					" Create host only, don't set build status or manage power states",
+			},
+
+			"managed": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: "Whether or not this host is managed by Foreman." +
+					" Create host only, don't set build status or manage power states.",
 			},
 
 			"retry_count": &schema.Schema{
@@ -129,6 +149,7 @@ func resourceForemanHost() *schema.Resource {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
 				Description:  fmt.Sprintf("Owner of the host, must be either User ot Usergroup"),
 			},
@@ -136,10 +157,10 @@ func resourceForemanHost() *schema.Resource {
 			// -- Foreign Key Relationships --
 
 			"owner_id": &schema.Schema{
-				Type:     schema.TypeInt,
-				Optional: true,
-				ForceNew: false,
-				//Computed:     true,
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     false,
+				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the user or usergroup that owns the host.",
 			},
@@ -184,6 +205,7 @@ func resourceForemanHost() *schema.Resource {
 			},
 			"hostgroup_id": &schema.Schema{
 				Type:         schema.TypeInt,
+				Computed:     true,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
@@ -216,6 +238,7 @@ func resourceForemanHost() *schema.Resource {
 			"compute_resource_id": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
+				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
@@ -397,38 +420,54 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	host.Comment = d.Get("comment").(string)
 	host.OwnerType = d.Get("owner_type").(string)
 	host.Method = d.Get("method").(string)
-	host.OwnerId = d.Get("owner_id").(int)
+	host.DomainName = d.Get("domain_name").(string)
+	host.Managed = d.Get("managed").(bool)
 
-	if attr, ok = d.GetOk("domain_id"); ok {
-		host.DomainId = attr.(int)
+	ownerId := d.Get("owner_id").(int)
+	if ownerId != 0 {
+		host.OwnerId = &ownerId
 	}
-	if attr, ok = d.GetOk("domain_name"); ok {
-		host.DomainName = attr.(string)
+	domainId := d.Get("domain_id").(int)
+	if domainId != 0 {
+		host.DomainId = &domainId
 	}
-	if attr, ok = d.GetOk("environment_id"); ok {
-		host.EnvironmentId = attr.(int)
+	environmentId := d.Get("environment_id").(int)
+	if environmentId != 0 {
+		host.EnvironmentId = &environmentId
 	}
-	if attr, ok = d.GetOk("hostgroup_id"); ok {
-		host.HostgroupId = attr.(int)
+	hostgroupId := d.Get("hostgroup_id").(int)
+	if hostgroupId != 0 {
+		host.HostgroupId = &hostgroupId
 	}
-	if attr, ok = d.GetOk("operatingsystem_id"); ok {
-		host.OperatingSystemId = attr.(int)
+	operatingSystemId := d.Get("operatingsystem_id").(int)
+	if operatingSystemId != 0 {
+		host.OperatingSystemId = &operatingSystemId
 	}
-	if attr, ok = d.GetOk("medium_id"); ok {
-		host.MediumId = attr.(int)
+	mediumId := d.Get("medium_id").(int)
+	if mediumId != 0 {
+		host.MediumId = &mediumId
 	}
-	if attr, ok = d.GetOk("image_id"); ok {
-		host.ImageId = attr.(int)
+	imageId := d.Get("image_id").(int)
+	if imageId != 0 {
+		host.ImageId = &imageId
 	}
-	if attr, ok = d.GetOk("model_id"); ok {
-		host.ModelId = attr.(int)
+	modelId := d.Get("model_id").(int)
+	if modelId != 0 {
+		host.ModelId = &modelId
 	}
-	if attr, ok = d.GetOk("compute_resource_id"); ok {
-		host.ComputeResourceId = attr.(int)
+	computeResourceId := d.Get("compute_resource_id").(int)
+	if computeResourceId != 0 {
+		host.ComputeResourceId = &computeResourceId
 	}
-	if attr, ok = d.GetOk("compute_profile_id"); ok {
-		host.ComputeProfileId = attr.(int)
+	computeProfileId := d.Get("compute_profile_id").(int)
+	if computeProfileId != 0 {
+		host.ComputeProfileId = &computeProfileId
 	}
+	computeAttributes := expandComputeAttributes(d.Get("compute_attributes").(string))
+	if len(computeAttributes) > 0 {
+		host.ComputeAttributes = computeAttributes
+	}
+
 	if attr, ok = d.GetOk("puppet_class_ids"); ok {
 		attrSet := attr.(*schema.Set)
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
@@ -441,10 +480,6 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 				Value: value.(string),
 			})
 		}
-	}
-
-	if attr, ok = d.GetOk("compute_attributes"); ok {
-		host.ComputeAttributes = expandComputeAttributes(attr)
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -660,7 +695,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 	if fh.ComputeAttributes != nil {
 		var ifs interface{}
 		var ok bool
-		if ifs, ok = fh.ComputeAttributes.(map[string]interface{})["interfaces_attributes"]; ok {
+		if ifs, ok = fh.ComputeAttributes["interfaces_attributes"]; ok {
 			for _, attrs := range ifs.(map[string]interface{}) {
 				a := attrs.(map[string]interface{})
 				interfaces_compute_attributes[a["mac"].(string)] = a["compute_attributes"]
@@ -720,10 +755,10 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	manageBuild := d.Get("manage_build").(bool)
+	managed := d.Get("managed").(bool)
 
 	// NOTE(ALL): Set the build flag to true on host create
-	if h.Method == "build" && manageBuild {
+	if h.Method == "build" && managed {
 		h.Build = true
 	}
 
@@ -760,7 +795,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 				PowerAction: api.PowerCycle,
 			},
 		}
-	} else if manageBuild {
+	} else if managed {
 		log.Debugf("Using default Foreman behaviour for startup")
 		powerCmds = []interface{}{
 			api.Power{
@@ -865,7 +900,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
 		d.HasChange("interfaces_attributes") ||
-		d.Get("manage_build") == false {
+		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)
 
@@ -882,7 +917,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	// Perform BMC operations on update only if the bmc_success boolean has a change
 	if d.HasChange("bmc_success") {
 		enablebmc := d.Get("enable_bmc").(bool)
-		manageBuild := d.Get("manage_build").(bool)
+		managed := d.Get("managed").(bool)
 
 		var powerCmds []interface{}
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
@@ -900,7 +935,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 					PowerAction: api.PowerOn,
 				},
 			}
-		} else if manageBuild {
+		} else if managed {
 			powerCmds = []interface{}{
 				api.Power{
 					PowerAction: api.PowerOn,
@@ -956,27 +991,30 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 	return fmt.Errorf("Failed to delete host in retry_count* 2 seconds")
 }
 
-func expandComputeAttributes(v interface{}) interface{} {
-	var attrs interface{}
+func expandComputeAttributes(v string) map[string]interface{} {
+	var attrs map[string]interface{}
 
 	// If Foreman fails to connect to compute provider, it might just return null
-	if v.(string) == "" || v.(string) == "null" {
+	if v == "" || v == "null" {
 		v = "{}"
 	}
 
-	if err := json.Unmarshal([]byte(v.(string)), &attrs); err != nil {
-		log.Printf("[ERROR] Could not unmarshal compute attributes %s: %v", v.(string), err)
+	if err := json.Unmarshal([]byte(v), &attrs); err != nil {
+		log.Printf("[ERROR] Could not unmarshal compute attributes %s: %v", v, err)
 		return nil
 	}
 
 	return attrs
 }
 
-func flattenComputeAttributes(attrs interface{}) interface{} {
+func flattenComputeAttributes(attrs map[string]interface{}) string {
+	if len(attrs) == 0 {
+		return ""
+	}
 	json, err := json.Marshal(attrs)
 	if err != nil {
-		log.Printf("[ERROR] Could not marshal compute attributes %s: %v", attrs.(string), err)
-		return nil
+		log.Printf("[ERROR] Could not marshal compute attributes %v: %v", attrs, err)
+		return ""
 	}
 	return string(json)
 }
@@ -984,8 +1022,8 @@ func flattenComputeAttributes(attrs interface{}) interface{} {
 func resourceForemanHostCustomizeDiff(d *schema.ResourceDiff, m interface{}) error {
 	oldVal, newVal := d.GetChange("compute_attributes")
 
-	oldMap := expandComputeAttributes(oldVal).(map[string]interface{})
-	newMap := expandComputeAttributes(newVal).(map[string]interface{})
+	oldMap := expandComputeAttributes(oldVal.(string))
+	newMap := expandComputeAttributes(newVal.(string))
 
 	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
 

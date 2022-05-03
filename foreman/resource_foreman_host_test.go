@@ -30,14 +30,28 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	// Build the attribute map from ForemanHost
 	attr := map[string]string{}
 	attr["name"] = obj.Name
-	attr["domain_id"] = strconv.Itoa(obj.DomainId)
+	if obj.DomainId != nil {
+		attr["domain_id"] = strconv.Itoa(*obj.DomainId)
+	}
 	attr["domain_name"] = obj.DomainName
-	attr["environment_id"] = strconv.Itoa(obj.EnvironmentId)
-	attr["hostgroup_id"] = strconv.Itoa(obj.HostgroupId)
-	attr["operatingsystem_id"] = strconv.Itoa(obj.OperatingSystemId)
-	attr["medium_id"] = strconv.Itoa(obj.MediumId)
-	attr["image_id"] = strconv.Itoa(obj.ImageId)
-	attr["owner_id"] = strconv.Itoa(obj.OwnerId)
+	if obj.EnvironmentId != nil {
+		attr["environment_id"] = strconv.Itoa(*obj.EnvironmentId)
+	}
+	if obj.HostgroupId != nil {
+		attr["hostgroup_id"] = strconv.Itoa(*obj.HostgroupId)
+	}
+	if obj.OperatingSystemId != nil {
+		attr["operatingsystem_id"] = strconv.Itoa(*obj.OperatingSystemId)
+	}
+	if obj.MediumId != nil {
+		attr["medium_id"] = strconv.Itoa(*obj.MediumId)
+	}
+	if obj.ImageId != nil {
+		attr["image_id"] = strconv.Itoa(*obj.ImageId)
+	}
+	if obj.OwnerId != nil {
+		attr["owner_id"] = strconv.Itoa(*obj.OwnerId)
+	}
 	attr["owner_type"] = obj.OwnerType
 	attr["bmc_success"] = strconv.FormatBool(obj.BMCSuccess)
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
@@ -95,13 +109,22 @@ func RandForemanHost() api.ForemanHost {
 	obj.ForemanObject = fo
 
 	obj.Build = rand.Intn(2) > 0
-	obj.OperatingSystemId = rand.Intn(100)
-	obj.DomainId = rand.Intn(100)
-	obj.HostgroupId = rand.Intn(100)
-	obj.EnvironmentId = rand.Intn(100)
-	obj.MediumId = rand.Intn(100)
-	obj.ImageId = rand.Intn(100)
-	obj.OwnerId = rand.Intn(100)
+
+	operatingSystemId := rand.Intn(100)
+	domainId := rand.Intn(100)
+	hostgroupId := rand.Intn(100)
+	environmentId := rand.Intn(100)
+	mediumId := rand.Intn(100)
+	imageId := rand.Intn(100)
+	ownerId := rand.Intn(100)
+
+	obj.OperatingSystemId = &operatingSystemId
+	obj.DomainId = &domainId
+	obj.HostgroupId = &hostgroupId
+	obj.EnvironmentId = &environmentId
+	obj.MediumId = &mediumId
+	obj.ImageId = &imageId
+	obj.OwnerId = &ownerId
 	obj.OwnerType = "Usergroup"
 
 	hostCompAttr := make(map[string]interface{})
