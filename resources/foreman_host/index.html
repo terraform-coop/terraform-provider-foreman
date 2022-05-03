@@ -210,7 +210,8 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>hostgroup_id</code> - (Optional, Force New) ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - (Optional, Force New) ID of an image to be used as base for this host when cloning</li>
 <li><code>interfaces_attributes</code> - (Optional) Host interface information.</li>
-<li><code>manage_build</code> - (Optional) Create host only, don't set build status or manage power states</li>
+<li><code>manage_build</code> - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states</li>
+<li><code>managed</code> - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
 <li><code>method</code> - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"</li>
 <li><code>model_id</code> - (Optional) ID of the hardware model if applicable</li>
@@ -236,7 +237,8 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>hostgroup_id</code> - ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - ID of an image to be used as base for this host when cloning</li>
 <li><code>interfaces_attributes</code> - Host interface information.</li>
-<li><code>manage_build</code> - Create host only, don't set build status or manage power states</li>
+<li><code>manage_build</code> - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states</li>
+<li><code>managed</code> - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - ID of the medium mounted on the host.</li>
 <li><code>method</code> - Chooses a method with which to provision the HostOptions are "build" and "image"</li>
 <li><code>model_id</code> - ID of the hardware model if applicable</li>
