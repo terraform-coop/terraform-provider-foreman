@@ -119,7 +119,8 @@ func resourceForemanHost() *schema.Resource {
 				Optional: true,
 				Default:  true,
 				Description: "Whether or not this host is managed by Foreman." +
-					" Create host only, don't set build status or manage power states.",
+					" Enabling this (enabled by default) also power on" +
+					" the host on creation.",
 			},
 
 			"retry_count": &schema.Schema{
