@@ -14,6 +14,15 @@ resource "foreman_host" "example" {
 }
 ```
 
+```
+# Example physical host that will receive power action (will be powered-on\rebooted):
+resource "foreman_host" "example" {
+  name = "compute01.dc1.company.com"
+  enable_bmc = "true"
+}
+```
+All three of `bmc_enabled`, `managed`, and `build` argument must be true for a power-action to happen. The latter two default to true. Note that power-state of VMs, which do not have BMC, must be handled outside of this provider.
+
 
 ## Argument Reference
 

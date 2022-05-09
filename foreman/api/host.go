@@ -72,9 +72,7 @@ type ForemanHost struct {
 	// ID of the hardware model
 	ModelId *int `json:"model_id,omitempty"`
 	// Whether or not to Enable BMC Functionality on this host
-	EnableBMC bool `json:"-"`
-	// Boolean to track success of BMC Calls
-	BMCSuccess bool `json:"-"`
+	EnableBMC bool `json:"enable_bmc,omitempty"`
 	// Whether or not the host is managed by foreman
 	Managed bool `json:"managed"`
 	// Additional information about this host

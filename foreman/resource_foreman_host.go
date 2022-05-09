@@ -127,7 +127,7 @@ func resourceForemanHost() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
-				Description: "Whether or not this host's build flag will be enabled in Foreman." +
+				Description: "Whether or not this host's build flag will be enabled in Foreman. " +
 					"If false (default), create host only and do not change power states.",
 			},
 			"retry_count": &schema.Schema{
@@ -519,6 +519,30 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 
 	return tempIntAttr
 }
+
+// mapToForemanInterfacesAttribute converts a map[string]interface{} to a
+// ForemanInterfacesAttribute struct. The supplied map comes from an entry in
+// the *schema.Set for the "interfaces_attributes" property of the resource,
+// since *schema.Set stores its entries as this map structure.
+//
+// The map should have the following keys. Omitted or invalid map values will
+// result in the struct receiving the zero value for that property.
+//
+//   id (int)
+//   primary (bool)
+//   ip (string)
+//   mac (string)
+//   name (string)
+//   subnet_id (int)
+//   identifier (string)
+//   managed (bool)
+//   provision (bool)
+//   virtual (bool)
+//   username (string)
+//   password (string)
+//   type (string)
+//   bmc_provider (string)
+//   _destroy (bool)
 
 func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterfacesAttribute {
 	log.Tracef("mapToForemanInterfacesAttribute")
