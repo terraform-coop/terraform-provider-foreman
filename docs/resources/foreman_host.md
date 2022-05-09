@@ -14,6 +14,15 @@ resource "foreman_host" "example" {
 }
 ```
 
+```
+# Example physical host that will receive power action (will be powered-on\rebooted):
+resource "foreman_host" "example" {
+  name = "compute01.dc1.company.com"
+  enable_bmc = "true"
+}
+```
+Note that power-state of VMs, which do not have BMC, must be handled outside of this provider.
+
 
 ## Argument Reference
 
@@ -25,7 +34,7 @@ The following arguments are supported:
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
-- `enable_bmc` - (Optional) Enables PMI/BMC/LOM functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
+- `enable_bmc` - (Optional) Enables PMI/BMC/LOM functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`. Note that power-states for VMs, which do not have BMC, must be handled outside of this provider.
 - `environment_id` - (Optional) ID of the environment to assign to the host.
 - `hostgroup_id` - (Optional, Force New) ID of the hostgroup to assign to the host.
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning

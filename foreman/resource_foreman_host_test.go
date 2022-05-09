@@ -34,6 +34,8 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 		attr["domain_id"] = strconv.Itoa(*obj.DomainId)
 	}
 	attr["domain_name"] = obj.DomainName
+	attr["enable_bmc"] = strconv.FormatBool(obj.EnableBMC)
+	attr["build"] = strconv.FormatBool(obj.Build)
 	if obj.EnvironmentId != nil {
 		attr["environment_id"] = strconv.Itoa(*obj.EnvironmentId)
 	}
@@ -53,7 +55,6 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 		attr["owner_id"] = strconv.Itoa(*obj.OwnerId)
 	}
 	attr["owner_type"] = obj.OwnerType
-	attr["bmc_success"] = strconv.FormatBool(obj.BMCSuccess)
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
 	attr["retry_count"] = "1"
 	compute_attributes, _ := json.Marshal(obj.ComputeAttributes)
@@ -109,6 +110,7 @@ func RandForemanHost() api.ForemanHost {
 	obj.ForemanObject = fo
 
 	obj.Build = rand.Intn(2) > 0
+	obj.EnableBMC = rand.Intn(2) > 0
 
 	operatingSystemId := rand.Intn(100)
 	domainId := rand.Intn(100)
@@ -176,7 +178,7 @@ func ForemanHostResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *s
 	r := resourceForemanHost()
 	for key, value := range r.Schema {
 		// Skip compute_attribs as it gets nulled
-		if key == "compute_attributes" || key == "bmc_success" {
+		if key == "compute_attributes" {
 			continue
 		}
 		m[key] = value.Type

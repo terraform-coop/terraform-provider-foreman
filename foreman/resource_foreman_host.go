@@ -424,6 +424,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	host.DomainName = d.Get("domain_name").(string)
 	host.Managed = d.Get("managed").(bool)
 	host.Build = d.Get("build").(bool)
+	host.EnableBMC = d.Get("enable_bmc").(bool)
 
 	ownerId := d.Get("owner_id").(int)
 	if ownerId != 0 {
