@@ -69,12 +69,13 @@ func resourceForemanHost() *schema.Resource {
 				ForceNew: true,
 				Optional: true,
 				Default:  "build",
+				//Removed:  "The argument is handled by enable_bmc instead",
 				ValidateFunc: validation.StringInSlice([]string{
 					"build",
 					"image",
 				}, false),
-				Description: "Chooses a method with which to provision the Host" +
-					"Options are \"build\" and \"image\"",
+				Description: "REMOVED - use enable_bmc instead to distinguish between physical and virtual machine " +
+					"power-state handling.",
 			},
 
 			"comment": &schema.Schema{
@@ -100,9 +101,9 @@ func resourceForemanHost() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				Description: "Enables PMI/BMC functionality. On create and update " +
-					"calls, having this enabled will force a host to poweroff, set next " +
-					"boot to PXE and power on. Defaults to `false`.",
+				Description: "Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true while " +
+					"build and managed arguments are also true, will force a host to poweroff, set next boot to PXE, " +
+					"and power on. Defaults to `false`.",
 			},
 
 			"manage_build": &schema.Schema{
@@ -118,10 +119,17 @@ func resourceForemanHost() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
-				Description: "Whether or not this host is managed by Foreman." +
-					" Create host only, don't set build status or manage power states.",
+				Description: "Whether or not this host is managed by Foreman. In other words, whether a host is " +
+					"managed or unmanaged. Default is true. If false, create host only, don't set build status or " +
+					"touch power states.",
 			},
-
+			"build": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: "Whether or not this host's build flag will be enabled in Foreman." +
+					"If false (default), create host only and do not change power states.",
+			},
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -134,15 +142,9 @@ func resourceForemanHost() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
-				Description: fmt.Sprintf(
-					"Tracks the partial state of BMC operations on host "+
-						"creation. If these operations fail, the host will be created in "+
-						"Foreman and this boolean will remain `false`. On the next "+
-						"`terraform apply` will trigger the host update to pick back up "+
-						"with the BMC operations. "+
-						"%s",
-					autodoc.MetaUnexported,
-				),
+				Removed: "The feature no longer exists. Power states no longer changed depending on status of last " +
+					" execution.",
+				Description: "REMOVED - Power action is no longer taken retrospectively if prior execution fails.",
 			},
 
 			"owner_type": &schema.Schema{
@@ -419,9 +421,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	host.Name = d.Get("name").(string)
 	host.Comment = d.Get("comment").(string)
 	host.OwnerType = d.Get("owner_type").(string)
-	host.Method = d.Get("method").(string)
 	host.DomainName = d.Get("domain_name").(string)
 	host.Managed = d.Get("managed").(bool)
+	host.Build = d.Get("build").(bool)
 
 	ownerId := d.Get("owner_id").(int)
 	if ownerId != 0 {
@@ -516,30 +518,6 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 
 	return tempIntAttr
 }
-
-// mapToForemanInterfacesAttribute converts a map[string]interface{} to a
-// ForemanInterfacesAttribute struct.  The supplied map comes from an entry in
-// the *schema.Set for the "interfaces_attributes" property of the resource,
-// since *schema.Set stores its entries as this map structure.
-//
-// The map should have the following keys. Omitted or invalid map values will
-// result in the struct receiving the zero value for that property.
-//
-//   id (int)
-//   primary (bool)
-//   ip (string)
-//   mac (string)
-//   name (string)
-//   subnet_id (int)
-//   identifier (string)
-//   managed (bool)
-//   provision (bool)
-//   virtual (bool)
-//   username (string)
-//   password (string)
-//   type (string)
-//   bmc_provider (string)
-//   _destroy (bool)
 
 func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterfacesAttribute {
 	log.Tracef("mapToForemanInterfacesAttribute")
@@ -757,11 +735,6 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	managed := d.Get("managed").(bool)
 
-	// NOTE(ALL): Set the build flag to true on host create
-	if h.Method == "build" && managed {
-		h.Build = true
-	}
-
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
@@ -782,9 +755,8 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	enablebmc := d.Get("enable_bmc").(bool)
 
 	var powerCmds []interface{}
-	// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
-	// Don't modify power state at all if we're not managing the build
-	if enablebmc {
+	// If managed, enable_bmc & build are true: perform required power functions
+	if managed && enablebmc && h.Build {
 		log.Debugf("Calling BMC Reboot/PXE Functions")
 		// List of BMC Actions to perform
 		powerCmds = []interface{}{
@@ -795,17 +767,10 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 				PowerAction: api.PowerCycle,
 			},
 		}
-	} else if managed {
-		log.Debugf("Using default Foreman behaviour for startup")
-		powerCmds = []interface{}{
-			api.Power{
-				PowerAction: api.PowerOn,
-			},
-		}
 	}
 
 	// Loop through each of the above BMC Operations and execute.
-	// In the event fo any failure, exit with error
+	// In the event of any failure, exit with error
 	for _, cmd := range powerCmds {
 		sendErr := client.SendPowerCommand(createdHost, cmd, hostRetryCount)
 		if sendErr != nil {
@@ -815,10 +780,6 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 		duration := time.Duration(3) * time.Second
 		time.Sleep(duration)
 	}
-	// When the BMC Operations succeed, set the `bmc_success` key to true.
-	d.Set("bmc_success", true)
-	// Set the `bmc_success` key as successful in partial mode
-	d.SetPartial("bmc_success")
 
 	// Disable partial mode
 	d.Partial(false)
@@ -886,7 +847,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	hostRetryCount := d.Get("retry_count").(int)
 
 	// We need to test whether a call to update the host is necessary based on what has changed.
-	// Otherwise, a detected update caused by a unsuccessful BMC operation will cause a 422 on update.
+	// Otherwise, a detected update caused by an unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
 		d.HasChange("comment") ||
 		d.HasChange("parameters") ||
@@ -900,6 +861,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
 		d.HasChange("interfaces_attributes") ||
+		d.HasChange("build") ||
 		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)
@@ -912,35 +874,27 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		log.Debugf("Updated FormanHost: [%+v]", updatedHost)
 
 		setResourceDataFromForemanHost(d, updatedHost)
-	} // end HasChange("name")
+	}
 
-	// Perform BMC operations on update only if the bmc_success boolean has a change
-	if d.HasChange("bmc_success") {
-		enablebmc := d.Get("enable_bmc").(bool)
-		managed := d.Get("managed").(bool)
+	enablebmc := d.Get("enable_bmc").(bool)
+	managed := d.Get("managed").(bool)
+	build := d.Get("build").(bool)
 
-		var powerCmds []interface{}
-		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
-		if enablebmc {
-			log.Debugf("Calling BMC Reboot/PXE Functions")
-			// List of BMC Actions to perform
-			powerCmds = []interface{}{
-				api.Power{
-					PowerAction: api.PowerOff,
-				},
-				api.BMCBoot{
-					Device: api.BootPxe,
-				},
-				api.Power{
-					PowerAction: api.PowerOn,
-				},
-			}
-		} else if managed {
-			powerCmds = []interface{}{
-				api.Power{
-					PowerAction: api.PowerOn,
-				},
-			}
+	var powerCmds []interface{}
+	// If managed, enable_bmc & build are true: perform required power functions
+	if managed && enablebmc && build {
+		log.Debugf("Calling BMC Reboot/PXE Functions")
+		// List of BMC Actions to perform
+		powerCmds = []interface{}{
+			api.Power{
+				PowerAction: api.PowerOff,
+			},
+			api.BMCBoot{
+				Device: api.BootPxe,
+			},
+			api.Power{
+				PowerAction: api.PowerOn,
+			},
 		}
 
 		for _, cmd := range powerCmds {
@@ -952,10 +906,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 			duration := time.Duration(3) * time.Second
 			time.Sleep(duration)
 		}
-		d.Set("bmc_success", true)
-		d.SetPartial("bmc_success")
-
-	} // end HasChange("bmc_success")
+	}
 	// Use partial state mode in the event of failure of one of API calls required for host creation
 	d.Partial(false)
 

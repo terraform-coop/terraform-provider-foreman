@@ -19,21 +19,19 @@ resource "foreman_host" "example" {
 
 The following arguments are supported:
 
-- `bmc_success` - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
+- `build` - Whether or not this host will be set to build in Foreman. If false, create host only and do not manage power states. Default is true.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
-- `enable_bmc` - (Optional) Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
+- `enable_bmc` - (Optional) Enables PMI/BMC/LOM functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
 - `environment_id` - (Optional) ID of the environment to assign to the host.
 - `hostgroup_id` - (Optional, Force New) ID of the hostgroup to assign to the host.
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - (Optional) Host interface information.
-- `manage_build` - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `managed` - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
-- `method` - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"
 - `model_id` - (Optional) ID of the hardware model if applicable
 - `name` - (Required, Force New) Host fully qualified domain name.
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
@@ -42,13 +40,17 @@ The following arguments are supported:
 - `parameters` - (Optional) A map of parameters that will be saved as host parameters in the machine config.
 - `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `bmc_success` - REMOVED - Power action is no longer taken retrospectively if prior execution fails.
+- `manage_build` - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
+- `method` - REMOVED - use enable_bmc instead to distinguish between physical and virtual machine power-state handling.
 
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-- `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
+- `build` - Whether host build flag is enabled.
+- `comment` - Add additional information about this host.Note: Changes to this attribute will cause host to be recreated.
 - `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
 - `compute_resource_id` - 
@@ -62,7 +64,6 @@ The following attributes are exported:
 - `manage_build` - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `managed` - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - ID of the medium mounted on the host.
-- `method` - Chooses a method with which to provision the HostOptions are "build" and "image"
 - `model_id` - ID of the hardware model if applicable
 - `name` - Host fully qualified domain name.
 - `operatingsystem_id` - ID of the operating system to put on the host.
