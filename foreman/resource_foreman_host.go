@@ -65,11 +65,11 @@ func resourceForemanHost() *schema.Resource {
 			// -- Optional --
 
 			"method": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
-				Default:  "build",
-				//Removed:  "The argument is handled by enable_bmc instead",
+				Type:       schema.TypeString,
+				ForceNew:   true,
+				Optional:   true,
+				Default:    "build",
+				Deprecated: "The argument is handled by enable_bmc instead",
 				ValidateFunc: validation.StringInSlice([]string{
 					"build",
 					"image",

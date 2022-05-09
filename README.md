@@ -110,6 +110,7 @@ INFO    -  Cleaning site directory
 [I 160402 15:50:43 handlers:58] Start watching changes
 [I 160402 15:50:43 handlers:60] Start detecting changes
 ```
+If you see an error `'jinja2' has no attribute 'contextfilter'`, try pinning jinja2 to v3.0.3: `pip install jinja2==3.0.3`
 
 The documentation can then be viewed by accessing localhost in your favorite
 browser or viewport.
