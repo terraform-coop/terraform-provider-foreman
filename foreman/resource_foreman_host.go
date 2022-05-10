@@ -74,8 +74,7 @@ func resourceForemanHost() *schema.Resource {
 					"build",
 					"image",
 				}, false),
-				Description: "REMOVED - use enable_bmc instead to distinguish between physical and virtual machine " +
-					"power-state handling.",
+				Description: "REMOVED - use enable_bmc instead to manage power on physical machine.",
 			},
 
 			"comment": &schema.Schema{
@@ -101,9 +100,8 @@ func resourceForemanHost() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
-				Description: "Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true while " +
-					"build and managed arguments are also true, will force a host to poweroff, set next boot to PXE, " +
-					"and power on. Defaults to `false`.",
+				Description: "Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true will force a " +
+					"host to poweroff, set next boot to PXE, and power on. Defaults to `false`.",
 			},
 
 			"manage_build": &schema.Schema{
@@ -758,8 +756,6 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	managed := d.Get("managed").(bool)
-
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
@@ -781,7 +777,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	var powerCmds []interface{}
 	// If managed, enable_bmc & build are true: perform required power functions
-	if managed && enablebmc && h.Build {
+	if enablebmc {
 		log.Debugf("Calling BMC Reboot/PXE Functions")
 		// List of BMC Actions to perform
 		powerCmds = []interface{}{
@@ -902,12 +898,10 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	enablebmc := d.Get("enable_bmc").(bool)
-	managed := d.Get("managed").(bool)
-	build := d.Get("build").(bool)
 
 	var powerCmds []interface{}
 	// If managed, enable_bmc & build are true: perform required power functions
-	if managed && enablebmc && build {
+	if enablebmc {
 		log.Debugf("Calling BMC Reboot/PXE Functions")
 		// List of BMC Actions to perform
 		powerCmds = []interface{}{

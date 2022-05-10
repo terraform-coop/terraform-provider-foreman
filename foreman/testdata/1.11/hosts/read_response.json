@@ -34,7 +34,7 @@
   "puppet_ca_proxy_id": 25,
   "managed": true,
   "build": false,
-  "enable_bmc": true,
+  "enable_bmc": false,
   "use_image": null,
   "image_file": "",
   "uuid": null,

@@ -14,28 +14,19 @@ resource "foreman_host" "example" {
 }
 ```
 
-```
-# Example physical host that will receive power action (will be powered-on\rebooted):
-resource "foreman_host" "example" {
-  name = "compute01.dc1.company.com"
-  enable_bmc = "true"
-}
-```
-All three of `bmc_enabled`, `managed`, and `build` argument must be true for a power-action to happen. The latter two default to true. Note that power-state of VMs, which do not have BMC, must be handled outside of this provider.
-
 
 ## Argument Reference
 
 The following arguments are supported:
 
 - `bmc_success` - (Optional) REMOVED - Power action is no longer taken retrospectively if prior execution fails.
-- `build` - (Optional) Whether or not this host's build flag will be enabled in Foreman.If false (default), create host only and do not change power states.
+- `build` - (Optional) Whether or not this host's build flag will be enabled in Foreman. If false (default), create host only and do not change power states.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
-- `enable_bmc` - (Optional) Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true while build and managed arguments are also true, will force a host to poweroff, set next boot to PXE, and power on. Defaults to `false`.
+- `enable_bmc` - (Optional) Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true will force a host to poweroff, set next boot to PXE, and power on. Defaults to `false`.
 - `environment_id` - (Optional) ID of the environment to assign to the host.
 - `hostgroup_id` - (Optional, Force New) ID of the hostgroup to assign to the host.
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
@@ -43,7 +34,7 @@ The following arguments are supported:
 - `manage_build` - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `managed` - (Optional) Whether or not this host is managed by Foreman. In other words, whether a host is managed or unmanaged. Default is true. If false, create host only, don't set build status or touch power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
-- `method` - (Optional, Force New) REMOVED - use enable_bmc instead to distinguish between physical and virtual machine power-state handling.
+- `method` - (Optional, Force New) REMOVED - use enable_bmc instead to manage power on physical machine.
 - `model_id` - (Optional) ID of the hardware model if applicable
 - `name` - (Required, Force New) Host fully qualified domain name.
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
@@ -59,14 +50,14 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `bmc_success` - REMOVED - Power action is no longer taken retrospectively if prior execution fails.
-- `build` - Whether or not this host's build flag will be enabled in Foreman.If false (default), create host only and do not change power states.
+- `build` - Whether or not this host's build flag will be enabled in Foreman. If false (default), create host only and do not change power states.
 - `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
 - `compute_resource_id` - 
 - `domain_id` - ID of the domain to assign to the host.
 - `domain_name` - The domain name of the host.
-- `enable_bmc` - Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true while build and managed arguments are also true, will force a host to poweroff, set next boot to PXE, and power on. Defaults to `false`.
+- `enable_bmc` - Enables PMI/BMC/LOM functionality on physical hosts. If this is set to true will force a host to poweroff, set next boot to PXE, and power on. Defaults to `false`.
 - `environment_id` - ID of the environment to assign to the host.
 - `hostgroup_id` - ID of the hostgroup to assign to the host.
 - `image_id` - ID of an image to be used as base for this host when cloning
@@ -74,7 +65,7 @@ The following attributes are exported:
 - `manage_build` - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `managed` - Whether or not this host is managed by Foreman. In other words, whether a host is managed or unmanaged. Default is true. If false, create host only, don't set build status or touch power states.
 - `medium_id` - ID of the medium mounted on the host.
-- `method` - REMOVED - use enable_bmc instead to distinguish between physical and virtual machine power-state handling.
+- `method` - REMOVED - use enable_bmc instead to manage power on physical machine.
 - `model_id` - ID of the hardware model if applicable
 - `name` - Host fully qualified domain name.
 - `operatingsystem_id` - ID of the operating system to put on the host.
