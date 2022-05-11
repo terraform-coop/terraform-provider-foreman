@@ -1,0 +1,14 @@
+{
+    "operatingsystem_id": 309172073,
+    "operatingsystem_name": "centos 5.3",
+    "compute_resource_id": 980190962,
+    "compute_resource_name": "bigcompute",
+    "architecture_id": 501905019,
+    "architecture_name": "x86_64",
+    "uuid": "string-of-uuid",
+    "username": "root",
+    "created_at": "2022-03-29 09:16:41 UTC",
+    "updated_at": "2022-03-29 09:16:41 UTC",
+    "id": 980190962,
+    "name": "centos-1"
+}

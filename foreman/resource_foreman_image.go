@@ -58,7 +58,7 @@ func resourceForemanImage() *schema.Resource {
 				Optional:    true,
 				Description: "",
 			},
-			"archictecture_id": &schema.Schema{
+			"architecture_id": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "",

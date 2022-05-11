@@ -20,7 +20,7 @@ import (
 // -----------------------------------------------------------------------------
 
 const ImagesURI = api.FOREMAN_API_URL_PREFIX + "/compute_resources"
-const ImagesTestDataPath = "testdata/1.11/image"
+const ImagesTestDataPath = "testdata/3.1.2/image"
 
 // Given a ForemanImage, create a mock instance state reference
 func ForemanImageToInstanceState(obj api.ForemanImage) *terraform.InstanceState {
