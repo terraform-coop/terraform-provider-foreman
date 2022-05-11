@@ -154,6 +154,11 @@ func resourceForemanSubnet() *schema.Resource {
 				Optional:    true,
 				Description: "DHCP Proxy ID to use within this subnet",
 			},
+			"bmc_id": &schema.Schema{
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "BMC Proxy ID to use within this subnet",
+			},
 			"tftp_id": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
@@ -243,6 +248,10 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("dhcp_id"); ok {
 		s.DhcpID = attr.(int)
 	}
+	bmcId := d.Get("bmc_id").(int)
+	if bmcId != 0 {
+		s.BmcID = &bmcId
+	}
 	if attr, ok = d.GetOk("tftp_id"); ok {
 		s.TftpID = attr.(int)
 	}
@@ -280,6 +289,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("mtu", fs.Mtu)
 	d.Set("template_id", fs.TemplateID)
 	d.Set("dhcp_id", fs.DhcpID)
+	d.Set("bmc_id", fs.BmcID)
 	d.Set("tftp_id", fs.TftpID)
 	d.Set("httpboot_id", fs.HTTPBootID)
 	d.Set("domain_ids", fs.DomainIDs)

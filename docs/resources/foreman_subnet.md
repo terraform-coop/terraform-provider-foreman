@@ -21,6 +21,7 @@ resource "foreman_subnet" "example" {
 
 The following arguments are supported:
 
+- `bmc_id` - (Optional) BMC Proxy ID to use within this subnet
 - `boot_mode` - (Optional) Default boot mode for instances assigned to this subnet. Values include: `"Static"`, `"DHCP"`.
 - `dhcp_id` - (Optional) DHCP Proxy ID to use within this subnet
 - `dns_primary` - (Optional) Primary DNS server for this subnet.
@@ -46,6 +47,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+- `bmc_id` - BMC Proxy ID to use within this subnet
 - `boot_mode` - Default boot mode for instances assigned to this subnet. Values include: `"Static"`, `"DHCP"`.
 - `dhcp_id` - DHCP Proxy ID to use within this subnet
 - `dns_primary` - Primary DNS server for this subnet.
