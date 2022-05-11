@@ -248,8 +248,9 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("dhcp_id"); ok {
 		s.DhcpID = attr.(int)
 	}
-	if attr, ok = d.GetOk("bmc_id"); ok {
-		s.BmcID = attr.(int)
+	bmcId := d.Get("bmc_id").(int)
+	if bmcId != 0 {
+		s.BmcID = &bmcId
 	}
 	if attr, ok = d.GetOk("tftp_id"); ok {
 		s.TftpID = attr.(int)

@@ -62,7 +62,7 @@ type ForemanSubnet struct {
 	// DHCP ID
 	DhcpID int `json:"dhcp_id,omitempty"`
 	// BMC ID
-	BmcID int `json:"bmc_id,omitempty"`
+	BmcID *int `json:"bmc_id,omitempty"`
 	// TFTP ID
 	TftpID int `json:"tftp_id,omitempty"`
 	// HTTP Boot ID
