@@ -82,7 +82,7 @@ type ForemanHost struct {
 	// Nested struct defining any interfaces associated with the Host
 	InterfacesAttributes []ForemanInterfacesAttribute `json:"interfaces_attributes,omitempty"`
 	// Map of HostParameters
-	HostParameters []ForemanKVParameter `json:"parameters,omitempty"`
+	HostParameters []ForemanKVParameter `json:"host_parameters_attributes,omitempty"`
 	// NOTE(ALL): These settings only apply to virtual machines
 	// Hypervisor specific map of ComputeAttributes
 	ComputeAttributes map[string]interface{} `json:"compute_attributes,omitempty"`
@@ -135,6 +135,7 @@ type foremanHostDecode struct {
 	ForemanHost
 	InterfacesAttributesDecode []ForemanInterfacesAttribute `json:"interfaces"`
 	PuppetClassesDecode        []ForemanObject              `json:"puppetclasses"`
+	HostParametersDecode       []ForemanKVParameter         `json:"parameters"`
 }
 
 // Power struct for marshal/unmarshal of power state
@@ -307,6 +308,7 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 	}
 	readHost.InterfacesAttributes = readHost.InterfacesAttributesDecode
 	readHost.PuppetClassIds = foremanObjectArrayToIdIntArray(readHost.PuppetClassesDecode)
+	readHost.HostParameters = readHost.HostParametersDecode
 
 	return &readHost.ForemanHost, nil
 }

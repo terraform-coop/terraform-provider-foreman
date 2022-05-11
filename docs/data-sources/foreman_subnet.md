@@ -28,6 +28,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+- `bmc_id` - BMC Proxy ID to use within this subnet
 - `boot_mode` - Default boot mode for instances assigned to this subnet. Values include: `"Static"`, `"DHCP"`.
 - `dhcp_id` - DHCP Proxy ID to use within this subnet
 - `dns_primary` - Primary DNS server for this subnet.
