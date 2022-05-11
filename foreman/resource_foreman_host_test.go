@@ -34,6 +34,7 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 		attr["domain_id"] = strconv.Itoa(*obj.DomainId)
 	}
 	attr["domain_name"] = obj.DomainName
+	attr["build"] = strconv.FormatBool(obj.Build)
 	if obj.EnvironmentId != nil {
 		attr["environment_id"] = strconv.Itoa(*obj.EnvironmentId)
 	}

@@ -20,6 +20,7 @@ resource "foreman_host" "example" {
 The following arguments are supported:
 
 - `bmc_success` - (Optional) Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
+- `build` - (Optional) Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - (Optional) 
@@ -33,7 +34,7 @@ The following arguments are supported:
 - `manage_build` - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `managed` - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
-- `method` - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"
+- `method` - (Optional, Force New) REMOVED - use build argument instead to manage build flag of host.
 - `model_id` - (Optional) ID of the hardware model if applicable
 - `name` - (Required, Force New) Host fully qualified domain name.
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
@@ -48,6 +49,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
+- `build` - Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.
 - `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
@@ -62,7 +64,7 @@ The following attributes are exported:
 - `manage_build` - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `managed` - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - ID of the medium mounted on the host.
-- `method` - Chooses a method with which to provision the HostOptions are "build" and "image"
+- `method` - REMOVED - use build argument instead to manage build flag of host.
 - `model_id` - ID of the hardware model if applicable
 - `name` - Host fully qualified domain name.
 - `operatingsystem_id` - ID of the operating system to put on the host.

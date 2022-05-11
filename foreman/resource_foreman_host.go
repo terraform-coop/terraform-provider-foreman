@@ -65,16 +65,16 @@ func resourceForemanHost() *schema.Resource {
 			// -- Optional --
 
 			"method": &schema.Schema{
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: true,
-				Default:  "build",
+				Type:       schema.TypeString,
+				ForceNew:   true,
+				Optional:   true,
+				Default:    "build",
+				Deprecated: "The argument is handled by build instead",
 				ValidateFunc: validation.StringInSlice([]string{
 					"build",
 					"image",
 				}, false),
-				Description: "Chooses a method with which to provision the Host" +
-					"Options are \"build\" and \"image\"",
+				Description: "REMOVED - use build argument instead to manage build flag of host.",
 			},
 
 			"comment": &schema.Schema{
@@ -121,7 +121,13 @@ func resourceForemanHost() *schema.Resource {
 				Description: "Whether or not this host is managed by Foreman." +
 					" Create host only, don't set build status or manage power states.",
 			},
-
+			"build": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
+					"which means host will be built at next boot.",
+			},
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -419,9 +425,9 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	host.Name = d.Get("name").(string)
 	host.Comment = d.Get("comment").(string)
 	host.OwnerType = d.Get("owner_type").(string)
-	host.Method = d.Get("method").(string)
 	host.DomainName = d.Get("domain_name").(string)
 	host.Managed = d.Get("managed").(bool)
+	host.Build = d.Get("build").(bool)
 
 	ownerId := d.Get("owner_id").(int)
 	if ownerId != 0 {
@@ -757,11 +763,6 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	managed := d.Get("managed").(bool)
 
-	// NOTE(ALL): Set the build flag to true on host create
-	if h.Method == "build" && managed {
-		h.Build = true
-	}
-
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
@@ -886,7 +887,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	hostRetryCount := d.Get("retry_count").(int)
 
 	// We need to test whether a call to update the host is necessary based on what has changed.
-	// Otherwise, a detected update caused by a unsuccessful BMC operation will cause a 422 on update.
+	// Otherwise, a detected update caused by an unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
 		d.HasChange("comment") ||
 		d.HasChange("parameters") ||
@@ -900,6 +901,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		d.HasChange("compute_profile_id") ||
 		d.HasChange("operatingsystem_id") ||
 		d.HasChange("interfaces_attributes") ||
+		d.HasChange("build") ||
 		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)
