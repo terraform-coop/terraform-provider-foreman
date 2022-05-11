@@ -12,8 +12,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func main() {
@@ -21,8 +19,7 @@ func main() {
 	// resources, and data sources. The Provider() function returns a
 	// *terraform.ResourceProvider (interface) which will need to be type asserted
 	// to a *schema.Provider (struct)
-	resourceProvider := foreman.Provider()
-	provider := resourceProvider.(*schema.Provider)
+	provider := foreman.Provider()
 	// Start the autodoc engine
 	errors := autodoc.Document(provider)
 	if len(errors) != 0 {
