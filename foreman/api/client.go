@@ -80,6 +80,26 @@ type ForemanKVParameter struct {
 	Value string `json:"value"`
 }
 
+func FromKV(kv []ForemanKVParameter) (ret map[string]string) {
+	ret = make(map[string]string)
+	for _, pair := range kv {
+		ret[pair.Name] = pair.Value
+	}
+	return ret
+}
+
+func ToKV(m map[string]string) (ret []ForemanKVParameter) {
+	ret = make([]ForemanKVParameter, len(m))
+
+	for key, value := range m {
+		ret = append(ret, ForemanKVParameter{
+			Name:  key,
+			Value: value,
+		})
+	}
+	return ret
+}
+
 // NewClient creates a new instance of the REST client for communication with
 // the API gateway.
 func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {

@@ -481,13 +481,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		hostTags := d.Get("parameters").(map[string]interface{})
-		for key, value := range hostTags {
-			host.HostParameters = append(host.HostParameters, api.ForemanKVParameter{
-				Name:  key,
-				Value: value.(string),
-			})
-		}
+		host.HostParameters = api.ToKV(attr.(map[string]string))
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -638,14 +632,9 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
-	host_parameters := make(map[string]string)
-	for _, parameter := range fh.HostParameters {
-		host_parameters[parameter.Name] = parameter.Value
-	}
-
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
-	d.Set("parameters", host_parameters)
+	d.Set("parameters", api.FromKV(fh.HostParameters))
 
 	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
 		log.Printf("[WARN] error setting compute attributes: %s", err)

@@ -316,13 +316,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 		hostgroup.SubnetId = attr.(int)
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		hostTags := d.Get("parameters").(map[string]interface{})
-		for key, value := range hostTags {
-			hostgroup.HostGroupParameters = append(hostgroup.HostGroupParameters, api.ForemanKVParameter{
-				Name:  key,
-				Value: value.(string),
-			})
-		}
+		hostgroup.HostGroupParameters = api.ToKV(attr.(map[string]string))
 	}
 
 	return &hostgroup
@@ -337,7 +331,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("title", fh.Title)
 	d.Set("name", fh.Name)
 	d.Set("pxe_loader", fh.PXELoader)
-	d.Set("parameters", fh.HostGroupParameters)
+	d.Set("parameters", api.FromKV(fh.HostGroupParameters))
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("content_source_id", fh.ContentSourceId)
