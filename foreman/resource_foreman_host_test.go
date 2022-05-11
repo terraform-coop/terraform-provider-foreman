@@ -53,7 +53,6 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 		attr["owner_id"] = strconv.Itoa(*obj.OwnerId)
 	}
 	attr["owner_type"] = obj.OwnerType
-	attr["bmc_success"] = strconv.FormatBool(obj.BMCSuccess)
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
 	attr["retry_count"] = "1"
 	compute_attributes, _ := json.Marshal(obj.ComputeAttributes)
@@ -176,7 +175,7 @@ func ForemanHostResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *s
 	r := resourceForemanHost()
 	for key, value := range r.Schema {
 		// Skip compute_attribs as it gets nulled
-		if key == "compute_attributes" || key == "bmc_success" {
+		if key == "compute_attributes" {
 			continue
 		}
 		m[key] = value.Type

@@ -134,8 +134,9 @@ func resourceForemanHost() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+				Removed:  "The feature no longer exists",
 				Description: fmt.Sprintf(
-					"Tracks the partial state of BMC operations on host "+
+					"REMOVED - Tracks the partial state of BMC operations on host "+
 						"creation. If these operations fail, the host will be created in "+
 						"Foreman and this boolean will remain `false`. On the next "+
 						"`terraform apply` will trigger the host update to pick back up "+
@@ -815,10 +816,6 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 		duration := time.Duration(3) * time.Second
 		time.Sleep(duration)
 	}
-	// When the BMC Operations succeed, set the `bmc_success` key to true.
-	d.Set("bmc_success", true)
-	// Set the `bmc_success` key as successful in partial mode
-	d.SetPartial("bmc_success")
 
 	// Disable partial mode
 	d.Partial(false)
@@ -914,48 +911,6 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 		setResourceDataFromForemanHost(d, updatedHost)
 	} // end HasChange("name")
 
-	// Perform BMC operations on update only if the bmc_success boolean has a change
-	if d.HasChange("bmc_success") {
-		enablebmc := d.Get("enable_bmc").(bool)
-		managed := d.Get("managed").(bool)
-
-		var powerCmds []interface{}
-		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
-		if enablebmc {
-			log.Debugf("Calling BMC Reboot/PXE Functions")
-			// List of BMC Actions to perform
-			powerCmds = []interface{}{
-				api.Power{
-					PowerAction: api.PowerOff,
-				},
-				api.BMCBoot{
-					Device: api.BootPxe,
-				},
-				api.Power{
-					PowerAction: api.PowerOn,
-				},
-			}
-		} else if managed {
-			powerCmds = []interface{}{
-				api.Power{
-					PowerAction: api.PowerOn,
-				},
-			}
-		}
-
-		for _, cmd := range powerCmds {
-			sendErr := client.SendPowerCommand(h, cmd, hostRetryCount)
-			if sendErr != nil {
-				return sendErr
-			}
-			// Sleep for 3 seconds between chained BMC calls
-			duration := time.Duration(3) * time.Second
-			time.Sleep(duration)
-		}
-		d.Set("bmc_success", true)
-		d.SetPartial("bmc_success")
-
-	} // end HasChange("bmc_success")
 	// Use partial state mode in the event of failure of one of API calls required for host creation
 	d.Partial(false)
 
