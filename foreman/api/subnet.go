@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -83,7 +84,7 @@ type ForemanSubnet struct {
 // ForemanSubnet reference and returns the created ForemanSubnet reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
+func (c *Client) CreateSubnet(ctx context.Context, s *ForemanSubnet) (*ForemanSubnet, error) {
 	log.Tracef("foreman/api/subnet.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", SubnetEndpointPrefix)
@@ -95,7 +96,8 @@ func (c *Client) CreateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 	log.Debugf("sJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -117,12 +119,13 @@ func (c *Client) CreateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 // ReadSubnet reads the attributes of a ForemanSubnet identified by the
 // supplied ID and returns a ForemanSubnet reference.
-func (c *Client) ReadSubnet(id int) (*ForemanSubnet, error) {
+func (c *Client) ReadSubnet(ctx context.Context, id int) (*ForemanSubnet, error) {
 	log.Tracef("foreman/api/subnet.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SubnetEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -150,7 +153,7 @@ func (c *Client) ReadSubnet(id int) (*ForemanSubnet, error) {
 // UpdateSubnet updates a ForemanSubnet's attributes.  The subnet with the ID
 // of the supplied ForemanSubnet will be updated. A new ForemanSubnet reference
 // is returned with the attributes from the result of the update operation.
-func (c *Client) UpdateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
+func (c *Client) UpdateSubnet(ctx context.Context, s *ForemanSubnet) (*ForemanSubnet, error) {
 	log.Tracef("foreman/api/subnet.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SubnetEndpointPrefix, s.Id)
@@ -162,7 +165,8 @@ func (c *Client) UpdateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 
 	log.Debugf("sJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -183,12 +187,13 @@ func (c *Client) UpdateSubnet(s *ForemanSubnet) (*ForemanSubnet, error) {
 }
 
 // DeleteSubnet deletes the ForemanSubnet identified by the supplied ID
-func (c *Client) DeleteSubnet(id int) error {
+func (c *Client) DeleteSubnet(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/subnet.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SubnetEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -207,13 +212,14 @@ func (c *Client) DeleteSubnet(id int) error {
 // QuerySubnet queries for a ForemanSubnet based on the attributes of the
 // supplied ForemanSubnet reference and returns a QueryResponse struct
 // containing query/response metadata and the matching subnets
-func (c *Client) QuerySubnet(s *ForemanSubnet) (QueryResponse, error) {
+func (c *Client) QuerySubnet(ctx context.Context, s *ForemanSubnet) (QueryResponse, error) {
 	log.Tracef("foreman/api/subnet.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", SubnetEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

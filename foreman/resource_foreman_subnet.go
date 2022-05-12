@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -16,10 +18,10 @@ import (
 func resourceForemanSubnet() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanSubnetCreate,
-		Read:   resourceForemanSubnetRead,
-		Update: resourceForemanSubnetUpdate,
-		Delete: resourceForemanSubnetDelete,
+		CreateContext: resourceForemanSubnetCreate,
+		ReadContext:   resourceForemanSubnetRead,
+		UpdateContext: resourceForemanSubnetUpdate,
+		DeleteContext: resourceForemanSubnetDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -300,7 +302,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanSubnetCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_subnet.go#Create")
 
 	client := meta.(*api.Client)
@@ -308,9 +310,9 @@ func resourceForemanSubnetCreate(d *schema.ResourceData, meta interface{}) error
 
 	log.Debugf("ForemanSubnet: [%+v]", s)
 
-	createdSubnet, createErr := client.CreateSubnet(s)
+	createdSubnet, createErr := client.CreateSubnet(ctx, s)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
@@ -320,7 +322,7 @@ func resourceForemanSubnetCreate(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func resourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_subnet.go#Read")
 
 	client := meta.(*api.Client)
@@ -328,9 +330,9 @@ func resourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Debugf("ForemanSubnet: [%+v]", s)
 
-	readSubnet, readErr := client.ReadSubnet(s.Id)
+	readSubnet, readErr := client.ReadSubnet(ctx, s.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanSubnet: [%+v]", readSubnet)
@@ -340,16 +342,16 @@ func resourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanSubnetUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_subnet.go#Update")
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
 	log.Debugf("ForemanSubnet: [%+v]", s)
 
-	updatedSubnet, updateErr := client.UpdateSubnet(s)
+	updatedSubnet, updateErr := client.UpdateSubnet(ctx, s)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
@@ -359,7 +361,7 @@ func resourceForemanSubnetUpdate(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func resourceForemanSubnetDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_subnet.go#Delete")
 
 	client := meta.(*api.Client)
@@ -367,5 +369,5 @@ func resourceForemanSubnetDelete(d *schema.ResourceData, meta interface{}) error
 
 	log.Debugf("ForemanSubnet: [%+v]", s)
 
-	return client.DeleteSubnet(s.Id)
+	return diag.FromErr(client.DeleteSubnet(ctx, s.Id))
 }

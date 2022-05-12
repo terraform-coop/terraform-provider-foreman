@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -30,14 +32,14 @@ func dataSourceForemanUsergroup() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanUsergroupRead,
+		ReadContext: dataSourceForemanUsergroupRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanUsergroupRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanUsergroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_usergroup.go#Read")
 
 	client := meta.(*api.Client)
@@ -45,21 +47,21 @@ func dataSourceForemanUsergroupRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanUsergroup: [%+v]", u)
 
-	queryResponse, queryErr := client.QueryUsergroup(u)
+	queryResponse, queryErr := client.QueryUsergroup(ctx, u)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source usergroup returned no results")
+		return diag.Errorf("Data source usergroup returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source usergroup returned more than 1 result")
+		return diag.Errorf("Data source usergroup returned more than 1 result")
 	}
 
 	var queryUsergroup api.ForemanUsergroup
 	var ok bool
 	if queryUsergroup, ok = queryResponse.Results[0].(api.ForemanUsergroup); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanUsergroup], got [%T]",
 			queryResponse.Results[0],

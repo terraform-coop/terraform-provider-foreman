@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -16,10 +18,10 @@ import (
 func resourceForemanProvisioningTemplate() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanProvisioningTemplateCreate,
-		Read:   resourceForemanProvisioningTemplateRead,
-		Update: resourceForemanProvisioningTemplateUpdate,
-		Delete: resourceForemanProvisioningTemplateDelete,
+		CreateContext: resourceForemanProvisioningTemplateCreate,
+		ReadContext:   resourceForemanProvisioningTemplateRead,
+		UpdateContext: resourceForemanProvisioningTemplateUpdate,
+		DeleteContext: resourceForemanProvisioningTemplateDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -322,7 +324,7 @@ func setResourceDataFromForemanTemplateCombinationsAttributes(d *schema.Resource
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanProvisioningTemplateCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanProvisioningTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_provisioningtemplate.go#Create")
 
 	client := meta.(*api.Client)
@@ -330,9 +332,9 @@ func resourceForemanProvisioningTemplateCreate(d *schema.ResourceData, meta inte
 
 	log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
-	createdTemplate, createErr := client.CreateProvisioningTemplate(t)
+	createdTemplate, createErr := client.CreateProvisioningTemplate(ctx, t)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanProvisioningTemplate: [%+v]", createdTemplate)
@@ -342,7 +344,7 @@ func resourceForemanProvisioningTemplateCreate(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceForemanProvisioningTemplateRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanProvisioningTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_provisioningtemplate.go#Read")
 
 	client := meta.(*api.Client)
@@ -350,9 +352,9 @@ func resourceForemanProvisioningTemplateRead(d *schema.ResourceData, meta interf
 
 	log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
-	readTemplate, readErr := client.ReadProvisioningTemplate(t.Id)
+	readTemplate, readErr := client.ReadProvisioningTemplate(ctx, t.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanProvisioningTemplate: [%+v]", readTemplate)
@@ -364,7 +366,7 @@ func resourceForemanProvisioningTemplateRead(d *schema.ResourceData, meta interf
 	return nil
 }
 
-func resourceForemanProvisioningTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_provisioningtemplate.go#Update")
 
 	client := meta.(*api.Client)
@@ -415,9 +417,9 @@ func resourceForemanProvisioningTemplateUpdate(d *schema.ResourceData, meta inte
 
 	} // end HasChange("template_combinations_attributes")
 
-	updatedTemplate, updateErr := client.UpdateProvisioningTemplate(t)
+	updatedTemplate, updateErr := client.UpdateProvisioningTemplate(ctx, t)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanProvisioningTemplate: [%+v]", t)
@@ -427,7 +429,7 @@ func resourceForemanProvisioningTemplateUpdate(d *schema.ResourceData, meta inte
 	return nil
 }
 
-func resourceForemanProvisioningTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanProvisioningTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_provisioningtemplate.go#Delete")
 
 	client := meta.(*api.Client)
@@ -448,9 +450,9 @@ func resourceForemanProvisioningTemplateDelete(d *schema.ResourceData, meta inte
 		}
 		log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
-		updatedTemplate, updateErr := client.UpdateProvisioningTemplate(t)
+		updatedTemplate, updateErr := client.UpdateProvisioningTemplate(ctx, t)
 		if updateErr != nil {
-			return updateErr
+			return diag.FromErr(updateErr)
 		}
 
 		log.Debugf("Updated ForemanProvisioningTemplate: [%+v]", updatedTemplate)
@@ -467,5 +469,5 @@ func resourceForemanProvisioningTemplateDelete(d *schema.ResourceData, meta inte
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteProvisioningTemplate(t.Id)
+	return diag.FromErr(client.DeleteProvisioningTemplate(ctx, t.Id))
 }

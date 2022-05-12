@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"math/rand"
@@ -14,6 +15,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -154,7 +156,7 @@ func RandForemanObject() api.ForemanObject {
 
 // Type definition describing the signature of a CRUD operation for a
 // terraform resource/data source
-type CRUDFunc func(*schema.ResourceData, interface{}) error
+type CRUDFunc func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics
 
 // Base struct definition for all test cases
 type TestCase struct {
@@ -279,7 +281,7 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		})
 
-		testCase.crudFunc(testCase.resourceData, client)
+		testCase.crudFunc(context.TODO(), testCase.resourceData, client)
 		server.Close()
 
 	} //end for
@@ -358,7 +360,7 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		})
 
-		testCase.crudFunc(testCase.resourceData, client)
+		testCase.crudFunc(context.TODO(), testCase.resourceData, client)
 		server.Close()
 
 	} //end for
@@ -420,7 +422,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		})
 
-		testCase.crudFunc(testCase.resourceData, client)
+		testCase.crudFunc(context.TODO(), testCase.resourceData, client)
 		server.Close()
 
 	} //end for
@@ -494,7 +496,7 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Logf("test case: [%+v]", testCase)
 
-		err := testCase.crudFunc(testCase.resourceData, client)
+		err := testCase.crudFunc(context.TODO(), testCase.resourceData, client)
 		if err == nil {
 			t.Fatalf(
 				"[%s] did not return an error when the server responded with a non "+
@@ -575,7 +577,7 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Logf("test case: [%+v]", testCase)
 
-		err := testCase.crudFunc(testCase.resourceData, client)
+		err := testCase.crudFunc(context.TODO(), testCase.resourceData, client)
 		if err == nil {
 			t.Fatalf(
 				"[%s] did not return an error when the server sent an empty response. "+
@@ -696,7 +698,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 			w.Write(bytes)
 		})
 
-		err := testCase.crudFunc(testCase.resourceData, client)
+		err := testCase.crudFunc(context.TODO(), testCase.resourceData, client)
 		server.Close()
 
 		if testCase.returnError {
@@ -719,7 +721,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 						"operation was expected to succeed. Error: [%s]",
 					testCase.funcName,
 					testCase.responseFile,
-					err,
+					err[0].Summary,
 				)
 			}
 			// operation succeeded, validate the end state (if we are expecting

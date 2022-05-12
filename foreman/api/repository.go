@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -64,7 +65,7 @@ type ForemanKatelloRepository struct {
 // supplied ForemanKatelloRepository reference and returns the created
 // ForemanKatelloRepository reference. The returned reference will have its ID and
 // other API default values set by this function.
-func (c *Client) CreateKatelloRepository(p *ForemanKatelloRepository) (*ForemanKatelloRepository, error) {
+func (c *Client) CreateKatelloRepository(ctx context.Context, p *ForemanKatelloRepository) (*ForemanKatelloRepository, error) {
 	log.Tracef("foreman/api/repository.go#Create")
 
 	sJSONBytes, jsonEncErr := c.WrapJSON(nil, p)
@@ -74,7 +75,8 @@ func (c *Client) CreateKatelloRepository(p *ForemanKatelloRepository) (*ForemanK
 
 	log.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		KatelloRepositoryEndpointPrefix,
 		bytes.NewBuffer(sJSONBytes),
@@ -96,12 +98,13 @@ func (c *Client) CreateKatelloRepository(p *ForemanKatelloRepository) (*ForemanK
 
 // ReadKatelloRepository reads the attributes of a ForemanKatelloRepository identified by the
 // supplied ID and returns a ForemanKatelloRepository reference.
-func (c *Client) ReadKatelloRepository(id int) (*ForemanKatelloRepository, error) {
+func (c *Client) ReadKatelloRepository(ctx context.Context, id int) (*ForemanKatelloRepository, error) {
 	log.Tracef("foreman/api/repository.go#Read")
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloRepositoryEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -127,7 +130,7 @@ func (c *Client) ReadKatelloRepository(id int) (*ForemanKatelloRepository, error
 // with the ID of the supplied ForemanKatelloRepository will be updated. A new
 // ForemanKatelloRepository reference is returned with the attributes from the result
 // of the update operation.
-func (c *Client) UpdateKatelloRepository(p *ForemanKatelloRepository) (*ForemanKatelloRepository, error) {
+func (c *Client) UpdateKatelloRepository(ctx context.Context, p *ForemanKatelloRepository) (*ForemanKatelloRepository, error) {
 	log.Tracef("foreman/api/repository.go#Update")
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloRepositoryEndpointPrefix, p.Id)
@@ -139,7 +142,8 @@ func (c *Client) UpdateKatelloRepository(p *ForemanKatelloRepository) (*ForemanK
 
 	log.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -160,12 +164,13 @@ func (c *Client) UpdateKatelloRepository(p *ForemanKatelloRepository) (*ForemanK
 }
 
 // DeleteKatelloRepository deletes the ForemanKatelloRepository identified by the supplied ID
-func (c *Client) DeleteKatelloRepository(id int) error {
+func (c *Client) DeleteKatelloRepository(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/repository.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloRepositoryEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -184,12 +189,13 @@ func (c *Client) DeleteKatelloRepository(id int) error {
 // QueryKatelloRepository queries for a ForemanKatelloRepository based on the attributes of
 // the supplied ForemanKatelloRepository reference and returns a QueryResponse struct
 // containing query/response metadata and the matching sync plan.
-func (c *Client) QueryKatelloRepository(p *ForemanKatelloRepository) (QueryResponse, error) {
+func (c *Client) QueryKatelloRepository(ctx context.Context, p *ForemanKatelloRepository) (QueryResponse, error) {
 	log.Tracef("foreman/api/repository.go#Search")
 
 	queryResponse := QueryResponse{}
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		KatelloRepositoryEndpointPrefix,
 		nil,

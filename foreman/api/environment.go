@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -31,7 +32,7 @@ type ForemanEnvironment struct {
 // the supplied ForemanEnvironment reference and returns the created
 // ForemanEnvironment reference.  The returned reference will have its ID and
 // other API default values set by this function.
-func (c *Client) CreateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, error) {
+func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (*ForemanEnvironment, error) {
 	log.Tracef("foreman/api/environment.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", EnvironmentEndpointPrefix)
@@ -43,7 +44,8 @@ func (c *Client) CreateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, 
 
 	log.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(environmentJSONBytes),
@@ -65,12 +67,13 @@ func (c *Client) CreateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, 
 
 // ReadEnvironment reads the attributes of a ForemanEnvironment identified by
 // the supplied ID and returns a ForemanEnvironment reference.
-func (c *Client) ReadEnvironment(id int) (*ForemanEnvironment, error) {
+func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironment, error) {
 	log.Tracef("foreman/api/environment.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -94,7 +97,7 @@ func (c *Client) ReadEnvironment(id int) (*ForemanEnvironment, error) {
 // environment with the ID of the supplied ForemanEnvironment will be updated.
 // A new ForemanEnvironment reference is returned with the attributes from the
 // result of the update operation.
-func (c *Client) UpdateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, error) {
+func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (*ForemanEnvironment, error) {
 	log.Tracef("foreman/api/environment.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, e.Id)
@@ -106,7 +109,8 @@ func (c *Client) UpdateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, 
 
 	log.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(environmentJSONBytes),
@@ -128,12 +132,13 @@ func (c *Client) UpdateEnvironment(e *ForemanEnvironment) (*ForemanEnvironment, 
 
 // DeleteEnvironment deletes the ForemanEnvironment identified by the supplied
 // ID
-func (c *Client) DeleteEnvironment(id int) error {
+func (c *Client) DeleteEnvironment(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/environment.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -152,13 +157,14 @@ func (c *Client) DeleteEnvironment(id int) error {
 // QueryEnvironment queries for a ForemanEnvironment based on the attributes of
 // the supplied ForemanEnvironment reference and returns a QueryResponse struct
 // containing query/response metadata and the matching environments.
-func (c *Client) QueryEnvironment(e *ForemanEnvironment) (QueryResponse, error) {
+func (c *Client) QueryEnvironment(ctx context.Context, e *ForemanEnvironment) (QueryResponse, error) {
 	log.Tracef("foreman/api/environment.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", EnvironmentEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

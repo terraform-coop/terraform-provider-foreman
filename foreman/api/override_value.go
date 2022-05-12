@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -131,7 +132,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 // ForemanOverrideValue reference and returns the created ForemanOverrideValue reference.  The
 // returned reference will have its ID and other API default values set by this
 // function.
-func (c *Client) CreateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
+func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
 	log.Tracef("foreman/api/override_value.go#Create")
 
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix, ov.SmartClassParameterId)
@@ -143,7 +144,8 @@ func (c *Client) CreateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverride
 
 	log.Debugf("overrideJSONBytes: [%s]", oJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(oJSONBytes),
@@ -170,13 +172,14 @@ func (c *Client) CreateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverride
 // supplied ID & SmartParameterID and returns a ForemanOverrideValue reference.
 // NOTE - although override value ids appear to be unique the API requires the smart
 // class parameter id as well.
-func (c *Client) ReadOverrideValue(id int, scp_id int) (*ForemanOverrideValue, error) {
+func (c *Client) ReadOverrideValue(ctx context.Context, id int, scp_id int) (*ForemanOverrideValue, error) {
 	log.Tracef("foreman/api/override_value.go#Read")
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", scp_id, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -198,7 +201,7 @@ func (c *Client) ReadOverrideValue(id int, scp_id int) (*ForemanOverrideValue, e
 }
 
 // UpdateOverrideValue updates a ForemanOverrideValue's attributes.
-func (c *Client) UpdateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
+func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
 	log.Tracef("foreman/api/override_value.go#Update")
 
 	// Build the API endpoint
@@ -211,7 +214,8 @@ func (c *Client) UpdateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverride
 
 	log.Debugf("OverrideValueJSONBytes: [%s]", ovJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(ovJSONBytes),
@@ -235,13 +239,14 @@ func (c *Client) UpdateOverrideValue(ov *ForemanOverrideValue) (*ForemanOverride
 }
 
 // DeleteOverideValue deletes the ForemanOverrideValue identified by the supplied ID and smarts class param ID
-func (c *Client) DeleteOverrideValue(id int, scp_id int) error {
+func (c *Client) DeleteOverrideValue(ctx context.Context, id int, scp_id int) error {
 	log.Tracef("foreman/api/override_value.go#Delete")
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", scp_id, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,

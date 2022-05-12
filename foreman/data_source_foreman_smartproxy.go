@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,14 +31,14 @@ func dataSourceForemanSmartProxy() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanSmartProxyRead,
+		ReadContext: dataSourceForemanSmartProxyRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanSmartProxyRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanSmartProxyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_smartproxy.go#Read")
 
 	client := meta.(*api.Client)
@@ -44,21 +46,21 @@ func dataSourceForemanSmartProxyRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Debugf("ForemanSmartProxy: [%+v]", s)
 
-	queryResponse, queryErr := client.QuerySmartProxy(s)
+	queryResponse, queryErr := client.QuerySmartProxy(ctx, s)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source smart proxy returned no results")
+		return diag.Errorf("Data source smart proxy returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source smart proxy returned more than 1 result")
+		return diag.Errorf("Data source smart proxy returned more than 1 result")
 	}
 
 	var querySmartProxy api.ForemanSmartProxy
 	var ok bool
 	if querySmartProxy, ok = queryResponse.Results[0].(api.ForemanSmartProxy); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanSmartProxy], got [%T]",
 			queryResponse.Results[0],

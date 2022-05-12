@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanComputeResource() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanComputeResourceCreate,
-		Read:   resourceForemanComputeResourceRead,
-		Update: resourceForemanComputeResourceUpdate,
-		Delete: resourceForemanComputeResourceDelete,
+		CreateContext: resourceForemanComputeResourceCreate,
+		ReadContext:   resourceForemanComputeResourceRead,
+		UpdateContext: resourceForemanComputeResourceUpdate,
+		DeleteContext: resourceForemanComputeResourceDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -168,12 +170,12 @@ func setResourceDataFromForemanComputeResource(d *schema.ResourceData, fd *api.F
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanComputeResourceCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanComputeResourceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_computeresource.go#Create")
 	return nil
 }
 
-func resourceForemanComputeResourceRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanComputeResourceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_computeresource.go#Read")
 
 	client := meta.(*api.Client)
@@ -181,9 +183,9 @@ func resourceForemanComputeResourceRead(d *schema.ResourceData, meta interface{}
 
 	log.Debugf("ForemanComputeResource: [%+v]", computeresource)
 
-	readComputeResource, readErr := client.ReadComputeResource(computeresource.Id)
+	readComputeResource, readErr := client.ReadComputeResource(ctx, computeresource.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanComputeResource: [%+v]", readComputeResource)
@@ -193,12 +195,12 @@ func resourceForemanComputeResourceRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceForemanComputeResourceUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanComputeResourceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_computeresource.go#Update")
 	return nil
 }
 
-func resourceForemanComputeResourceDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanComputeResourceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_computeresource.go#Delete")
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete

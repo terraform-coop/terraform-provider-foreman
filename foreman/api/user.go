@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -69,7 +70,7 @@ type ForemanUser struct {
 // supplied ForemanUser reference and returns the created ForemanUser
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
-func (c *Client) CreateUser(u *ForemanUser) (*ForemanUser, error) {
+func (c *Client) CreateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, error) {
 	log.Tracef("foreman/api/user.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", UserEndpointPrefix)
@@ -81,7 +82,8 @@ func (c *Client) CreateUser(u *ForemanUser) (*ForemanUser, error) {
 
 	log.Debugf("userJSONBytes: [%s]", uJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(uJSONBytes),
@@ -103,12 +105,13 @@ func (c *Client) CreateUser(u *ForemanUser) (*ForemanUser, error) {
 
 // ReadUser reads the attributes of a ForemanUser identified by the
 // supplied ID and returns a ForemanUser reference.
-func (c *Client) ReadUser(id int) (*ForemanUser, error) {
+func (c *Client) ReadUser(ctx context.Context, id int) (*ForemanUser, error) {
 	log.Tracef("foreman/api/user.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UserEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -132,7 +135,7 @@ func (c *Client) ReadUser(id int) (*ForemanUser, error) {
 // the ID of the supplied ForemanUser will be updated. A new
 // ForemanUser reference is returned with the attributes from the result
 // of the update operation.
-func (c *Client) UpdateUser(u *ForemanUser) (*ForemanUser, error) {
+func (c *Client) UpdateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, error) {
 	log.Tracef("foreman/api/user.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UserEndpointPrefix, u.Id)
@@ -144,7 +147,8 @@ func (c *Client) UpdateUser(u *ForemanUser) (*ForemanUser, error) {
 
 	log.Debugf("userJSONBytes: [%s]", uJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(uJSONBytes),
@@ -165,12 +169,13 @@ func (c *Client) UpdateUser(u *ForemanUser) (*ForemanUser, error) {
 }
 
 // DeleteUser deletes the ForemanUser identified by the supplied ID
-func (c *Client) DeleteUser(id int) error {
+func (c *Client) DeleteUser(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/user.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UserEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -185,13 +190,14 @@ func (c *Client) DeleteUser(id int) error {
 // QueryUser queries for a ForemanUser based on the attributes of the
 // supplied ForemanUser reference and returns a QueryResponse struct
 // containing query/response metadata and the matching subnets
-func (c *Client) QueryUser(s *ForemanUser) (QueryResponse, error) {
+func (c *Client) QueryUser(ctx context.Context, s *ForemanUser) (QueryResponse, error) {
 	log.Tracef("foreman/api/user.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", UserEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

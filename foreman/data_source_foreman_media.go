@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,14 +31,14 @@ func dataSourceForemanMedia() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanMediaRead,
+		ReadContext: dataSourceForemanMediaRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanMediaRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_media.go#Read")
 
 	client := meta.(*api.Client)
@@ -44,21 +46,21 @@ func dataSourceForemanMediaRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Debugf("ForemanMedia: [%+v]", m)
 
-	queryResponse, queryErr := client.QueryMedia(m)
+	queryResponse, queryErr := client.QueryMedia(ctx, m)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source media returned no results")
+		return diag.Errorf("Data source media returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source media returned more than 1 result")
+		return diag.Errorf("Data source media returned more than 1 result")
 	}
 
 	var queryMedia api.ForemanMedia
 	var ok bool
 	if queryMedia, ok = queryResponse.Results[0].(api.ForemanMedia); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanMedia], got [%T]",
 			queryResponse.Results[0],

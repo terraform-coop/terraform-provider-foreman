@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,14 +31,14 @@ func dataSourceForemanKatelloContentCredential() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanKatelloContentCredentialRead,
+		ReadContext: dataSourceForemanKatelloContentCredentialRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanKatelloContentCredentialRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanKatelloContentCredentialRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_katello_content_credential.go#Read")
 
 	client := meta.(*api.Client)
@@ -44,21 +46,21 @@ func dataSourceForemanKatelloContentCredentialRead(d *schema.ResourceData, meta 
 
 	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
-	queryResponse, queryErr := client.QueryKatelloContentCredential(contentCredential)
+	queryResponse, queryErr := client.QueryKatelloContentCredential(ctx, contentCredential)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source smart proxy returned no results")
+		return diag.Errorf("Data source smart proxy returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source smart proxy returned more than 1 result")
+		return diag.Errorf("Data source smart proxy returned more than 1 result")
 	}
 
 	var queryKatelloContentCredential api.ForemanKatelloContentCredential
 	var ok bool
 	if queryKatelloContentCredential, ok = queryResponse.Results[0].(api.ForemanKatelloContentCredential); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanKatelloContentCredential], got [%T]",
 			queryResponse.Results[0],

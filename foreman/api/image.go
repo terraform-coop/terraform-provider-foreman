@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -94,7 +95,7 @@ func (fi *ForemanImage) UnmarshalJSON(b []byte) error {
 // ForemanImage reference and returns the created ForemanImage reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateImage(d *ForemanImage, compute_resource int) (*ForemanImage, error) {
+func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resource int) (*ForemanImage, error) {
 	log.Tracef("foreman/api/image.go#Create")
 
 	reqEndpoint := fmt.Sprintf("%s/%d/images", ComputeResourceEndpoint, compute_resource)
@@ -106,7 +107,8 @@ func (c *Client) CreateImage(d *ForemanImage, compute_resource int) (*ForemanIma
 
 	log.Debugf("imageJSONBytes: [%s]", imageJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(imageJSONBytes),
@@ -128,12 +130,13 @@ func (c *Client) CreateImage(d *ForemanImage, compute_resource int) (*ForemanIma
 
 // ReadImage reads the attributes of a ForemanImage identified by the
 // supplied ID and returns a ForemanImage reference.
-func (c *Client) ReadImage(d *ForemanImage) (*ForemanImage, error) {
+func (c *Client) ReadImage(ctx context.Context, d *ForemanImage) (*ForemanImage, error) {
 	log.Tracef("foreman/api/image.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, d.ComputeResourceID, d.Id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -156,7 +159,7 @@ func (c *Client) ReadImage(d *ForemanImage) (*ForemanImage, error) {
 // UpdateImage updates a ForemanImage's attributes.  The image with the ID
 // of the supplied ForemanImage will be updated. A new ForemanImage reference
 // is returned with the attributes from the result of the update operation.
-func (c *Client) UpdateImage(d *ForemanImage) (*ForemanImage, error) {
+func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImage, error) {
 	log.Tracef("foreman/api/image.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, d.ComputeResourceID, d.Id)
@@ -168,7 +171,8 @@ func (c *Client) UpdateImage(d *ForemanImage) (*ForemanImage, error) {
 
 	log.Debugf("imageJSONBytes: [%s]", imageJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(imageJSONBytes),
@@ -189,12 +193,13 @@ func (c *Client) UpdateImage(d *ForemanImage) (*ForemanImage, error) {
 }
 
 // DeleteImage deletes the ForemanImage identified by the supplied ID
-func (c *Client) DeleteImage(compute_resource, id int) error {
+func (c *Client) DeleteImage(ctx context.Context, compute_resource, id int) error {
 	log.Tracef("foreman/api/image.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, compute_resource, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -213,13 +218,14 @@ func (c *Client) DeleteImage(compute_resource, id int) error {
 // QueryImage queries for a ForemanImage based on the attributes of the
 // supplied ForemanImage reference and returns a QueryResponse struct
 // containing query/response metadata and the matching images.
-func (c *Client) QueryImage(d *ForemanImage) (QueryResponse, error) {
+func (c *Client) QueryImage(ctx context.Context, d *ForemanImage) (QueryResponse, error) {
 	log.Tracef("foreman/api/image.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("%s/%d/images", ComputeResourceEndpoint, d.ComputeResourceID)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

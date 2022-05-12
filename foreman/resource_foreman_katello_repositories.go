@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ import (
 func resourceForemanKatelloRepository() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanKatelloRepositoryCreate,
-		Read:   resourceForemanKatelloRepositoryRead,
-		Update: resourceForemanKatelloRepositoryUpdate,
-		Delete: resourceForemanKatelloRepositoryDelete,
+		CreateContext: resourceForemanKatelloRepositoryCreate,
+		ReadContext:   resourceForemanKatelloRepositoryRead,
+		UpdateContext: resourceForemanKatelloRepositoryUpdate,
+		DeleteContext: resourceForemanKatelloRepositoryDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -365,17 +367,17 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, Reposit
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanKatelloRepositoryCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_repository.go#Create")
 
 	client := meta.(*api.Client)
-	Repository := buildForemanKatelloRepository(d)
+	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", Repository)
+	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
-	createdKatelloRepository, createErr := client.CreateKatelloRepository(Repository)
+	createdKatelloRepository, createErr := client.CreateKatelloRepository(ctx, repository)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanKatelloRepository: [%+v]", createdKatelloRepository)
@@ -385,17 +387,17 @@ func resourceForemanKatelloRepositoryCreate(d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func resourceForemanKatelloRepositoryRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_repository.go#Read")
 
 	client := meta.(*api.Client)
-	Repository := buildForemanKatelloRepository(d)
+	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", Repository)
+	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
-	readKatelloRepository, readErr := client.ReadKatelloRepository(Repository.Id)
+	readKatelloRepository, readErr := client.ReadKatelloRepository(ctx, repository.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
@@ -405,17 +407,17 @@ func resourceForemanKatelloRepositoryRead(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanKatelloRepositoryUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_repository.go#Update")
 
 	client := meta.(*api.Client)
-	Repository := buildForemanKatelloRepository(d)
+	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", Repository)
+	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
-	updatedKatelloRepository, updateErr := client.UpdateKatelloRepository(Repository)
+	updatedKatelloRepository, updateErr := client.UpdateKatelloRepository(ctx, repository)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("ForemanKatelloRepository: [%+v]", updatedKatelloRepository)
@@ -425,13 +427,13 @@ func resourceForemanKatelloRepositoryUpdate(d *schema.ResourceData, meta interfa
 	return nil
 }
 
-func resourceForemanKatelloRepositoryDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_repository.go#Delete")
 
 	client := meta.(*api.Client)
-	Repository := buildForemanKatelloRepository(d)
+	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", Repository)
+	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
-	return client.DeleteKatelloRepository(Repository.Id)
+	return diag.FromErr(client.DeleteKatelloRepository(ctx, repository.Id))
 }

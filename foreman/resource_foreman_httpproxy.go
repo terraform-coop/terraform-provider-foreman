@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ import (
 func resourceForemanHTTPProxy() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanHTTPProxyCreate,
-		Read:   resourceForemanHTTPProxyRead,
-		Update: resourceForemanHTTPProxyUpdate,
-		Delete: resourceForemanHTTPProxyDelete,
+		CreateContext: resourceForemanHTTPProxyCreate,
+		ReadContext:   resourceForemanHTTPProxyRead,
+		UpdateContext: resourceForemanHTTPProxyUpdate,
+		DeleteContext: resourceForemanHTTPProxyDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -95,7 +97,7 @@ func setResourceDataFromForemanHTTPProxy(d *schema.ResourceData, fp *api.Foreman
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanHTTPProxyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHTTPProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_httpproxy.go#Create")
 
 	client := meta.(*api.Client)
@@ -103,9 +105,9 @@ func resourceForemanHTTPProxyCreate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanHTTPProxy: [%+v]", p)
 
-	createdHTTPProxy, createErr := client.CreateHTTPProxy(p)
+	createdHTTPProxy, createErr := client.CreateHTTPProxy(ctx, p)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanHTTPProxy: [%+v]", createdHTTPProxy)
@@ -115,7 +117,7 @@ func resourceForemanHTTPProxyCreate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanHTTPProxyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_httpproxy.go#Read")
 
 	client := meta.(*api.Client)
@@ -123,9 +125,9 @@ func resourceForemanHTTPProxyRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Debugf("ForemanHTTPProxy: [%+v]", p)
 
-	readHTTPProxy, readErr := client.ReadHTTPProxy(p.Id)
+	readHTTPProxy, readErr := client.ReadHTTPProxy(ctx, p.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanHTTPProxy: [%+v]", readHTTPProxy)
@@ -135,7 +137,7 @@ func resourceForemanHTTPProxyRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceForemanHTTPProxyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHTTPProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_httpproxy.go#Update")
 
 	client := meta.(*api.Client)
@@ -143,9 +145,9 @@ func resourceForemanHTTPProxyUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanHTTPProxy: [%+v]", p)
 
-	updatedHTTPProxy, updateErr := client.UpdateHTTPProxy(p)
+	updatedHTTPProxy, updateErr := client.UpdateHTTPProxy(ctx, p)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("ForemanHTTPProxy: [%+v]", updatedHTTPProxy)
@@ -155,7 +157,7 @@ func resourceForemanHTTPProxyUpdate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanHTTPProxyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHTTPProxyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_httpproxy.go#Delete")
 
 	client := meta.(*api.Client)
@@ -165,5 +167,5 @@ func resourceForemanHTTPProxyDelete(d *schema.ResourceData, meta interface{}) er
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteHTTPProxy(p.Id)
+	return diag.FromErr(client.DeleteHTTPProxy(ctx, p.Id))
 }

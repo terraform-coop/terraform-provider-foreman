@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -95,7 +96,7 @@ func (fm *ForemanMedia) UnmarshalJSON(b []byte) error {
 // ForemanMedia reference and returns the created ForemanMedia reference.  The
 // returned reference will have its ID and other API default values set by this
 // function.
-func (c *Client) CreateMedia(m *ForemanMedia) (*ForemanMedia, error) {
+func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedia, error) {
 	log.Tracef("foreman/api/media.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", MediaEndpointPrefix)
@@ -107,7 +108,8 @@ func (c *Client) CreateMedia(m *ForemanMedia) (*ForemanMedia, error) {
 
 	log.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(mJSONBytes),
@@ -129,12 +131,13 @@ func (c *Client) CreateMedia(m *ForemanMedia) (*ForemanMedia, error) {
 
 // ReadMedia reads the attributes of a ForemanMedia identified by the supplied
 // ID and returns a ForemanMedia reference.
-func (c *Client) ReadMedia(id int) (*ForemanMedia, error) {
+func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
 	log.Tracef("foreman/api/media.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -157,7 +160,7 @@ func (c *Client) ReadMedia(id int) (*ForemanMedia, error) {
 // UpdateMedia updates a ForemanMedia's attributes.  The media with the ID of
 // the supplied ForemanMedia will be updated. A new ForemanMedia reference is
 // returned with the attributes from the result of the update operation.
-func (c *Client) UpdateMedia(m *ForemanMedia) (*ForemanMedia, error) {
+func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedia, error) {
 	log.Tracef("foreman/api/media.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, m.Id)
@@ -169,7 +172,8 @@ func (c *Client) UpdateMedia(m *ForemanMedia) (*ForemanMedia, error) {
 
 	log.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(mJSONBytes),
@@ -190,12 +194,13 @@ func (c *Client) UpdateMedia(m *ForemanMedia) (*ForemanMedia, error) {
 }
 
 // DeleteMedia deletes the ForemanMedia identified by the supplied ID
-func (c *Client) DeleteMedia(id int) error {
+func (c *Client) DeleteMedia(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/media.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -214,13 +219,14 @@ func (c *Client) DeleteMedia(id int) error {
 // QueryMedia queries for a ForemanMedia based on the attributes of the
 // supplied ForemanMedia reference and returns a QueryResponse struct
 // containing query/response metadata and the matching media.
-func (c *Client) QueryMedia(m *ForemanMedia) (QueryResponse, error) {
+func (c *Client) QueryMedia(ctx context.Context, m *ForemanMedia) (QueryResponse, error) {
 	log.Tracef("foreman/api/media.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", MediaEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

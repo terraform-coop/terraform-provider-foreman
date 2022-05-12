@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -39,7 +40,7 @@ type ForemanDomain struct {
 // ForemanDomain reference and returns the created ForemanDomain reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateDomain(d *ForemanDomain) (*ForemanDomain, error) {
+func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDomain, error) {
 	log.Tracef("foreman/api/domain.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", DomainEndpointPrefix)
@@ -51,7 +52,8 @@ func (c *Client) CreateDomain(d *ForemanDomain) (*ForemanDomain, error) {
 
 	log.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(domainJSONBytes),
@@ -73,12 +75,13 @@ func (c *Client) CreateDomain(d *ForemanDomain) (*ForemanDomain, error) {
 
 // ReadDomain reads the attributes of a ForemanDomain identified by the
 // supplied ID and returns a ForemanDomain reference.
-func (c *Client) ReadDomain(id int) (*ForemanDomain, error) {
+func (c *Client) ReadDomain(ctx context.Context, id int) (*ForemanDomain, error) {
 	log.Tracef("foreman/api/domain.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -101,7 +104,7 @@ func (c *Client) ReadDomain(id int) (*ForemanDomain, error) {
 // UpdateDomain updates a ForemanDomain's attributes.  The domain with the ID
 // of the supplied ForemanDomain will be updated. A new ForemanDomain reference
 // is returned with the attributes from the result of the update operation.
-func (c *Client) UpdateDomain(d *ForemanDomain, id int) (*ForemanDomain, error) {
+func (c *Client) UpdateDomain(ctx context.Context, d *ForemanDomain, id int) (*ForemanDomain, error) {
 	log.Tracef("foreman/api/domain.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
@@ -113,7 +116,8 @@ func (c *Client) UpdateDomain(d *ForemanDomain, id int) (*ForemanDomain, error) 
 
 	log.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(domainJSONBytes),
@@ -134,12 +138,13 @@ func (c *Client) UpdateDomain(d *ForemanDomain, id int) (*ForemanDomain, error) 
 }
 
 // DeleteDomain deletes the ForemanDomain identified by the supplied ID
-func (c *Client) DeleteDomain(id int) error {
+func (c *Client) DeleteDomain(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/domain.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -158,13 +163,14 @@ func (c *Client) DeleteDomain(id int) error {
 // QueryDomain queries for a ForemanDomain based on the attributes of the
 // supplied ForemanDomain reference and returns a QueryResponse struct
 // containing query/response metadata and the matching domains.
-func (c *Client) QueryDomain(d *ForemanDomain) (QueryResponse, error) {
+func (c *Client) QueryDomain(ctx context.Context, d *ForemanDomain) (QueryResponse, error) {
 	log.Tracef("foreman/api/domain.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", DomainEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

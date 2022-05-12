@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanKatelloProduct() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanKatelloProductCreate,
-		Read:   resourceForemanKatelloProductRead,
-		Update: resourceForemanKatelloProductUpdate,
-		Delete: resourceForemanKatelloProductDelete,
+		CreateContext: resourceForemanKatelloProductCreate,
+		ReadContext:   resourceForemanKatelloProductRead,
+		UpdateContext: resourceForemanKatelloProductUpdate,
+		DeleteContext: resourceForemanKatelloProductDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -61,33 +63,33 @@ func resourceForemanKatelloProduct() *schema.Resource {
 				),
 			},
 			/*
-						"ssl_ca_cert_id": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: fmt.Sprintf(
-								"Idenifier of the SSL CA Cert."+
-									"%s",
-								autodoc.MetaExample,
-							),
-						},
-			            "ssl_client_cert_id": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: fmt.Sprintf(
-								"Identifier of the SSL Client Cert."+
-									"%s",
-								autodoc.MetaExample,
-							),
-						},
-			            "ssl_client_key_id": &schema.Schema{
-							Type:     schema.TypeInt,
-							Optional: true,
-							Description: fmt.Sprintf(
-								"Identifier of the SSL Client Key."+
-									"%s",
-								autodoc.MetaExample,
-							),
-						}, */
+							"ssl_ca_cert_id": &schema.Schema{
+								Type:     schema.TypeInt,
+								Optional: true,
+								Description: fmt.Sprintf(
+									"Idenifier of the SSL CA Cert."+
+										"%s",
+									autodoc.MetaExample,
+								),
+							},
+				            "ssl_client_cert_id": &schema.Schema{
+								Type:     schema.TypeInt,
+								Optional: true,
+								Description: fmt.Sprintf(
+									"Identifier of the SSL Client Cert."+
+										"%s",
+									autodoc.MetaExample,
+								),
+							},
+				            "ssl_client_key_id": &schema.Schema{
+								Type:     schema.TypeInt,
+								Optional: true,
+								Description: fmt.Sprintf(
+									"Identifier of the SSL Client Key."+
+										"%s",
+									autodoc.MetaExample,
+								),
+							}, */
 			"sync_plan_id": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -157,17 +159,17 @@ func setResourceDataFromForemanKatelloProduct(d *schema.ResourceData, Product *a
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanKatelloProductCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloProductCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_product.go#Create")
 
 	client := meta.(*api.Client)
-	Product := buildForemanKatelloProduct(d)
+	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", Product)
+	log.Debugf("ForemanKatelloProduct: [%+v]", product)
 
-	createdKatelloProduct, createErr := client.CreateKatelloProduct(Product)
+	createdKatelloProduct, createErr := client.CreateKatelloProduct(ctx, product)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanKatelloProduct: [%+v]", createdKatelloProduct)
@@ -177,17 +179,17 @@ func resourceForemanKatelloProductCreate(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceForemanKatelloProductRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_product.go#Read")
 
 	client := meta.(*api.Client)
-	Product := buildForemanKatelloProduct(d)
+	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", Product)
+	log.Debugf("ForemanKatelloProduct: [%+v]", product)
 
-	readKatelloProduct, readErr := client.ReadKatelloProduct(Product.Id)
+	readKatelloProduct, readErr := client.ReadKatelloProduct(ctx, product.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanKatelloProduct: [%+v]", readKatelloProduct)
@@ -197,17 +199,17 @@ func resourceForemanKatelloProductRead(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func resourceForemanKatelloProductUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloProductUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_product.go#Update")
 
 	client := meta.(*api.Client)
-	Product := buildForemanKatelloProduct(d)
+	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", Product)
+	log.Debugf("ForemanKatelloProduct: [%+v]", product)
 
-	updatedKatelloProduct, updateErr := client.UpdateKatelloProduct(Product)
+	updatedKatelloProduct, updateErr := client.UpdateKatelloProduct(ctx, product)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("ForemanKatelloProduct: [%+v]", updatedKatelloProduct)
@@ -217,13 +219,13 @@ func resourceForemanKatelloProductUpdate(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceForemanKatelloProductDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloProductDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_product.go#Delete")
 
 	client := meta.(*api.Client)
-	Product := buildForemanKatelloProduct(d)
+	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", Product)
+	log.Debugf("ForemanKatelloProduct: [%+v]", product)
 
-	return client.DeleteKatelloProduct(Product.Id)
+	return diag.FromErr(client.DeleteKatelloProduct(ctx, product.Id))
 }

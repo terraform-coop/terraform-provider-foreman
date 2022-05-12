@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,13 +9,14 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceForemanSmartClassParameter() *schema.Resource {
 	return &schema.Resource{
 
-		Read: dataSourceForemanSmartClassParameterRead,
+		ReadContext: dataSourceForemanSmartClassParameterRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -81,7 +83,7 @@ func setResourceDataFromForemanSmartClassParameter(d *schema.ResourceData, fk *a
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func dataSourceForemanSmartClassParameterRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanSmartClassParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_smartclassparameter.go#Read")
 
 	client := meta.(*api.Client)
@@ -89,21 +91,21 @@ func dataSourceForemanSmartClassParameterRead(d *schema.ResourceData, meta inter
 
 	log.Debugf("ForemanSmartClassParameter: [%+v]", t)
 
-	queryResponse, queryErr := client.QuerySmartClassParameter(t)
+	queryResponse, queryErr := client.QuerySmartClassParameter(ctx, t)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source smart class parameter returned no results")
+		return diag.Errorf("Data source smart class parameter returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source smart class parameter returned more than 1 result")
+		return diag.Errorf("Data source smart class parameter returned more than 1 result")
 	}
 
 	var querySmartClassParameter api.ForemanSmartClassParameter
 	var ok bool
 	if querySmartClassParameter, ok = queryResponse.Results[0].(api.ForemanSmartClassParameter); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanSmartClassParameter], got [%T]",
 			queryResponse.Results[0],

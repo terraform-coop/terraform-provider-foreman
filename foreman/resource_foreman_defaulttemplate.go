@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ import (
 func resourceForemanDefaultTemplate() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanDefaultTemplateCreate,
-		Read:   resourceForemanDefaultTemplateRead,
-		Update: resourceForemanDefaultTemplateUpdate,
-		Delete: resourceForemanDefaultTemplateDelete,
+		CreateContext: resourceForemanDefaultTemplateCreate,
+		ReadContext:   resourceForemanDefaultTemplateRead,
+		UpdateContext: resourceForemanDefaultTemplateUpdate,
+		DeleteContext: resourceForemanDefaultTemplateDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -105,7 +107,7 @@ func setResourceDataFromForemanDefaultTemplate(d *schema.ResourceData, fd *api.F
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanDefaultTemplateCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDefaultTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_defaultTemplate.go#Create")
 
 	client := meta.(*api.Client)
@@ -113,9 +115,9 @@ func resourceForemanDefaultTemplateCreate(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanDefaultTemplate: [%+v]", d)
 
-	createdParam, createErr := client.CreateDefaultTemplate(p)
+	createdParam, createErr := client.CreateDefaultTemplate(ctx, p)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanDefaultTemplate: [%+v]", createdParam)
@@ -125,7 +127,7 @@ func resourceForemanDefaultTemplateCreate(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanDefaultTemplateRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDefaultTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_defaultTemplate.go#Read")
 
 	client := meta.(*api.Client)
@@ -133,9 +135,9 @@ func resourceForemanDefaultTemplateRead(d *schema.ResourceData, meta interface{}
 
 	log.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
 
-	readDefaultTemplate, readErr := client.ReadDefaultTemplate(defaultTemplate, defaultTemplate.Id)
+	readDefaultTemplate, readErr := client.ReadDefaultTemplate(ctx, defaultTemplate, defaultTemplate.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanDefaultTemplate: [%+v]", readDefaultTemplate)
@@ -145,7 +147,7 @@ func resourceForemanDefaultTemplateRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceForemanDefaultTemplateUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDefaultTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_defaultTemplate.go#Update")
 
 	client := meta.(*api.Client)
@@ -153,9 +155,9 @@ func resourceForemanDefaultTemplateUpdate(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanDefaultTemplate: [%+v]", p)
 
-	updatedParam, updateErr := client.UpdateDefaultTemplate(p, p.Id)
+	updatedParam, updateErr := client.UpdateDefaultTemplate(ctx, p, p.Id)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanDefaultTemplate: [%+v]", updatedParam)
@@ -165,7 +167,7 @@ func resourceForemanDefaultTemplateUpdate(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanDefaultTemplateDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDefaultTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_defaultTemplate.go#Delete")
 
 	client := meta.(*api.Client)
@@ -173,5 +175,5 @@ func resourceForemanDefaultTemplateDelete(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanDefaultTemplate: [%+v]", p)
 
-	return client.DeleteDefaultTemplate(p, p.Id)
+	return diag.FromErr(client.DeleteDefaultTemplate(ctx, p, p.Id))
 }

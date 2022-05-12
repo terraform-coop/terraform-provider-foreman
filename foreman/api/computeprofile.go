@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -27,12 +28,13 @@ type ForemanComputeProfile struct {
 
 // ReadComputeProfile reads the attributes of a ForemanComputeProfile identified by
 // the supplied ID and returns a ForemanComputeProfile reference.
-func (c *Client) ReadComputeProfile(id int) (*ForemanComputeProfile, error) {
+func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ForemanComputeProfile, error) {
 	log.Tracef("foreman/api/templatekind.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -59,13 +61,14 @@ func (c *Client) ReadComputeProfile(id int) (*ForemanComputeProfile, error) {
 // QueryComputeProfile queries for a ForemanComputeProfile based on the attributes
 // of the supplied ForemanComputeProfile reference and returns a QueryResponse
 // struct containing query/response metadata and the matching template kinds
-func (c *Client) QueryComputeProfile(t *ForemanComputeProfile) (QueryResponse, error) {
+func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfile) (QueryResponse, error) {
 	log.Tracef("foreman/api/templatekind.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", ComputeProfileEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

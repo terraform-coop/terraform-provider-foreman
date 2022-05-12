@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,14 +31,14 @@ func dataSourceForemanPartitionTable() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanPartitionTableRead,
+		ReadContext: dataSourceForemanPartitionTableRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanPartitionTableRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanPartitionTableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_partitiontable.go#Read")
 
 	client := meta.(*api.Client)
@@ -44,21 +46,21 @@ func dataSourceForemanPartitionTableRead(d *schema.ResourceData, meta interface{
 
 	log.Debugf("ForemanPartitionTable: [%+v]", t)
 
-	queryResponse, queryErr := client.QueryPartitionTable(t)
+	queryResponse, queryErr := client.QueryPartitionTable(ctx, t)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source partition table returned no results")
+		return diag.Errorf("Data source partition table returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source partition table returned more than 1 result")
+		return diag.Errorf("Data source partition table returned more than 1 result")
 	}
 
 	var queryPartitionTable api.ForemanPartitionTable
 	var ok bool
 	if queryPartitionTable, ok = queryResponse.Results[0].(api.ForemanPartitionTable); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanPartitionTable], got [%T]",
 			queryResponse.Results[0],

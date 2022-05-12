@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -37,7 +38,7 @@ type ForemanCommonParameter struct {
 // ForemanCommonParameter reference and returns the created ForemanCommonParameter reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateCommonParameter(d *ForemanCommonParameter) (*ForemanCommonParameter, error) {
+func (c *Client) CreateCommonParameter(ctx context.Context, d *ForemanCommonParameter) (*ForemanCommonParameter, error) {
 	log.Tracef("foreman/api/common_parameter.go#Create")
 
 	reqEndpoint := CommonParameterEndpointPrefix
@@ -51,7 +52,8 @@ func (c *Client) CreateCommonParameter(d *ForemanCommonParameter) (*ForemanCommo
 
 	log.Debugf("commonParameterJSONBytes: [%s]", commonParameterJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(commonParameterJSONBytes),
@@ -74,12 +76,13 @@ func (c *Client) CreateCommonParameter(d *ForemanCommonParameter) (*ForemanCommo
 
 // ReadCommonParameter reads the attributes of a ForemanCommonParameter identified by the
 // supplied ID and returns a ForemanCommonParameter reference.
-func (c *Client) ReadCommonParameter(d *ForemanCommonParameter, id int) (*ForemanCommonParameter, error) {
+func (c *Client) ReadCommonParameter(ctx context.Context, d *ForemanCommonParameter, id int) (*ForemanCommonParameter, error) {
 	log.Tracef("foreman/api/common_parameter.go#Read")
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -104,7 +107,7 @@ func (c *Client) ReadCommonParameter(d *ForemanCommonParameter, id int) (*Forema
 
 // UpdateCommonParameter deletes all commonParameters for the subject resource and re-creates them
 // as we look at them differently on either side this is the safest way to reach sync
-func (c *Client) UpdateCommonParameter(d *ForemanCommonParameter, id int) (*ForemanCommonParameter, error) {
+func (c *Client) UpdateCommonParameter(ctx context.Context, d *ForemanCommonParameter, id int) (*ForemanCommonParameter, error) {
 	log.Tracef("foreman/api/common_parameter.go#Update")
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
@@ -116,7 +119,8 @@ func (c *Client) UpdateCommonParameter(d *ForemanCommonParameter, id int) (*Fore
 
 	log.Debugf("commonParameterJSONBytes: [%s]", commonParameterJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(commonParameterJSONBytes),
@@ -140,12 +144,13 @@ func (c *Client) UpdateCommonParameter(d *ForemanCommonParameter, id int) (*Fore
 }
 
 // DeleteCommonParameter deletes the ForemanCommonParameters for the given resource
-func (c *Client) DeleteCommonParameter(d *ForemanCommonParameter, id int) error {
+func (c *Client) DeleteCommonParameter(ctx context.Context, d *ForemanCommonParameter, id int) error {
 	log.Tracef("foreman/api/common_parameter.go#Delete")
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -164,13 +169,14 @@ func (c *Client) DeleteCommonParameter(d *ForemanCommonParameter, id int) error 
 // QueryCommonParameter queries for a ForemanCommonParameter based on the attributes of the
 // supplied ForemanCommonParameter reference and returns a QueryResponse struct
 // containing query/response metadata and the matching commonParameters.
-func (c *Client) QueryCommonParameter(d *ForemanCommonParameter) (QueryResponse, error) {
+func (c *Client) QueryCommonParameter(ctx context.Context, d *ForemanCommonParameter) (QueryResponse, error) {
 	log.Tracef("foreman/api/common_parameter.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", CommonParameterEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

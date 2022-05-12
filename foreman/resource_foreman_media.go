@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -16,10 +18,10 @@ import (
 func resourceForemanMedia() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanMediaCreate,
-		Read:   resourceForemanMediaRead,
-		Update: resourceForemanMediaUpdate,
-		Delete: resourceForemanMediaDelete,
+		CreateContext: resourceForemanMediaCreate,
+		ReadContext:   resourceForemanMediaRead,
+		UpdateContext: resourceForemanMediaUpdate,
+		DeleteContext: resourceForemanMediaDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -151,7 +153,7 @@ func setResourceDataFromForemanMedia(d *schema.ResourceData, fm *api.ForemanMedi
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanMediaCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanMediaCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_media.go#Create")
 
 	client := meta.(*api.Client)
@@ -159,9 +161,9 @@ func resourceForemanMediaCreate(d *schema.ResourceData, meta interface{}) error 
 
 	log.Debugf("ForemanMedia: [%+v]", m)
 
-	createdMedia, createErr := client.CreateMedia(m)
+	createdMedia, createErr := client.CreateMedia(ctx, m)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanMedia: [%+v]", createdMedia)
@@ -171,7 +173,7 @@ func resourceForemanMediaCreate(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func resourceForemanMediaRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_media.go#Read")
 
 	client := meta.(*api.Client)
@@ -179,9 +181,9 @@ func resourceForemanMediaRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Debugf("ForemanMedia: [%+v]", m)
 
-	readMedia, readErr := client.ReadMedia(m.Id)
+	readMedia, readErr := client.ReadMedia(ctx, m.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanMedia: [%+v]", readMedia)
@@ -191,7 +193,7 @@ func resourceForemanMediaRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanMediaUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanMediaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_media.go#Update")
 
 	client := meta.(*api.Client)
@@ -199,9 +201,9 @@ func resourceForemanMediaUpdate(d *schema.ResourceData, meta interface{}) error 
 
 	log.Debugf("ForemanMedia: [%+v]", m)
 
-	updatedMedia, updateErr := client.UpdateMedia(m)
+	updatedMedia, updateErr := client.UpdateMedia(ctx, m)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanMedia: [%+v]", updatedMedia)
@@ -211,7 +213,7 @@ func resourceForemanMediaUpdate(d *schema.ResourceData, meta interface{}) error 
 	return nil
 }
 
-func resourceForemanMediaDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanMediaDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_media.go#Delete")
 
 	client := meta.(*api.Client)
@@ -221,5 +223,5 @@ func resourceForemanMediaDelete(d *schema.ResourceData, meta interface{}) error 
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteMedia(m.Id)
+	return diag.FromErr(client.DeleteMedia(ctx, m.Id))
 }

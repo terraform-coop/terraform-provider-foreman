@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -34,10 +35,11 @@ type ForemanSmartClassParameter struct {
 
 // ReadSmartClassParamter reads the attributes of a ForemanSmartClassParameter identified by
 // the supplied ID and returns a ForemanSmartClassParameter reference.
-func (c *Client) ReadSmartClassParameter(id int) (*ForemanSmartClassParameter, error) {
+func (c *Client) ReadSmartClassParameter(ctx context.Context, id int) (*ForemanSmartClassParameter, error) {
 	log.Tracef("foreman/api/smartsclassparameter.go#Read")
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		SmartClassParameterEndpointPrefix,
 		nil,
@@ -64,14 +66,15 @@ func (c *Client) ReadSmartClassParameter(id int) (*ForemanSmartClassParameter, e
 // QuerySmartClassParameter queries for a ForemanSmartClassParameter based on the attributes
 // of the supplied ForemanSmartClassParameter reference and returns a QueryResponse
 // struct containing query/response metadata
-func (c *Client) QuerySmartClassParameter(t *ForemanSmartClassParameter) (QueryResponse, error) {
+func (c *Client) QuerySmartClassParameter(ctx context.Context, t *ForemanSmartClassParameter) (QueryResponse, error) {
 	log.Tracef("foreman/api/smartclassparameter.go#Search")
 
 	reqEndpoint := fmt.Sprintf(SmartClassParameterQueryEndpointPrefix, t.PuppetClassId)
 
 	queryResponse := QueryResponse{}
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

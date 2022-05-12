@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/base64"
 	"io/ioutil"
 	"net/http"
@@ -159,10 +160,10 @@ func TestNewClient_ConfigTLSInsecureEnabled(t *testing.T) {
 }
 
 // ----------------------------------------------------------------------------
-// Client.NewRequest
+// Client.NewRequestWithContext
 // ----------------------------------------------------------------------------
 
-// Ensures Client.NewRequest() returns an error for a bad HTTP method.
+// Ensures Client.NewRequestWithContext() returns an error for a bad HTTP method.
 func TestNewRequest_BadHTTPMethodError(t *testing.T) {
 	serv := Server{}
 	cred := ClientCredentials{}
@@ -181,10 +182,10 @@ func TestNewRequest_BadHTTPMethodError(t *testing.T) {
 		"get\n",
 	}
 	for _, value := range badHTTPMethods {
-		_, badReqErr := client.NewRequest(value, "/foo", nil)
+		_, badReqErr := client.NewRequestWithContext(context.TODO(), value, "/foo", nil)
 		if badReqErr == nil {
 			t.Fatalf(
-				"Client.NewRequest did not return error when given invalid HTTP method [%s]. "+
+				"Client.NewRequestWithContext did not return error when given invalid HTTP method [%s]. "+
 					"Expected [error], got [nil].",
 				value,
 			)
@@ -193,7 +194,7 @@ func TestNewRequest_BadHTTPMethodError(t *testing.T) {
 
 }
 
-// Ensures Client.NewRequest() does not raise an error when given a valid
+// Ensures Client.NewRequestWithContext() does not raise an error when given a valid
 // HTTP method.
 func TestNewRequest_GoodHTTPMethodNoError(t *testing.T) {
 	serv := Server{}
@@ -216,10 +217,10 @@ func TestNewRequest_GoodHTTPMethodNoError(t *testing.T) {
 		http.MethodPatch,
 	}
 	for _, value := range goodHTTPMethods {
-		_, reqErr := client.NewRequest(value, "/foo", nil)
+		_, reqErr := client.NewRequestWithContext(context.TODO(), value, "/foo", nil)
 		if reqErr != nil {
 			t.Fatalf(
-				"Client.NewRequest returned an error when given valid HTTP method [%s]. "+
+				"Client.NewRequestWithContext returned an error when given valid HTTP method [%s]. "+
 					"Expected [nil], got [%s].",
 				value,
 				reqErr.Error(),
@@ -229,7 +230,7 @@ func TestNewRequest_GoodHTTPMethodNoError(t *testing.T) {
 
 }
 
-// Ensures Client.NewRequest() sets the HTTP request's method to upper case.
+// Ensures Client.NewRequestWithContext() sets the HTTP request's method to upper case.
 func TestNewRequest_RequestMethodToUpper(t *testing.T) {
 	serv := Server{}
 	cred := ClientCredentials{}
@@ -250,10 +251,10 @@ func TestNewRequest_RequestMethodToUpper(t *testing.T) {
 	expectedMethod := "GET"
 
 	for _, value := range testMethods {
-		req, _ := client.NewRequest(value, "/foo", nil)
+		req, _ := client.NewRequestWithContext(context.TODO(), value, "/foo", nil)
 		if req.Method != expectedMethod {
 			t.Fatalf(
-				"http.Request returned by Client.NewRequest() has incorrect Method. "+
+				"http.Request returned by Client.NewRequestWithContext() has incorrect Method. "+
 					"Expected [%s], got [%s].\n",
 				expectedMethod,
 				req.Method,
@@ -263,7 +264,7 @@ func TestNewRequest_RequestMethodToUpper(t *testing.T) {
 
 }
 
-// Ensures Client.NewRequest() sets the correct meta-data on the HTTP
+// Ensures Client.NewRequestWithContext() sets the correct meta-data on the HTTP
 // request.
 func TestNewRequest_Header(t *testing.T) {
 	serv := Server{}
@@ -280,7 +281,7 @@ func TestNewRequest_Header(t *testing.T) {
 		[]byte(cred.Username+":"+cred.Password),
 	)
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequestWithContext(context.TODO(), http.MethodGet, "/foo", nil)
 
 	expectedHeader := http.Header{}
 	expectedHeader.Add("User-Agent", "terraform-provider-foreman")
@@ -291,7 +292,7 @@ func TestNewRequest_Header(t *testing.T) {
 	for key := range expectedHeader {
 		if req.Header.Get(key) != expectedHeader.Get(key) {
 			t.Fatalf(
-				"http.Request returned by Client.NewRequest() has incorrect HTTP header. "+
+				"http.Request returned by Client.NewRequestWithContext() has incorrect HTTP header. "+
 					"Expected [%s], got [%s] for Header key [%s].\n",
 				expectedHeader.Get(key),
 				req.Header.Get(key),
@@ -302,7 +303,7 @@ func TestNewRequest_Header(t *testing.T) {
 
 }
 
-// Ensures Client.NewRequest() is properly concatenating the server's URL
+// Ensures Client.NewRequestWithContext() is properly concatenating the server's URL
 // and the endpoint when constructing the request's URL.
 func TestNewRequest_URL(t *testing.T) {
 	cred := ClientCredentials{}
@@ -321,12 +322,12 @@ func TestNewRequest_URL(t *testing.T) {
 	}
 
 	for key, value := range testEndpoints {
-		req, _ := client.NewRequest(http.MethodGet, key, nil)
+		req, _ := client.NewRequestWithContext(context.TODO(), http.MethodGet, key, nil)
 		expectedURL := client.server.URL
 		expectedURL.Path = value
 		if *(req.URL) != expectedURL {
 			t.Fatalf(
-				"http.Request returned by Client.NewRequest() has incorrect URL. "+
+				"http.Request returned by Client.NewRequestWithContext() has incorrect URL. "+
 					"Expected [%s], got [%s].\n",
 				expectedURL.String(),
 				req.URL.String(),
@@ -370,7 +371,7 @@ func TestSend_StatusCode(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequestWithContext(context.TODO(), http.MethodGet, "/foo", nil)
 	statusCode, _, _ := client.Send(req)
 
 	if statusCode != http.StatusOK {
@@ -400,7 +401,7 @@ func TestSend_ResponseBody(t *testing.T) {
 		w.Write(expectedRespBody)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequestWithContext(context.TODO(), http.MethodGet, "/foo", nil)
 	_, respBody, _ := client.Send(req)
 
 	if string(respBody) != expectedRespStr {
@@ -434,7 +435,7 @@ func TestSendAndParseStatusCodeError(t *testing.T) {
 		w.WriteHeader(http.StatusInternalServerError)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequestWithContext(context.TODO(), http.MethodGet, "/foo", nil)
 	sendErr := client.SendAndParse(req, nil)
 	if sendErr == nil {
 		t.Errorf(
@@ -460,7 +461,7 @@ func TestSendAndParseStatusCodeNoError(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	req, _ := client.NewRequest(http.MethodGet, "/foo", nil)
+	req, _ := client.NewRequestWithContext(context.TODO(), http.MethodGet, "/foo", nil)
 	sendErr := client.SendAndParse(req, nil)
 	if sendErr != nil {
 		t.Errorf(

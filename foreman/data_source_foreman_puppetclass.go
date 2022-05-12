@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,13 +9,14 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceForemanPuppetClass() *schema.Resource {
 	return &schema.Resource{
 
-		Read: dataSourceForemanPuppetClassRead,
+		ReadContext: dataSourceForemanPuppetClassRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -65,7 +67,7 @@ func setResourceDataFromForemanPuppetClass(d *schema.ResourceData, fk *api.Forem
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func dataSourceForemanPuppetClassRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanPuppetClassRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_puppetclass.go#Read")
 
 	client := meta.(*api.Client)
@@ -73,21 +75,21 @@ func dataSourceForemanPuppetClassRead(d *schema.ResourceData, meta interface{}) 
 
 	log.Debugf("ForemanPuppetClass: [%+v]", t)
 
-	queryResponse, queryErr := client.QueryPuppetClass(t)
+	queryResponse, queryErr := client.QueryPuppetClass(ctx, t)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source puppet class returned no results")
+		return diag.Errorf("Data source puppet class returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source puppet class returned more than 1 result")
+		return diag.Errorf("Data source puppet class returned more than 1 result")
 	}
 
 	var queryPuuppetClass api.ForemanPuppetClass
 	var ok bool
 	if queryPuuppetClass, ok = queryResponse.Results[0].(api.ForemanPuppetClass); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanPuppetClass], got [%T]",
 			queryResponse.Results[0],
