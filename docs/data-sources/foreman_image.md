@@ -26,7 +26,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-- `archictecture_id` - 
+- `architecture_id` - 
 - `compute_resource_id` - The id of the Compute Resource the image is associated with
 - `name` - The name of the compute resource.
 - `operating_system_id` - 
