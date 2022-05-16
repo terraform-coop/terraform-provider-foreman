@@ -199,6 +199,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
 <p>The following arguments are supported:</p>
 <ul>
+<li><code>build</code> - (Optional) Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.</li>
 <li><code>bmc_success</code> - (Optional) REMOVED - Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain <code>false</code>. On the next <code>terraform apply</code> will trigger the host update to pick back up with the BMC operations.</li>
 <li><code>comment</code> - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
 <li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
@@ -213,7 +214,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>manage_build</code> - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states</li>
 <li><code>managed</code> - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
-<li><code>method</code> - (Optional, Force New) Chooses a method with which to provision the HostOptions are "build" and "image"</li>
+<li><code>method</code> - (Optional, Force New) REMOVED - use build argument instead to manage build flag of host.</li>
 <li><code>model_id</code> - (Optional) ID of the hardware model if applicable</li>
 <li><code>name</code> - (Required, Force New) Host fully qualified domain name.</li>
 <li><code>operatingsystem_id</code> - (Optional, Force New) ID of the operating system to put on the host.</li>
@@ -226,6 +227,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
 <p>The following attributes are exported:</p>
 <ul>
+<li><code>build</code> - Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.</li>
 <li><code>comment</code> - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
 <li><code>compute_attributes</code> - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - </li>
@@ -240,7 +242,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>manage_build</code> - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states</li>
 <li><code>managed</code> - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - ID of the medium mounted on the host.</li>
-<li><code>method</code> - Chooses a method with which to provision the HostOptions are "build" and "image"</li>
+<li><code>method</code> - REMOVED - use build argument instead to manage build flag of host.</li>
 <li><code>model_id</code> - ID of the hardware model if applicable</li>
 <li><code>name</code> - Host fully qualified domain name.</li>
 <li><code>operatingsystem_id</code> - ID of the operating system to put on the host.</li>

@@ -2,267 +2,267 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_architecture/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_computeprofile/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_computeresource/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_defaulttemplate/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_domain/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_environment/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_global_parameter/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_hostgroup/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_httpproxy/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_image/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_katello_content_credential/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_katello_product/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_katello_repository/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_katello_sync_plan/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_media/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_model/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_operatingsystem/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_parameter/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_partitiontable/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_provisioningtemplate/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_puppetclass/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_smartclassparameter/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_smartproxy/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_subnet/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_templatekind/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_user/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/data-sources/foreman_usergroup/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_architecture/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_computeresource/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_defaulttemplate/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_domain/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_environment/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_global_parameter/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_host/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_hostgroup/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_httpproxy/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_image/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_katello_content_credential/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_katello_product/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_katello_repository/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_katello_sync_plan/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_media/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_model/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_operatingsystem/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_override_value/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_parameter/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_partitiontable/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_provisioningtemplate/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_smartproxy/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_subnet/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_user/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://github.com/HanseMerkur/terraform-provider-foreman/resources/foreman_usergroup/</loc>
-         <lastmod>2022-05-11</lastmod>
+         <lastmod>2022-05-16</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
