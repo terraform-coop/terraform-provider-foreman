@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -33,12 +34,13 @@ type ForemanTemplateKind struct {
 
 // ReadTemplateKind reads the attributes of a ForemanTemplateKind identified by
 // the supplied ID and returns a ForemanTemplateKind reference.
-func (c *Client) ReadTemplateKind(id int) (*ForemanTemplateKind, error) {
+func (c *Client) ReadTemplateKind(ctx context.Context, id int) (*ForemanTemplateKind, error) {
 	log.Tracef("foreman/api/templatekind.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", TemplateKindEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -65,13 +67,14 @@ func (c *Client) ReadTemplateKind(id int) (*ForemanTemplateKind, error) {
 // QueryTemplateKind queries for a ForemanTemplateKind based on the attributes
 // of the supplied ForemanTemplateKind reference and returns a QueryResponse
 // struct containing query/response metadata and the matching template kinds
-func (c *Client) QueryTemplateKind(t *ForemanTemplateKind) (QueryResponse, error) {
+func (c *Client) QueryTemplateKind(ctx context.Context, t *ForemanTemplateKind) (QueryResponse, error) {
 	log.Tracef("foreman/api/templatekind.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", TemplateKindEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

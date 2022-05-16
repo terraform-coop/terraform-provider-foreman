@@ -14,6 +14,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/imdario/mergo"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -22,10 +23,10 @@ import (
 func resourceForemanHost() *schema.Resource {
 	return &schema.Resource{
 
-		Create:        resourceForemanHostCreate,
-		Read:          resourceForemanHostRead,
-		Update:        resourceForemanHostUpdate,
-		Delete:        resourceForemanHostDelete,
+		CreateContext: resourceForemanHostCreate,
+		ReadContext:   resourceForemanHostRead,
+		UpdateContext: resourceForemanHostUpdate,
+		DeleteContext: resourceForemanHostDelete,
 		CustomizeDiff: resourceForemanHostCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{
@@ -89,7 +90,7 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 			"parameters": &schema.Schema{
-				Type:     schema.TypeMap,
+				Type:     schema.TypeList,
 				ForceNew: false,
 				Computed: true,
 				Optional: true,
@@ -725,7 +726,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_host.go#Create")
 
 	client := meta.(*api.Client)
@@ -736,9 +737,9 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
-	createdHost, createErr := client.CreateHost(h, hostRetryCount)
+	createdHost, createErr := client.CreateHost(ctx, h, hostRetryCount)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanHost: [%+v]", createdHost)
@@ -778,9 +779,9 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	// Loop through each of the above BMC Operations and execute.
 	// In the event fo any failure, exit with error
 	for _, cmd := range powerCmds {
-		sendErr := client.SendPowerCommand(createdHost, cmd, hostRetryCount)
+		sendErr := client.SendPowerCommand(ctx, createdHost, cmd, hostRetryCount)
 		if sendErr != nil {
-			return sendErr
+			return diag.FromErr(sendErr)
 		}
 		// Sleep for 3 seconds between chained BMC calls
 		duration := time.Duration(3) * time.Second
@@ -793,7 +794,7 @@ func resourceForemanHostCreate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanHostRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_host.go#Read")
 
 	client := meta.(*api.Client)
@@ -801,9 +802,9 @@ func resourceForemanHostRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Debugf("ForemanHost: [%+v]", h)
 
-	readHost, readErr := client.ReadHost(h.Id)
+	readHost, readErr := client.ReadHost(ctx, h.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanHost: [%+v]", readHost)
@@ -813,7 +814,7 @@ func resourceForemanHostRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_host.go#Update")
 
 	client := meta.(*api.Client)
@@ -872,9 +873,9 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 
 		log.Debugf("host: [%+v]", h)
 
-		updatedHost, updateErr := client.UpdateHost(h, hostRetryCount)
+		updatedHost, updateErr := client.UpdateHost(ctx, h, hostRetryCount)
 		if updateErr != nil {
-			return updateErr
+			return diag.FromErr(updateErr)
 		}
 
 		log.Debugf("Updated FormanHost: [%+v]", updatedHost)
@@ -888,7 +889,7 @@ func resourceForemanHostUpdate(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_host.go#Delete")
 
 	client := meta.(*api.Client)
@@ -899,14 +900,14 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	returnDelete := client.DeleteHost(h.Id)
+	returnDelete := client.DeleteHost(ctx, h.Id)
 	if returnDelete != nil {
-		return returnDelete
+		return diag.FromErr(returnDelete)
 	}
 	retry := 0
 	for retry < hostRetryCount {
 		log.Debugf("ForemanHostDelete: Waiting for deletion #[%d]", retry)
-		_, deleting := client.ReadHost(h.Id)
+		_, deleting := client.ReadHost(ctx, h.Id)
 		if deleting == nil {
 			retry++
 			time.Sleep(2 * time.Second)
@@ -914,7 +915,7 @@ func resourceForemanHostDelete(d *schema.ResourceData, meta interface{}) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("Failed to delete host in retry_count* 2 seconds")
+	return diag.Errorf("Failed to delete host in retry_count* 2 seconds")
 }
 
 func expandComputeAttributes(v string) map[string]interface{} {

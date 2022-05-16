@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanKatelloContentCredential() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanKatelloContentCredentialCreate,
-		Read:   resourceForemanKatelloContentCredentialRead,
-		Update: resourceForemanKatelloContentCredentialUpdate,
-		Delete: resourceForemanKatelloContentCredentialDelete,
+		CreateContext: resourceForemanKatelloContentCredentialCreate,
+		ReadContext:   resourceForemanKatelloContentCredentialRead,
+		UpdateContext: resourceForemanKatelloContentCredentialUpdate,
+		DeleteContext: resourceForemanKatelloContentCredentialDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -95,7 +97,7 @@ func setResourceDataFromForemanKatelloContentCredential(d *schema.ResourceData, 
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanKatelloContentCredentialCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloContentCredentialCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_content_credential.go#Create")
 
 	client := meta.(*api.Client)
@@ -103,9 +105,9 @@ func resourceForemanKatelloContentCredentialCreate(d *schema.ResourceData, meta 
 
 	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
-	createdKatelloContentCredential, createErr := client.CreateKatelloContentCredential(contentCredential)
+	createdKatelloContentCredential, createErr := client.CreateKatelloContentCredential(ctx, contentCredential)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanKatelloContentCredential: [%+v]", createdKatelloContentCredential)
@@ -115,7 +117,7 @@ func resourceForemanKatelloContentCredentialCreate(d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceForemanKatelloContentCredentialRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloContentCredentialRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_content_credential.go#Read")
 
 	client := meta.(*api.Client)
@@ -123,9 +125,9 @@ func resourceForemanKatelloContentCredentialRead(d *schema.ResourceData, meta in
 
 	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
-	readKatelloContentCredential, readErr := client.ReadKatelloContentCredential(contentCredential.Id)
+	readKatelloContentCredential, readErr := client.ReadKatelloContentCredential(ctx, contentCredential.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanKatelloContentCredential: [%+v]", readKatelloContentCredential)
@@ -135,7 +137,7 @@ func resourceForemanKatelloContentCredentialRead(d *schema.ResourceData, meta in
 	return nil
 }
 
-func resourceForemanKatelloContentCredentialUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloContentCredentialUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_content_credential.go#Update")
 
 	client := meta.(*api.Client)
@@ -143,9 +145,9 @@ func resourceForemanKatelloContentCredentialUpdate(d *schema.ResourceData, meta 
 
 	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
-	updatedKatelloContentCredential, updateErr := client.UpdateKatelloContentCredential(contentCredential)
+	updatedKatelloContentCredential, updateErr := client.UpdateKatelloContentCredential(ctx, contentCredential)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("ForemanKatelloContentCredential: [%+v]", updatedKatelloContentCredential)
@@ -155,7 +157,7 @@ func resourceForemanKatelloContentCredentialUpdate(d *schema.ResourceData, meta 
 	return nil
 }
 
-func resourceForemanKatelloContentCredentialDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloContentCredentialDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_content_credential.go#Delete")
 
 	client := meta.(*api.Client)
@@ -163,5 +165,5 @@ func resourceForemanKatelloContentCredentialDelete(d *schema.ResourceData, meta 
 
 	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
-	return client.DeleteKatelloContentCredential(contentCredential.Id)
+	return diag.FromErr(client.DeleteKatelloContentCredential(ctx, contentCredential.Id))
 }

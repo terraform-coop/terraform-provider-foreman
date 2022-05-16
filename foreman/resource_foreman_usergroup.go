@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanUsergroup() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanUsergroupCreate,
-		Read:   resourceForemanUsergroupRead,
-		Update: resourceForemanUsergroupUpdate,
-		Delete: resourceForemanUsergroupDelete,
+		CreateContext: resourceForemanUsergroupCreate,
+		ReadContext:   resourceForemanUsergroupRead,
+		UpdateContext: resourceForemanUsergroupUpdate,
+		DeleteContext: resourceForemanUsergroupDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -99,7 +101,7 @@ func setResourceDataFromForemanUsergroup(d *schema.ResourceData, fh *api.Foreman
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanUsergroupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanUsergroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_usergroup.go#Create")
 
 	client := meta.(*api.Client)
@@ -107,9 +109,9 @@ func resourceForemanUsergroupCreate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanUsergroup: [%+v]", h)
 
-	createdUsergroup, createErr := client.CreateUsergroup(h)
+	createdUsergroup, createErr := client.CreateUsergroup(ctx, h)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanUsergroup: [%+v]", createdUsergroup)
@@ -119,7 +121,7 @@ func resourceForemanUsergroupCreate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanUsergroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanUsergroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_usergroup.go#Read")
 
 	client := meta.(*api.Client)
@@ -127,9 +129,9 @@ func resourceForemanUsergroupRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Debugf("ForemanUsergroup: [%+v]", h)
 
-	readUsergroup, readErr := client.ReadUsergroup(h.Id)
+	readUsergroup, readErr := client.ReadUsergroup(ctx, h.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanUsergroup: [%+v]", readUsergroup)
@@ -139,7 +141,7 @@ func resourceForemanUsergroupRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceForemanUsergroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanUsergroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_usergroup.go#Update")
 
 	// TODO(ALL): 404 errors here (for v.1.11.4 ) - i think we need to
@@ -152,9 +154,9 @@ func resourceForemanUsergroupUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanUsergroup: [%+v]", h)
 
-	updatedUsergroup, updateErr := client.UpdateUsergroup(h)
+	updatedUsergroup, updateErr := client.UpdateUsergroup(ctx, h)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanUsergroup: [%+v]", updatedUsergroup)
@@ -164,7 +166,7 @@ func resourceForemanUsergroupUpdate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanUsergroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanUsergroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_usergroup.go#Delete")
 
 	client := meta.(*api.Client)
@@ -174,5 +176,5 @@ func resourceForemanUsergroupDelete(d *schema.ResourceData, meta interface{}) er
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteUsergroup(h.Id)
+	return diag.FromErr(client.DeleteUsergroup(ctx, h.Id))
 }

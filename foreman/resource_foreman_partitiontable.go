@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -16,10 +18,10 @@ import (
 func resourceForemanPartitionTable() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanPartitionTableCreate,
-		Read:   resourceForemanPartitionTableRead,
-		Update: resourceForemanPartitionTableUpdate,
-		Delete: resourceForemanPartitionTableDelete,
+		CreateContext: resourceForemanPartitionTableCreate,
+		ReadContext:   resourceForemanPartitionTableRead,
+		UpdateContext: resourceForemanPartitionTableUpdate,
+		DeleteContext: resourceForemanPartitionTableDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -247,7 +249,7 @@ func setResourceDataFromForemanPartitionTable(d *schema.ResourceData, ft *api.Fo
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanPartitionTableCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanPartitionTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_partitiontable.go#Create")
 
 	client := meta.(*api.Client)
@@ -255,9 +257,9 @@ func resourceForemanPartitionTableCreate(d *schema.ResourceData, meta interface{
 
 	log.Debugf("ForemanPartitionTable: [%+v]", t)
 
-	createdTable, createErr := client.CreatePartitionTable(t)
+	createdTable, createErr := client.CreatePartitionTable(ctx, t)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanPartitionTable: [%+v]", createdTable)
@@ -267,7 +269,7 @@ func resourceForemanPartitionTableCreate(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceForemanPartitionTableRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanPartitionTableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_partitiontable.go#Read")
 
 	client := meta.(*api.Client)
@@ -275,9 +277,9 @@ func resourceForemanPartitionTableRead(d *schema.ResourceData, meta interface{})
 
 	log.Debugf("ForemanPartitionTable: [%+v]", t)
 
-	readTable, readErr := client.ReadPartitionTable(t.Id)
+	readTable, readErr := client.ReadPartitionTable(ctx, t.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanPartitionTable: [%+v]", readTable)
@@ -287,7 +289,7 @@ func resourceForemanPartitionTableRead(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func resourceForemanPartitionTableUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanPartitionTableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_partitiontable.go#Update")
 
 	client := meta.(*api.Client)
@@ -295,9 +297,9 @@ func resourceForemanPartitionTableUpdate(d *schema.ResourceData, meta interface{
 
 	log.Debugf("ForemanPartitionTable: [%+v]", t)
 
-	updatedTable, updateErr := client.UpdatePartitionTable(t)
+	updatedTable, updateErr := client.UpdatePartitionTable(ctx, t)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanPartitionTable: [%+v]", updatedTable)
@@ -307,7 +309,7 @@ func resourceForemanPartitionTableUpdate(d *schema.ResourceData, meta interface{
 	return nil
 }
 
-func resourceForemanPartitionTableDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanPartitionTableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_partitiontable.go#Delete")
 
 	client := meta.(*api.Client)
@@ -318,5 +320,5 @@ func resourceForemanPartitionTableDelete(d *schema.ResourceData, meta interface{
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return client.DeletePartitionTable(t.Id)
+	return diag.FromErr(client.DeletePartitionTable(ctx, t.Id))
 }

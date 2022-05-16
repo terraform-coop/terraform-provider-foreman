@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -27,10 +28,11 @@ type ForemanPuppetClass struct {
 
 // ReadPuppetClass reads the attributes of a ForemanPuppetClass identified by
 // the supplied ID and returns a ForemanPuppetClass reference.
-func (c *Client) ReadPuppetClass(id int) (*ForemanPuppetClass, error) {
+func (c *Client) ReadPuppetClass(ctx context.Context, id int) (*ForemanPuppetClass, error) {
 	log.Tracef("foreman/api/puppetclass.go#Read")
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		PuppetClassEndpointPrefix,
 		nil,
@@ -61,13 +63,14 @@ func (c *Client) ReadPuppetClass(id int) (*ForemanPuppetClass, error) {
 // are returned in a map instead of an array, with the class name as the key.
 // To work around this the results field is unmarshalled and then remarshalled
 // into an array to normalise it
-func (c *Client) QueryPuppetClass(t *ForemanPuppetClass) (QueryResponse, error) {
+func (c *Client) QueryPuppetClass(ctx context.Context, t *ForemanPuppetClass) (QueryResponse, error) {
 	log.Tracef("foreman/api/puppetclass.go#Search")
 
 	queryResponse := QueryResponsePuppet{}
 	realQueryResponse := QueryResponse{}
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		PuppetClassEndpointPrefix,
 		nil,

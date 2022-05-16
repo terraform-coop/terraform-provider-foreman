@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -39,14 +41,14 @@ func dataSourceForemanSubnet() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanSubnetRead,
+		ReadContext: dataSourceForemanSubnetRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_subnet.go#Read")
 
 	client := meta.(*api.Client)
@@ -54,21 +56,21 @@ func dataSourceForemanSubnetRead(d *schema.ResourceData, meta interface{}) error
 
 	log.Debugf("ForemanSubnet: [%+v]", s)
 
-	queryResponse, queryErr := client.QuerySubnet(s)
+	queryResponse, queryErr := client.QuerySubnet(ctx, s)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source subnet returned no results")
+		return diag.Errorf("Data source subnet returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source subnet returned more than 1 result")
+		return diag.Errorf("Data source subnet returned more than 1 result")
 	}
 
 	var querySubnet api.ForemanSubnet
 	var ok bool
 	if querySubnet, ok = queryResponse.Results[0].(api.ForemanSubnet); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanSubnet], got [%T]",
 			queryResponse.Results[0],

@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanEnvironment() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanEnvironmentCreate,
-		Read:   resourceForemanEnvironmentRead,
-		Update: resourceForemanEnvironmentUpdate,
-		Delete: resourceForemanEnvironmentDelete,
+		CreateContext: resourceForemanEnvironmentCreate,
+		ReadContext:   resourceForemanEnvironmentRead,
+		UpdateContext: resourceForemanEnvironmentUpdate,
+		DeleteContext: resourceForemanEnvironmentDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -87,7 +89,7 @@ func setResourceDataFromForemanEnvironment(d *schema.ResourceData, fe *api.Forem
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanEnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_environment.go#Create")
 
 	client := meta.(*api.Client)
@@ -95,9 +97,9 @@ func resourceForemanEnvironmentCreate(d *schema.ResourceData, meta interface{}) 
 
 	log.Debugf("ForemanEnvironment: [%+v]", e)
 
-	createdEnv, createErr := client.CreateEnvironment(e)
+	createdEnv, createErr := client.CreateEnvironment(ctx, e)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanEnvironment: [%+v]", createdEnv)
@@ -107,7 +109,7 @@ func resourceForemanEnvironmentCreate(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func resourceForemanEnvironmentRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_environment.go#Read")
 
 	client := meta.(*api.Client)
@@ -115,9 +117,9 @@ func resourceForemanEnvironmentRead(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanEnvironment: [%+v]", e)
 
-	readEnvironment, readErr := client.ReadEnvironment(e.Id)
+	readEnvironment, readErr := client.ReadEnvironment(ctx, e.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanEnvironment: [%+v]", readEnvironment)
@@ -127,7 +129,7 @@ func resourceForemanEnvironmentRead(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanEnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_environment.go#Update")
 
 	client := meta.(*api.Client)
@@ -135,9 +137,9 @@ func resourceForemanEnvironmentUpdate(d *schema.ResourceData, meta interface{}) 
 
 	log.Debugf("ForemanEnvironment: [%+v]", e)
 
-	updatedEnv, updateErr := client.UpdateEnvironment(e)
+	updatedEnv, updateErr := client.UpdateEnvironment(ctx, e)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanEnvironment: [%+v]", updatedEnv)
@@ -147,7 +149,7 @@ func resourceForemanEnvironmentUpdate(d *schema.ResourceData, meta interface{}) 
 	return nil
 }
 
-func resourceForemanEnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_environment.go#Delete")
 
 	client := meta.(*api.Client)
@@ -156,5 +158,5 @@ func resourceForemanEnvironmentDelete(d *schema.ResourceData, meta interface{}) 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return client.DeleteEnvironment(e.Id)
+	return diag.FromErr(client.DeleteEnvironment(ctx, e.Id))
 }

@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -110,7 +111,7 @@ func (ft *ForemanPartitionTable) UnmarshalJSON(b []byte) error {
 // of the supplied ForemanPartitionTable reference and returns the created
 // ForemanPartitionTable reference.  The returned reference will have its ID
 // and other API default values set by this function.
-func (c *Client) CreatePartitionTable(t *ForemanPartitionTable) (*ForemanPartitionTable, error) {
+func (c *Client) CreatePartitionTable(ctx context.Context, t *ForemanPartitionTable) (*ForemanPartitionTable, error) {
 	log.Tracef("foreman/api/partitiontable.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", PartitionTableEndpointPrefix)
@@ -122,7 +123,8 @@ func (c *Client) CreatePartitionTable(t *ForemanPartitionTable) (*ForemanPartiti
 
 	log.Debugf("partitiontableJSONBytes: [%s]", tJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(tJSONBytes),
@@ -144,12 +146,13 @@ func (c *Client) CreatePartitionTable(t *ForemanPartitionTable) (*ForemanPartiti
 
 // ReadPartitionTable reads the attributes of a ForemanPartitionTable
 // identified by the supplied ID and returns a ForemanPartitionTable reference.
-func (c *Client) ReadPartitionTable(id int) (*ForemanPartitionTable, error) {
+func (c *Client) ReadPartitionTable(ctx context.Context, id int) (*ForemanPartitionTable, error) {
 	log.Tracef("foreman/api/partitiontable.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -173,7 +176,7 @@ func (c *Client) ReadPartitionTable(id int) (*ForemanPartitionTable, error) {
 // partition table with the ID of the supplied ForemanPartitionTable will be
 // updated. A new ForemanPartitionTable reference is returned with the
 // attributes from the result of the update operation.
-func (c *Client) UpdatePartitionTable(t *ForemanPartitionTable) (*ForemanPartitionTable, error) {
+func (c *Client) UpdatePartitionTable(ctx context.Context, t *ForemanPartitionTable) (*ForemanPartitionTable, error) {
 	log.Tracef("foreman/api/partitiontable.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, t.Id)
@@ -185,7 +188,8 @@ func (c *Client) UpdatePartitionTable(t *ForemanPartitionTable) (*ForemanPartiti
 
 	log.Debugf("partitiontableJSONBytes: [%s]", tJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(tJSONBytes),
@@ -207,12 +211,13 @@ func (c *Client) UpdatePartitionTable(t *ForemanPartitionTable) (*ForemanPartiti
 
 // DeletePartitionTable deletes the ForemanPartitionTable identified by the
 // supplied ID
-func (c *Client) DeletePartitionTable(id int) error {
+func (c *Client) DeletePartitionTable(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/partitiontable.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -232,13 +237,14 @@ func (c *Client) DeletePartitionTable(id int) error {
 // attributes of the supplied ForemanPartitionTable reference and returns a
 // QueryResponse struct containing query/response metadata and the matching
 // partition tables.
-func (c *Client) QueryPartitionTable(t *ForemanPartitionTable) (QueryResponse, error) {
+func (c *Client) QueryPartitionTable(ctx context.Context, t *ForemanPartitionTable) (QueryResponse, error) {
 	log.Tracef("foreman/api/partitiontable.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", PartitionTableEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

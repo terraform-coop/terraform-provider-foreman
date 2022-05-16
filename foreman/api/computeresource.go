@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -108,7 +109,7 @@ func (fcr *ForemanComputeResource) UnmarshalJSON(b []byte) error {
 // ForemanComputeResource reference and returns the created ForemanComputeResource reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateComputeResource(d *ForemanComputeResource) (*ForemanComputeResource, error) {
+func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeResource) (*ForemanComputeResource, error) {
 	log.Tracef("foreman/api/computeresource.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", ComputeResourceEndpointPrefix)
@@ -120,7 +121,8 @@ func (c *Client) CreateComputeResource(d *ForemanComputeResource) (*ForemanCompu
 
 	log.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(computeresourceJSONBytes),
@@ -142,12 +144,13 @@ func (c *Client) CreateComputeResource(d *ForemanComputeResource) (*ForemanCompu
 
 // ReadComputeResource reads the attributes of a ForemanComputeResource identified by the
 // supplied ID and returns a ForemanComputeResource reference.
-func (c *Client) ReadComputeResource(id int) (*ForemanComputeResource, error) {
+func (c *Client) ReadComputeResource(ctx context.Context, id int) (*ForemanComputeResource, error) {
 	log.Tracef("foreman/api/computeresource.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -170,7 +173,7 @@ func (c *Client) ReadComputeResource(id int) (*ForemanComputeResource, error) {
 // UpdateComputeResource updates a ForemanComputeResource's attributes.  The computeresource with the ID
 // of the supplied ForemanComputeResource will be updated. A new ForemanComputeResource reference
 // is returned with the attributes from the result of the update operation.
-func (c *Client) UpdateComputeResource(d *ForemanComputeResource) (*ForemanComputeResource, error) {
+func (c *Client) UpdateComputeResource(ctx context.Context, d *ForemanComputeResource) (*ForemanComputeResource, error) {
 	log.Tracef("foreman/api/computeresource.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, d.Id)
@@ -182,7 +185,8 @@ func (c *Client) UpdateComputeResource(d *ForemanComputeResource) (*ForemanCompu
 
 	log.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(computeresourceJSONBytes),
@@ -203,12 +207,13 @@ func (c *Client) UpdateComputeResource(d *ForemanComputeResource) (*ForemanCompu
 }
 
 // DeleteComputeResource deletes the ForemanComputeResource identified by the supplied ID
-func (c *Client) DeleteComputeResource(id int) error {
+func (c *Client) DeleteComputeResource(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/computeresource.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -227,13 +232,14 @@ func (c *Client) DeleteComputeResource(id int) error {
 // QueryComputeResource queries for a ForemanComputeResource based on the attributes of the
 // supplied ForemanComputeResource reference and returns a QueryResponse struct
 // containing query/response metadata and the matching computeresources.
-func (c *Client) QueryComputeResource(d *ForemanComputeResource) (QueryResponse, error) {
+func (c *Client) QueryComputeResource(ctx context.Context, d *ForemanComputeResource) (QueryResponse, error) {
 	log.Tracef("foreman/api/computeresource.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", ComputeResourceEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

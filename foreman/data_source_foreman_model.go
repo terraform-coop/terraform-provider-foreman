@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,14 +31,14 @@ func dataSourceForemanModel() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanModelRead,
+		ReadContext: dataSourceForemanModelRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanModelRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanModelRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_model.go#Read")
 
 	client := meta.(*api.Client)
@@ -44,21 +46,21 @@ func dataSourceForemanModelRead(d *schema.ResourceData, meta interface{}) error 
 
 	log.Debugf("ForemanModel: [%+v]", m)
 
-	queryResponse, queryErr := client.QueryModel(m)
+	queryResponse, queryErr := client.QueryModel(ctx, m)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source model returned no results")
+		return diag.Errorf("Data source model returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source model returned more than 1 result")
+		return diag.Errorf("Data source model returned more than 1 result")
 	}
 
 	var queryModel api.ForemanModel
 	var ok bool
 	if queryModel, ok = queryResponse.Results[0].(api.ForemanModel); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanModel], got [%T]",
 			queryResponse.Results[0],

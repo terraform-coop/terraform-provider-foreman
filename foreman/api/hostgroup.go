@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -197,7 +198,7 @@ func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
 // supplied ForemanHostgroup reference and returns the created ForemanHostgroup
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
-func (c *Client) CreateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error) {
+func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*ForemanHostgroup, error) {
 	log.Tracef("foreman/api/hostgroup.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", HostgroupEndpointPrefix)
@@ -209,7 +210,8 @@ func (c *Client) CreateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error)
 
 	log.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(hJSONBytes),
@@ -231,12 +233,13 @@ func (c *Client) CreateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error)
 
 // ReadHostgroup reads the attributes of a ForemanHostgroup identified by the
 // supplied ID and returns a ForemanHostgroup reference.
-func (c *Client) ReadHostgroup(id int) (*ForemanHostgroup, error) {
+func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, error) {
 	log.Tracef("foreman/api/hostgroup.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -260,7 +263,7 @@ func (c *Client) ReadHostgroup(id int) (*ForemanHostgroup, error) {
 // the ID of the supplied ForemanHostgroup will be updated. A new
 // ForemanHostgroup reference is returned with the attributes from the result
 // of the update operation.
-func (c *Client) UpdateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error) {
+func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*ForemanHostgroup, error) {
 	log.Tracef("foreman/api/hostgroup.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, h.Id)
@@ -272,7 +275,8 @@ func (c *Client) UpdateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error)
 
 	log.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(hJSONBytes),
@@ -293,12 +297,13 @@ func (c *Client) UpdateHostgroup(h *ForemanHostgroup) (*ForemanHostgroup, error)
 }
 
 // DeleteHostgroup deletes the ForemanHostgroup identified by the supplied ID
-func (c *Client) DeleteHostgroup(id int) error {
+func (c *Client) DeleteHostgroup(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/hostgroup.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -317,13 +322,14 @@ func (c *Client) DeleteHostgroup(id int) error {
 // QueryHostgroup queries for a ForemanHostgroup based on the attributes of the
 // supplied ForemanHostgroup reference and returns a QueryResponse struct
 // containing query/response metadata and the matching hostgroups.
-func (c *Client) QueryHostgroup(h *ForemanHostgroup) (QueryResponse, error) {
+func (c *Client) QueryHostgroup(ctx context.Context, h *ForemanHostgroup) (QueryResponse, error) {
 	log.Tracef("foreman/api/hostgroup.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", HostgroupEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

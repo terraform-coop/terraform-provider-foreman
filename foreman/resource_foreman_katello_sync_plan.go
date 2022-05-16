@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ import (
 func resourceForemanKatelloSyncPlan() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanKatelloSyncPlanCreate,
-		Read:   resourceForemanKatelloSyncPlanRead,
-		Update: resourceForemanKatelloSyncPlanUpdate,
-		Delete: resourceForemanKatelloSyncPlanDelete,
+		CreateContext: resourceForemanKatelloSyncPlanCreate,
+		ReadContext:   resourceForemanKatelloSyncPlanRead,
+		UpdateContext: resourceForemanKatelloSyncPlanUpdate,
+		DeleteContext: resourceForemanKatelloSyncPlanDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -144,7 +146,7 @@ func setResourceDataFromForemanKatelloSyncPlan(d *schema.ResourceData, syncPlan 
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanKatelloSyncPlanCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloSyncPlanCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_sync_plan.go#Create")
 
 	client := meta.(*api.Client)
@@ -152,9 +154,9 @@ func resourceForemanKatelloSyncPlanCreate(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
-	createdKatelloSyncPlan, createErr := client.CreateKatelloSyncPlan(syncPlan)
+	createdKatelloSyncPlan, createErr := client.CreateKatelloSyncPlan(ctx, syncPlan)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanKatelloSyncPlan: [%+v]", createdKatelloSyncPlan)
@@ -164,7 +166,7 @@ func resourceForemanKatelloSyncPlanCreate(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanKatelloSyncPlanRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloSyncPlanRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_sync_plan.go#Read")
 
 	client := meta.(*api.Client)
@@ -172,9 +174,9 @@ func resourceForemanKatelloSyncPlanRead(d *schema.ResourceData, meta interface{}
 
 	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
-	readKatelloSyncPlan, readErr := client.ReadKatelloSyncPlan(syncPlan.Id)
+	readKatelloSyncPlan, readErr := client.ReadKatelloSyncPlan(ctx, syncPlan.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanKatelloSyncPlan: [%+v]", readKatelloSyncPlan)
@@ -184,7 +186,7 @@ func resourceForemanKatelloSyncPlanRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceForemanKatelloSyncPlanUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloSyncPlanUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_sync_plan.go#Update")
 
 	client := meta.(*api.Client)
@@ -192,9 +194,9 @@ func resourceForemanKatelloSyncPlanUpdate(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
-	updatedKatelloSyncPlan, updateErr := client.UpdateKatelloSyncPlan(syncPlan)
+	updatedKatelloSyncPlan, updateErr := client.UpdateKatelloSyncPlan(ctx, syncPlan)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("ForemanKatelloSyncPlan: [%+v]", updatedKatelloSyncPlan)
@@ -204,7 +206,7 @@ func resourceForemanKatelloSyncPlanUpdate(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanKatelloSyncPlanDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanKatelloSyncPlanDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_sync_plan.go#Delete")
 
 	client := meta.(*api.Client)
@@ -212,5 +214,5 @@ func resourceForemanKatelloSyncPlanDelete(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
-	return client.DeleteKatelloSyncPlan(syncPlan.Id)
+	return diag.FromErr(client.DeleteKatelloSyncPlan(ctx, syncPlan.Id))
 }

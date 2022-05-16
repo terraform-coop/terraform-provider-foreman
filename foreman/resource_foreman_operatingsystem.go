@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -16,10 +18,10 @@ import (
 func resourceForemanOperatingSystem() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanOperatingSystemCreate,
-		Read:   resourceForemanOperatingSystemRead,
-		Update: resourceForemanOperatingSystemUpdate,
-		Delete: resourceForemanOperatingSystemDelete,
+		CreateContext: resourceForemanOperatingSystemCreate,
+		ReadContext:   resourceForemanOperatingSystemRead,
+		UpdateContext: resourceForemanOperatingSystemUpdate,
+		DeleteContext: resourceForemanOperatingSystemDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -263,15 +265,15 @@ func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.F
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanOperatingSystemCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanOperatingSystemCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_operatingsystem.go#Create")
 
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	createdOs, createErr := client.CreateOperatingSystem(o)
+	createdOs, createErr := client.CreateOperatingSystem(ctx, o)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanOperatingSystem: [%+v]", createdOs)
@@ -281,7 +283,7 @@ func resourceForemanOperatingSystemCreate(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanOperatingSystemRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanOperatingSystemRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_operatingsystem.go#Read")
 
 	client := meta.(*api.Client)
@@ -289,9 +291,9 @@ func resourceForemanOperatingSystemRead(d *schema.ResourceData, meta interface{}
 
 	log.Debugf("ForemanOperatingSystem: [%+v]", o)
 
-	readOS, readErr := client.ReadOperatingSystem(o.Id)
+	readOS, readErr := client.ReadOperatingSystem(ctx, o.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("ForemanOperatingSystem: [%+v]", readOS)
@@ -301,7 +303,7 @@ func resourceForemanOperatingSystemRead(d *schema.ResourceData, meta interface{}
 	return nil
 }
 
-func resourceForemanOperatingSystemUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanOperatingSystemUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_operatingsystem.go#Update")
 
 	client := meta.(*api.Client)
@@ -309,9 +311,9 @@ func resourceForemanOperatingSystemUpdate(d *schema.ResourceData, meta interface
 
 	log.Debugf("ForemanOperatingSystem: [%+v]", o)
 
-	updatedOs, updateErr := client.UpdateOperatingSystem(o)
+	updatedOs, updateErr := client.UpdateOperatingSystem(ctx, o)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanOperatingSystem: [%+v]", updatedOs)
@@ -321,7 +323,7 @@ func resourceForemanOperatingSystemUpdate(d *schema.ResourceData, meta interface
 	return nil
 }
 
-func resourceForemanOperatingSystemDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanOperatingSystemDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_operatingsystem.go#Delete")
 
 	client := meta.(*api.Client)
@@ -332,5 +334,5 @@ func resourceForemanOperatingSystemDelete(d *schema.ResourceData, meta interface
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return client.DeleteOperatingSystem(o.Id)
+	return diag.FromErr(client.DeleteOperatingSystem(ctx, o.Id))
 }

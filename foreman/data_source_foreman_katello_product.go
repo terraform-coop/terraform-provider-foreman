@@ -1,12 +1,14 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -28,14 +30,14 @@ func dataSourceForemanKatelloProduct() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanKatelloProductRead,
+		ReadContext: dataSourceForemanKatelloProductRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanKatelloProductRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_katello_product.go#Read")
 
 	client := meta.(*api.Client)
@@ -43,21 +45,21 @@ func dataSourceForemanKatelloProductRead(d *schema.ResourceData, meta interface{
 
 	log.Debugf("ForemanKatelloProduct: [%+v]", product)
 
-	queryResponse, queryErr := client.QueryKatelloProduct(product)
+	queryResponse, queryErr := client.QueryKatelloProduct(ctx, product)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("data source product returned no results")
+		return diag.Errorf("data source product returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("data source product returned more than 1 result")
+		return diag.Errorf("data source product returned more than 1 result")
 	}
 
 	var queryKatelloProduct api.ForemanKatelloProduct
 	var ok bool
 	if queryKatelloProduct, ok = queryResponse.Results[0].(api.ForemanKatelloProduct); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"data source results contain unexpected type. Expected "+
 				"[api.ForemanKatelloProduct], got [%T]",
 			queryResponse.Results[0],

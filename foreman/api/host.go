@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -162,7 +163,7 @@ type BMCBoot struct {
 // BMCBoot type struct populated with an action
 //
 // Example: https://<foreman>/api/hosts/<hostname>/boot
-func (c *Client) SendPowerCommand(h *ForemanHost, cmd interface{}, retryCount int) error {
+func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd interface{}, retryCount int) error {
 	// Initialize suffix variable,
 	suffix := ""
 
@@ -185,7 +186,7 @@ func (c *Client) SendPowerCommand(h *ForemanHost, cmd interface{}, retryCount in
 	}
 	log.Debugf("JSONBytes: [%s]", JSONBytes)
 
-	req, reqErr := c.NewRequest(http.MethodPut, reqHost, bytes.NewBuffer(JSONBytes))
+	req, reqErr := c.NewRequestWithContext(ctx, http.MethodPut, reqHost, bytes.NewBuffer(JSONBytes))
 	if reqErr != nil {
 		return reqErr
 	}
@@ -229,7 +230,7 @@ func (c *Client) SendPowerCommand(h *ForemanHost, cmd interface{}, retryCount in
 // ForemanHost reference and returns the created ForemanHost reference.  The
 // returned reference will have its ID and other API default values set by this
 // function.
-func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error) {
+func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
 	log.Tracef("foreman/api/host.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", HostEndpointPrefix)
@@ -241,7 +242,8 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	log.Debugf("hJSONBytes: [%s]", hJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(hJSONBytes),
@@ -270,7 +272,7 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 		return nil, sendErr
 	}
 
-	computeAttributes, _ := c.readComputeAttributes(createdHost.Id)
+	computeAttributes, _ := c.readComputeAttributes(ctx, createdHost.Id)
 	if len(computeAttributes) > 0 {
 		createdHost.ComputeAttributes = computeAttributes
 	}
@@ -282,12 +284,13 @@ func (c *Client) CreateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 // ReadHost reads the attributes of a ForemanHost identified by the supplied ID
 // and returns a ForemanHost reference.
-func (c *Client) ReadHost(id int) (*ForemanHost, error) {
+func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 	log.Tracef("foreman/api/host.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -302,7 +305,7 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 		return nil, sendErr
 	}
 
-	computeAttributes, _ := c.readComputeAttributes(id)
+	computeAttributes, _ := c.readComputeAttributes(ctx, id)
 	if len(computeAttributes) > 0 {
 		readHost.ComputeAttributes = computeAttributes
 	}
@@ -316,7 +319,7 @@ func (c *Client) ReadHost(id int) (*ForemanHost, error) {
 // UpdateHost updates a ForemanHost's attributes.  The host with the ID of the
 // supplied ForemanHost will be updated. A new ForemanHost reference is
 // returned with the attributes from the result of the update operation.
-func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error) {
+func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
 	log.Tracef("foreman/api/host.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
@@ -328,7 +331,8 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 
 	log.Debugf("hostJSONBytes: [%s]", hJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(hJSONBytes),
@@ -356,7 +360,7 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 		return nil, sendErr
 	}
 
-	computeAttributes, _ := c.readComputeAttributes(h.Id)
+	computeAttributes, _ := c.readComputeAttributes(ctx, h.Id)
 	if len(computeAttributes) > 0 {
 		updatedHost.ComputeAttributes = computeAttributes
 	}
@@ -366,12 +370,13 @@ func (c *Client) UpdateHost(h *ForemanHost, retryCount int) (*ForemanHost, error
 }
 
 // DeleteHost deletes the ForemanHost identified by the supplied ID
-func (c *Client) DeleteHost(id int) error {
+func (c *Client) DeleteHost(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/host.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -384,11 +389,12 @@ func (c *Client) DeleteHost(id int) error {
 }
 
 // Compute Attributes are only available via dedicated API endpoint. readComputeAttributes gets this endpoint.
-func (c *Client) readComputeAttributes(id int) (map[string]interface{}, error) {
+func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]interface{}, error) {
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/%s", HostEndpointPrefix, id, ComputeAttributesSuffix)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

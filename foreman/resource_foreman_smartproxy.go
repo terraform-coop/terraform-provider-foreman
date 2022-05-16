@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ import (
 func resourceForemanSmartProxy() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanSmartProxyCreate,
-		Read:   resourceForemanSmartProxyRead,
-		Update: resourceForemanSmartProxyUpdate,
-		Delete: resourceForemanSmartProxyDelete,
+		CreateContext: resourceForemanSmartProxyCreate,
+		ReadContext:   resourceForemanSmartProxyRead,
+		UpdateContext: resourceForemanSmartProxyUpdate,
+		DeleteContext: resourceForemanSmartProxyDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -97,7 +99,7 @@ func setResourceDataFromForemanSmartProxy(d *schema.ResourceData, fp *api.Forema
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanSmartProxyCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSmartProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_smartproxy.go#Create")
 
 	client := meta.(*api.Client)
@@ -105,9 +107,9 @@ func resourceForemanSmartProxyCreate(d *schema.ResourceData, meta interface{}) e
 
 	log.Debugf("ForemanSmartProxy: [%+v]", s)
 
-	createdSmartProxy, createErr := client.CreateSmartProxy(s)
+	createdSmartProxy, createErr := client.CreateSmartProxy(ctx, s)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanSmartProxy: [%+v]", createdSmartProxy)
@@ -117,7 +119,7 @@ func resourceForemanSmartProxyCreate(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func resourceForemanSmartProxyRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSmartProxyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_smartproxy.go#Read")
 
 	client := meta.(*api.Client)
@@ -125,9 +127,9 @@ func resourceForemanSmartProxyRead(d *schema.ResourceData, meta interface{}) err
 
 	log.Debugf("ForemanSmartProxy: [%+v]", s)
 
-	readSmartProxy, readErr := client.ReadSmartProxy(s.Id)
+	readSmartProxy, readErr := client.ReadSmartProxy(ctx, s.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanSmartProxy: [%+v]", readSmartProxy)
@@ -137,7 +139,7 @@ func resourceForemanSmartProxyRead(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func resourceForemanSmartProxyUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSmartProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_smartproxy.go#Update")
 
 	client := meta.(*api.Client)
@@ -145,9 +147,9 @@ func resourceForemanSmartProxyUpdate(d *schema.ResourceData, meta interface{}) e
 
 	log.Debugf("ForemanSmartProxy: [%+v]", s)
 
-	updatedSmartProxy, updateErr := client.UpdateSmartProxy(s)
+	updatedSmartProxy, updateErr := client.UpdateSmartProxy(ctx, s)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("ForemanSmartProxy: [%+v]", updatedSmartProxy)
@@ -157,7 +159,7 @@ func resourceForemanSmartProxyUpdate(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func resourceForemanSmartProxyDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanSmartProxyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_smartproxy.go#Delete")
 
 	client := meta.(*api.Client)
@@ -167,5 +169,5 @@ func resourceForemanSmartProxyDelete(d *schema.ResourceData, meta interface{}) e
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteSmartProxy(s.Id)
+	return diag.FromErr(client.DeleteSmartProxy(ctx, s.Id))
 }

@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -24,10 +26,10 @@ const (
 func resourceForemanArchitecture() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanArchitectureCreate,
-		Read:   resourceForemanArchitectureRead,
-		Update: resourceForemanArchitectureUpdate,
-		Delete: resourceForemanArchitectureDelete,
+		CreateContext: resourceForemanArchitectureCreate,
+		ReadContext:   resourceForemanArchitectureRead,
+		UpdateContext: resourceForemanArchitectureUpdate,
+		DeleteContext: resourceForemanArchitectureDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -117,7 +119,7 @@ func setResourceDataFromForemanArchitecture(d *schema.ResourceData, fa *api.Fore
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanArchitectureCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanArchitectureCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_architecture.go#Create")
 
 	client := meta.(*api.Client)
@@ -125,9 +127,9 @@ func resourceForemanArchitectureCreate(d *schema.ResourceData, meta interface{})
 
 	log.Debugf("ForemanArchitecture: [%+v]", a)
 
-	createdArch, createErr := client.CreateArchitecture(a)
+	createdArch, createErr := client.CreateArchitecture(ctx, a)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanArchitecture: [%+v]", createdArch)
@@ -137,7 +139,7 @@ func resourceForemanArchitectureCreate(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func resourceForemanArchitectureRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanArchitectureRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_architecture.go#Read")
 
 	client := meta.(*api.Client)
@@ -145,9 +147,9 @@ func resourceForemanArchitectureRead(d *schema.ResourceData, meta interface{}) e
 
 	log.Debugf("ForemanArchitecture: [%+v]", a)
 
-	readArch, readErr := client.ReadArchitecture(a.Id)
+	readArch, readErr := client.ReadArchitecture(ctx, a.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanArchitecture: [%+v]", readArch)
@@ -157,7 +159,7 @@ func resourceForemanArchitectureRead(d *schema.ResourceData, meta interface{}) e
 	return nil
 }
 
-func resourceForemanArchitectureUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanArchitectureUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_architecture.go#Update")
 
 	client := meta.(*api.Client)
@@ -165,9 +167,9 @@ func resourceForemanArchitectureUpdate(d *schema.ResourceData, meta interface{})
 
 	log.Debugf("ForemanArchitecture: [%+v]", a)
 
-	updatedArch, updateErr := client.UpdateArchitecture(a)
+	updatedArch, updateErr := client.UpdateArchitecture(ctx, a)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanArchitecture: [%+v]", updatedArch)
@@ -177,7 +179,7 @@ func resourceForemanArchitectureUpdate(d *schema.ResourceData, meta interface{})
 	return nil
 }
 
-func resourceForemanArchitectureDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanArchitectureDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_architecture.go#Delete")
 
 	client := meta.(*api.Client)
@@ -187,5 +189,5 @@ func resourceForemanArchitectureDelete(d *schema.ResourceData, meta interface{})
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteArchitecture(a.Id)
+	return diag.FromErr(client.DeleteArchitecture(ctx, a.Id))
 }

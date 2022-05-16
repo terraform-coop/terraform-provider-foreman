@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -38,7 +39,7 @@ type ForemanModel struct {
 // ForemanModel reference and returns the created ForemanModel reference.  The
 // returned reference will have its ID and other API default values set by this
 // function.
-func (c *Client) CreateModel(m *ForemanModel) (*ForemanModel, error) {
+func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanModel, error) {
 	log.Tracef("foreman/api/model.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", ModelEndpointPrefix)
@@ -50,7 +51,8 @@ func (c *Client) CreateModel(m *ForemanModel) (*ForemanModel, error) {
 
 	log.Debugf("modelJSONBytes: [%s]", mJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(mJSONBytes),
@@ -72,12 +74,13 @@ func (c *Client) CreateModel(m *ForemanModel) (*ForemanModel, error) {
 
 // ReadModel reads the attributes of a ForemanModel identified by the supplied
 // ID and returns a ForemanModel reference.
-func (c *Client) ReadModel(id int) (*ForemanModel, error) {
+func (c *Client) ReadModel(ctx context.Context, id int) (*ForemanModel, error) {
 	log.Tracef("foreman/api/model.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -100,7 +103,7 @@ func (c *Client) ReadModel(id int) (*ForemanModel, error) {
 // UpdateModel updates a ForemanModel's attributes.  The model with the ID of
 // the supplied ForemanModel will be updated. A new ForemanModel reference is
 // returned with the attributes from the result of the update operation.
-func (c *Client) UpdateModel(m *ForemanModel) (*ForemanModel, error) {
+func (c *Client) UpdateModel(ctx context.Context, m *ForemanModel) (*ForemanModel, error) {
 	log.Tracef("foreman/api/model.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, m.Id)
@@ -112,7 +115,8 @@ func (c *Client) UpdateModel(m *ForemanModel) (*ForemanModel, error) {
 
 	log.Debugf("modelJSONBytes: [%s]", mJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(mJSONBytes),
@@ -133,12 +137,13 @@ func (c *Client) UpdateModel(m *ForemanModel) (*ForemanModel, error) {
 }
 
 // DeleteModel deletes the ForemanModel identified by the supplied ID
-func (c *Client) DeleteModel(id int) error {
+func (c *Client) DeleteModel(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/model.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -157,13 +162,14 @@ func (c *Client) DeleteModel(id int) error {
 // QueryModel queries for a ForemanModel based on the attributes of the
 // supplied ForemanModel reference and returns a QueryResponse struct
 // containing query/response metadata and the matching model.
-func (c *Client) QueryModel(m *ForemanModel) (QueryResponse, error) {
+func (c *Client) QueryModel(ctx context.Context, m *ForemanModel) (QueryResponse, error) {
 	log.Tracef("foreman/api/model.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", ModelEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

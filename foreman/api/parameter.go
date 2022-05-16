@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -85,7 +86,7 @@ func (fp *ForemanParameter) UnmarshalJSON(b []byte) error {
 // ForemanParameter reference and returns the created ForemanParameter reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateParameter(d *ForemanParameter) (*ForemanParameter, error) {
+func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*ForemanParameter, error) {
 	log.Tracef("foreman/api/parameter.go#Create")
 
 	selEndA, selEndB := d.apiEndpoint()
@@ -100,7 +101,8 @@ func (c *Client) CreateParameter(d *ForemanParameter) (*ForemanParameter, error)
 
 	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(parameterJSONBytes),
@@ -122,13 +124,14 @@ func (c *Client) CreateParameter(d *ForemanParameter) (*ForemanParameter, error)
 
 // ReadParameter reads the attributes of a ForemanParameter identified by the
 // supplied ID and returns a ForemanParameter reference.
-func (c *Client) ReadParameter(d *ForemanParameter, id int) (*ForemanParameter, error) {
+func (c *Client) ReadParameter(ctx context.Context, d *ForemanParameter, id int) (*ForemanParameter, error) {
 	log.Tracef("foreman/api/parameter.go#Read")
 
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -152,7 +155,7 @@ func (c *Client) ReadParameter(d *ForemanParameter, id int) (*ForemanParameter, 
 
 // UpdateParameter deletes all parameters for the subject resource and re-creates them
 // as we look at them differently on either side this is the safest way to reach sync
-func (c *Client) UpdateParameter(d *ForemanParameter, id int) (*ForemanParameter, error) {
+func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id int) (*ForemanParameter, error) {
 	log.Tracef("foreman/api/parameter.go#Update")
 
 	selEndA, selEndB := d.apiEndpoint()
@@ -165,7 +168,8 @@ func (c *Client) UpdateParameter(d *ForemanParameter, id int) (*ForemanParameter
 
 	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(parameterJSONBytes),
@@ -188,13 +192,14 @@ func (c *Client) UpdateParameter(d *ForemanParameter, id int) (*ForemanParameter
 }
 
 // DeleteParameter deletes the ForemanParameters for the given resource
-func (c *Client) DeleteParameter(d *ForemanParameter, id int) error {
+func (c *Client) DeleteParameter(ctx context.Context, d *ForemanParameter, id int) error {
 	log.Tracef("foreman/api/parameter.go#Delete")
 
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -213,13 +218,14 @@ func (c *Client) DeleteParameter(d *ForemanParameter, id int) error {
 // QueryParameter queries for a ForemanParameter based on the attributes of the
 // supplied ForemanParameter reference and returns a QueryResponse struct
 // containing query/response metadata and the matching parameters.
-func (c *Client) QueryParameter(d *ForemanParameter) (QueryResponse, error) {
+func (c *Client) QueryParameter(ctx context.Context, d *ForemanParameter) (QueryResponse, error) {
 	log.Tracef("foreman/api/parameter.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", ParameterEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

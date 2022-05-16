@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanImage() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanImageCreate,
-		Read:   resourceForemanImageRead,
-		Update: resourceForemanImageUpdate,
-		Delete: resourceForemanImageDelete,
+		CreateContext: resourceForemanImageCreate,
+		ReadContext:   resourceForemanImageRead,
+		UpdateContext: resourceForemanImageUpdate,
+		DeleteContext: resourceForemanImageDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -126,12 +128,12 @@ func setResourceDataFromForemanImage(d *schema.ResourceData, fd *api.ForemanImag
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanImageCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_image.go#Create")
 	return nil
 }
 
-func resourceForemanImageRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_image.go#Read")
 
 	client := meta.(*api.Client)
@@ -139,9 +141,9 @@ func resourceForemanImageRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Debugf("ForemanImage: [%+v]", image)
 
-	readImage, readErr := client.ReadImage(image)
+	readImage, readErr := client.ReadImage(ctx, image)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanImage: [%+v]", readImage)
@@ -151,12 +153,12 @@ func resourceForemanImageRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanImageUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_image.go#Update")
 	return nil
 }
 
-func resourceForemanImageDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_image.go#Delete")
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete

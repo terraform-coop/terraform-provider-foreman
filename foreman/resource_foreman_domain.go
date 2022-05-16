@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,16 +9,17 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanDomain() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanDomainCreate,
-		Read:   resourceForemanDomainRead,
-		Update: resourceForemanDomainUpdate,
-		Delete: resourceForemanDomainDelete,
+		CreateContext: resourceForemanDomainCreate,
+		ReadContext:   resourceForemanDomainRead,
+		UpdateContext: resourceForemanDomainUpdate,
+		DeleteContext: resourceForemanDomainDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -108,7 +110,7 @@ func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDom
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanDomainCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_domain.go#Create")
 
 	client := meta.(*api.Client)
@@ -116,9 +118,9 @@ func resourceForemanDomainCreate(d *schema.ResourceData, meta interface{}) error
 
 	log.Debugf("ForemanDomain: [%+v]", d)
 
-	createdDomain, createErr := client.CreateDomain(p)
+	createdDomain, createErr := client.CreateDomain(ctx, p)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanDomain: [%+v]", createdDomain)
@@ -128,7 +130,7 @@ func resourceForemanDomainCreate(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func resourceForemanDomainRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_domain.go#Read")
 
 	client := meta.(*api.Client)
@@ -136,9 +138,9 @@ func resourceForemanDomainRead(d *schema.ResourceData, meta interface{}) error {
 
 	log.Debugf("ForemanDomain: [%+v]", domain)
 
-	readDomain, readErr := client.ReadDomain(domain.Id)
+	readDomain, readErr := client.ReadDomain(ctx, domain.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanDomain: [%+v]", readDomain)
@@ -148,16 +150,16 @@ func resourceForemanDomainRead(d *schema.ResourceData, meta interface{}) error {
 	return nil
 }
 
-func resourceForemanDomainUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_domain.go#Update")
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)
 
 	log.Debugf("ForemanDomain: [%+v]", do)
 
-	updatedDomain, updateErr := client.UpdateDomain(do, do.Id)
+	updatedDomain, updateErr := client.UpdateDomain(ctx, do, do.Id)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanDomain: [%+v]", updatedDomain)
@@ -167,7 +169,7 @@ func resourceForemanDomainUpdate(d *schema.ResourceData, meta interface{}) error
 	return nil
 }
 
-func resourceForemanDomainDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_domain.go#Delete")
 
 	client := meta.(*api.Client)
@@ -175,5 +177,5 @@ func resourceForemanDomainDelete(d *schema.ResourceData, meta interface{}) error
 
 	log.Debugf("ForemanDomain: [%+v]", do)
 
-	return client.DeleteDomain(do.Id)
+	return diag.FromErr(client.DeleteDomain(ctx, do.Id))
 }

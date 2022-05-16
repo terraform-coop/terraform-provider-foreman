@@ -1,12 +1,14 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -28,14 +30,14 @@ func dataSourceForemanKatelloRepository() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanKatelloRepositoryRead,
+		ReadContext: dataSourceForemanKatelloRepositoryRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanKatelloRepositoryRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_katello_repository.go#Read")
 
 	client := meta.(*api.Client)
@@ -43,21 +45,21 @@ func dataSourceForemanKatelloRepositoryRead(d *schema.ResourceData, meta interfa
 
 	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
-	queryResponse, queryErr := client.QueryKatelloRepository(repository)
+	queryResponse, queryErr := client.QueryKatelloRepository(ctx, repository)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("data source repository returned no results")
+		return diag.Errorf("data source repository returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("data source repository returned more than 1 result")
+		return diag.Errorf("data source repository returned more than 1 result")
 	}
 
 	var queryKatelloRepository api.ForemanKatelloRepository
 	var ok bool
 	if queryKatelloRepository, ok = queryResponse.Results[0].(api.ForemanKatelloRepository); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"data source results contain unexpected type. Expected "+
 				"[api.ForemanKatelloRepository], got [%T]",
 			queryResponse.Results[0],

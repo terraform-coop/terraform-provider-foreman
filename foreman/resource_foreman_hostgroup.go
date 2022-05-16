@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -16,10 +18,10 @@ import (
 func resourceForemanHostgroup() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanHostgroupCreate,
-		Read:   resourceForemanHostgroupRead,
-		Update: resourceForemanHostgroupUpdate,
-		Delete: resourceForemanHostgroupDelete,
+		CreateContext: resourceForemanHostgroupCreate,
+		ReadContext:   resourceForemanHostgroupRead,
+		UpdateContext: resourceForemanHostgroupUpdate,
+		DeleteContext: resourceForemanHostgroupDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -354,7 +356,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanHostgroupCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostgroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_hostgroup.go#Create")
 
 	client := meta.(*api.Client)
@@ -362,9 +364,9 @@ func resourceForemanHostgroupCreate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanHostgroup: [%+v]", h)
 
-	createdHostgroup, createErr := client.CreateHostgroup(h)
+	createdHostgroup, createErr := client.CreateHostgroup(ctx, h)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanHostgroup: [%+v]", createdHostgroup)
@@ -374,7 +376,7 @@ func resourceForemanHostgroupCreate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanHostgroupRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_hostgroup.go#Read")
 
 	client := meta.(*api.Client)
@@ -382,9 +384,9 @@ func resourceForemanHostgroupRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Debugf("ForemanHostgroup: [%+v]", h)
 
-	readHostgroup, readErr := client.ReadHostgroup(h.Id)
+	readHostgroup, readErr := client.ReadHostgroup(ctx, h.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanHostgroup: [%+v]", readHostgroup)
@@ -394,7 +396,7 @@ func resourceForemanHostgroupRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceForemanHostgroupUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_hostgroup.go#Update")
 
 	// TODO(ALL): 404 errors here (for v.1.11.4 ) - i think we need to
@@ -407,9 +409,9 @@ func resourceForemanHostgroupUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanHostgroup: [%+v]", h)
 
-	updatedHostgroup, updateErr := client.UpdateHostgroup(h)
+	updatedHostgroup, updateErr := client.UpdateHostgroup(ctx, h)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanHostgroup: [%+v]", updatedHostgroup)
@@ -419,7 +421,7 @@ func resourceForemanHostgroupUpdate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanHostgroupDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanHostgroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_hostgroup.go#Delete")
 
 	client := meta.(*api.Client)
@@ -429,5 +431,5 @@ func resourceForemanHostgroupDelete(d *schema.ResourceData, meta interface{}) er
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return client.DeleteHostgroup(h.Id)
+	return diag.FromErr(client.DeleteHostgroup(ctx, h.Id))
 }

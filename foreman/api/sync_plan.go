@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -46,7 +47,7 @@ type ForemanKatelloSyncPlan struct {
 // supplied ForemanKatelloSyncPlan reference and returns the created
 // ForemanKatelloSyncPlan reference.  The returned reference will have its ID and
 // other API default values set by this function.
-func (c *Client) CreateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKatelloSyncPlan, error) {
+func (c *Client) CreateKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSyncPlan) (*ForemanKatelloSyncPlan, error) {
 	log.Tracef("foreman/api/sync_plan.go#Create")
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
@@ -58,7 +59,8 @@ func (c *Client) CreateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKate
 
 	log.Debugf("KatelloSyncPlanJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -80,14 +82,15 @@ func (c *Client) CreateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKate
 
 // ReadKatelloSyncPlan reads the attributes of a ForemanKatelloSyncPlan identified by the
 // supplied ID and returns a ForemanKatelloSyncPlan reference.
-func (c *Client) ReadKatelloSyncPlan(id int) (*ForemanKatelloSyncPlan, error) {
+func (c *Client) ReadKatelloSyncPlan(ctx context.Context, id int) (*ForemanKatelloSyncPlan, error) {
 	log.Tracef("foreman/api/sync_plan.go#Read")
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
 	log.Debugf("readKatelloSyncPlan reqEndpoint: [%+v]", reqEndpoint)
 	reqEndpoint = fmt.Sprintf("%s/%d", reqEndpoint, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -111,7 +114,7 @@ func (c *Client) ReadKatelloSyncPlan(id int) (*ForemanKatelloSyncPlan, error) {
 // with the ID of the supplied ForemanKatelloSyncPlan will be updated. A new
 // ForemanKatelloSyncPlan reference is returned with the attributes from the result
 // of the update operation.
-func (c *Client) UpdateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKatelloSyncPlan, error) {
+func (c *Client) UpdateKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSyncPlan) (*ForemanKatelloSyncPlan, error) {
 	log.Tracef("foreman/api/sync_plan.go#Update")
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
@@ -124,7 +127,8 @@ func (c *Client) UpdateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKate
 
 	log.Debugf("KatelloSyncPlanJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -145,13 +149,14 @@ func (c *Client) UpdateKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (*ForemanKate
 }
 
 // DeleteKatelloSyncPlan deletes the ForemanKatelloSyncPlan identified by the supplied ID
-func (c *Client) DeleteKatelloSyncPlan(id int) error {
+func (c *Client) DeleteKatelloSyncPlan(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/sync_plan.go#Delete")
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
 	reqEndpoint = fmt.Sprintf("%s/%d", reqEndpoint, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -170,14 +175,15 @@ func (c *Client) DeleteKatelloSyncPlan(id int) error {
 // QueryKatelloSyncPlan queries for a ForemanKatelloSyncPlan based on the attributes of
 // the supplied ForemanKatelloSyncPlan reference and returns a QueryResponse struct
 // containing query/response metadata and the matching sync plan.
-func (c *Client) QueryKatelloSyncPlan(sp *ForemanKatelloSyncPlan) (QueryResponse, error) {
+func (c *Client) QueryKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSyncPlan) (QueryResponse, error) {
 	log.Tracef("foreman/api/sync_plan.go#Search")
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
 
 	queryResponse := QueryResponse{}
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

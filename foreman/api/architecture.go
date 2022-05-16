@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -69,7 +70,7 @@ func (fa *ForemanArchitecture) UnmarshalJSON(b []byte) error {
 // the supplied ForemanArchitecture reference and returns the created
 // ForemanArchitecture reference.  The returned reference will have its ID and
 // other API default values set by this function.
-func (c *Client) CreateArchitecture(a *ForemanArchitecture) (*ForemanArchitecture, error) {
+func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture) (*ForemanArchitecture, error) {
 	log.Tracef("foreman/api/architecture.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", ArchitectureEndpointPrefix)
@@ -81,7 +82,8 @@ func (c *Client) CreateArchitecture(a *ForemanArchitecture) (*ForemanArchitectur
 
 	log.Debugf("archJSONBytes: [%s]", archJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(archJSONBytes),
@@ -103,12 +105,13 @@ func (c *Client) CreateArchitecture(a *ForemanArchitecture) (*ForemanArchitectur
 
 // ReadArchitecture reads the attributes of a ForemanArchitecture identified by
 // the supplied ID and returns a ForemanArchitecture reference.
-func (c *Client) ReadArchitecture(id int) (*ForemanArchitecture, error) {
+func (c *Client) ReadArchitecture(ctx context.Context, id int) (*ForemanArchitecture, error) {
 	log.Tracef("foreman/api/architecture.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -132,7 +135,7 @@ func (c *Client) ReadArchitecture(id int) (*ForemanArchitecture, error) {
 // architecture with the ID of the supplied ForemanArchitecture will be
 // updated. A new ForemanArchitecture reference is returned with the attributes
 // from the result of the update operation.
-func (c *Client) UpdateArchitecture(a *ForemanArchitecture) (*ForemanArchitecture, error) {
+func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture) (*ForemanArchitecture, error) {
 	log.Tracef("foreman/api/architecture.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, a.Id)
@@ -144,7 +147,8 @@ func (c *Client) UpdateArchitecture(a *ForemanArchitecture) (*ForemanArchitectur
 
 	log.Debugf("archJSONBytes: [%s]", archJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(archJSONBytes),
@@ -166,12 +170,13 @@ func (c *Client) UpdateArchitecture(a *ForemanArchitecture) (*ForemanArchitectur
 
 // DeleteArchitecture deletes the ForemanArchitecture identified by the
 // supplied ID
-func (c *Client) DeleteArchitecture(id int) error {
+func (c *Client) DeleteArchitecture(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/architecture.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -190,13 +195,14 @@ func (c *Client) DeleteArchitecture(id int) error {
 // QueryArchitecture queries for a ForemanArchitecture based on the attributes
 // of the supplied ForemanArchitecture reference and returns a QueryResponse
 // struct containing query/response metadata and the matching architectures.
-func (c *Client) QueryArchitecture(a *ForemanArchitecture) (QueryResponse, error) {
+func (c *Client) QueryArchitecture(ctx context.Context, a *ForemanArchitecture) (QueryResponse, error) {
 	log.Tracef("foreman/api/architecture.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", ArchitectureEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

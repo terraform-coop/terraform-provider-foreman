@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -130,7 +131,7 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 // attributes of the supplied ForemanOperatingSystem reference and returns the
 // created ForemanOperatingSystem reference.  The returned reference will have
 // its ID and other API default values set by this function.
-func (c *Client) CreateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOperatingSystem, error) {
+func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingSystem) (*ForemanOperatingSystem, error) {
 	log.Tracef("foreman/api/operatingsystem.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", OperatingSystemEndpointPrefix)
@@ -142,7 +143,8 @@ func (c *Client) CreateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	log.Debugf("osJSONBytes: [%s]", osJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(osJSONBytes),
@@ -165,12 +167,13 @@ func (c *Client) CreateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 // ReadOperatingSystem reads the attributes of a ForemanOperatingSystem
 // identified by the supplied ID and returns a ForemanOperatingSystem
 // reference.
-func (c *Client) ReadOperatingSystem(id int) (*ForemanOperatingSystem, error) {
+func (c *Client) ReadOperatingSystem(ctx context.Context, id int) (*ForemanOperatingSystem, error) {
 	log.Tracef("foreman/api/operatingsystem.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -194,7 +197,7 @@ func (c *Client) ReadOperatingSystem(id int) (*ForemanOperatingSystem, error) {
 // operating system with the ID of the supplied ForemanOperatingSystem will be
 // updated. A new ForemanOperatingSystem reference is returned with the
 // attributes from the result of the update operation.
-func (c *Client) UpdateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOperatingSystem, error) {
+func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingSystem) (*ForemanOperatingSystem, error) {
 	log.Tracef("foreman/api/operatingsystem.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, o.Id)
@@ -206,7 +209,8 @@ func (c *Client) UpdateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 	log.Debugf("osJSONBytes: [%s]", osJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(osJSONBytes),
@@ -228,12 +232,13 @@ func (c *Client) UpdateOperatingSystem(o *ForemanOperatingSystem) (*ForemanOpera
 
 // DeleteOperatingSystem deletes the ForemanOperatingSystem identified by the
 // supplied ID
-func (c *Client) DeleteOperatingSystem(id int) error {
+func (c *Client) DeleteOperatingSystem(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/operatingsystem.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -253,14 +258,15 @@ func (c *Client) DeleteOperatingSystem(id int) error {
 // attributes of the supplied ForemanOperatingSystem reference and returns a
 // QueryResponse struct containing query/response metadata and the matching
 // operating systems.
-func (c *Client) QueryOperatingSystem(o *ForemanOperatingSystem) (QueryResponse, error) {
+func (c *Client) QueryOperatingSystem(ctx context.Context, o *ForemanOperatingSystem) (QueryResponse, error) {
 	log.Tracef("foreman/api/operatingsystem.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", OperatingSystemEndpointPrefix)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

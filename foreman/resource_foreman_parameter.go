@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -15,10 +17,10 @@ import (
 func resourceForemanParameter() *schema.Resource {
 	return &schema.Resource{
 
-		Create: resourceForemanParameterCreate,
-		Read:   resourceForemanParameterRead,
-		Update: resourceForemanParameterUpdate,
-		Delete: resourceForemanParameterDelete,
+		CreateContext: resourceForemanParameterCreate,
+		ReadContext:   resourceForemanParameterRead,
+		UpdateContext: resourceForemanParameterUpdate,
+		DeleteContext: resourceForemanParameterDelete,
 
 		Importer: &schema.ResourceImporter{
 			State: schema.ImportStatePassthrough,
@@ -147,7 +149,7 @@ func setResourceDataFromForemanParameter(d *schema.ResourceData, fd *api.Foreman
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func resourceForemanParameterCreate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanParameterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_parameter.go#Create")
 
 	client := meta.(*api.Client)
@@ -155,9 +157,9 @@ func resourceForemanParameterCreate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanParameter: [%+v]", d)
 
-	createdParam, createErr := client.CreateParameter(p)
+	createdParam, createErr := client.CreateParameter(ctx, p)
 	if createErr != nil {
-		return createErr
+		return diag.FromErr(createErr)
 	}
 
 	log.Debugf("Created ForemanParameter: [%+v]", createdParam)
@@ -167,7 +169,7 @@ func resourceForemanParameterCreate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanParameterRead(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_parameter.go#Read")
 
 	client := meta.(*api.Client)
@@ -175,9 +177,9 @@ func resourceForemanParameterRead(d *schema.ResourceData, meta interface{}) erro
 
 	log.Debugf("ForemanParameter: [%+v]", parameter)
 
-	readParameter, readErr := client.ReadParameter(parameter, parameter.Id)
+	readParameter, readErr := client.ReadParameter(ctx, parameter, parameter.Id)
 	if readErr != nil {
-		return readErr
+		return diag.FromErr(readErr)
 	}
 
 	log.Debugf("Read ForemanParameter: [%+v]", readParameter)
@@ -187,7 +189,7 @@ func resourceForemanParameterRead(d *schema.ResourceData, meta interface{}) erro
 	return nil
 }
 
-func resourceForemanParameterUpdate(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanParameterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_parameter.go#Update")
 
 	client := meta.(*api.Client)
@@ -195,9 +197,9 @@ func resourceForemanParameterUpdate(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanParameter: [%+v]", p)
 
-	updatedParam, updateErr := client.UpdateParameter(p, p.Id)
+	updatedParam, updateErr := client.UpdateParameter(ctx, p, p.Id)
 	if updateErr != nil {
-		return updateErr
+		return diag.FromErr(updateErr)
 	}
 
 	log.Debugf("Updated ForemanParameter: [%+v]", updatedParam)
@@ -207,7 +209,7 @@ func resourceForemanParameterUpdate(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourceForemanParameterDelete(d *schema.ResourceData, meta interface{}) error {
+func resourceForemanParameterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_parameter.go#Delete")
 
 	client := meta.(*api.Client)
@@ -215,5 +217,5 @@ func resourceForemanParameterDelete(d *schema.ResourceData, meta interface{}) er
 
 	log.Debugf("ForemanParameter: [%+v]", p)
 
-	return client.DeleteParameter(p, p.Id)
+	return diag.FromErr(client.DeleteParameter(ctx, p, p.Id))
 }

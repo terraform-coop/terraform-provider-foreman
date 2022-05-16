@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -29,46 +31,46 @@ func dataSourceForemanCommonParameter() *schema.Resource {
 
 	return &schema.Resource{
 
-		Read: dataSourceForemanCommonParameterRead,
+		ReadContext: dataSourceForemanCommonParameterRead,
 
 		// NOTE(ALL): See comments in the corresponding resource file
 		Schema: ds,
 	}
 }
 
-func dataSourceForemanCommonParameterRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_common_parameter.go#Read")
 
 	client := meta.(*api.Client)
-	common_parameter := buildForemanCommonParameter(d)
+	commonParameter := buildForemanCommonParameter(d)
 
-	log.Debugf("ForemanCommonParameter: [%+v]", common_parameter)
+	log.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
 
-	queryResponse, queryErr := client.QueryCommonParameter(common_parameter)
+	queryResponse, queryErr := client.QueryCommonParameter(ctx, commonParameter)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source common_parameter returned no results")
+		return diag.Errorf("Data source common_parameter returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source common_parameter returned more than 1 result")
+		return diag.Errorf("Data source common_parameter returned more than 1 result")
 	}
 
 	var queryCommonParameter api.ForemanCommonParameter
 	var ok bool
 	if queryCommonParameter, ok = queryResponse.Results[0].(api.ForemanCommonParameter); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanCommonParameter], got [%T]",
 			queryResponse.Results[0],
 		)
 	}
-	common_parameter = &queryCommonParameter
+	commonParameter = &queryCommonParameter
 
-	log.Debugf("ForemanCommonParameter: [%+v]", common_parameter)
+	log.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
 
-	setResourceDataFromForemanCommonParameter(d, common_parameter)
+	setResourceDataFromForemanCommonParameter(d, commonParameter)
 
 	return nil
 }

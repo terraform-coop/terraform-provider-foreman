@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -36,7 +37,7 @@ type ForemanDefaultTemplate struct {
 // ForemanDefaultTemplate reference and returns the created ForemanDefaultTemplate reference.
 // The returned reference will have its ID and other API default values set by
 // this function.
-func (c *Client) CreateDefaultTemplate(d *ForemanDefaultTemplate) (*ForemanDefaultTemplate, error) {
+func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate) (*ForemanDefaultTemplate, error) {
 	log.Tracef("foreman/api/parameter.go#Create")
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix, d.OperatingSystemId)
@@ -51,7 +52,8 @@ func (c *Client) CreateDefaultTemplate(d *ForemanDefaultTemplate) (*ForemanDefau
 
 	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(parameterJSONBytes),
@@ -71,12 +73,13 @@ func (c *Client) CreateDefaultTemplate(d *ForemanDefaultTemplate) (*ForemanDefau
 
 // ReadDefaultTemplate reads the attributes of a ForemanDefaultTemplate identified by the
 // supplied ID and returns a ForemanDefaultTemplate reference.
-func (c *Client) ReadDefaultTemplate(d *ForemanDefaultTemplate, id int) (*ForemanDefaultTemplate, error) {
+func (c *Client) ReadDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate, id int) (*ForemanDefaultTemplate, error) {
 	log.Tracef("foreman/api/parameter.go#Read")
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -98,7 +101,7 @@ func (c *Client) ReadDefaultTemplate(d *ForemanDefaultTemplate, id int) (*Forema
 
 // UpdateDefaultTemplate deletes all parameters for the subject resource and re-creates them
 // as we look at them differently on either side this is the safest way to reach sync
-func (c *Client) UpdateDefaultTemplate(d *ForemanDefaultTemplate, id int) (*ForemanDefaultTemplate, error) {
+func (c *Client) UpdateDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate, id int) (*ForemanDefaultTemplate, error) {
 	log.Tracef("foreman/api/parameter.go#Update")
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
@@ -111,7 +114,8 @@ func (c *Client) UpdateDefaultTemplate(d *ForemanDefaultTemplate, id int) (*Fore
 
 	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(parameterJSONBytes),
@@ -132,12 +136,13 @@ func (c *Client) UpdateDefaultTemplate(d *ForemanDefaultTemplate, id int) (*Fore
 }
 
 // DeleteDefaultTemplate deletes the ForemanDefaultTemplates for the given resource
-func (c *Client) DeleteDefaultTemplate(d *ForemanDefaultTemplate, id int) error {
+func (c *Client) DeleteDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate, id int) error {
 	log.Tracef("foreman/api/parameter.go#Delete")
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -156,13 +161,14 @@ func (c *Client) DeleteDefaultTemplate(d *ForemanDefaultTemplate, id int) error 
 // QueryDefaultTemplate queries for a ForemanDefaultTemplate based on the attributes of the
 // supplied ForemanDefaultTemplate reference and returns a QueryResponse struct
 // containing query/response metadata and the matching parameters.
-func (c *Client) QueryDefaultTemplate(d *ForemanDefaultTemplate) (QueryResponse, error) {
+func (c *Client) QueryDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate) (QueryResponse, error) {
 	log.Tracef("foreman/api/parameter.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", DefaultTemplateEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

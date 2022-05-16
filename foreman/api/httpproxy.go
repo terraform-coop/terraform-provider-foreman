@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -35,7 +36,7 @@ type ForemanHTTPProxy struct {
 // supplied ForemanHTTPProxy reference and returns the created
 // ForemanHTTPProxy reference.  The returned reference will have its ID and
 // other API default values set by this function.
-func (c *Client) CreateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error) {
+func (c *Client) CreateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*ForemanHTTPProxy, error) {
 	log.Tracef("foreman/api/httpproxy.go#Create")
 
 	reqEndpoint := fmt.Sprintf("/%s", HTTPProxyEndpointPrefix)
@@ -47,7 +48,8 @@ func (c *Client) CreateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error)
 
 	log.Debugf("HTTPProxyJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPost,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -69,12 +71,13 @@ func (c *Client) CreateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error)
 
 // ReadHTTPProxy reads the attributes of a ForemanHTTPProxy identified by the
 // supplied ID and returns a ForemanHTTPProxy reference.
-func (c *Client) ReadHTTPProxy(id int) (*ForemanHTTPProxy, error) {
+func (c *Client) ReadHTTPProxy(ctx context.Context, id int) (*ForemanHTTPProxy, error) {
 	log.Tracef("foreman/api/HTTPProxy.go#Read")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,
@@ -98,7 +101,7 @@ func (c *Client) ReadHTTPProxy(id int) (*ForemanHTTPProxy, error) {
 // with the ID of the supplied ForemanHTTPProxy will be updated. A new
 // ForemanHTTPProxy reference is returned with the attributes from the result
 // of the update operation.
-func (c *Client) UpdateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error) {
+func (c *Client) UpdateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*ForemanHTTPProxy, error) {
 	log.Tracef("foreman/api/HTTPProxy.go#Update")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, s.Id)
@@ -110,7 +113,8 @@ func (c *Client) UpdateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error)
 
 	log.Debugf("HTTPProxyJSONBytes: [%s]", sJSONBytes)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodPut,
 		reqEndpoint,
 		bytes.NewBuffer(sJSONBytes),
@@ -131,12 +135,13 @@ func (c *Client) UpdateHTTPProxy(s *ForemanHTTPProxy) (*ForemanHTTPProxy, error)
 }
 
 // DeleteHTTPProxy deletes the ForemanHTTPProxy identified by the supplied ID
-func (c *Client) DeleteHTTPProxy(id int) error {
+func (c *Client) DeleteHTTPProxy(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/HTTPProxy.go#Delete")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, id)
 
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodDelete,
 		reqEndpoint,
 		nil,
@@ -155,13 +160,14 @@ func (c *Client) DeleteHTTPProxy(id int) error {
 // QueryHTTPProxy queries for a ForemanHTTPProxy based on the attributes of
 // the supplied ForemanHTTPProxy reference and returns a QueryResponse struct
 // containing query/response metadata and the matching smart proxy.
-func (c *Client) QueryHTTPProxy(s *ForemanHTTPProxy) (QueryResponse, error) {
+func (c *Client) QueryHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (QueryResponse, error) {
 	log.Tracef("foreman/api/HTTPProxy.go#Search")
 
 	queryResponse := QueryResponse{}
 
 	reqEndpoint := fmt.Sprintf("/%s", HTTPProxyEndpointPrefix)
-	req, reqErr := c.NewRequest(
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
 		http.MethodGet,
 		reqEndpoint,
 		nil,

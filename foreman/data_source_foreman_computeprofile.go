@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 
@@ -8,13 +9,14 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceForemanComputeProfile() *schema.Resource {
 	return &schema.Resource{
 
-		Read: dataSourceForemanComputeProfileRead,
+		ReadContext: dataSourceForemanComputeProfileRead,
 
 		Schema: map[string]*schema.Schema{
 
@@ -57,7 +59,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
-func dataSourceForemanComputeProfileRead(d *schema.ResourceData, meta interface{}) error {
+func dataSourceForemanComputeProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_architecture.go#Read")
 
 	client := meta.(*api.Client)
@@ -65,21 +67,21 @@ func dataSourceForemanComputeProfileRead(d *schema.ResourceData, meta interface{
 
 	log.Debugf("ForemanComputeProfile: [%+v]", t)
 
-	queryResponse, queryErr := client.QueryComputeProfile(t)
+	queryResponse, queryErr := client.QueryComputeProfile(ctx, t)
 	if queryErr != nil {
-		return queryErr
+		return diag.FromErr(queryErr)
 	}
 
 	if queryResponse.Subtotal == 0 {
-		return fmt.Errorf("Data source template kind returned no results")
+		return diag.Errorf("Data source template kind returned no results")
 	} else if queryResponse.Subtotal > 1 {
-		return fmt.Errorf("Data source template kind returned more than 1 result")
+		return diag.Errorf("Data source template kind returned more than 1 result")
 	}
 
 	var queryComputeProfile api.ForemanComputeProfile
 	var ok bool
 	if queryComputeProfile, ok = queryResponse.Results[0].(api.ForemanComputeProfile); !ok {
-		return fmt.Errorf(
+		return diag.Errorf(
 			"Data source results contain unexpected type. Expected "+
 				"[api.ForemanComputeProfile], got [%T]",
 			queryResponse.Results[0],
