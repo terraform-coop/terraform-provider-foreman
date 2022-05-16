@@ -199,8 +199,8 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
 <p>The following arguments are supported:</p>
 <ul>
-<li><code>build</code> - (Optional) Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.</li>
 <li><code>bmc_success</code> - (Optional) REMOVED - Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain <code>false</code>. On the next <code>terraform apply</code> will trigger the host update to pick back up with the BMC operations.</li>
+<li><code>build</code> - (Optional) Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.</li>
 <li><code>comment</code> - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
 <li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - (Optional) </li>
