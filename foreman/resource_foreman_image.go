@@ -8,7 +8,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanImage() *schema.Resource {
@@ -58,7 +58,7 @@ func resourceForemanImage() *schema.Resource {
 				Optional:    true,
 				Description: "",
 			},
-			"archictecture_id": &schema.Schema{
+			"architecture_id": &schema.Schema{
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "",

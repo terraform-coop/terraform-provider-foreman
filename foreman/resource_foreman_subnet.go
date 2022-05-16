@@ -9,8 +9,8 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceForemanSubnet() *schema.Resource {
@@ -49,7 +49,7 @@ func resourceForemanSubnet() *schema.Resource {
 			"network": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description: fmt.Sprintf(
 					"Subnet network. "+
 						"%s \"10.228.247.0\"",
@@ -60,7 +60,7 @@ func resourceForemanSubnet() *schema.Resource {
 			"mask": &schema.Schema{
 				Type:         schema.TypeString,
 				Required:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description: fmt.Sprintf(
 					"Netmask for this subnet. "+
 						"%s \"255.255.255.0\"",
@@ -71,7 +71,7 @@ func resourceForemanSubnet() *schema.Resource {
 			"gateway": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description: "Gateway server to use when connecting/communicating to " +
 					"anything not on the same network.",
 			},
@@ -79,14 +79,14 @@ func resourceForemanSubnet() *schema.Resource {
 			"dns_primary": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description:  "Primary DNS server for this subnet.",
 			},
 
 			"dns_secondary": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description:  "Secondary DNS sever for this subnet.",
 			},
 
@@ -107,14 +107,14 @@ func resourceForemanSubnet() *schema.Resource {
 			"from": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description:  "Start IP address for IP auto suggestion.",
 			},
 
 			"to": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description:  "Ending IP address for IP auto suggestion.",
 			},
 

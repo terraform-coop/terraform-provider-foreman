@@ -8,7 +8,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceForemanDomain() *schema.Resource {
@@ -87,13 +87,7 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 	}
 
 	if attr, ok = d.GetOk("parameters"); ok {
-		domainTags := d.Get("parameters").(map[string]interface{})
-		for key, value := range domainTags {
-			domain.DomainParameters = append(domain.DomainParameters, api.ForemanKVParameter{
-				Name:  key,
-				Value: value.(string),
-			})
-		}
+		domain.DomainParameters = api.ToKV(attr.(map[string]string))
 	}
 
 	return &domain
@@ -107,7 +101,7 @@ func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDom
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
 	d.Set("fullname", fd.Fullname)
-	d.Set("parameters", fd.DomainParameters)
+	d.Set("parameters", api.FromKV(fd.DomainParameters))
 }
 
 // -----------------------------------------------------------------------------

@@ -9,8 +9,8 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceForemanOperatingSystem() *schema.Resource {
@@ -232,13 +232,7 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 		os.PartitiontableIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		hostTags := d.Get("parameters").(map[string]interface{})
-		for key, value := range hostTags {
-			os.OperatingSystemParameters = append(os.OperatingSystemParameters, api.ForemanKVParameter{
-				Name:  key,
-				Value: value.(string),
-			})
-		}
+		os.OperatingSystemParameters = api.ToKV(attr.(map[string]string))
 	}
 
 	return &os
@@ -262,7 +256,7 @@ func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.F
 	d.Set("media", fo.MediumIds)
 	d.Set("architectures", fo.ArchitectureIds)
 	d.Set("partitiontables", fo.PartitiontableIds)
-	d.Set("parameters", fo.OperatingSystemParameters)
+	d.Set("parameters", api.FromKV(fo.OperatingSystemParameters))
 }
 
 // -----------------------------------------------------------------------------

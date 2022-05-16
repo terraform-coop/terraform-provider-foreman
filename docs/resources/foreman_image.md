@@ -18,7 +18,7 @@ resource "foreman_image" "example" {
 
 The following arguments are supported:
 
-- `archictecture_id` - (Optional) 
+- `architecture_id` - (Optional) 
 - `compute_resource_id` - (Optional) 
 - `name` - (Required) 
 - `operating_system_id` - (Optional) 
@@ -30,7 +30,7 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-- `archictecture_id` - 
+- `architecture_id` - 
 - `compute_resource_id` - 
 - `name` - 
 - `operating_system_id` - 

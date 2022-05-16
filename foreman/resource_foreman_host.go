@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -13,9 +14,9 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/imdario/mergo"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/structure"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceForemanHost() *schema.Resource {
@@ -106,10 +107,10 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			"manage_build": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-				Removed:  "The feature was merged into the new key managed",
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Default:    true,
+				Deprecated: "The feature was merged into the new key managed",
 				Description: "REMOVED, please use the new 'managed' key instead." +
 					" Create host only, don't set build status or manage power states",
 			},
@@ -137,10 +138,10 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			"bmc_success": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-				Removed:  "The feature no longer exists",
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Default:    true,
+				Deprecated: "The feature no longer exists",
 				Description: fmt.Sprintf(
 					"REMOVED - Tracks the partial state of BMC operations on host "+
 						"creation. If these operations fail, the host will be created in "+
@@ -259,7 +260,7 @@ func resourceForemanHost() *schema.Resource {
 
 			"compute_attributes": &schema.Schema{
 				Type:             schema.TypeString,
-				ValidateFunc:     validation.ValidateJsonString,
+				ValidateFunc:     validation.StringIsJSON,
 				Optional:         true,
 				Computed:         true,
 				Description:      "Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema",
@@ -304,7 +305,7 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				ValidateFunc: validation.SingleIP(),
+				ValidateFunc: validation.IsIPAddress,
 				Description:  "IP address associated with the interface.",
 			},
 			"name": &schema.Schema{
@@ -480,13 +481,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		hostTags := d.Get("parameters").(map[string]interface{})
-		for key, value := range hostTags {
-			host.HostParameters = append(host.HostParameters, api.ForemanKVParameter{
-				Name:  key,
-				Value: value.(string),
-			})
-		}
+		host.HostParameters = api.ToKV(attr.(map[string]string))
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -637,14 +632,9 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
-	host_parameters := make(map[string]string)
-	for _, parameter := range fh.HostParameters {
-		host_parameters[parameter.Name] = parameter.Value
-	}
-
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
-	d.Set("parameters", host_parameters)
+	d.Set("parameters", api.FromKV(fh.HostParameters))
 
 	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
 		log.Printf("[WARN] error setting compute attributes: %s", err)
@@ -663,24 +653,6 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("image_id", fh.ImageId)
 	d.Set("model_id", fh.ModelId)
 	d.Set("puppet_class_ids", fh.PuppetClassIds)
-
-	// In partial mode, flag keys below as completed successfully
-	d.SetPartial("name")
-	d.SetPartial("comment")
-	d.SetPartial("parameters")
-	d.SetPartial("compute_attributes")
-	d.SetPartial("domain_id")
-	d.SetPartial("environment_id")
-	d.SetPartial("owner_id")
-	d.SetPartial("owner_type")
-	d.SetPartial("hostgroup_id")
-	d.SetPartial("compute_resource_id")
-	d.SetPartial("compute_profile_id")
-	d.SetPartial("operatingsystem_id")
-	d.SetPartial("medium_id")
-	d.SetPartial("image_id")
-	d.SetPartial("model_id")
-	d.SetPartial("enable_bmc")
 
 	setResourceDataFromForemanInterfacesAttributes(d, fh)
 }
@@ -747,9 +719,6 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 	// with the array set up, create the *schema.Set and set the ResourceData's
 	// "interfaces_attributes" property
 	d.Set("interfaces_attributes", ifaceArr)
-
-	// For partial state, passing a prefix will flag all nested keys as successful
-	d.SetPartial("interfaces_attributes")
 }
 
 // -----------------------------------------------------------------------------
@@ -976,7 +945,7 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 	return string(json)
 }
 
-func resourceForemanHostCustomizeDiff(d *schema.ResourceDiff, m interface{}) error {
+func resourceForemanHostCustomizeDiff(context context.Context, d *schema.ResourceDiff, m interface{}) error {
 	oldVal, newVal := d.GetChange("compute_attributes")
 
 	oldMap := expandComputeAttributes(oldVal.(string))
