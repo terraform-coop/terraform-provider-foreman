@@ -90,7 +90,7 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 			"parameters": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeMap,
 				ForceNew: false,
 				Computed: true,
 				Optional: true,
