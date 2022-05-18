@@ -58,6 +58,9 @@ func resourceForemanDomain() *schema.Resource {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Description: "A map of parameters that will be saved as domain parameters " +
 					"in the domain config.",
 			},
@@ -89,7 +92,7 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 	}
 
 	if attr, ok = d.GetOk("parameters"); ok {
-		domain.DomainParameters = api.ToKV(attr.(map[string]string))
+		domain.DomainParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	return &domain

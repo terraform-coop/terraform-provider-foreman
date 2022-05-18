@@ -90,10 +90,13 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 			"parameters": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeMap,
 				ForceNew: false,
 				Computed: true,
 				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Description: "A map of parameters that will be saved as host parameters " +
 					"in the machine config.",
 			},
@@ -398,7 +401,10 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 					"`\"IPMI\"`",
 			},
 			"compute_attributes": &schema.Schema{
-				Type:        schema.TypeMap,
+				Type: schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Optional:    true,
 				Description: "Hypervisor specific interface options",
 			},
@@ -482,7 +488,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		host.HostParameters = api.ToKV(attr.(map[string]string))
+		host.HostParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)

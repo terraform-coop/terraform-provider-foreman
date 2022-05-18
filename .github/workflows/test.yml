@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: 1.18.x
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
   test:
     strategy:
@@ -27,10 +27,19 @@ jobs:
     steps:
     - name: Install Go
       if: success()
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Run tests
+      uses: actions/checkout@v3
+    - name: Run go code tests
       run: go test ./... -v -covermode=count
+    - name: Compile terraform provider binary
+      run: go build
+    - name: Install terraform
+      uses: hashicorp/setup-terraform@v2
+    - name: Test provider integrity
+      run: terraform plan -input=false -no-color
+      working-directory: ./examples/verify_provider
+      env:
+        TF_CLI_CONFIG_FILE: tfoverriderc

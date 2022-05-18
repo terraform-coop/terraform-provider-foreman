@@ -170,6 +170,9 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Description: "A map of parameters that will be saved as operating system parameters " +
 					"in the os config.",
 			},
@@ -234,7 +237,7 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 		os.PartitiontableIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		os.OperatingSystemParameters = api.ToKV(attr.(map[string]string))
+		os.OperatingSystemParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	return &os
