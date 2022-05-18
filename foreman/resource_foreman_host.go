@@ -94,6 +94,9 @@ func resourceForemanHost() *schema.Resource {
 				ForceNew: false,
 				Computed: true,
 				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Description: "A map of parameters that will be saved as host parameters " +
 					"in the machine config.",
 			},
@@ -398,7 +401,10 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 					"`\"IPMI\"`",
 			},
 			"compute_attributes": &schema.Schema{
-				Type:        schema.TypeMap,
+				Type: schema.TypeMap,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 				Optional:    true,
 				Description: "Hypervisor specific interface options",
 			},
