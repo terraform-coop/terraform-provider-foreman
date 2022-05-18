@@ -321,7 +321,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 		hostgroup.SubnetId = attr.(int)
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		hostgroup.HostGroupParameters = api.ToKV(attr.(map[string]string))
+		hostgroup.HostGroupParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	return &hostgroup

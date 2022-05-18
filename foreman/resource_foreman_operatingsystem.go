@@ -237,7 +237,7 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 		os.PartitiontableIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		os.OperatingSystemParameters = api.ToKV(attr.(map[string]string))
+		os.OperatingSystemParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	return &os

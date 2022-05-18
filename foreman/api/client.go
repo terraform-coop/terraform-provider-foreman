@@ -89,13 +89,13 @@ func FromKV(kv []ForemanKVParameter) (ret map[string]string) {
 	return ret
 }
 
-func ToKV(m map[string]string) (ret []ForemanKVParameter) {
+func ToKV(m map[string]interface{}) (ret []ForemanKVParameter) {
 	ret = make([]ForemanKVParameter, len(m))
 
 	for key, value := range m {
 		ret = append(ret, ForemanKVParameter{
 			Name:  key,
-			Value: value,
+			Value: value.(string),
 		})
 	}
 	return ret

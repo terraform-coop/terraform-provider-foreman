@@ -488,7 +488,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
-		host.HostParameters = api.ToKV(attr.(map[string]string))
+		host.HostParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)

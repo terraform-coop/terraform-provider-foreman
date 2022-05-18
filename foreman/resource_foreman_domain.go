@@ -92,7 +92,7 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 	}
 
 	if attr, ok = d.GetOk("parameters"); ok {
-		domain.DomainParameters = api.ToKV(attr.(map[string]string))
+		domain.DomainParameters = api.ToKV(attr.(map[string]interface{}))
 	}
 
 	return &domain
