@@ -39,7 +39,7 @@ jobs:
     - name: Install terraform
       uses: hashicorp/setup-terraform@v2
     - name: Test provider integrity
-      run: terraform plan
+      run: terraform plan -input=false -no-color
       working-directory: ./examples/verify_provider
       env:
         TF_CLI_CONFIG_FILE: tfoverriderc

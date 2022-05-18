@@ -6,7 +6,6 @@ terraform {
   }
 }
 
-variable "client_username" {}
 
 provider "foreman" {
   server_hostname = "localhost"
@@ -14,8 +13,8 @@ provider "foreman" {
 
   client_tls_insecure = true
 
-  client_username = var.client_username
-  client_password = var.client_password
+  client_username = "admin"
+  client_password = "null"
 }
 
 resource "foreman_smartproxy" "main" {
