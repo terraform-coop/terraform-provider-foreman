@@ -275,6 +275,7 @@ func resourceForemanHost() *schema.Resource {
 			"interfaces_attributes": &schema.Schema{
 				Type:        schema.TypeList,
 				Optional:    true,
+				Computed:    true,
 				Elem:        resourceForemanInterfacesAttributes(),
 				Description: "Host interface information.",
 			},
