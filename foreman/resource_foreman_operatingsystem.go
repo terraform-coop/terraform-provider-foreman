@@ -24,7 +24,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 		DeleteContext: resourceForemanOperatingSystemDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

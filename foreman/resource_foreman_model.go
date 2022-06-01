@@ -22,7 +22,7 @@ func resourceForemanModel() *schema.Resource {
 		DeleteContext: resourceForemanModelDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

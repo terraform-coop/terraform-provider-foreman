@@ -24,7 +24,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 
 		// TODO - passthrough cannot be used as d.Id() is not sufficient to retrieve the resource
 		// Importer: &schema.ResourceImporter{
-		// 	State: schema.ImportStatePassthrough,
+		// 	StateContext: schema.ImportStatePassthroughContext,
 		// },
 
 		Schema: map[string]*schema.Schema{
