@@ -24,7 +24,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 		DeleteContext: resourceForemanPartitionTableDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		// NOTE(ALL): See the note in setResourceDataFromForemanPartitionTable -

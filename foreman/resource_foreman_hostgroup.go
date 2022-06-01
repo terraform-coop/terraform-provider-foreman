@@ -24,7 +24,7 @@ func resourceForemanHostgroup() *schema.Resource {
 		DeleteContext: resourceForemanHostgroupDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

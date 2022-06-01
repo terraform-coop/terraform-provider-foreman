@@ -30,7 +30,7 @@ func resourceForemanHost() *schema.Resource {
 		CustomizeDiff: resourceForemanHostCustomizeDiff,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{

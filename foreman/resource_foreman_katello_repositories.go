@@ -23,7 +23,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 		DeleteContext: resourceForemanKatelloRepositoryDelete,
 
 		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
+			StateContext: schema.ImportStatePassthroughContext,
 		},
 
 		Schema: map[string]*schema.Schema{
