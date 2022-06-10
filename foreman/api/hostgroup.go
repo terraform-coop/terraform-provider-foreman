@@ -73,7 +73,6 @@ type ForemanHostgroup struct {
 	ContentViewId int `json:"content_view_id,omitempty"`
 	// ID of Smart Proxy serving the content
 	ContentSourceId int `json:"content_source_id,omitempty"`
-
 	// Map of HostGroupParameters
 	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes,omitempty"`
 }
@@ -81,113 +80,10 @@ type ForemanHostgroup struct {
 // ForemanHostgroup struct used for JSON decode.  Foreman API returns the ids
 // back as a list of ForemanObjects with some of the attributes of the data
 // types. However, we are only interested in the IDs returned.
-type foremanHgRespJSON struct {
-	PuppetClasses []ForemanObject `json:"puppetclasses"`
-}
-
-// Implement the Marshaler interface
-func (fh ForemanHostgroup) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/hostgroup.go#MarshalJSON")
-
-	// NOTE(ALL): omit the "title" property from the JSON marshal since it is a
-	//   computed value
-
-	fhMap := map[string]interface{}{}
-
-	fhMap["name"] = fh.Name
-	fhMap["root_pass"] = fh.RootPassword
-	fhMap["pxe_loader"] = fh.PXELoader
-
-	fhMap["architecture_id"] = intIdToJSONString(fh.ArchitectureId)
-	fhMap["compute_profile_id"] = intIdToJSONString(fh.ComputeProfileId)
-	fhMap["content_source_id"] = intIdToJSONString(fh.ContentSourceId)
-	fhMap["content_view_id"] = intIdToJSONString(fh.ContentViewId)
-	fhMap["domain_id"] = intIdToJSONString(fh.DomainId)
-	fhMap["environment_id"] = intIdToJSONString(fh.EnvironmentId)
-	fhMap["lifecycle_environment_id"] = intIdToJSONString(fh.LifecycleId)
-	fhMap["medium_id"] = intIdToJSONString(fh.MediumId)
-	fhMap["operatingsystem_id"] = intIdToJSONString(fh.OperatingSystemId)
-	fhMap["parent_id"] = intIdToJSONString(fh.ParentId)
-	fhMap["ptable_id"] = intIdToJSONString(fh.PartitionTableId)
-	fhMap["puppet_ca_proxy_id"] = intIdToJSONString(fh.PuppetCAProxyId)
-	fhMap["puppet_proxy_id"] = intIdToJSONString(fh.PuppetProxyId)
-	fhMap["realm_id"] = intIdToJSONString(fh.RealmId)
-	fhMap["subnet_id"] = intIdToJSONString(fh.SubnetId)
-
-	if len(fh.HostGroupParameters) > 0 {
-		fhMap["group_parameters_attributes"] = fh.HostGroupParameters
-	}
-
-	// Prevent empty slice being ecoded as null
-	if len(fh.PuppetClassIds) > 0 {
-		fhMap["puppetclass_ids"] = fh.PuppetClassIds
-	} else {
-		no_ids := make([]int, 0)
-		fhMap["puppetclass_ids"] = no_ids
-	}
-
-	log.Debugf("fhMap: [%v]", fhMap)
-
-	return json.Marshal(fhMap)
-}
-
-func (fh *ForemanHostgroup) UnmarshalJSON(b []byte) error {
-	var jsonDecErr error
-
-	// Unmarshal the common Foreman object properties
-	var fo ForemanObject
-	jsonDecErr = json.Unmarshal(b, &fo)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fh.ForemanObject = fo
-
-	var foJSON foremanHgRespJSON
-	jsonDecErr = json.Unmarshal(b, &foJSON)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fh.PuppetClassIds = foremanObjectArrayToIdIntArray(foJSON.PuppetClasses)
-
-	// Unmarshal into mapstructure and set the rest of the struct properties
-	var fhMap map[string]interface{}
-	jsonDecErr = json.Unmarshal(b, &fhMap)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-
-	var ok bool
-	if fh.Title, ok = fhMap["title"].(string); !ok {
-		fh.Title = ""
-	}
-	if fh.RootPassword, ok = fhMap["root_password"].(string); !ok {
-		fh.RootPassword = ""
-	}
-	if fh.PXELoader, ok = fhMap["pxe_loader"].(string); !ok {
-		fh.PXELoader = ""
-	}
-	if fh.HostGroupParameters, ok = fhMap["group_parameters_attributes"].([]ForemanKVParameter); !ok {
-		fh.HostGroupParameters = []ForemanKVParameter{}
-	}
-
-	// Unmarshal the remaining foreign keys to their id
-	fh.ArchitectureId = unmarshalInteger(fhMap["architecture_id"])
-	fh.ComputeProfileId = unmarshalInteger(fhMap["compute_profile_id"])
-	fh.ContentSourceId = unmarshalInteger(fhMap["content_source_id"])
-	fh.ContentViewId = unmarshalInteger(fhMap["content_view_id"])
-	fh.DomainId = unmarshalInteger(fhMap["domain_id"])
-	fh.EnvironmentId = unmarshalInteger(fhMap["environment_id"])
-	fh.LifecycleId = unmarshalInteger(fhMap["lifecycle_environment_id"])
-	fh.MediumId = unmarshalInteger(fhMap["medium_id"])
-	fh.OperatingSystemId = unmarshalInteger(fhMap["operatingsystem_id"])
-	fh.ParentId = unmarshalInteger(fhMap["parent_id"])
-	fh.PartitionTableId = unmarshalInteger(fhMap["ptable_id"])
-	fh.PuppetCAProxyId = unmarshalInteger(fhMap["puppet_ca_proxy_id"])
-	fh.PuppetProxyId = unmarshalInteger(fhMap["puppet_proxy_id"])
-	fh.RealmId = unmarshalInteger(fhMap["realm_id"])
-	fh.SubnetId = unmarshalInteger(fhMap["subnet_id"])
-
-	return nil
+type foremanHostGroupDecode struct {
+	ForemanHostgroup
+	PuppetClassesDecode       []ForemanObject      `json:"puppetclasses"`
+	HostGroupParametersDecode []ForemanKVParameter `json:"parameters,omitempty"`
 }
 
 // -----------------------------------------------------------------------------
@@ -248,15 +144,18 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 		return nil, reqErr
 	}
 
-	var readHostgroup ForemanHostgroup
+	var readHostgroup foremanHostGroupDecode
 	sendErr := c.SendAndParse(req, &readHostgroup)
 	if sendErr != nil {
 		return nil, sendErr
 	}
 
+	readHostgroup.PuppetClassIds = foremanObjectArrayToIdIntArray(readHostgroup.PuppetClassesDecode)
+	readHostgroup.HostGroupParameters = readHostgroup.HostGroupParametersDecode
+
 	log.Debugf("readHostgroup: [%+v]", readHostgroup)
 
-	return &readHostgroup, nil
+	return &readHostgroup.ForemanHostgroup, nil
 }
 
 // UpdateHostgroup updates a ForemanHostgroup's attributes.  The hostgroup with
