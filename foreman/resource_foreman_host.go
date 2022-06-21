@@ -20,18 +20,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-func resourceForemanHost() *schema.Resource {
+func resourceForemanHostV0() *schema.Resource {
 	return &schema.Resource{
-
-		CreateContext: resourceForemanHostCreate,
-		ReadContext:   resourceForemanHostRead,
-		UpdateContext: resourceForemanHostUpdate,
-		DeleteContext: resourceForemanHostDelete,
-		CustomizeDiff: resourceForemanHostCustomizeDiff,
-
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
 
 		Schema: map[string]*schema.Schema{
 
@@ -145,6 +135,280 @@ func resourceForemanHost() *schema.Resource {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Default:    true,
+				Deprecated: "The feature no longer exists",
+				Description: fmt.Sprintf(
+					"REMOVED - Tracks the partial state of BMC operations on host "+
+						"creation. If these operations fail, the host will be created in "+
+						"Foreman and this boolean will remain `false`. On the next "+
+						"`terraform apply` will trigger the host update to pick back up "+
+						"with the BMC operations. "+
+						"%s",
+					autodoc.MetaUnexported,
+				),
+			},
+
+			"owner_type": &schema.Schema{
+				Type:         schema.TypeString,
+				ForceNew:     false,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.StringLenBetween(0, 255),
+				Description:  fmt.Sprintf("Owner of the host, must be either User ot Usergroup"),
+			},
+
+			// -- Foreign Key Relationships --
+
+			"owner_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     false,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the user or usergroup that owns the host.",
+			},
+
+			"domain_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the domain to assign to the host.",
+			},
+
+			"domain_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The domain name of the host.",
+			},
+
+			"environment_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the environment to assign to the host.",
+			},
+			"operatingsystem_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the operating system to put on the host.",
+			},
+			"medium_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the medium mounted on the host.",
+			},
+			"hostgroup_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the hostgroup to assign to the host.",
+			},
+			"image_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				ForceNew:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of an image to be used as base for this host when cloning",
+			},
+			"model_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the hardware model if applicable",
+			},
+			"puppet_class_ids": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "IDs of the applied puppet classes.",
+			},
+			"compute_resource_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+			"compute_profile_id": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     false,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
+
+			"compute_attributes": &schema.Schema{
+				Type:             schema.TypeString,
+				ValidateFunc:     validation.StringIsJSON,
+				Optional:         true,
+				Computed:         true,
+				Description:      "Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema",
+				DiffSuppressFunc: structure.SuppressJsonDiff,
+			},
+
+			// -- Key Components --
+			"interfaces_attributes": &schema.Schema{
+				Type:        schema.TypeList,
+				Optional:    true,
+				Computed:    true,
+				Elem:        resourceForemanInterfacesAttributes(),
+				Description: "Host interface information.",
+			},
+		},
+	}
+}
+
+func resourceForemanHostStateUpgradeV0(ctx context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
+	rawState["build"] = rawState["method"] == "build"
+	rawState["managed"] = rawState["manage_build"]
+
+	return rawState, nil
+}
+
+func resourceForemanHost() *schema.Resource {
+	return &schema.Resource{
+
+		CreateContext: resourceForemanHostCreate,
+		ReadContext:   resourceForemanHostRead,
+		UpdateContext: resourceForemanHostUpdate,
+		DeleteContext: resourceForemanHostDelete,
+		CustomizeDiff: resourceForemanHostCustomizeDiff,
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
+		SchemaVersion: 1,
+		StateUpgraders: []schema.StateUpgrader{
+			{
+				Type:    resourceForemanHostV0().CoreConfigSchema().ImpliedType(),
+				Upgrade: resourceForemanHostStateUpgradeV0,
+				Version: 0,
+			},
+		},
+		Schema: map[string]*schema.Schema{
+
+			autodoc.MetaAttribute: &schema.Schema{
+				Type:     schema.TypeBool,
+				Computed: true,
+				Description: fmt.Sprintf(
+					"%s A host managed by Foreman.",
+					autodoc.MetaSummary,
+				),
+			},
+
+			// -- Required --
+
+			"name": &schema.Schema{
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Required: true,
+				Description: fmt.Sprintf(
+					"Host fully qualified domain name. "+
+						"%s \"compute01.dc1.company.com\"",
+					autodoc.MetaExample,
+				),
+				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
+					domainName := d.Get("domain_name").(string)
+					if domainName == "" || !(strings.Contains(new, domainName) || strings.Contains(old, domainName)) {
+						return false
+					}
+					return strings.Replace(old, "."+domainName, "", 1) == strings.Replace(new, "."+domainName, "", 1)
+				},
+			},
+
+			// -- Optional --
+
+			"method": &schema.Schema{
+				Type:       schema.TypeString,
+				Optional:   true,
+				Deprecated: "The argument is handled by build instead",
+				ValidateFunc: validation.StringInSlice([]string{
+					"build",
+					"image",
+				}, false),
+				Description: "REMOVED - use build argument instead to manage build flag of host.",
+			},
+
+			"comment": &schema.Schema{
+				Type:         schema.TypeString,
+				ForceNew:     false,
+				Computed:     true,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(0, 255),
+				Description: fmt.Sprintf("Add additional information about this host." +
+					"Note: Changes to this attribute will trigger a host rebuild.",
+				),
+			},
+			"parameters": &schema.Schema{
+				Type:     schema.TypeMap,
+				ForceNew: false,
+				Computed: true,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+				Description: "A map of parameters that will be saved as host parameters " +
+					"in the machine config.",
+			},
+
+			"enable_bmc": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: "Enables PMI/BMC functionality. On create and update " +
+					"calls, having this enabled will force a host to poweroff, set next " +
+					"boot to PXE and power on. Defaults to `false`.",
+			},
+
+			"manage_build": &schema.Schema{
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "The feature was merged into the new key managed",
+				Description: "REMOVED, please use the new 'managed' key instead." +
+					" Create host only, don't set build status or manage power states",
+			},
+
+			"managed": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: "Whether or not this host is managed by Foreman." +
+					" Create host only, don't set build status or manage power states.",
+			},
+			"build": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
+					"which means host will be built at next boot.",
+			},
+			"retry_count": &schema.Schema{
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Default:      2,
+				Description:  "Number of times to retry on a failed attempt to register or delete a host in foreman.",
+				ValidateFunc: validation.IntAtLeast(1),
+			},
+
+			"bmc_success": &schema.Schema{
+				Type:       schema.TypeBool,
+				Optional:   true,
 				Deprecated: "The feature no longer exists",
 				Description: fmt.Sprintf(
 					"REMOVED - Tracks the partial state of BMC operations on host "+

@@ -534,3 +534,31 @@ func ResourceForemanHostMockResponseTestCases(t *testing.T) []TestCaseMockRespon
 	}
 
 }
+
+func testResourceHostStateDataV0() map[string]interface{} {
+	return map[string]interface{}{
+		"method":       "build",
+		"manage_build": true,
+	}
+}
+func testResourceHostStateDataV1() map[string]interface{} {
+	return map[string]interface{}{
+		"method":       "build",
+		"manage_build": true,
+		"build":        true,
+		"managed":      true,
+	}
+}
+
+func TestResourceHostStateUpgradeV0(t *testing.T) {
+	expected := testResourceHostStateDataV1()
+	actual, err := resourceForemanHostStateUpgradeV0(nil, testResourceHostStateDataV0(), nil)
+
+	if err != nil {
+		t.Fatalf("error migrating state: %s", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
+	}
+}
