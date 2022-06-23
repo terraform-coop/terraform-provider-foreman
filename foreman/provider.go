@@ -315,7 +315,10 @@ func providerConfigure(context context.Context, d *schema.ResourceData) (interfa
 	response = append(response, diag.Diagnostic{
 		Severity: diag.Warning,
 		Summary:  "Provider moved to new location",
-		Detail:   "The provider HanseMerkur/foreman has been moved to a new group in the registry. Versions newer than 0.5.0 can be directly used from the new location in the registry.",
+		Detail: "The provider HanseMerkur/foreman has been moved to a new group in the registry. " +
+			"Versions 0.5.1 and newer can be directly used from the new location in the registry. " +
+			"The new provider registry address is terraform-coop/foreman. " +
+			"The source repository has been moved to https://github.com/terraform-coop/terraform-provider-foreman",
 	})
 
 	return client, response
