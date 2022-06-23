@@ -4,8 +4,7 @@ Terraform provider to interact with [Foreman](https://www.theforeman.org/).
 
 ## Migration notice
 
-The provider will be moved to a new group at https://github.com/terraform-coop
-with the new URL https://github.com/terraform-coop/terraform-provider-foreman.
+The provider will as moved from its previous location at https://github.com/HanseMerkur/terraform-provider-foreman
 
 Versions 0.5.1 and newer can be directly used from the new location in the registry.
 The new provider registry address is terraform-coop/foreman.
