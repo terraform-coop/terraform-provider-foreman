@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"log"
 	"net/url"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
 	logger "github.com/HanseMerkur/terraform-provider-utils/log"
 
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -230,7 +232,7 @@ func Provider() *schema.Provider {
 			"foreman_user":                       dataSourceForemanUser(),
 			"foreman_usergroup":                  dataSourceForemanUsergroup(),
 		},
-		ConfigureFunc: providerConfigure,
+		ConfigureContextFunc: providerConfigure,
 	}
 
 }
@@ -238,7 +240,7 @@ func Provider() *schema.Provider {
 // providerConfigure uses the configuration values from the terraform file to
 // configure the provider.  Returns an authenticated REST client for
 // communication with Foreman.
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
+func providerConfigure(context context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 
 	var ok bool
 
@@ -309,7 +311,14 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		OrganizationID: d.Get("organization_id").(int),
 	}
 
-	return config.Client()
+	client, response := config.Client()
+	response = append(response, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "Provider moved to new location",
+		Detail:   "The provider HanseMerkur/foreman has been moved to a new group in the registry. Versions newer than 0.5.0 can be directly used from the new location in the registry.",
+	})
+
+	return client, response
 }
 
 // InitLogger initialize the provider's shared logging instance. The shared
