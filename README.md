@@ -89,7 +89,7 @@ section:
     binary is located at `terraform.d/plugins/windows_amd64/terraform-provider-foreman.exe`
     and then try step 3 again.
 
-## [Documentation](https://hansemerkur.github.io/terraform-provider-foreman/)
+## [Documentation](https://terraform-coop.github.io/terraform-provider-foreman/)
 
 This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation.
 Follow the installation instructions on
