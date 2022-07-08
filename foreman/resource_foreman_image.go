@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -143,7 +143,7 @@ func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta 
 
 	readImage, readErr := client.ReadImage(ctx, image)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanImage: [%+v]", readImage)

@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -332,7 +332,7 @@ func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta
 
 	readSubnet, readErr := client.ReadSubnet(ctx, s.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanSubnet: [%+v]", readSubnet)
@@ -369,5 +369,5 @@ func resourceForemanSubnetDelete(ctx context.Context, d *schema.ResourceData, me
 
 	log.Debugf("ForemanSubnet: [%+v]", s)
 
-	return diag.FromErr(client.DeleteSubnet(ctx, s.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteSubnet(ctx, s.Id)))
 }

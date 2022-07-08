@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -189,7 +189,7 @@ func resourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceDa
 
 	readKatelloProduct, readErr := client.ReadKatelloProduct(ctx, product.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanKatelloProduct: [%+v]", readKatelloProduct)
@@ -227,5 +227,5 @@ func resourceForemanKatelloProductDelete(ctx context.Context, d *schema.Resource
 
 	log.Debugf("ForemanKatelloProduct: [%+v]", product)
 
-	return diag.FromErr(client.DeleteKatelloProduct(ctx, product.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloProduct(ctx, product.Id)))
 }

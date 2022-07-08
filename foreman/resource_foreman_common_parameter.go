@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -121,7 +121,7 @@ func resourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceD
 
 	readCommonParameter, readErr := client.ReadCommonParameter(ctx, commonParameter, commonParameter.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanCommonParameter: [%+v]", readCommonParameter)
@@ -159,5 +159,5 @@ func resourceForemanCommonParameterDelete(ctx context.Context, d *schema.Resourc
 
 	log.Debugf("ForemanCommonParameter: [%+v]", p)
 
-	return diag.FromErr(client.DeleteCommonParameter(ctx, p, p.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteCommonParameter(ctx, p, p.Id)))
 }

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -143,7 +143,7 @@ func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta
 
 	readDomain, readErr := client.ReadDomain(ctx, domain.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanDomain: [%+v]", readDomain)
@@ -180,5 +180,5 @@ func resourceForemanDomainDelete(ctx context.Context, d *schema.ResourceData, me
 
 	log.Debugf("ForemanDomain: [%+v]", do)
 
-	return diag.FromErr(client.DeleteDomain(ctx, do.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteDomain(ctx, do.Id)))
 }
