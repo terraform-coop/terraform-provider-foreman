@@ -14,6 +14,7 @@ import (
 	"github.com/dpotapov/go-spnego"
 
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 const (
@@ -73,6 +74,25 @@ type Client struct {
 
 	// Keep a copy of the client configuration for use in API calls
 	clientConfig ClientConfig
+}
+
+type HTTPError struct {
+	Endpoint   string
+	StatusCode int
+	RespBody   string
+}
+
+func (e HTTPError) Error() string {
+	return fmt.Sprintf(
+		"HTTP Error:{\n"+
+			"  endpoint:   [%s]\n"+
+			"  statusCode: [%d]\n"+
+			"  respBody:   [%s]\n"+
+			"}",
+		e.Endpoint,
+		e.StatusCode,
+		e.RespBody,
+	)
 }
 
 // KVParameters are used in all inline Parameter Maps. i.e. Host, HostGroup
@@ -329,22 +349,25 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 	)
 
 	if statusCode < 200 || statusCode > 299 {
-		return fmt.Errorf(
-			"HTTP Error:{\n"+
-				"  endpoint:   [%s]\n"+
-				"  statusCode: [%d]\n"+
-				"  respBody:   [%s]\n"+
-				"}",
-			req.URL,
-			statusCode,
-			respBody,
-		)
+		return HTTPError{req.URL.String(), statusCode, string(respBody[:])}
 	}
 
 	if obj != nil {
 		return json.Unmarshal(respBody, &obj)
 	}
 	return nil
+}
+
+// Taken from terraform-openstack-provider
+// CheckDeleted checks the error to see if it's a 404 (Not Found) and, if so,
+// sets the resource ID to the empty string instead of throwing an error.
+func CheckDeleted(d *schema.ResourceData, err error) error {
+	if httpError, ok := err.(HTTPError); ok && httpError.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
+
+	return err
 }
 
 // wrapParameter wraps the given parameters as an object of its own name
