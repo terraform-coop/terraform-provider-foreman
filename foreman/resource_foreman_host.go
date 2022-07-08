@@ -20,6 +20,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
+const (
+	DEFAULT_RETRY_COUNT = 2
+)
+
 func resourceForemanHostV0() *schema.Resource {
 	return &schema.Resource{
 
@@ -126,7 +130,7 @@ func resourceForemanHostV0() *schema.Resource {
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      2,
+				Default:      DEFAULT_RETRY_COUNT,
 				Description:  "Number of times to retry on a failed attempt to register or delete a host in foreman.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
@@ -1081,6 +1085,10 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 	log.Debugf("Read ForemanHost: [%+v]", readHost)
 
 	setResourceDataFromForemanHost(d, readHost)
+
+	if d.Get("retry_count").(int) == 0 {
+		d.Set("retry_count", DEFAULT_RETRY_COUNT)
+	}
 
 	return nil
 }
