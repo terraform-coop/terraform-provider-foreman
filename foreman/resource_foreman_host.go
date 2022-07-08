@@ -8,20 +8,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/imdario/mergo"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-)
-
-const (
-	DEFAULT_RETRY_COUNT = 2
 )
 
 func resourceForemanHostV0() *schema.Resource {
@@ -130,7 +126,7 @@ func resourceForemanHostV0() *schema.Resource {
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
-				Default:      DEFAULT_RETRY_COUNT,
+				Default:      2,
 				Description:  "Number of times to retry on a failed attempt to register or delete a host in foreman.",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
@@ -1079,16 +1075,12 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	readHost, readErr := client.ReadHost(ctx, h.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanHost: [%+v]", readHost)
 
 	setResourceDataFromForemanHost(d, readHost)
-
-	if d.Get("retry_count").(int) == 0 {
-		d.Set("retry_count", DEFAULT_RETRY_COUNT)
-	}
 
 	return nil
 }
@@ -1181,7 +1173,7 @@ func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta
 	//   returns no errors
 	returnDelete := client.DeleteHost(ctx, h.Id)
 	if returnDelete != nil {
-		return diag.FromErr(returnDelete)
+		return diag.FromErr(api.CheckDeleted(d, returnDelete))
 	}
 	retry := 0
 	for retry < hostRetryCount {

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 )
 
 func resourceForemanUser() *schema.Resource {
@@ -245,7 +245,7 @@ func resourceForemanUserRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	readUser, readErr := client.ReadUser(ctx, u.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanUser: [%+v]", readUser)
@@ -285,5 +285,5 @@ func resourceForemanUserDelete(ctx context.Context, d *schema.ResourceData, meta
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return diag.FromErr(client.DeleteUser(ctx, u.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteUser(ctx, u.Id)))
 }

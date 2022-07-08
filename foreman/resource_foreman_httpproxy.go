@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -127,7 +127,7 @@ func resourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData, m
 
 	readHTTPProxy, readErr := client.ReadHTTPProxy(ctx, p.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanHTTPProxy: [%+v]", readHTTPProxy)
@@ -167,5 +167,5 @@ func resourceForemanHTTPProxyDelete(ctx context.Context, d *schema.ResourceData,
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return diag.FromErr(client.DeleteHTTPProxy(ctx, p.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteHTTPProxy(ctx, p.Id)))
 }

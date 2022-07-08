@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -119,7 +119,7 @@ func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData,
 
 	readEnvironment, readErr := client.ReadEnvironment(ctx, e.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanEnvironment: [%+v]", readEnvironment)
@@ -158,5 +158,5 @@ func resourceForemanEnvironmentDelete(ctx context.Context, d *schema.ResourceDat
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return diag.FromErr(client.DeleteEnvironment(ctx, e.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteEnvironment(ctx, e.Id)))
 }

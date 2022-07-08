@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -176,7 +176,7 @@ func resourceForemanKatelloSyncPlanRead(ctx context.Context, d *schema.ResourceD
 
 	readKatelloSyncPlan, readErr := client.ReadKatelloSyncPlan(ctx, syncPlan.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanKatelloSyncPlan: [%+v]", readKatelloSyncPlan)
@@ -214,5 +214,5 @@ func resourceForemanKatelloSyncPlanDelete(ctx context.Context, d *schema.Resourc
 
 	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
-	return diag.FromErr(client.DeleteKatelloSyncPlan(ctx, syncPlan.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloSyncPlan(ctx, syncPlan.Id)))
 }

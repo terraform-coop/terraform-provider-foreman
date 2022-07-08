@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -397,7 +397,7 @@ func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.Resourc
 
 	readKatelloRepository, readErr := client.ReadKatelloRepository(ctx, repository.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
@@ -435,5 +435,5 @@ func resourceForemanKatelloRepositoryDelete(ctx context.Context, d *schema.Resou
 
 	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
-	return diag.FromErr(client.DeleteKatelloRepository(ctx, repository.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloRepository(ctx, repository.Id)))
 }

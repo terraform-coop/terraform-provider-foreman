@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -183,7 +183,7 @@ func resourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta 
 
 	readMedia, readErr := client.ReadMedia(ctx, m.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("Read ForemanMedia: [%+v]", readMedia)
@@ -223,5 +223,5 @@ func resourceForemanMediaDelete(ctx context.Context, d *schema.ResourceData, met
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
-	return diag.FromErr(client.DeleteMedia(ctx, m.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteMedia(ctx, m.Id)))
 }

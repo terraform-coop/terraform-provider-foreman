@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -296,7 +296,7 @@ func resourceForemanOperatingSystemRead(ctx context.Context, d *schema.ResourceD
 
 	readOS, readErr := client.ReadOperatingSystem(ctx, o.Id)
 	if readErr != nil {
-		return diag.FromErr(readErr)
+		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
 	log.Debugf("ForemanOperatingSystem: [%+v]", readOS)
@@ -337,5 +337,5 @@ func resourceForemanOperatingSystemDelete(ctx context.Context, d *schema.Resourc
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
-	return diag.FromErr(client.DeleteOperatingSystem(ctx, o.Id))
+	return diag.FromErr(api.CheckDeleted(d, client.DeleteOperatingSystem(ctx, o.Id)))
 }
