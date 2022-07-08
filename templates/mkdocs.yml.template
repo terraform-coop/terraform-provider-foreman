@@ -5,8 +5,8 @@
 # ------------------------------------------------------------------------------
 
 site_name: Terraform Provider Foreman
-site_url: https://github.com/HanseMerkur/terraform-provider-foreman
-repo_url: https://github.com/HanseMerkur/terraform-provider-foreman
+site_url: https://github.com/terraform-coop/terraform-provider-foreman
+repo_url: https://github.com/terraform-coop/terraform-provider-foreman
 repo_name: terraform-provider-foreman
 #edit_uri:
 #site_description:

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
