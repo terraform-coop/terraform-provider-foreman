@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/HanseMerkur/terraform-provider-foreman/foreman"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )

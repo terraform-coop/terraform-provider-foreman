@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/HanseMerkur/terraform-provider-foreman/foreman/api"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	logger "github.com/HanseMerkur/terraform-provider-utils/log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"

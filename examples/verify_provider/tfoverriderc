@@ -1,6 +1,6 @@
 provider_installation {
   dev_overrides {
-    "HanseMerkur/foreman" = "../../"
+    "terraform-coop/foreman" = "../../"
   }
   direct {}
 }

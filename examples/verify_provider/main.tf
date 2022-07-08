@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     foreman = {
-      source = "HanseMerkur/foreman"
+      source = "terraform-coop/foreman"
     }
   }
 }
