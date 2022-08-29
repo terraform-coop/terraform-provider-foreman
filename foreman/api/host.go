@@ -341,7 +341,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, reqErr
 	}
 
-	var updatedHost ForemanHost
+	var updatedHost foremanHostDecode
 	retry := 0
 	var sendErr error
 	// retry until the successful Host Update
@@ -364,9 +364,12 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	if len(computeAttributes) > 0 {
 		updatedHost.ComputeAttributes = computeAttributes
 	}
+	updatedHost.InterfacesAttributes = updatedHost.InterfacesAttributesDecode
+	updatedHost.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHost.PuppetClassesDecode)
+	updatedHost.HostParameters = updatedHost.HostParametersDecode
 	log.Debugf("updatedHost: [%+v]", updatedHost)
 
-	return &updatedHost, nil
+	return &updatedHost.ForemanHost, nil
 }
 
 // DeleteHost deletes the ForemanHost identified by the supplied ID
