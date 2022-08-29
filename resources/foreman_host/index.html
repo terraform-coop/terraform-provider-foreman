@@ -212,9 +212,10 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>image_id</code> - (Optional, Force New) ID of an image to be used as base for this host when cloning</li>
 <li><code>interfaces_attributes</code> - (Optional) Host interface information.</li>
 <li><code>manage_build</code> - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states</li>
+<li><code>manage_power_operations</code> - (Optional) Manage power operations, e.g. power on, if host's build flag will be enabled.</li>
 <li><code>managed</code> - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
-<li><code>method</code> - (Optional, Force New) REMOVED - use build argument instead to manage build flag of host.</li>
+<li><code>method</code> - (Optional) REMOVED - use build argument instead to manage build flag of host.</li>
 <li><code>model_id</code> - (Optional) ID of the hardware model if applicable</li>
 <li><code>name</code> - (Required, Force New) Host fully qualified domain name.</li>
 <li><code>operatingsystem_id</code> - (Optional, Force New) ID of the operating system to put on the host.</li>
@@ -240,6 +241,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>image_id</code> - ID of an image to be used as base for this host when cloning</li>
 <li><code>interfaces_attributes</code> - Host interface information.</li>
 <li><code>manage_build</code> - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states</li>
+<li><code>manage_power_operations</code> - Manage power operations, e.g. power on, if host's build flag will be enabled.</li>
 <li><code>managed</code> - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - ID of the medium mounted on the host.</li>
 <li><code>method</code> - REMOVED - use build argument instead to manage build flag of host.</li>
