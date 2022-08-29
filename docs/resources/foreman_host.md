@@ -32,9 +32,10 @@ The following arguments are supported:
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - (Optional) Host interface information.
 - `manage_build` - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
+- `manage_power_operations` - (Optional) Manage power operations, e.g. power on, if host's build flag will be enabled.
 - `managed` - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
-- `method` - (Optional, Force New) REMOVED - use build argument instead to manage build flag of host.
+- `method` - (Optional) REMOVED - use build argument instead to manage build flag of host.
 - `model_id` - (Optional) ID of the hardware model if applicable
 - `name` - (Required, Force New) Host fully qualified domain name.
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
@@ -62,6 +63,7 @@ The following attributes are exported:
 - `image_id` - ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - Host interface information.
 - `manage_build` - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
+- `manage_power_operations` - Manage power operations, e.g. power on, if host's build flag will be enabled.
 - `managed` - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - ID of the medium mounted on the host.
 - `method` - REMOVED - use build argument instead to manage build flag of host.

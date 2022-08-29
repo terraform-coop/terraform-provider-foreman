@@ -127,6 +127,12 @@ func resourceForemanHostV0() *schema.Resource {
 				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
 					"which means host will be built at next boot.",
 			},
+			"manage_power_operations": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Manage power operations, e.g. power on, if host's build flag will be enabled.",
+			},
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -401,6 +407,12 @@ func resourceForemanHost() *schema.Resource {
 				Default:  true,
 				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
 					"which means host will be built at next boot.",
+			},
+			"manage_power_operations": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     true,
+				Description: "Manage power operations, e.g. power on, if host's build flag will be enabled.",
 			},
 			"retry_count": &schema.Schema{
 				Type:         schema.TypeInt,
@@ -1027,40 +1039,44 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	setResourceDataFromForemanHost(d, createdHost)
 
 	enablebmc := d.Get("enable_bmc").(bool)
+	ManagePowerOperations := d.Get("manage_power_operations").(bool)
 
-	var powerCmds []interface{}
-	// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
-	// Don't modify power state at all if we're not managing the build
-	if enablebmc {
-		log.Debugf("Calling BMC Reboot/PXE Functions")
-		// List of BMC Actions to perform
-		powerCmds = []interface{}{
-			api.BMCBoot{
-				Device: api.BootPxe,
-			},
-			api.Power{
-				PowerAction: api.PowerCycle,
-			},
+	// Manage power operations only if needed, default is true
+	if ManagePowerOperations {
+		var powerCmds []interface{}
+		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
+		// Don't modify power state at all if we're not managing the build
+		if enablebmc {
+			log.Debugf("Calling BMC Reboot/PXE Functions")
+			// List of BMC Actions to perform
+			powerCmds = []interface{}{
+				api.BMCBoot{
+					Device: api.BootPxe,
+				},
+				api.Power{
+					PowerAction: api.PowerCycle,
+				},
+			}
+		} else if managed {
+			log.Debugf("Using default Foreman behaviour for startup")
+			powerCmds = []interface{}{
+				api.Power{
+					PowerAction: api.PowerOn,
+				},
+			}
 		}
-	} else if managed {
-		log.Debugf("Using default Foreman behaviour for startup")
-		powerCmds = []interface{}{
-			api.Power{
-				PowerAction: api.PowerOn,
-			},
-		}
-	}
 
-	// Loop through each of the above BMC Operations and execute.
-	// In the event fo any failure, exit with error
-	for _, cmd := range powerCmds {
-		sendErr := client.SendPowerCommand(ctx, createdHost, cmd, hostRetryCount)
-		if sendErr != nil {
-			return diag.FromErr(sendErr)
+		// Loop through each of the above BMC Operations and execute.
+		// In the event fo any failure, exit with error
+		for _, cmd := range powerCmds {
+			sendErr := client.SendPowerCommand(ctx, createdHost, cmd, hostRetryCount)
+			if sendErr != nil {
+				return diag.FromErr(sendErr)
+			}
+			// Sleep for 3 seconds between chained BMC calls
+			duration := time.Duration(3) * time.Second
+			time.Sleep(duration)
 		}
-		// Sleep for 3 seconds between chained BMC calls
-		duration := time.Duration(3) * time.Second
-		time.Sleep(duration)
 	}
 
 	// Disable partial mode
