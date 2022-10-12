@@ -75,4 +75,5 @@ The following attributes are exported:
 - `parameters` - A map of parameters that will be saved as host parameters in the machine config.
 - `puppet_class_ids` - IDs of the applied puppet classes.
 - `retry_count` - Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `token` - Build token. Can be used to signal to Foreman that a host build is complete.
 

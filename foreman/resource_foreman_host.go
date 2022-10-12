@@ -551,6 +551,12 @@ func resourceForemanHost() *schema.Resource {
 				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 
+			"token": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Build token. Can be used to signal to Foreman that a host build is complete.",
+			},
+
 			// -- Key Components --
 			"interfaces_attributes": &schema.Schema{
 				Type:        schema.TypeList,
@@ -718,6 +724,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	host.DomainName = d.Get("domain_name").(string)
 	host.Managed = d.Get("managed").(bool)
 	host.Build = d.Get("build").(bool)
+	host.Token = d.Get("token").(string)
 
 	ownerId := d.Get("owner_id").(int)
 	if ownerId != 0 {
@@ -941,6 +948,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("image_id", fh.ImageId)
 	d.Set("model_id", fh.ModelId)
 	d.Set("puppet_class_ids", fh.PuppetClassIds)
+	d.Set("token", fh.Token)
 
 	setResourceDataFromForemanInterfacesAttributes(d, fh)
 }

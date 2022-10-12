@@ -93,6 +93,8 @@ type ForemanHost struct {
 	ComputeProfileId *int `json:"compute_profile_id,omitempty"`
 	// IDs of the puppet classes applied to the host
 	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
+	// Build token
+	Token string `json:"token,omitempty"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
