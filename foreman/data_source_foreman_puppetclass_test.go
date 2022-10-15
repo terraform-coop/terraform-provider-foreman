@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 )
 
 // -----------------------------------------------------------------------------
@@ -53,6 +53,19 @@ func RandForemanPuppetClass() api.ForemanPuppetClass {
 
 	// The name must be hardcoded to match the test data
 	obj.Name = "testing"
+
+	return obj
+}
+
+// Creates a random nested ForemanPuppetClass struct
+func RandForemanNestedPuppetClass() api.ForemanPuppetClass {
+	obj := api.ForemanPuppetClass{}
+
+	fo := RandForemanObject()
+	obj.ForemanObject = fo
+
+	// The name must be hardcoded to match the test data
+	obj.Name = "apache::dev"
 
 	return obj
 }
@@ -164,6 +177,9 @@ func DataSourceForemanPuppetClassMockResponseTestCases(t *testing.T) []TestCaseM
 	obj := RandForemanPuppetClass()
 	s := ForemanPuppetClassToInstanceState(obj)
 
+	obj_nested := RandForemanNestedPuppetClass()
+	s_nested := ForemanPuppetClassToInstanceState(obj_nested)
+
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
@@ -201,6 +217,20 @@ func DataSourceForemanPuppetClassMockResponseTestCases(t *testing.T) []TestCaseM
 			expectedResourceData: MockForemanPuppetClasslResourceDataFromFile(
 				t,
 				PuppetClassessTestDataPath+"/query_response_single_state.json",
+			),
+			compareFunc: ForemanPuppetClassResourceDataCompare,
+		},
+		TestCaseMockResponse{
+			TestCase: TestCase{
+				funcName:     "dataSourceForemanPuppetClassRead",
+				crudFunc:     dataSourceForemanPuppetClassRead,
+				resourceData: MockForemanPuppetClassResourceData(s_nested),
+			},
+			responseFile: PuppetClassessTestDataPath + "/query_response_colon.json",
+			returnError:  false,
+			expectedResourceData: MockForemanPuppetClasslResourceDataFromFile(
+				t,
+				PuppetClassessTestDataPath+"/query_response_colon_state.json",
 			),
 			compareFunc: ForemanPuppetClassResourceDataCompare,
 		},
