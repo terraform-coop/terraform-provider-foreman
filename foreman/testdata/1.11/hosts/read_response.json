@@ -22,7 +22,7 @@
   "ptable_name": "Default CentOS",
   "medium_id": 29,
   "medium_name": "Centosmirror01.bo1.company.com",
-  "build": false,
+  "build": true,
   "comment": null,
   "disk": null,
   "installed_at": null,
