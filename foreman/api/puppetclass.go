@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -92,11 +93,19 @@ func (c *Client) QueryPuppetClass(ctx context.Context, t *ForemanPuppetClass) (Q
 
 	log.Debugf("queryResponse: [%+v]", queryResponse)
 
+	nestedIndex := strings.Index(t.Name, ":")
+	var indexName string
+	if nestedIndex > 0 {
+		indexName = string(t.Name[0:nestedIndex])
+	} else {
+		indexName = t.Name
+	}
+
 	// Results will be Unmarshaled into a []map[string]interface{}
 	// Encode back to JSON, then Unmarshal into []ForemanPuppetClass for
 	// the results
 	results := []ForemanPuppetClass{}
-	resultsBytes, jsonEncErr := json.Marshal(queryResponse.Results[t.Name])
+	resultsBytes, jsonEncErr := json.Marshal(queryResponse.Results[indexName])
 	if jsonEncErr != nil {
 		return QueryResponse{}, jsonEncErr
 	}
