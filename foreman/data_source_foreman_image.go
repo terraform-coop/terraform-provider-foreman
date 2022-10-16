@@ -27,7 +27,7 @@ func dataSourceForemanImage() *schema.Resource {
 	ds["compute_resource_id"] = &schema.Schema{
 		Type:        schema.TypeInt,
 		Required:    true,
-		Description: fmt.Sprintf("The id of the Compute Resource the image is associated with"),
+		Description: "The id of the Compute Resource the image is associated with",
 	}
 
 	return &schema.Resource{

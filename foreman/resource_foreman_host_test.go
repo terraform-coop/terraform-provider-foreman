@@ -1,6 +1,7 @@
 package foreman
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -552,7 +553,7 @@ func testResourceHostStateDataV1() map[string]interface{} {
 
 func TestResourceHostStateUpgradeV0(t *testing.T) {
 	expected := testResourceHostStateDataV1()
-	actual, err := resourceForemanHostStateUpgradeV0(nil, testResourceHostStateDataV0(), nil)
+	actual, err := resourceForemanHostStateUpgradeV0(context.TODO(), testResourceHostStateDataV0(), nil)
 
 	if err != nil {
 		t.Fatalf("error migrating state: %s", err)

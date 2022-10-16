@@ -163,7 +163,7 @@ func resourceForemanHostV0() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
-				Description:  fmt.Sprintf("Owner of the host, must be either User ot Usergroup"),
+				Description:  "Owner of the host, must be either User ot Usergroup",
 			},
 
 			// -- Foreign Key Relationships --
@@ -443,7 +443,7 @@ func resourceForemanHost() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.StringLenBetween(0, 255),
-				Description:  fmt.Sprintf("Owner of the host, must be either User ot Usergroup"),
+				Description:  "Owner of the host, must be either User ot Usergroup",
 			},
 
 			// -- Foreign Key Relationships --

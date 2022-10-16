@@ -66,7 +66,7 @@ func RandForemanOverrideValue() api.ForemanOverrideValue {
 
 	obj.MatchType = match_types[rand.Intn(3)]
 	obj.MatchValue = tfrand.String(50, tfrand.Lower+" .")
-	obj.Omit = omit_values[rand.Intn(1)]
+	obj.Omit = omit_values[rand.Intn(len(omit_values))]
 	obj.SmartClassParameterId = rand.Intn(20)
 	obj.Value = tfrand.String(50, tfrand.Lower+" .")
 

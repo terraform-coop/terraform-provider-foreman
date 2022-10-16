@@ -145,10 +145,10 @@ func validateOverrideMatchMap(d *schema.ResourceData) error {
 	matchParams := d.Get("match").(map[string]interface{})
 
 	if _, ok := matchParams["type"].(string); !ok {
-		return errors.New("override match type must be set!")
+		return errors.New("override match type must be set")
 	}
 	if _, ok := matchParams["value"].(string); !ok {
-		return errors.New("override match value must be set!")
+		return errors.New("override match value must be set")
 	}
 
 	return nil

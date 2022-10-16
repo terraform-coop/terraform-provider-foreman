@@ -55,12 +55,9 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				),
 			},
 			"label": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: fmt.Sprintf(
-					"%s",
-					autodoc.MetaExample,
-				),
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: autodoc.MetaExample,
 			},
 			"product_id": {
 				Type:     schema.TypeInt,
