@@ -27,7 +27,7 @@ func resourceForemanModel() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -36,7 +36,7 @@ func resourceForemanModel() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -46,19 +46,19 @@ func resourceForemanModel() *schema.Resource {
 				),
 			},
 
-			"info": &schema.Schema{
+			"info": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Additional information about this hardware model.",
 			},
 
-			"vendor_class": &schema.Schema{
+			"vendor_class": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Name or class of the hardware vendor.",
 			},
 
-			"hardware_model": &schema.Schema{
+			"hardware_model": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Name of the specific hardware model.",

@@ -16,7 +16,7 @@ func DataSourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []Tes
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartProxyRead",
 				crudFunc:     dataSourceForemanSmartProxyRead,
@@ -39,7 +39,7 @@ func DataSourceForemanSmartProxyRequestDataEmptyTestCases(t *testing.T) []TestCa
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSmartProxyRead",
 			crudFunc:     dataSourceForemanSmartProxyRead,
 			resourceData: MockForemanSmartProxyResourceData(s),
@@ -55,7 +55,7 @@ func DataSourceForemanSmartProxyStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSmartProxyRead",
 			crudFunc:     dataSourceForemanSmartProxyRead,
 			resourceData: MockForemanSmartProxyResourceData(s),
@@ -71,7 +71,7 @@ func DataSourceForemanSmartProxyEmptyResponseTestCases(t *testing.T) []TestCase 
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSmartProxyRead",
 			crudFunc:     dataSourceForemanSmartProxyRead,
 			resourceData: MockForemanSmartProxyResourceData(s),
@@ -89,7 +89,7 @@ func DataSourceForemanSmartProxyMockResponseTestCases(t *testing.T) []TestCaseMo
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartProxyRead",
 				crudFunc:     dataSourceForemanSmartProxyRead,
@@ -100,7 +100,7 @@ func DataSourceForemanSmartProxyMockResponseTestCases(t *testing.T) []TestCaseMo
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartProxyRead",
 				crudFunc:     dataSourceForemanSmartProxyRead,
@@ -112,7 +112,7 @@ func DataSourceForemanSmartProxyMockResponseTestCases(t *testing.T) []TestCaseMo
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartProxyRead",
 				crudFunc:     dataSourceForemanSmartProxyRead,

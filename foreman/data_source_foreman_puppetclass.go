@@ -20,7 +20,7 @@ func dataSourceForemanPuppetClass() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -28,7 +28,7 @@ func dataSourceForemanPuppetClass() *schema.Resource {
 					autodoc.MetaSummary,
 				),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(

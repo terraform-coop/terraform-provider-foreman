@@ -28,7 +28,7 @@ func resourceForemanDefaultTemplate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -39,19 +39,19 @@ func resourceForemanDefaultTemplate() *schema.Resource {
 				),
 			},
 
-			"operatingsystem_id": &schema.Schema{
+			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "ID of the operating system to assign this Default Template to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
-			"provisioningtemplate_id": &schema.Schema{
+			"provisioningtemplate_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Id of the Provisioning Template",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
-			"templatekind_id": &schema.Schema{
+			"templatekind_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Description:  "Template Kind Id to define the Default Template",

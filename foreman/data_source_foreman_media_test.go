@@ -16,7 +16,7 @@ func DataSourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCase
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanMediaRead",
 				crudFunc:     dataSourceForemanMediaRead,
@@ -39,7 +39,7 @@ func DataSourceForemanMediaRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanMediaRead",
 			crudFunc:     dataSourceForemanMediaRead,
 			resourceData: MockForemanMediaResourceData(s),
@@ -55,7 +55,7 @@ func DataSourceForemanMediaStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanMediaRead",
 			crudFunc:     dataSourceForemanMediaRead,
 			resourceData: MockForemanMediaResourceData(s),
@@ -71,7 +71,7 @@ func DataSourceForemanMediaEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanMediaRead",
 			crudFunc:     dataSourceForemanMediaRead,
 			resourceData: MockForemanMediaResourceData(s),
@@ -89,7 +89,7 @@ func DataSourceForemanMediaMockResponseTestCases(t *testing.T) []TestCaseMockRes
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanMediaRead",
 				crudFunc:     dataSourceForemanMediaRead,
@@ -100,7 +100,7 @@ func DataSourceForemanMediaMockResponseTestCases(t *testing.T) []TestCaseMockRes
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanMediaRead",
 				crudFunc:     dataSourceForemanMediaRead,
@@ -112,7 +112,7 @@ func DataSourceForemanMediaMockResponseTestCases(t *testing.T) []TestCaseMockRes
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanMediaRead",
 				crudFunc:     dataSourceForemanMediaRead,

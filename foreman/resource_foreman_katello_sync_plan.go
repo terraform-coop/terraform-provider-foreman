@@ -28,7 +28,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -37,7 +37,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -47,7 +47,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 				),
 			},
 
-			"interval": &schema.Schema{
+			"interval": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -63,7 +63,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"sync_date": &schema.Schema{
+			"sync_date": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -72,7 +72,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -81,7 +81,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"enabled": &schema.Schema{
+			"enabled": {
 				Type:     schema.TypeBool,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -90,7 +90,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"cron_expression": &schema.Schema{
+			"cron_expression": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(

@@ -28,7 +28,7 @@ func resourceForemanUser() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -37,62 +37,62 @@ func resourceForemanUser() *schema.Resource {
 				),
 			},
 
-			"login": &schema.Schema{
+			"login": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Username used for logging-in",
 			},
 
-			"admin": &schema.Schema{
+			"admin": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "If the user is allow admin privileges",
 			},
 
-			"firstname": &schema.Schema{
+			"firstname": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "First name of the user",
 			},
 
-			"lastname": &schema.Schema{
+			"lastname": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Last name of user",
 			},
 
-			"mail": &schema.Schema{
+			"mail": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Email of user",
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Description of user",
 			},
 
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Sensitive:   true,
 				Description: "Password of user, required if auth_source_id is 1 (internal)",
 			},
 
-			"default_location_id": &schema.Schema{
+			"default_location_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Default location for the user, if empty takes global default",
 			},
 
-			"default_organization_id": &schema.Schema{
+			"default_organization_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Default organization for the user, if empty takes global default",
 			},
 
-			"auth_source_id": &schema.Schema{
+			"auth_source_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      1,
@@ -100,13 +100,13 @@ func resourceForemanUser() *schema.Resource {
 				Description:  "Set the authentication source, i.e internal (1,default) or external (2)",
 			},
 
-			"locale": &schema.Schema{
+			"locale": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Sets the timezone/location of a user",
 			},
 
-			"location_ids": &schema.Schema{
+			"location_ids": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
@@ -115,7 +115,7 @@ func resourceForemanUser() *schema.Resource {
 				Description: "List of all locations a user has access to",
 			},
 
-			"organization_ids": &schema.Schema{
+			"organization_ids": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,

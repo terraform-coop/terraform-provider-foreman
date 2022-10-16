@@ -34,7 +34,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -43,7 +43,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -53,7 +53,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 				),
 			},
 
-			"layout": &schema.Schema{
+			"layout": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -63,14 +63,14 @@ func resourceForemanPartitionTable() *schema.Resource {
 				),
 			},
 
-			"snippet": &schema.Schema{
+			"snippet": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: "Whether or not this partition table is a snippet to be " +
 					"embedded in other partition tables.",
 			},
 
-			"audit_comment": &schema.Schema{
+			"audit_comment": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: "Any audit comments to associate with the partition " +
@@ -78,14 +78,14 @@ func resourceForemanPartitionTable() *schema.Resource {
 					"to document the template changes.",
 			},
 
-			"locked": &schema.Schema{
+			"locked": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: "Whether or not this partition table is locked " +
 					"for editing.",
 			},
 
-			"os_family": &schema.Schema{
+			"os_family": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -112,7 +112,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"operatingsystem_ids": &schema.Schema{
+			"operatingsystem_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -122,7 +122,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 				Description: "IDs of the operating system associated with this partition table.",
 			},
 
-			"hostgroup_ids": &schema.Schema{
+			"hostgroup_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -132,7 +132,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 				Description: "IDs of the hostgroups associated with this partition table.",
 			},
 
-			"host_ids": &schema.Schema{
+			"host_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,

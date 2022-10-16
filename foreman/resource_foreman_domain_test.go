@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -154,7 +154,7 @@ func ResourceForemanDomainCorrectURLAndMethodTestCases(t *testing.T) []TestCaseC
 	domainsURIById := DomainsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanDomainRead",
 				crudFunc:     resourceForemanDomainRead,
@@ -179,7 +179,7 @@ func ResourceForemanDomainRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanDomainToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanDomainRead",
 			crudFunc:     resourceForemanDomainRead,
 			resourceData: MockForemanDomainResourceData(s),
@@ -195,7 +195,7 @@ func ResourceForemanDomainStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanDomainToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanDomainRead",
 			crudFunc:     resourceForemanDomainRead,
 			resourceData: MockForemanDomainResourceData(s),
@@ -210,7 +210,7 @@ func ResourceForemanDomainEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanDomainToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanDomainRead",
 			crudFunc:     resourceForemanDomainRead,
 			resourceData: MockForemanDomainResourceData(s),
@@ -228,7 +228,7 @@ func ResourceForemanDomainMockResponseTestCases(t *testing.T) []TestCaseMockResp
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanDomainRead",
 				crudFunc:     resourceForemanDomainRead,

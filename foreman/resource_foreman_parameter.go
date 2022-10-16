@@ -28,7 +28,7 @@ func resourceForemanParameter() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -39,35 +39,35 @@ func resourceForemanParameter() *schema.Resource {
 				),
 			},
 
-			"host_id": &schema.Schema{
+			"host_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				Description:  "ID of the host to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
-			"hostgroup_id": &schema.Schema{
+			"hostgroup_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				Description:  "ID of the host group to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
-			"operatingsystem_id": &schema.Schema{
+			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				Description:  "ID of the operating system to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
-			"domain_id": &schema.Schema{
+			"domain_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				Description:  "ID of the domain to assign this parameter to",
 				ValidateFunc: validation.IntAtLeast(1),
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -75,11 +75,11 @@ func resourceForemanParameter() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 			// -- Actual Content --
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"value": &schema.Schema{
+			"value": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

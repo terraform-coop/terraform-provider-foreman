@@ -19,10 +19,10 @@ const (
 
 // The ForemanTemplateKind API model represents a category of provisioning
 // template. Examples include:
-//   1. PXELinux
-//   2. provision
-//   3. PXEGrub
-//   4. ZTP
+//  1. PXELinux
+//  2. provision
+//  3. PXEGrub
+//  4. ZTP
 type ForemanTemplateKind struct {
 	// Inherits the base object's attributes
 	ForemanObject

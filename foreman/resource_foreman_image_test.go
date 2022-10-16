@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -161,7 +161,7 @@ func ResourceForemanImageCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 	imageURIById := ImagesURI + "/" + strconv.Itoa(obj.ComputeResourceID) + "/images/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanImageRead",
 				crudFunc:     resourceForemanImageRead,
@@ -186,7 +186,7 @@ func ResourceForemanImageRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanImageToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanImageRead",
 			crudFunc:     resourceForemanImageRead,
 			resourceData: MockForemanImageResourceData(s),
@@ -202,7 +202,7 @@ func ResourceForemanImageStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanImageToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanImageRead",
 			crudFunc:     resourceForemanImageRead,
 			resourceData: MockForemanImageResourceData(s),
@@ -217,7 +217,7 @@ func ResourceForemanImageEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanImageToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanImageRead",
 			crudFunc:     resourceForemanImageRead,
 			resourceData: MockForemanImageResourceData(s),
@@ -235,7 +235,7 @@ func ResourceForemanImageMockResponseTestCases(t *testing.T) []TestCaseMockRespo
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanImageRead",
 				crudFunc:     resourceForemanImageRead,

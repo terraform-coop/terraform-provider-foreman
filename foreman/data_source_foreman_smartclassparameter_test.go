@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -98,7 +98,7 @@ func DataSourceForemanSmartClassParameterCorrectURLAndMethodTestCases(t *testing
 	s := ForemanSmartClassParameterToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartClassParameterRead",
 				crudFunc:     dataSourceForemanSmartClassParameterRead,
@@ -121,7 +121,7 @@ func DataSourceForemanSmartClassParameterRequestDataEmptyTestCases(t *testing.T)
 	s := ForemanSmartClassParameterToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSmartClassParameterRead",
 			crudFunc:     dataSourceForemanSmartClassParameterRead,
 			resourceData: MockForemanSmartClassParameterResourceData(s),
@@ -137,7 +137,7 @@ func DataSourceForemanSmartClassParameterStatusCodeTestCases(t *testing.T) []Tes
 	s := ForemanSmartClassParameterToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSmartClassParameterRead",
 			crudFunc:     dataSourceForemanSmartClassParameterRead,
 			resourceData: MockForemanSmartClassParameterResourceData(s),
@@ -153,7 +153,7 @@ func DataSourceForemanSmartClassParameterEmptyResponseTestCases(t *testing.T) []
 	s := ForemanSmartClassParameterToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSmartClassParameterRead",
 			crudFunc:     dataSourceForemanSmartClassParameterRead,
 			resourceData: MockForemanSmartClassParameterResourceData(s),
@@ -171,7 +171,7 @@ func DataSourceForemanSmartClassParameterMockResponseTestCases(t *testing.T) []T
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartClassParameterRead",
 				crudFunc:     dataSourceForemanSmartClassParameterRead,
@@ -182,7 +182,7 @@ func DataSourceForemanSmartClassParameterMockResponseTestCases(t *testing.T) []T
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartClassParameterRead",
 				crudFunc:     dataSourceForemanSmartClassParameterRead,
@@ -194,7 +194,7 @@ func DataSourceForemanSmartClassParameterMockResponseTestCases(t *testing.T) []T
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSmartClassParameterRead",
 				crudFunc:     dataSourceForemanSmartClassParameterRead,

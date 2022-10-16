@@ -16,7 +16,7 @@ func DataSourceForemanEnvironmentCorrectURLAndMethodTestCases(t *testing.T) []Te
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanEnvironmentRead",
 				crudFunc:     dataSourceForemanEnvironmentRead,
@@ -39,7 +39,7 @@ func DataSourceForemanEnvironmentRequestDataEmptyTestCases(t *testing.T) []TestC
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanEnvironmentRead",
 			crudFunc:     dataSourceForemanEnvironmentRead,
 			resourceData: MockForemanEnvironmentResourceData(s),
@@ -55,7 +55,7 @@ func DataSourceForemanEnvironmentStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanEnvironmentRead",
 			crudFunc:     dataSourceForemanEnvironmentRead,
 			resourceData: MockForemanEnvironmentResourceData(s),
@@ -71,7 +71,7 @@ func DataSourceForemanEnvironmentEmptyResponseTestCases(t *testing.T) []TestCase
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanEnvironmentRead",
 			crudFunc:     dataSourceForemanEnvironmentRead,
 			resourceData: MockForemanEnvironmentResourceData(s),
@@ -89,7 +89,7 @@ func DataSourceForemanEnvironmentMockResponseTestCases(t *testing.T) []TestCaseM
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanEnvironmentRead",
 				crudFunc:     dataSourceForemanEnvironmentRead,
@@ -100,7 +100,7 @@ func DataSourceForemanEnvironmentMockResponseTestCases(t *testing.T) []TestCaseM
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanEnvironmentRead",
 				crudFunc:     dataSourceForemanEnvironmentRead,
@@ -112,7 +112,7 @@ func DataSourceForemanEnvironmentMockResponseTestCases(t *testing.T) []TestCaseM
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanEnvironmentRead",
 				crudFunc:     dataSourceForemanEnvironmentRead,

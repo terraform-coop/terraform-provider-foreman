@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -27,7 +27,7 @@ func dataSourceForemanImage() *schema.Resource {
 	ds["compute_resource_id"] = &schema.Schema{
 		Type:        schema.TypeInt,
 		Required:    true,
-		Description: fmt.Sprintf("The id of the Compute Resource the image is associated with"),
+		Description: "The id of the Compute Resource the image is associated with",
 	}
 
 	return &schema.Resource{

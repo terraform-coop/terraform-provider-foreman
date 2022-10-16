@@ -27,7 +27,7 @@ func resourceForemanKatelloProduct() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -35,7 +35,7 @@ func resourceForemanKatelloProduct() *schema.Resource {
 					autodoc.MetaSummary,
 				),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -44,7 +44,7 @@ func resourceForemanKatelloProduct() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -53,7 +53,7 @@ func resourceForemanKatelloProduct() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"gpg_key_id": &schema.Schema{
+			"gpg_key_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -90,7 +90,7 @@ func resourceForemanKatelloProduct() *schema.Resource {
 									autodoc.MetaExample,
 								),
 							}, */
-			"sync_plan_id": &schema.Schema{
+			"sync_plan_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -99,13 +99,10 @@ func resourceForemanKatelloProduct() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"label": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				Description: fmt.Sprintf(
-					"%s",
-					autodoc.MetaExample,
-				),
+			"label": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: autodoc.MetaExample,
 			},
 		},
 	}

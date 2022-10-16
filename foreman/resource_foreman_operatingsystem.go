@@ -29,7 +29,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -38,7 +38,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -48,7 +48,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				),
 			},
 
-			"major": &schema.Schema{
+			"major": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -58,7 +58,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				),
 			},
 
-			"minor": &schema.Schema{
+			"minor": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -68,7 +68,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				),
 			},
 
-			"title": &schema.Schema{
+			"title": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: "The operating system's title is a concatentation of " +
@@ -76,13 +76,13 @@ func resourceForemanOperatingSystem() *schema.Resource {
 					"system release.",
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Additional operating system information.",
 			},
 
-			"family": &schema.Schema{
+			"family": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -107,14 +107,14 @@ func resourceForemanOperatingSystem() *schema.Resource {
 					"`\"NXOS\"`, `\"Redhat\"`, `\"Solaris\"`, `\"Suse\"`, `\"Windows\"`.",
 			},
 
-			"release_name": &schema.Schema{
+			"release_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: "Code name or release name for the specific operating " +
 					"system version.",
 			},
 
-			"password_hash": &schema.Schema{
+			"password_hash": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "SHA512",
@@ -128,7 +128,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				Description: "Root password hash function to use. Valid values " +
 					"include: `\"MD5\"`, `\"SHA256\"`, `\"SHA512\"`, `\"Base64\"`.",
 			},
-			"provisioning_templates": &schema.Schema{
+			"provisioning_templates": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -138,7 +138,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				},
 				Description: "Identifiers of attached provisioning templates",
 			},
-			"media": &schema.Schema{
+			"media": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
@@ -147,7 +147,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				},
 				Description: "Identifiers of attached media",
 			},
-			"architectures": &schema.Schema{
+			"architectures": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
@@ -156,7 +156,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				},
 				Description: "Identifiers of attached architectures",
 			},
-			"partitiontables": &schema.Schema{
+			"partitiontables": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -166,7 +166,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 				},
 				Description: "Identifiers of attached partition tables",
 			},
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,

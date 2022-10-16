@@ -27,7 +27,7 @@ func resourceForemanImage() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -35,32 +35,32 @@ func resourceForemanImage() *schema.Resource {
 					autodoc.MetaSummary,
 				),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "",
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "",
 			},
-			"uuid": &schema.Schema{
+			"uuid": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "",
 			},
-			"compute_resource_id": &schema.Schema{
+			"compute_resource_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "",
 			},
-			"operating_system_id": &schema.Schema{
+			"operating_system_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "",
 			},
-			"architecture_id": &schema.Schema{
+			"architecture_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "",

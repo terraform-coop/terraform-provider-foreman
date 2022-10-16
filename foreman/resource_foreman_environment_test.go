@@ -150,7 +150,7 @@ func ResourceForemanEnvironmentCorrectURLAndMethodTestCases(t *testing.T) []Test
 	environmentsURIById := EnvironmentsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanEnvironmentRead",
 				crudFunc:     resourceForemanEnvironmentRead,
@@ -175,7 +175,7 @@ func ResourceForemanEnvironmentRequestDataEmptyTestCases(t *testing.T) []TestCas
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanEnvironmentRead",
 			crudFunc:     resourceForemanEnvironmentRead,
 			resourceData: MockForemanEnvironmentResourceData(s),
@@ -191,7 +191,7 @@ func ResourceForemanEnvironmentStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanEnvironmentRead",
 			crudFunc:     resourceForemanEnvironmentRead,
 			resourceData: MockForemanEnvironmentResourceData(s),
@@ -206,7 +206,7 @@ func ResourceForemanEnvironmentEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanEnvironmentToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanEnvironmentRead",
 			crudFunc:     resourceForemanEnvironmentRead,
 			resourceData: MockForemanEnvironmentResourceData(s),
@@ -224,7 +224,7 @@ func ResourceForemanEnvironmentMockResponseTestCases(t *testing.T) []TestCaseMoc
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanEnvironmentRead",
 				crudFunc:     resourceForemanEnvironmentRead,

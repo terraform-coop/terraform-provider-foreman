@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -20,7 +20,7 @@ func dataSourceForemanSmartClassParameter() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -29,7 +29,7 @@ func dataSourceForemanSmartClassParameter() *schema.Resource {
 				),
 			},
 
-			"parameter": &schema.Schema{
+			"parameter": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -39,7 +39,7 @@ func dataSourceForemanSmartClassParameter() *schema.Resource {
 				),
 			},
 
-			"puppetclass_id": &schema.Schema{
+			"puppetclass_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 				Description: fmt.Sprintf(

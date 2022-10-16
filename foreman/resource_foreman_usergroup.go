@@ -27,7 +27,7 @@ func resourceForemanUsergroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -36,7 +36,7 @@ func resourceForemanUsergroup() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -46,7 +46,7 @@ func resourceForemanUsergroup() *schema.Resource {
 				),
 			},
 
-			"admin": &schema.Schema{
+			"admin": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: fmt.Sprintf(

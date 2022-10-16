@@ -16,7 +16,7 @@ func DataSourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []T
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanArchitectureRead",
 				crudFunc:     dataSourceForemanArchitectureRead,
@@ -39,7 +39,7 @@ func DataSourceForemanArchitectureRequestDataEmptyTestCases(t *testing.T) []Test
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanArchitectureRead",
 			crudFunc:     dataSourceForemanArchitectureRead,
 			resourceData: MockForemanArchitectureResourceData(s),
@@ -55,7 +55,7 @@ func DataSourceForemanArchitectureStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanArchitectureRead",
 			crudFunc:     dataSourceForemanArchitectureRead,
 			resourceData: MockForemanArchitectureResourceData(s),
@@ -71,7 +71,7 @@ func DataSourceForemanArchitectureEmptyResponseTestCases(t *testing.T) []TestCas
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanArchitectureRead",
 			crudFunc:     dataSourceForemanArchitectureRead,
 			resourceData: MockForemanArchitectureResourceData(s),
@@ -89,7 +89,7 @@ func DataSourceForemanArchitectureMockResponseTestCases(t *testing.T) []TestCase
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanArchitectureRead",
 				crudFunc:     dataSourceForemanArchitectureRead,
@@ -100,7 +100,7 @@ func DataSourceForemanArchitectureMockResponseTestCases(t *testing.T) []TestCase
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanArchitectureRead",
 				crudFunc:     dataSourceForemanArchitectureRead,
@@ -112,7 +112,7 @@ func DataSourceForemanArchitectureMockResponseTestCases(t *testing.T) []TestCase
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanArchitectureRead",
 				crudFunc:     dataSourceForemanArchitectureRead,

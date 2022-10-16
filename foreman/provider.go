@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	logger "github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -57,7 +57,7 @@ func Provider() *schema.Provider {
 
 			// -- Provider Logging --
 
-			"provider_loglevel": &schema.Schema{
+			"provider_loglevel": {
 				Type:     schema.TypeString,
 				Optional: true,
 				DefaultFunc: schema.EnvDefaultFunc(
@@ -81,7 +81,7 @@ func Provider() *schema.Provider {
 					"`provider_logfile`. This can also be set through the environment " +
 					"variable `FOREMAN_PROVIDER_LOGLEVEL`. Defaults to `'INFO'`.",
 			},
-			"provider_logfile": &schema.Schema{
+			"provider_logfile": {
 				Type:     schema.TypeString,
 				Optional: true,
 				DefaultFunc: schema.EnvDefaultFunc(
@@ -100,12 +100,12 @@ func Provider() *schema.Provider {
 
 			// -- API Server configuration --
 
-			"server_hostname": &schema.Schema{
+			"server_hostname": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The hostname / IP address of the Foreman REST API server",
 			},
-			"server_protocol": &schema.Schema{
+			"server_protocol": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "https",
@@ -115,7 +115,7 @@ func Provider() *schema.Provider {
 
 			// -- REST client configuration --
 
-			"client_tls_insecure": &schema.Schema{
+			"client_tls_insecure": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -123,7 +123,7 @@ func Provider() *schema.Provider {
 					"Defaults to `false`.",
 			},
 
-			"client_auth_negotiate": &schema.Schema{
+			"client_auth_negotiate": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -133,7 +133,7 @@ func Provider() *schema.Provider {
 
 			// -- client credentials --
 
-			"client_username": &schema.Schema{
+			"client_username": {
 				Type:     schema.TypeString,
 				Optional: true,
 				DefaultFunc: schema.EnvDefaultFunc(
@@ -144,7 +144,7 @@ func Provider() *schema.Provider {
 					"also be set through the environment variable `FOREMAN_CLIENT_USERNAME`. " +
 					"Defaults to `\"\"`.",
 			},
-			"client_password": &schema.Schema{
+			"client_password": {
 				Type:     schema.TypeString,
 				Optional: true,
 				DefaultFunc: schema.EnvDefaultFunc(
@@ -157,7 +157,7 @@ func Provider() *schema.Provider {
 			},
 
 			// -- provider organization and location --
-			"organization_id": &schema.Schema{
+			"organization_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
@@ -165,7 +165,7 @@ func Provider() *schema.Provider {
 					"Defaults to \"0\". Set organization_id and location_id to a value < 0 if you need " +
 					"to disable Locations and Organizations on Foreman older than 1.21",
 			},
-			"location_id": &schema.Schema{
+			"location_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,

@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -175,7 +175,7 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 	httpProxiesURIByID := HTTPProxiesURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyCreate",
 				crudFunc:     resourceForemanHTTPProxyCreate,
@@ -188,7 +188,7 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyRead",
 				crudFunc:     resourceForemanHTTPProxyRead,
@@ -201,7 +201,7 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyUpdate",
 				crudFunc:     resourceForemanHTTPProxyUpdate,
@@ -214,7 +214,7 @@ func ResourceForemanHTTPProxyCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyDelete",
 				crudFunc:     resourceForemanHTTPProxyDelete,
@@ -239,12 +239,12 @@ func ResourceForemanHTTPProxyRequestDataEmptyTestCases(t *testing.T) []TestCase 
 	s := ForemanHTTPProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyRead",
 			crudFunc:     resourceForemanHTTPProxyRead,
 			resourceData: MockForemanHTTPProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyDelete",
 			crudFunc:     resourceForemanHTTPProxyDelete,
 			resourceData: MockForemanHTTPProxyResourceData(s),
@@ -264,7 +264,7 @@ func ResourceForemanHTTPProxyRequestDataTestCases(t *testing.T) []TestCaseReques
 	reqData, _ := json.Marshal(obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyCreate",
 				crudFunc:     resourceForemanHTTPProxyCreate,
@@ -272,7 +272,7 @@ func ResourceForemanHTTPProxyRequestDataTestCases(t *testing.T) []TestCaseReques
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyUpdate",
 				crudFunc:     resourceForemanHTTPProxyUpdate,
@@ -292,22 +292,22 @@ func ResourceForemanHTTPProxyStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanHTTPProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyCreate",
 			crudFunc:     resourceForemanHTTPProxyCreate,
 			resourceData: MockForemanHTTPProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyRead",
 			crudFunc:     resourceForemanHTTPProxyRead,
 			resourceData: MockForemanHTTPProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyUpdate",
 			crudFunc:     resourceForemanHTTPProxyUpdate,
 			resourceData: MockForemanHTTPProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyDelete",
 			crudFunc:     resourceForemanHTTPProxyDelete,
 			resourceData: MockForemanHTTPProxyResourceData(s),
@@ -322,17 +322,17 @@ func ResourceForemanHTTPProxyEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanHTTPProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyCreate",
 			crudFunc:     resourceForemanHTTPProxyCreate,
 			resourceData: MockForemanHTTPProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyRead",
 			crudFunc:     resourceForemanHTTPProxyRead,
 			resourceData: MockForemanHTTPProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHTTPProxyUpdate",
 			crudFunc:     resourceForemanHTTPProxyUpdate,
 			resourceData: MockForemanHTTPProxyResourceData(s),
@@ -350,7 +350,7 @@ func ResourceForemanHTTPProxyMockResponseTestCases(t *testing.T) []TestCaseMockR
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyCreate",
 				crudFunc:     resourceForemanHTTPProxyCreate,
@@ -367,7 +367,7 @@ func ResourceForemanHTTPProxyMockResponseTestCases(t *testing.T) []TestCaseMockR
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyRead",
 				crudFunc:     resourceForemanHTTPProxyRead,
@@ -384,7 +384,7 @@ func ResourceForemanHTTPProxyMockResponseTestCases(t *testing.T) []TestCaseMockR
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHTTPProxyUpdate",
 				crudFunc:     resourceForemanHTTPProxyUpdate,

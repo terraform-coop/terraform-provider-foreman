@@ -27,7 +27,7 @@ func resourceForemanComputeResource() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -38,55 +38,55 @@ func resourceForemanComputeResource() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Name of the compute resource",
 			},
-			"url": &schema.Schema{
+			"url": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "URL for Libvirt, oVirt, OpenStack and Rackspace",
 			},
-			"hypervisor": &schema.Schema{
+			"hypervisor": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: "The HyperVisor/Cloud Provider for this Compute Resource:" +
 					"supported providers include \"Libvirt\", \"Ovirt\", \"EC2\"," +
 					"\"Vmware\", \"Openstack\", \"Rackspace\", \"GCE\"",
 			},
-			"displaytype": &schema.Schema{
+			"displaytype": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "For Libvirt: \"VNC\" or \"SPICE\". For VMWare: \"VNC\" or \"VMRC\"",
 			},
-			"user": &schema.Schema{
+			"user": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Username for oVirt, EC2, VMware, OpenStack. Access Key for EC2.",
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Sensitive:   true,
 				Optional:    true,
 				Description: "Password for oVirt, EC2, VMware, OpenStack. Secret key for EC2",
 			},
-			"datacenter": &schema.Schema{
+			"datacenter": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "For oVirt, VMware Datacenter",
 			},
-			"server": &schema.Schema{
+			"server": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "For VMware",
 			},
-			"setconsolepassword": &schema.Schema{
+			"setconsolepassword": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "For Libvirt and VMware only",
 			},
-			"cachingenabled": &schema.Schema{
+			"cachingenabled": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "For VMware only",

@@ -3,11 +3,12 @@ package foreman
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -58,7 +59,7 @@ func NewForemanAPIAndClient(cred api.ClientCredentials, conf api.ClientConfig) (
 // file's contents into the supplied obj.  If there was an error when reading
 // the file or during the JSON unmarshal, the test reference will error.
 func ParseJSONFile(t *testing.T, path string, obj interface{}) {
-	bytes, readErr := ioutil.ReadFile(path)
+	bytes, readErr := os.ReadFile(path)
 	if readErr != nil {
 		t.Errorf(
 			"Could not read the file [%s]. Error: [%s]",
@@ -346,7 +347,7 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 		defer server.Close()
 
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			reqBytes, _ := ioutil.ReadAll(r.Body)
+			reqBytes, _ := io.ReadAll(r.Body)
 			bodyLen := len(reqBytes)
 			if bodyLen > 0 {
 				t.Fatalf(
@@ -398,7 +399,7 @@ func TestCRUDFunction_RequestData(t *testing.T) {
 		defer server.Close()
 
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			reqBytes, _ := ioutil.ReadAll(r.Body)
+			reqBytes, _ := io.ReadAll(r.Body)
 			bodyLen := len(reqBytes)
 			if bodyLen == 0 {
 				t.Fatalf(
@@ -687,7 +688,7 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 		defer server.Close()
 
 		mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			bytes, readErr := ioutil.ReadFile(testCase.responseFile)
+			bytes, readErr := os.ReadFile(testCase.responseFile)
 			if readErr != nil {
 				t.Fatalf(
 					"Error reading file [%s] to send as server response. Failing Test. Error: [%s]",

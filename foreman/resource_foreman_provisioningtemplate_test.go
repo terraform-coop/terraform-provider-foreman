@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -88,7 +88,7 @@ func RandForemanProvisioningTemplate() api.ForemanProvisioningTemplate {
 	obj.OperatingSystemIds = tfrand.IntArrayUnique(rand.Intn(5))
 
 	obj.TemplateCombinationsAttributes = make([]api.ForemanTemplateCombinationAttribute, rand.Intn(5))
-	for idx, _ := range obj.TemplateCombinationsAttributes {
+	for idx := range obj.TemplateCombinationsAttributes {
 		obj.TemplateCombinationsAttributes[idx] = api.ForemanTemplateCombinationAttribute{
 			Id:            rand.Intn(100),
 			HostgroupId:   rand.Intn(100),
@@ -259,7 +259,7 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 	provisioningTemplatesURIById := ProvisioningTemplatesURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateCreate",
 				crudFunc:     resourceForemanProvisioningTemplateCreate,
@@ -272,7 +272,7 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateRead",
 				crudFunc:     resourceForemanProvisioningTemplateRead,
@@ -285,7 +285,7 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateUpdate",
 				crudFunc:     resourceForemanProvisioningTemplateUpdate,
@@ -298,7 +298,7 @@ func ResourceForemanProvisioningTemplateCorrectURLAndMethodTestCases(t *testing.
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateDelete",
 				crudFunc:     resourceForemanProvisioningTemplateDelete,
@@ -323,12 +323,12 @@ func ResourceForemanProvisioningTemplateRequestDataEmptyTestCases(t *testing.T) 
 	s := ForemanProvisioningTemplateToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateRead",
 			crudFunc:     resourceForemanProvisioningTemplateRead,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateDelete",
 			crudFunc:     resourceForemanProvisioningTemplateDelete,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
@@ -349,7 +349,7 @@ func ResourceForemanProvisioningTemplateRequestDataTestCases(t *testing.T) []Tes
 	reqData, _ := client.WrapJSONWithTaxonomy("provisioning_template", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateCreate",
 				crudFunc:     resourceForemanProvisioningTemplateCreate,
@@ -357,7 +357,7 @@ func ResourceForemanProvisioningTemplateRequestDataTestCases(t *testing.T) []Tes
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateUpdate",
 				crudFunc:     resourceForemanProvisioningTemplateUpdate,
@@ -377,22 +377,22 @@ func ResourceForemanProvisioningTemplateStatusCodeTestCases(t *testing.T) []Test
 	s := ForemanProvisioningTemplateToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateCreate",
 			crudFunc:     resourceForemanProvisioningTemplateCreate,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateRead",
 			crudFunc:     resourceForemanProvisioningTemplateRead,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateUpdate",
 			crudFunc:     resourceForemanProvisioningTemplateUpdate,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateDelete",
 			crudFunc:     resourceForemanProvisioningTemplateDelete,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
@@ -407,17 +407,17 @@ func ResourceForemanProvisioningTemplateEmptyResponseTestCases(t *testing.T) []T
 	s := ForemanProvisioningTemplateToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateCreate",
 			crudFunc:     resourceForemanProvisioningTemplateCreate,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateRead",
 			crudFunc:     resourceForemanProvisioningTemplateRead,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanProvisioningTemplateUpdate",
 			crudFunc:     resourceForemanProvisioningTemplateUpdate,
 			resourceData: MockForemanProvisioningTemplateResourceData(s),
@@ -435,7 +435,7 @@ func ResourceForemanProvisioningTemplateMockResponseTestCases(t *testing.T) []Te
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateCreate",
 				crudFunc:     resourceForemanProvisioningTemplateCreate,
@@ -452,7 +452,7 @@ func ResourceForemanProvisioningTemplateMockResponseTestCases(t *testing.T) []Te
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateRead",
 				crudFunc:     resourceForemanProvisioningTemplateRead,
@@ -469,7 +469,7 @@ func ResourceForemanProvisioningTemplateMockResponseTestCases(t *testing.T) []Te
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanProvisioningTemplateUpdate",
 				crudFunc:     resourceForemanProvisioningTemplateUpdate,
