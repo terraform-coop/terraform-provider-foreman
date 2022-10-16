@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -284,7 +284,7 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 	partitionTablesURIById := PartitionTablesURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanPartitionTableCreate",
 				crudFunc:     resourceForemanPartitionTableCreate,
@@ -297,7 +297,7 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanPartitionTableRead",
 				crudFunc:     resourceForemanPartitionTableRead,
@@ -310,7 +310,7 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanPartitionTableUpdate",
 				crudFunc:     resourceForemanPartitionTableUpdate,
@@ -323,7 +323,7 @@ func ResourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) []T
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanPartitionTableDelete",
 				crudFunc:     resourceForemanPartitionTableDelete,
@@ -348,12 +348,12 @@ func ResourceForemanPartitionTableRequestDataEmptyTestCases(t *testing.T) []Test
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableRead",
 			crudFunc:     resourceForemanPartitionTableRead,
 			resourceData: MockForemanPartitionTableResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableDelete",
 			crudFunc:     resourceForemanPartitionTableDelete,
 			resourceData: MockForemanPartitionTableResourceData(s),
@@ -375,7 +375,7 @@ func ResourceForemanPartitionTableRequestDataTestCases(t *testing.T) []TestCaseR
 	reqData, _ := client.WrapJSONWithTaxonomy("ptable", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanPartitionTableCreate",
 				crudFunc:     resourceForemanPartitionTableCreate,
@@ -383,7 +383,7 @@ func ResourceForemanPartitionTableRequestDataTestCases(t *testing.T) []TestCaseR
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanPartitionTableUpdate",
 				crudFunc:     resourceForemanPartitionTableUpdate,
@@ -403,22 +403,22 @@ func ResourceForemanPartitionTableStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableCreate",
 			crudFunc:     resourceForemanPartitionTableCreate,
 			resourceData: MockForemanPartitionTableResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableRead",
 			crudFunc:     resourceForemanPartitionTableRead,
 			resourceData: MockForemanPartitionTableResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableUpdate",
 			crudFunc:     resourceForemanPartitionTableUpdate,
 			resourceData: MockForemanPartitionTableResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableDelete",
 			crudFunc:     resourceForemanPartitionTableDelete,
 			resourceData: MockForemanPartitionTableResourceData(s),
@@ -433,17 +433,17 @@ func ResourceForemanPartitionTableEmptyResponseTestCases(t *testing.T) []TestCas
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableCreate",
 			crudFunc:     resourceForemanPartitionTableCreate,
 			resourceData: MockForemanPartitionTableResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableRead",
 			crudFunc:     resourceForemanPartitionTableRead,
 			resourceData: MockForemanPartitionTableResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanPartitionTableUpdate",
 			crudFunc:     resourceForemanPartitionTableUpdate,
 			resourceData: MockForemanPartitionTableResourceData(s),

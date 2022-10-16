@@ -29,7 +29,7 @@ func resourceForemanMedia() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -38,7 +38,7 @@ func resourceForemanMedia() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -48,7 +48,7 @@ func resourceForemanMedia() *schema.Resource {
 				),
 			},
 
-			"path": &schema.Schema{
+			"path": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -64,7 +64,7 @@ func resourceForemanMedia() *schema.Resource {
 				),
 			},
 
-			"os_family": &schema.Schema{
+			"os_family": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -91,7 +91,7 @@ func resourceForemanMedia() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"operatingsystem_ids": &schema.Schema{
+			"operatingsystem_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,

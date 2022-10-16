@@ -29,7 +29,7 @@ func resourceForemanHostgroup() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -42,7 +42,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				),
 			},
 
-			"title": &schema.Schema{
+			"title": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Description: "The title is the fullname of the hostgroup.  A " +
@@ -51,7 +51,7 @@ func resourceForemanHostgroup() *schema.Resource {
 					"in the form of: \"<parent 1>/<parent 2>/.../<name>\".",
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -61,7 +61,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				),
 			},
 
-			"root_password": &schema.Schema{
+			"root_password": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
@@ -69,7 +69,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "Default root password",
 			},
 
-			"pxe_loader": &schema.Schema{
+			"pxe_loader": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
@@ -80,7 +80,7 @@ func resourceForemanHostgroup() *schema.Resource {
 					"\"iPXE Embedded\", \"iPXE UEFI HTTP\", \"iPXE Chain BIOS\", " +
 					"\"iPXE Chain UEFI\"",
 			},
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,
@@ -93,7 +93,7 @@ func resourceForemanHostgroup() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"architecture_id": &schema.Schema{
+			"architecture_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -101,7 +101,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the architecture associated with this hostgroup.",
 			},
 
-			"compute_profile_id": &schema.Schema{
+			"compute_profile_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -109,7 +109,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the compute profile associated with this hostgroup.",
 			},
 
-			"content_source_id": &schema.Schema{
+			"content_source_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -117,7 +117,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the content source associated with this hostgroup.",
 			},
 
-			"content_view_id": &schema.Schema{
+			"content_view_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -125,7 +125,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the content view associated with this hostgroup.",
 			},
 
-			"domain_id": &schema.Schema{
+			"domain_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -133,7 +133,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the domain associated with this hostgroup.",
 			},
 
-			"environment_id": &schema.Schema{
+			"environment_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -141,7 +141,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the environment associated with this hostgroup.",
 			},
 
-			"lifecycle_environment_id": &schema.Schema{
+			"lifecycle_environment_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -149,7 +149,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the lifecycle environment associated with this hostgroup.",
 			},
 
-			"medium_id": &schema.Schema{
+			"medium_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -157,7 +157,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the media associated with this hostgroup.",
 			},
 
-			"operatingsystem_id": &schema.Schema{
+			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -165,14 +165,14 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the operating system associated with this hostgroup.",
 			},
 
-			"parent_id": &schema.Schema{
+			"parent_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the parent hostgroup.",
 			},
 
-			"ptable_id": &schema.Schema{
+			"ptable_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -180,7 +180,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the partition table associated with this hostgroup.",
 			},
 
-			"puppet_ca_proxy_id": &schema.Schema{
+			"puppet_ca_proxy_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(0),
@@ -188,7 +188,7 @@ func resourceForemanHostgroup() *schema.Resource {
 					"authority server for this hostgroup.",
 			},
 
-			"puppet_class_ids": &schema.Schema{
+			"puppet_class_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -198,7 +198,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description: "IDs of the applied puppet classes.",
 			},
 
-			"puppet_proxy_id": &schema.Schema{
+			"puppet_proxy_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(0),
@@ -206,7 +206,7 @@ func resourceForemanHostgroup() *schema.Resource {
 					"server for this hostgroup.",
 			},
 
-			"realm_id": &schema.Schema{
+			"realm_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -214,7 +214,7 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the realm associated with this hostgroup.",
 			},
 
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,

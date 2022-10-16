@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -172,7 +172,7 @@ func ResourceForemanSubnetCorrectURLAndMethodTestCases(t *testing.T) []TestCaseC
 	architecturesURIById := SubnetsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSubnetRead",
 				crudFunc:     resourceForemanSubnetRead,
@@ -197,7 +197,7 @@ func ResourceForemanSubnetRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanSubnetRead",
 			crudFunc:     resourceForemanSubnetRead,
 			resourceData: MockForemanSubnetResourceData(s),
@@ -213,7 +213,7 @@ func ResourceForemanSubnetStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanSubnetRead",
 			crudFunc:     resourceForemanSubnetRead,
 			resourceData: MockForemanSubnetResourceData(s),
@@ -228,7 +228,7 @@ func ResourceForemanSubnetEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanSubnetRead",
 			crudFunc:     resourceForemanSubnetRead,
 			resourceData: MockForemanSubnetResourceData(s),
@@ -246,7 +246,7 @@ func ResourceForemanSubnetMockResponseTestCases(t *testing.T) []TestCaseMockResp
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSubnetRead",
 				crudFunc:     resourceForemanSubnetRead,

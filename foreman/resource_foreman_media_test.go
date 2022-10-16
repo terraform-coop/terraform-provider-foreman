@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -209,7 +209,7 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 	mediasURIById := MediasURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaCreate",
 				crudFunc:     resourceForemanMediaCreate,
@@ -222,7 +222,7 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaRead",
 				crudFunc:     resourceForemanMediaRead,
@@ -235,7 +235,7 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaUpdate",
 				crudFunc:     resourceForemanMediaUpdate,
@@ -248,7 +248,7 @@ func ResourceForemanMediaCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCo
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaDelete",
 				crudFunc:     resourceForemanMediaDelete,
@@ -273,12 +273,12 @@ func ResourceForemanMediaRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaRead",
 			crudFunc:     resourceForemanMediaRead,
 			resourceData: MockForemanMediaResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaDelete",
 			crudFunc:     resourceForemanMediaDelete,
 			resourceData: MockForemanMediaResourceData(s),
@@ -300,7 +300,7 @@ func ResourceForemanMediaRequestDataTestCases(t *testing.T) []TestCaseRequestDat
 	reqData, _ := client.WrapJSONWithTaxonomy("medium", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaCreate",
 				crudFunc:     resourceForemanMediaCreate,
@@ -308,7 +308,7 @@ func ResourceForemanMediaRequestDataTestCases(t *testing.T) []TestCaseRequestDat
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaUpdate",
 				crudFunc:     resourceForemanMediaUpdate,
@@ -328,22 +328,22 @@ func ResourceForemanMediaStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaCreate",
 			crudFunc:     resourceForemanMediaCreate,
 			resourceData: MockForemanMediaResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaRead",
 			crudFunc:     resourceForemanMediaRead,
 			resourceData: MockForemanMediaResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaUpdate",
 			crudFunc:     resourceForemanMediaUpdate,
 			resourceData: MockForemanMediaResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaDelete",
 			crudFunc:     resourceForemanMediaDelete,
 			resourceData: MockForemanMediaResourceData(s),
@@ -358,17 +358,17 @@ func ResourceForemanMediaEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanMediaToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaCreate",
 			crudFunc:     resourceForemanMediaCreate,
 			resourceData: MockForemanMediaResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaRead",
 			crudFunc:     resourceForemanMediaRead,
 			resourceData: MockForemanMediaResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanMediaUpdate",
 			crudFunc:     resourceForemanMediaUpdate,
 			resourceData: MockForemanMediaResourceData(s),
@@ -386,7 +386,7 @@ func ResourceForemanMediaMockResponseTestCases(t *testing.T) []TestCaseMockRespo
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaCreate",
 				crudFunc:     resourceForemanMediaCreate,
@@ -403,7 +403,7 @@ func ResourceForemanMediaMockResponseTestCases(t *testing.T) []TestCaseMockRespo
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaRead",
 				crudFunc:     resourceForemanMediaRead,
@@ -420,7 +420,7 @@ func ResourceForemanMediaMockResponseTestCases(t *testing.T) []TestCaseMockRespo
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanMediaUpdate",
 				crudFunc:     resourceForemanMediaUpdate,

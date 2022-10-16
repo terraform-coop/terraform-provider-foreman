@@ -29,7 +29,7 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -39,7 +39,7 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -49,7 +49,7 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 				),
 			},
 
-			"template": &schema.Schema{
+			"template": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -59,26 +59,26 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 				),
 			},
 
-			"snippet": &schema.Schema{
+			"snippet": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: "Whether or not the provisioning template is a snippet " +
 					"be used by other templates.",
 			},
 
-			"audit_comment": &schema.Schema{
+			"audit_comment": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Notes and comments for auditing purposes.",
 			},
 
-			"locked": &schema.Schema{
+			"locked": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Whether or not the template is locked for editing.",
 			},
 
-			"template_kind_id": &schema.Schema{
+			"template_kind_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(0),
@@ -88,7 +88,7 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"operatingsystem_ids": &schema.Schema{
+			"operatingsystem_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -99,7 +99,7 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 					"provisioning template.",
 			},
 
-			"template_combinations_attributes": &schema.Schema{
+			"template_combinations_attributes": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     resourceForemanTemplateCombinationsAttributes(),
@@ -127,23 +127,24 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 // resource is computed and assigned by Foreman at the time of creation.
 //
 // NOTE(ALL): See comments in ResourceData's "template_combinations_attributes"
-//   attribute definition above
+//
+//	attribute definition above
 func resourceForemanTemplateCombinationsAttributes() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "Template combination unique identifier.",
 			},
-			"hostgroup_id": &schema.Schema{
+			"hostgroup_id": {
 				Type:         schema.TypeInt,
 				Computed:     true,
 				Optional:     true,
 				ValidateFunc: validation.IntAtLeast(1),
 				Description:  "The hostgroup ID for this template combination.",
 			},
-			"environment_id": &schema.Schema{
+			"environment_id": {
 				Type:         schema.TypeInt,
 				Computed:     true,
 				Optional:     true,
@@ -237,10 +238,10 @@ func buildForemanTemplateCombinationsAttributes(d *schema.ResourceData) []api.Fo
 // The map should have the following keys. Omitted or invalid map values will
 // result in the struct receiving the zero value for that property.
 //
-//   id (int)
-//   hostgroup_id (int)
-//   environment_id (int)
-//   _destroy (bool)
+//	id (int)
+//	hostgroup_id (int)
+//	environment_id (int)
+//	_destroy (bool)
 func mapToForemanTemplateCombinationAttribute(m map[string]interface{}) api.ForemanTemplateCombinationAttribute {
 	log.Tracef("mapToForemanTemplateCombinationAttribute")
 
@@ -445,7 +446,7 @@ func resourceForemanProvisioningTemplateDelete(ctx context.Context, d *schema.Re
 		log.Debugf("deleting template that has combinations set")
 		// iterate through each of the template combinations and tag them for
 		// removal from the list
-		for idx, _ := range t.TemplateCombinationsAttributes {
+		for idx := range t.TemplateCombinationsAttributes {
 			t.TemplateCombinationsAttributes[idx].Destroy = true
 		}
 		log.Debugf("ForemanProvisioningTemplate: [%+v]", t)

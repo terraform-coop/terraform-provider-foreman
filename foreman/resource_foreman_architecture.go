@@ -37,7 +37,7 @@ func resourceForemanArchitecture() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -46,7 +46,7 @@ func resourceForemanArchitecture() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringMatch(
@@ -65,7 +65,7 @@ func resourceForemanArchitecture() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"operatingsystem_ids": &schema.Schema{
+			"operatingsystem_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Schema{

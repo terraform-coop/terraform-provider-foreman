@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -190,7 +190,7 @@ func ResourceForemanOverrideValueCorrectURLAndMethodTestCases(t *testing.T) []Te
 	OverrideValuesURIById := fmt.Sprintf(OverrideValuesURI+"/%s", obj.SmartClassParameterId, strconv.Itoa(obj.Id))
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueCreate",
 				crudFunc:     resourceForemanOverrideValueCreate,
@@ -203,7 +203,7 @@ func ResourceForemanOverrideValueCorrectURLAndMethodTestCases(t *testing.T) []Te
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueRead",
 				crudFunc:     resourceForemanOverrideValueRead,
@@ -216,7 +216,7 @@ func ResourceForemanOverrideValueCorrectURLAndMethodTestCases(t *testing.T) []Te
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueUpdate",
 				crudFunc:     resourceForemanOverrideValueUpdate,
@@ -229,7 +229,7 @@ func ResourceForemanOverrideValueCorrectURLAndMethodTestCases(t *testing.T) []Te
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueDelete",
 				crudFunc:     resourceForemanOverrideValueDelete,
@@ -254,12 +254,12 @@ func ResourceForemanOverrideValueRequestDataEmptyTestCases(t *testing.T) []TestC
 	s := ForemanOverrideValueToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueRead",
 			crudFunc:     resourceForemanOverrideValueRead,
 			resourceData: MockForemanOverrideValueResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueDelete",
 			crudFunc:     resourceForemanOverrideValueDelete,
 			resourceData: MockForemanOverrideValueResourceData(s),
@@ -280,7 +280,7 @@ func ResourceForemanOverrideValueRequestDataTestCases(t *testing.T) []TestCaseRe
 	reqData, _ := client.WrapJSONWithTaxonomy("override_value", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueCreate",
 				crudFunc:     resourceForemanOverrideValueCreate,
@@ -288,7 +288,7 @@ func ResourceForemanOverrideValueRequestDataTestCases(t *testing.T) []TestCaseRe
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueUpdate",
 				crudFunc:     resourceForemanOverrideValueUpdate,
@@ -308,22 +308,22 @@ func ResourceForemanOverrideValueStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanOverrideValueToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueCreate",
 			crudFunc:     resourceForemanOverrideValueCreate,
 			resourceData: MockForemanOverrideValueResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueRead",
 			crudFunc:     resourceForemanOverrideValueRead,
 			resourceData: MockForemanOverrideValueResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueUpdate",
 			crudFunc:     resourceForemanOverrideValueUpdate,
 			resourceData: MockForemanOverrideValueResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueDelete",
 			crudFunc:     resourceForemanOverrideValueDelete,
 			resourceData: MockForemanOverrideValueResourceData(s),
@@ -338,17 +338,17 @@ func ResourceForemanOverrideValueEmptyResponseTestCases(t *testing.T) []TestCase
 	s := ForemanOverrideValueToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueCreate",
 			crudFunc:     resourceForemanOverrideValueCreate,
 			resourceData: MockForemanOverrideValueResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueRead",
 			crudFunc:     resourceForemanOverrideValueRead,
 			resourceData: MockForemanOverrideValueResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanOverrideValueUpdate",
 			crudFunc:     resourceForemanOverrideValueUpdate,
 			resourceData: MockForemanOverrideValueResourceData(s),
@@ -366,7 +366,7 @@ func ResourceForemanOverrideValueMockResponseTestCases(t *testing.T) []TestCaseM
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueCreate",
 				crudFunc:     resourceForemanOverrideValueCreate,
@@ -383,7 +383,7 @@ func ResourceForemanOverrideValueMockResponseTestCases(t *testing.T) []TestCaseM
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueRead",
 				crudFunc:     resourceForemanOverrideValueRead,
@@ -400,7 +400,7 @@ func ResourceForemanOverrideValueMockResponseTestCases(t *testing.T) []TestCaseM
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOverrideValueUpdate",
 				crudFunc:     resourceForemanOverrideValueUpdate,

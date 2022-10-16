@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -166,7 +166,7 @@ func ResourceForemanOperatingSystemCorrectURLAndMethodTestCases(t *testing.T) []
 	operatingSystemsURIById := OperatingSystemsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOperatingSystemRead",
 				crudFunc:     resourceForemanOperatingSystemRead,
@@ -191,7 +191,7 @@ func ResourceForemanOperatingSystemRequestDataEmptyTestCases(t *testing.T) []Tes
 	s := ForemanOperatingSystemToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanOperatingSystemRead",
 			crudFunc:     resourceForemanOperatingSystemRead,
 			resourceData: MockForemanOperatingSystemResourceData(s),
@@ -207,7 +207,7 @@ func ResourceForemanOperatingSystemStatusCodeTestCases(t *testing.T) []TestCase 
 	s := ForemanOperatingSystemToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanOperatingSystemRead",
 			crudFunc:     resourceForemanOperatingSystemRead,
 			resourceData: MockForemanOperatingSystemResourceData(s),
@@ -222,7 +222,7 @@ func ResourceForemanOperatingSystemEmptyResponseTestCases(t *testing.T) []TestCa
 	s := ForemanOperatingSystemToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanOperatingSystemRead",
 			crudFunc:     resourceForemanOperatingSystemRead,
 			resourceData: MockForemanOperatingSystemResourceData(s),
@@ -240,7 +240,7 @@ func ResourceForemanOperatingSystemMockResponseTestCases(t *testing.T) []TestCas
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanOperatingSystemRead",
 				crudFunc:     resourceForemanOperatingSystemRead,

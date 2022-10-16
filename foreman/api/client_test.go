@@ -35,7 +35,8 @@ func NewForemanAPI() (*http.ServeMux, *httptest.Server) {
 // when finished to prevent a resource leak
 //
 // cred
-//   A set of credentials used to authenticate the client
+//
+//	A set of credentials used to authenticate the client
 func NewForemanAPIAndClient(cred ClientCredentials, conf ClientConfig) (*http.ServeMux, *httptest.Server, *Client) {
 	urlMux, server := NewForemanAPI()
 	// Server's URL is stored as a string, parse into a url.URL and point the

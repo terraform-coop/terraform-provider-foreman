@@ -16,7 +16,7 @@ func DataSourceForemanUsergroupCorrectURLAndMethodTestCases(t *testing.T) []Test
 	s := ForemanUsergroupToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanUsergroupRead",
 				crudFunc:     dataSourceForemanUsergroupRead,
@@ -39,7 +39,7 @@ func DataSourceForemanUsergroupRequestDataEmptyTestCases(t *testing.T) []TestCas
 	s := ForemanUsergroupToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanUsergroupRead",
 			crudFunc:     dataSourceForemanUsergroupRead,
 			resourceData: MockForemanUsergroupResourceData(s),
@@ -55,7 +55,7 @@ func DataSourceForemanUsergroupStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanUsergroupToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanUsergroupRead",
 			crudFunc:     dataSourceForemanUsergroupRead,
 			resourceData: MockForemanUsergroupResourceData(s),
@@ -71,7 +71,7 @@ func DataSourceForemanUsergroupEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanUsergroupToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanUsergroupRead",
 			crudFunc:     dataSourceForemanUsergroupRead,
 			resourceData: MockForemanUsergroupResourceData(s),
@@ -89,7 +89,7 @@ func DataSourceForemanUsergroupMockResponseTestCases(t *testing.T) []TestCaseMoc
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanUsergroupRead",
 				crudFunc:     dataSourceForemanUsergroupRead,
@@ -100,7 +100,7 @@ func DataSourceForemanUsergroupMockResponseTestCases(t *testing.T) []TestCaseMoc
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanUsergroupRead",
 				crudFunc:     dataSourceForemanUsergroupRead,
@@ -112,7 +112,7 @@ func DataSourceForemanUsergroupMockResponseTestCases(t *testing.T) []TestCaseMoc
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanUsergroupRead",
 				crudFunc:     dataSourceForemanUsergroupRead,

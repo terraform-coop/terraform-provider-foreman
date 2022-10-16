@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -168,7 +168,7 @@ func ResourceForemanComputeResourceCorrectURLAndMethodTestCases(t *testing.T) []
 	compute_resourcesURIById := ComputeResourcesURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanComputeResourceRead",
 				crudFunc:     resourceForemanComputeResourceRead,
@@ -193,7 +193,7 @@ func ResourceForemanComputeResourceRequestDataEmptyTestCases(t *testing.T) []Tes
 	s := ForemanComputeResourceToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanComputeResourceRead",
 			crudFunc:     resourceForemanComputeResourceRead,
 			resourceData: MockForemanComputeResourceResourceData(s),
@@ -209,7 +209,7 @@ func ResourceForemanComputeResourceStatusCodeTestCases(t *testing.T) []TestCase 
 	s := ForemanComputeResourceToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanComputeResourceRead",
 			crudFunc:     resourceForemanComputeResourceRead,
 			resourceData: MockForemanComputeResourceResourceData(s),
@@ -224,7 +224,7 @@ func ResourceForemanComputeResourceEmptyResponseTestCases(t *testing.T) []TestCa
 	s := ForemanComputeResourceToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanComputeResourceRead",
 			crudFunc:     resourceForemanComputeResourceRead,
 			resourceData: MockForemanComputeResourceResourceData(s),
@@ -242,7 +242,7 @@ func ResourceForemanComputeResourceMockResponseTestCases(t *testing.T) []TestCas
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanComputeResourceRead",
 				crudFunc:     resourceForemanComputeResourceRead,

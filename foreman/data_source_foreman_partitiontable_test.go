@@ -21,7 +21,7 @@ func DataSourceForemanPartitionTableCorrectURLAndMethodTestCases(t *testing.T) [
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanPartitionTableRead",
 				crudFunc:     dataSourceForemanPartitionTableRead,
@@ -44,7 +44,7 @@ func DataSourceForemanPartitionTableRequestDataEmptyTestCases(t *testing.T) []Te
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanPartitionTableRead",
 			crudFunc:     dataSourceForemanPartitionTableRead,
 			resourceData: MockForemanPartitionTableResourceData(s),
@@ -60,7 +60,7 @@ func DataSourceForemanPartitionTableStatusCodeTestCases(t *testing.T) []TestCase
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanPartitionTableRead",
 			crudFunc:     dataSourceForemanPartitionTableRead,
 			resourceData: MockForemanPartitionTableResourceData(s),
@@ -76,7 +76,7 @@ func DataSourceForemanPartitionTableEmptyResponseTestCases(t *testing.T) []TestC
 	s := ForemanPartitionTableToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanPartitionTableRead",
 			crudFunc:     dataSourceForemanPartitionTableRead,
 			resourceData: MockForemanPartitionTableResourceData(s),

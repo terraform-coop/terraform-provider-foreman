@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -299,7 +299,7 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 	hostsURIById := HostsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostCreate",
 				crudFunc:     resourceForemanHostCreate,
@@ -316,7 +316,7 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostRead",
 				crudFunc:     resourceForemanHostRead,
@@ -329,7 +329,7 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostUpdate",
 				crudFunc:     resourceForemanHostUpdate,
@@ -342,7 +342,7 @@ func ResourceForemanHostCorrectURLAndMethodTestCases(t *testing.T) []TestCaseCor
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostDelete",
 				crudFunc:     resourceForemanHostDelete,
@@ -367,12 +367,12 @@ func ResourceForemanHostRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanHostToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHostRead",
 			crudFunc:     resourceForemanHostRead,
 			resourceData: MockForemanHostResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostDelete",
 			crudFunc:     resourceForemanHostDelete,
 			resourceData: MockForemanHostResourceData(s),
@@ -397,7 +397,7 @@ func ResourceForemanHostRequestDataTestCases(t *testing.T) []TestCaseRequestData
 	reqData, _ := client.WrapJSONWithTaxonomy("host", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostCreate",
 				crudFunc:     resourceForemanHostCreate,
@@ -405,7 +405,7 @@ func ResourceForemanHostRequestDataTestCases(t *testing.T) []TestCaseRequestData
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostUpdate",
 				crudFunc:     resourceForemanHostUpdate,
@@ -425,12 +425,12 @@ func ResourceForemanHostStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanHostToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHostCreate",
 			crudFunc:     resourceForemanHostCreate,
 			resourceData: MockForemanHostResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostRead",
 			crudFunc:     resourceForemanHostRead,
 			resourceData: MockForemanHostResourceData(s),
@@ -440,7 +440,7 @@ func ResourceForemanHostStatusCodeTestCases(t *testing.T) []TestCase {
 		// 	crudFunc:     resourceForemanHostUpdate,
 		// 	resourceData: MockForemanHostResourceData(s),
 		// },
-		TestCase{
+		{
 			funcName:     "resourceForemanHostDelete",
 			crudFunc:     resourceForemanHostDelete,
 			resourceData: MockForemanHostResourceData(s),
@@ -455,12 +455,12 @@ func ResourceForemanHostEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanHostToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHostCreate",
 			crudFunc:     resourceForemanHostCreate,
 			resourceData: MockForemanHostResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostRead",
 			crudFunc:     resourceForemanHostRead,
 			resourceData: MockForemanHostResourceData(s),
@@ -483,7 +483,7 @@ func ResourceForemanHostMockResponseTestCases(t *testing.T) []TestCaseMockRespon
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostCreate",
 				crudFunc:     resourceForemanHostCreate,
@@ -500,7 +500,7 @@ func ResourceForemanHostMockResponseTestCases(t *testing.T) []TestCaseMockRespon
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostRead",
 				crudFunc:     resourceForemanHostRead,
@@ -517,7 +517,7 @@ func ResourceForemanHostMockResponseTestCases(t *testing.T) []TestCaseMockRespon
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostUpdate",
 				crudFunc:     resourceForemanHostUpdate,

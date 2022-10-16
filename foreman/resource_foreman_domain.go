@@ -27,7 +27,7 @@ func resourceForemanDomain() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -38,7 +38,7 @@ func resourceForemanDomain() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -48,13 +48,13 @@ func resourceForemanDomain() *schema.Resource {
 				),
 			},
 
-			"fullname": &schema.Schema{
+			"fullname": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Description of the domain",
 			},
 
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Optional: true,

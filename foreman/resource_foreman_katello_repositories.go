@@ -28,7 +28,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -36,7 +36,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaSummary,
 				),
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -45,7 +45,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -54,7 +54,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"label": &schema.Schema{
+			"label": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -62,7 +62,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"product_id": &schema.Schema{
+			"product_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -71,7 +71,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"content_type": &schema.Schema{
+			"content_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -88,7 +88,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"url": &schema.Schema{
+			"url": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -97,7 +97,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"gpg_key_id": &schema.Schema{
+			"gpg_key_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -106,7 +106,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"unprotected": &schema.Schema{
+			"unprotected": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -115,7 +115,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"checksum_type": &schema.Schema{
+			"checksum_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -124,7 +124,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"docker_upstream_name": &schema.Schema{
+			"docker_upstream_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -133,7 +133,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"docker_tags_whitelist": &schema.Schema{
+			"docker_tags_whitelist": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -142,7 +142,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"download_policy": &schema.Schema{
+			"download_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -157,7 +157,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"download_concurrency": &schema.Schema{
+			"download_concurrency": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -167,7 +167,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"mirror_on_sync": &schema.Schema{
+			"mirror_on_sync": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -176,7 +176,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"verify_ssl_on_sync": &schema.Schema{
+			"verify_ssl_on_sync": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -185,7 +185,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"upstream_username": &schema.Schema{
+			"upstream_username": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -194,7 +194,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"upstream_password": &schema.Schema{
+			"upstream_password": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -203,7 +203,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"deb_releases": &schema.Schema{
+			"deb_releases": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -212,7 +212,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"deb_components": &schema.Schema{
+			"deb_components": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -221,7 +221,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"deb_architectures": &schema.Schema{
+			"deb_architectures": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -230,7 +230,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"ignore_global_proxy": &schema.Schema{
+			"ignore_global_proxy": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -239,7 +239,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"ignorable_content": &schema.Schema{ //array
+			"ignorable_content": { //array
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -249,7 +249,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"ansible_collection_requirements": &schema.Schema{
+			"ansible_collection_requirements": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
@@ -258,7 +258,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"http_proxy_policy": &schema.Schema{
+			"http_proxy_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -273,7 +273,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"http_proxy_id": &schema.Schema{
+			"http_proxy_id": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(

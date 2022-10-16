@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -205,7 +205,7 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 	architecturesURIById := ArchitecturesURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureCreate",
 				crudFunc:     resourceForemanArchitectureCreate,
@@ -218,7 +218,7 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureRead",
 				crudFunc:     resourceForemanArchitectureRead,
@@ -231,7 +231,7 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureUpdate",
 				crudFunc:     resourceForemanArchitectureUpdate,
@@ -244,7 +244,7 @@ func ResourceForemanArchitectureCorrectURLAndMethodTestCases(t *testing.T) []Tes
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureDelete",
 				crudFunc:     resourceForemanArchitectureDelete,
@@ -269,12 +269,12 @@ func ResourceForemanArchitectureRequestDataEmptyTestCases(t *testing.T) []TestCa
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureRead",
 			crudFunc:     resourceForemanArchitectureRead,
 			resourceData: MockForemanArchitectureResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureDelete",
 			crudFunc:     resourceForemanArchitectureDelete,
 			resourceData: MockForemanArchitectureResourceData(s),
@@ -296,7 +296,7 @@ func ResourceForemanArchitectureRequestDataTestCases(t *testing.T) []TestCaseReq
 	reqData, _ := client.WrapJSONWithTaxonomy("architecture", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureCreate",
 				crudFunc:     resourceForemanArchitectureCreate,
@@ -304,7 +304,7 @@ func ResourceForemanArchitectureRequestDataTestCases(t *testing.T) []TestCaseReq
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureUpdate",
 				crudFunc:     resourceForemanArchitectureUpdate,
@@ -324,22 +324,22 @@ func ResourceForemanArchitectureStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureCreate",
 			crudFunc:     resourceForemanArchitectureCreate,
 			resourceData: MockForemanArchitectureResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureRead",
 			crudFunc:     resourceForemanArchitectureRead,
 			resourceData: MockForemanArchitectureResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureUpdate",
 			crudFunc:     resourceForemanArchitectureUpdate,
 			resourceData: MockForemanArchitectureResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureDelete",
 			crudFunc:     resourceForemanArchitectureDelete,
 			resourceData: MockForemanArchitectureResourceData(s),
@@ -354,17 +354,17 @@ func ResourceForemanArchitectureEmptyResponseTestCases(t *testing.T) []TestCase 
 	s := ForemanArchitectureToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureCreate",
 			crudFunc:     resourceForemanArchitectureCreate,
 			resourceData: MockForemanArchitectureResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureRead",
 			crudFunc:     resourceForemanArchitectureRead,
 			resourceData: MockForemanArchitectureResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanArchitectureUpdate",
 			crudFunc:     resourceForemanArchitectureUpdate,
 			resourceData: MockForemanArchitectureResourceData(s),
@@ -382,7 +382,7 @@ func ResourceForemanArchitectureMockResponseTestCases(t *testing.T) []TestCaseMo
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureCreate",
 				crudFunc:     resourceForemanArchitectureCreate,
@@ -399,7 +399,7 @@ func ResourceForemanArchitectureMockResponseTestCases(t *testing.T) []TestCaseMo
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureRead",
 				crudFunc:     resourceForemanArchitectureRead,
@@ -416,7 +416,7 @@ func ResourceForemanArchitectureMockResponseTestCases(t *testing.T) []TestCaseMo
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanArchitectureUpdate",
 				crudFunc:     resourceForemanArchitectureUpdate,

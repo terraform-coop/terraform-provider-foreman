@@ -18,7 +18,7 @@ func DataSourceForemanImageCorrectURLAndMethodTestCases(t *testing.T) []TestCase
 	imageURIByResource := ImagesURI + "/" + strconv.Itoa(obj.ComputeResourceID) + "/images/"
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanImageRead",
 				crudFunc:     dataSourceForemanImageRead,
@@ -41,7 +41,7 @@ func DataSourceForemanImageRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanImageToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanImageRead",
 			crudFunc:     dataSourceForemanImageRead,
 			resourceData: MockForemanImageResourceData(s),
@@ -57,7 +57,7 @@ func DataSourceForemanImageStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanImageToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanImageRead",
 			crudFunc:     dataSourceForemanImageRead,
 			resourceData: MockForemanImageResourceData(s),
@@ -73,7 +73,7 @@ func DataSourceForemanImageEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanImageToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanImageRead",
 			crudFunc:     dataSourceForemanImageRead,
 			resourceData: MockForemanImageResourceData(s),
@@ -91,7 +91,7 @@ func DataSourceForemanImageMockResponseTestCases(t *testing.T) []TestCaseMockRes
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanImageRead",
 				crudFunc:     dataSourceForemanImageRead,
@@ -102,7 +102,7 @@ func DataSourceForemanImageMockResponseTestCases(t *testing.T) []TestCaseMockRes
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanImageRead",
 				crudFunc:     dataSourceForemanImageRead,
@@ -114,7 +114,7 @@ func DataSourceForemanImageMockResponseTestCases(t *testing.T) []TestCaseMockRes
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanImageRead",
 				crudFunc:     dataSourceForemanImageRead,

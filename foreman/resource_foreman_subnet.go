@@ -29,7 +29,7 @@ func resourceForemanSubnet() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -38,7 +38,7 @@ func resourceForemanSubnet() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -48,7 +48,7 @@ func resourceForemanSubnet() *schema.Resource {
 				),
 			},
 
-			"network": &schema.Schema{
+			"network": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsIPAddress,
@@ -59,7 +59,7 @@ func resourceForemanSubnet() *schema.Resource {
 				),
 			},
 
-			"mask": &schema.Schema{
+			"mask": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsIPAddress,
@@ -70,7 +70,7 @@ func resourceForemanSubnet() *schema.Resource {
 				),
 			},
 
-			"gateway": &schema.Schema{
+			"gateway": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsIPAddress,
@@ -78,21 +78,21 @@ func resourceForemanSubnet() *schema.Resource {
 					"anything not on the same network.",
 			},
 
-			"dns_primary": &schema.Schema{
+			"dns_primary": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsIPAddress,
 				Description:  "Primary DNS server for this subnet.",
 			},
 
-			"dns_secondary": &schema.Schema{
+			"dns_secondary": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsIPAddress,
 				Description:  "Secondary DNS sever for this subnet.",
 			},
 
-			"ipam": &schema.Schema{
+			"ipam": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -106,21 +106,21 @@ func resourceForemanSubnet() *schema.Resource {
 					"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"Random DB\"`,`\"None\"`.",
 			},
 
-			"from": &schema.Schema{
+			"from": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsIPAddress,
 				Description:  "Start IP address for IP auto suggestion.",
 			},
 
-			"to": &schema.Schema{
+			"to": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validation.IsIPAddress,
 				Description:  "Ending IP address for IP auto suggestion.",
 			},
 
-			"boot_mode": &schema.Schema{
+			"boot_mode": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -131,47 +131,47 @@ func resourceForemanSubnet() *schema.Resource {
 				Description: "Default boot mode for instances assigned to this subnet. " +
 					"Values include: `\"Static\"`, `\"DHCP\"`.",
 			},
-			"network_address": &schema.Schema{
+			"network_address": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The Subnets CIDR in the format 169.254.0.0/16",
 			},
-			"vlanid": &schema.Schema{
+			"vlanid": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "VLAN id that is in use in the subnet",
 			},
-			"mtu": &schema.Schema{
+			"mtu": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "MTU value for the subnet",
 			},
-			"template_id": &schema.Schema{
+			"template_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "Template HTTP(S) Proxy ID to use within this subnet",
 			},
-			"dhcp_id": &schema.Schema{
+			"dhcp_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "DHCP Proxy ID to use within this subnet",
 			},
-			"bmc_id": &schema.Schema{
+			"bmc_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "BMC Proxy ID to use within this subnet",
 			},
-			"tftp_id": &schema.Schema{
+			"tftp_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "TFTP Proxy ID to use within this subnet",
 			},
-			"httpboot_id": &schema.Schema{
+			"httpboot_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Description: "HTTPBoot Proxy ID to use within this subnet",
 			},
-			"domain_ids": &schema.Schema{
+			"domain_ids": {
 				Type: schema.TypeSet,
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
@@ -179,7 +179,7 @@ func resourceForemanSubnet() *schema.Resource {
 				Optional:    true,
 				Description: "Domains in which this subnet is part",
 			},
-			"network_type": &schema.Schema{
+			"network_type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{

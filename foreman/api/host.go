@@ -141,7 +141,7 @@ type foremanHostDecode struct {
 
 // Power struct for marshal/unmarshal of power state
 // valid states are on, off, soft, cycle, state
-// `omitempty`` lets use the same struct for power operations.Command
+// `omitempty` lets use the same struct for power operations.Command
 type Power struct {
 	PowerAction string `json:"power_action,omitempty"`
 	Power       bool   `json:"power,omitempty"`
@@ -149,7 +149,7 @@ type Power struct {
 
 // BMCBoot struct used for marshal/unmarshal of BMC boot device
 // valid boot devices are disk, cdrom, pxe, bios
-// `omitempty`` lets use the same struct for boot operations.BMCCommand
+// `omitempty` lets use the same struct for boot operations.BMCCommand
 type BMCBoot struct {
 	Device string `json:"device,omitempty"`
 	Boot   struct {

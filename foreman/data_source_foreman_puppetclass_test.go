@@ -107,7 +107,7 @@ func DataSourceForemanPuppetClassCorrectURLAndMethodTestCases(t *testing.T) []Te
 	s := ForemanPuppetClassToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanPuppetClassRead",
 				crudFunc:     dataSourceForemanPuppetClassRead,
@@ -130,7 +130,7 @@ func DataSourceForemanPuppetClassRequestDataEmptyTestCases(t *testing.T) []TestC
 	s := ForemanPuppetClassToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanPuppetClassRead",
 			crudFunc:     dataSourceForemanPuppetClassRead,
 			resourceData: MockForemanPuppetClassResourceData(s),
@@ -146,7 +146,7 @@ func DataSourceForemanPuppetClassStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanPuppetClassToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanPuppetClassRead",
 			crudFunc:     dataSourceForemanPuppetClassRead,
 			resourceData: MockForemanPuppetClassResourceData(s),
@@ -162,7 +162,7 @@ func DataSourceForemanPuppetClassEmptyResponseTestCases(t *testing.T) []TestCase
 	s := ForemanPuppetClassToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanPuppetClassRead",
 			crudFunc:     dataSourceForemanPuppetClassRead,
 			resourceData: MockForemanPuppetClassResourceData(s),
@@ -183,7 +183,7 @@ func DataSourceForemanPuppetClassMockResponseTestCases(t *testing.T) []TestCaseM
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanPuppetClassRead",
 				crudFunc:     dataSourceForemanPuppetClassRead,
@@ -194,7 +194,7 @@ func DataSourceForemanPuppetClassMockResponseTestCases(t *testing.T) []TestCaseM
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanPuppetClassRead",
 				crudFunc:     dataSourceForemanPuppetClassRead,
@@ -206,7 +206,7 @@ func DataSourceForemanPuppetClassMockResponseTestCases(t *testing.T) []TestCaseM
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanPuppetClassRead",
 				crudFunc:     dataSourceForemanPuppetClassRead,
@@ -220,7 +220,7 @@ func DataSourceForemanPuppetClassMockResponseTestCases(t *testing.T) []TestCaseM
 			),
 			compareFunc: ForemanPuppetClassResourceDataCompare,
 		},
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanPuppetClassRead",
 				crudFunc:     dataSourceForemanPuppetClassRead,

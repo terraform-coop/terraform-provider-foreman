@@ -29,7 +29,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -37,7 +37,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 					autodoc.MetaSummary,
 				),
 			},
-			"match": &schema.Schema{
+			"match": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
@@ -50,7 +50,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"omit": &schema.Schema{
+			"omit": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -61,7 +61,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"value": &schema.Schema{
+			"value": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -70,7 +70,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
-			"smart_class_parameter_id": &schema.Schema{
+			"smart_class_parameter_id": {
 				Type:     schema.TypeInt,
 				Required: true,
 				Description: fmt.Sprintf(

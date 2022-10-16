@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -199,7 +199,7 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 	hostgroupsURIById := HostgroupsURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupCreate",
 				crudFunc:     resourceForemanHostgroupCreate,
@@ -212,7 +212,7 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupRead",
 				crudFunc:     resourceForemanHostgroupRead,
@@ -225,7 +225,7 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupUpdate",
 				crudFunc:     resourceForemanHostgroupUpdate,
@@ -238,7 +238,7 @@ func ResourceForemanHostgroupCorrectURLAndMethodTestCases(t *testing.T) []TestCa
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupDelete",
 				crudFunc:     resourceForemanHostgroupDelete,
@@ -263,12 +263,12 @@ func ResourceForemanHostgroupRequestDataEmptyTestCases(t *testing.T) []TestCase 
 	s := ForemanHostgroupToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupRead",
 			crudFunc:     resourceForemanHostgroupRead,
 			resourceData: MockForemanHostgroupResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupDelete",
 			crudFunc:     resourceForemanHostgroupDelete,
 			resourceData: MockForemanHostgroupResourceData(s),
@@ -290,7 +290,7 @@ func ResourceForemanHostgroupRequestDataTestCases(t *testing.T) []TestCaseReques
 	reqData, _ := client.WrapJSONWithTaxonomy("hostgroup", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupCreate",
 				crudFunc:     resourceForemanHostgroupCreate,
@@ -298,7 +298,7 @@ func ResourceForemanHostgroupRequestDataTestCases(t *testing.T) []TestCaseReques
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupUpdate",
 				crudFunc:     resourceForemanHostgroupUpdate,
@@ -318,22 +318,22 @@ func ResourceForemanHostgroupStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanHostgroupToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupCreate",
 			crudFunc:     resourceForemanHostgroupCreate,
 			resourceData: MockForemanHostgroupResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupRead",
 			crudFunc:     resourceForemanHostgroupRead,
 			resourceData: MockForemanHostgroupResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupUpdate",
 			crudFunc:     resourceForemanHostgroupUpdate,
 			resourceData: MockForemanHostgroupResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupDelete",
 			crudFunc:     resourceForemanHostgroupDelete,
 			resourceData: MockForemanHostgroupResourceData(s),
@@ -348,17 +348,17 @@ func ResourceForemanHostgroupEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanHostgroupToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupCreate",
 			crudFunc:     resourceForemanHostgroupCreate,
 			resourceData: MockForemanHostgroupResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupRead",
 			crudFunc:     resourceForemanHostgroupRead,
 			resourceData: MockForemanHostgroupResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanHostgroupUpdate",
 			crudFunc:     resourceForemanHostgroupUpdate,
 			resourceData: MockForemanHostgroupResourceData(s),
@@ -376,7 +376,7 @@ func ResourceForemanHostgroupMockResponseTestCases(t *testing.T) []TestCaseMockR
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupCreate",
 				crudFunc:     resourceForemanHostgroupCreate,
@@ -393,7 +393,7 @@ func ResourceForemanHostgroupMockResponseTestCases(t *testing.T) []TestCaseMockR
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupRead",
 				crudFunc:     resourceForemanHostgroupRead,
@@ -410,7 +410,7 @@ func ResourceForemanHostgroupMockResponseTestCases(t *testing.T) []TestCaseMockR
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanHostgroupUpdate",
 				crudFunc:     resourceForemanHostgroupUpdate,

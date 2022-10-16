@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman"
 )
 
 func main() {

@@ -29,7 +29,7 @@ func resourceForemanHostV0() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -40,7 +40,7 @@ func resourceForemanHostV0() *schema.Resource {
 
 			// -- Required --
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
@@ -60,7 +60,7 @@ func resourceForemanHostV0() *schema.Resource {
 
 			// -- Optional --
 
-			"method": &schema.Schema{
+			"method": {
 				Type:       schema.TypeString,
 				ForceNew:   true,
 				Optional:   true,
@@ -73,7 +73,7 @@ func resourceForemanHostV0() *schema.Resource {
 				Description: "REMOVED - use build argument instead to manage build flag of host.",
 			},
 
-			"comment": &schema.Schema{
+			"comment": {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Computed:     true,
@@ -83,7 +83,7 @@ func resourceForemanHostV0() *schema.Resource {
 					"Note: Changes to this attribute will trigger a host rebuild.",
 				),
 			},
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Computed: true,
@@ -95,7 +95,7 @@ func resourceForemanHostV0() *schema.Resource {
 					"in the machine config.",
 			},
 
-			"enable_bmc": &schema.Schema{
+			"enable_bmc": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -104,7 +104,7 @@ func resourceForemanHostV0() *schema.Resource {
 					"boot to PXE and power on. Defaults to `false`.",
 			},
 
-			"manage_build": &schema.Schema{
+			"manage_build": {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Default:    true,
@@ -113,27 +113,27 @@ func resourceForemanHostV0() *schema.Resource {
 					" Create host only, don't set build status or manage power states",
 			},
 
-			"managed": &schema.Schema{
+			"managed": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 				Description: "Whether or not this host is managed by Foreman." +
 					" Create host only, don't set build status or manage power states.",
 			},
-			"build": &schema.Schema{
+			"build": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
 					"which means host will be built at next boot.",
 			},
-			"manage_power_operations": &schema.Schema{
+			"manage_power_operations": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 				Description: "Manage power operations, e.g. power on, if host's build flag will be enabled.",
 			},
-			"retry_count": &schema.Schema{
+			"retry_count": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      DEFAULT_RETRY_COUNT,
@@ -141,7 +141,7 @@ func resourceForemanHostV0() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 
-			"bmc_success": &schema.Schema{
+			"bmc_success": {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Default:    true,
@@ -157,7 +157,7 @@ func resourceForemanHostV0() *schema.Resource {
 				),
 			},
 
-			"owner_type": &schema.Schema{
+			"owner_type": {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Optional:     true,
@@ -168,7 +168,7 @@ func resourceForemanHostV0() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"owner_id": &schema.Schema{
+			"owner_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     false,
@@ -177,7 +177,7 @@ func resourceForemanHostV0() *schema.Resource {
 				Description:  "ID of the user or usergroup that owns the host.",
 			},
 
-			"domain_id": &schema.Schema{
+			"domain_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -186,20 +186,20 @@ func resourceForemanHostV0() *schema.Resource {
 				Description:  "ID of the domain to assign to the host.",
 			},
 
-			"domain_name": &schema.Schema{
+			"domain_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The domain name of the host.",
 			},
 
-			"environment_id": &schema.Schema{
+			"environment_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
 			},
-			"operatingsystem_id": &schema.Schema{
+			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -207,7 +207,7 @@ func resourceForemanHostV0() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the operating system to put on the host.",
 			},
-			"medium_id": &schema.Schema{
+			"medium_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -215,7 +215,7 @@ func resourceForemanHostV0() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the medium mounted on the host.",
 			},
-			"hostgroup_id": &schema.Schema{
+			"hostgroup_id": {
 				Type:         schema.TypeInt,
 				Computed:     true,
 				Optional:     true,
@@ -223,7 +223,7 @@ func resourceForemanHostV0() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the hostgroup to assign to the host.",
 			},
-			"image_id": &schema.Schema{
+			"image_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -231,14 +231,14 @@ func resourceForemanHostV0() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of an image to be used as base for this host when cloning",
 			},
-			"model_id": &schema.Schema{
+			"model_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the hardware model if applicable",
 			},
-			"puppet_class_ids": &schema.Schema{
+			"puppet_class_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -247,14 +247,14 @@ func resourceForemanHostV0() *schema.Resource {
 				},
 				Description: "IDs of the applied puppet classes.",
 			},
-			"compute_resource_id": &schema.Schema{
+			"compute_resource_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
-			"compute_profile_id": &schema.Schema{
+			"compute_profile_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -262,7 +262,7 @@ func resourceForemanHostV0() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 
-			"compute_attributes": &schema.Schema{
+			"compute_attributes": {
 				Type:             schema.TypeString,
 				ValidateFunc:     validation.StringIsJSON,
 				Optional:         true,
@@ -272,7 +272,7 @@ func resourceForemanHostV0() *schema.Resource {
 			},
 
 			// -- Key Components --
-			"interfaces_attributes": &schema.Schema{
+			"interfaces_attributes": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
@@ -313,7 +313,7 @@ func resourceForemanHost() *schema.Resource {
 		},
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -324,7 +324,7 @@ func resourceForemanHost() *schema.Resource {
 
 			// -- Required --
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
@@ -344,7 +344,7 @@ func resourceForemanHost() *schema.Resource {
 
 			// -- Optional --
 
-			"method": &schema.Schema{
+			"method": {
 				Type:       schema.TypeString,
 				Optional:   true,
 				Deprecated: "The argument is handled by build instead",
@@ -355,7 +355,7 @@ func resourceForemanHost() *schema.Resource {
 				Description: "REMOVED - use build argument instead to manage build flag of host.",
 			},
 
-			"comment": &schema.Schema{
+			"comment": {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Computed:     true,
@@ -365,7 +365,7 @@ func resourceForemanHost() *schema.Resource {
 					"Note: Changes to this attribute will trigger a host rebuild.",
 				),
 			},
-			"parameters": &schema.Schema{
+			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
 				Computed: true,
@@ -377,7 +377,7 @@ func resourceForemanHost() *schema.Resource {
 					"in the machine config.",
 			},
 
-			"enable_bmc": &schema.Schema{
+			"enable_bmc": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -386,7 +386,7 @@ func resourceForemanHost() *schema.Resource {
 					"boot to PXE and power on. Defaults to `false`.",
 			},
 
-			"manage_build": &schema.Schema{
+			"manage_build": {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Deprecated: "The feature was merged into the new key managed",
@@ -394,27 +394,27 @@ func resourceForemanHost() *schema.Resource {
 					" Create host only, don't set build status or manage power states",
 			},
 
-			"managed": &schema.Schema{
+			"managed": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 				Description: "Whether or not this host is managed by Foreman." +
 					" Create host only, don't set build status or manage power states.",
 			},
-			"build": &schema.Schema{
+			"build": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
 					"which means host will be built at next boot.",
 			},
-			"manage_power_operations": &schema.Schema{
+			"manage_power_operations": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 				Description: "Manage power operations, e.g. power on, if host's build flag will be enabled.",
 			},
-			"retry_count": &schema.Schema{
+			"retry_count": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      2,
@@ -422,7 +422,7 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(1),
 			},
 
-			"bmc_success": &schema.Schema{
+			"bmc_success": {
 				Type:       schema.TypeBool,
 				Optional:   true,
 				Deprecated: "The feature no longer exists",
@@ -437,7 +437,7 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 
-			"owner_type": &schema.Schema{
+			"owner_type": {
 				Type:         schema.TypeString,
 				ForceNew:     false,
 				Optional:     true,
@@ -448,7 +448,7 @@ func resourceForemanHost() *schema.Resource {
 
 			// -- Foreign Key Relationships --
 
-			"owner_id": &schema.Schema{
+			"owner_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     false,
@@ -457,7 +457,7 @@ func resourceForemanHost() *schema.Resource {
 				Description:  "ID of the user or usergroup that owns the host.",
 			},
 
-			"domain_id": &schema.Schema{
+			"domain_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -466,20 +466,20 @@ func resourceForemanHost() *schema.Resource {
 				Description:  "ID of the domain to assign to the host.",
 			},
 
-			"domain_name": &schema.Schema{
+			"domain_name": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The domain name of the host.",
 			},
 
-			"environment_id": &schema.Schema{
+			"environment_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
 			},
-			"operatingsystem_id": &schema.Schema{
+			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -487,7 +487,7 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the operating system to put on the host.",
 			},
-			"medium_id": &schema.Schema{
+			"medium_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -495,7 +495,7 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the medium mounted on the host.",
 			},
-			"hostgroup_id": &schema.Schema{
+			"hostgroup_id": {
 				Type:         schema.TypeInt,
 				Computed:     true,
 				Optional:     true,
@@ -503,7 +503,7 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the hostgroup to assign to the host.",
 			},
-			"image_id": &schema.Schema{
+			"image_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
@@ -511,14 +511,14 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of an image to be used as base for this host when cloning",
 			},
-			"model_id": &schema.Schema{
+			"model_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the hardware model if applicable",
 			},
-			"puppet_class_ids": &schema.Schema{
+			"puppet_class_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -527,14 +527,14 @@ func resourceForemanHost() *schema.Resource {
 				},
 				Description: "IDs of the applied puppet classes.",
 			},
-			"compute_resource_id": &schema.Schema{
+			"compute_resource_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 			},
-			"compute_profile_id": &schema.Schema{
+			"compute_profile_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
@@ -542,7 +542,7 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 			},
 
-			"compute_attributes": &schema.Schema{
+			"compute_attributes": {
 				Type:             schema.TypeString,
 				ValidateFunc:     validation.StringIsJSON,
 				Optional:         true,
@@ -552,7 +552,7 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			// -- Key Components --
-			"interfaces_attributes": &schema.Schema{
+			"interfaces_attributes": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
@@ -568,11 +568,12 @@ func resourceForemanHost() *schema.Resource {
 // assigned by Foreman at the time of creation.
 //
 // NOTE(ALL): See comments in ResourceData's "interfaces_attributes"
-//   attribute definition above
+//
+//	attribute definition above
 func resourceForemanInterfacesAttributes() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "Unique identifier for the interface.",
@@ -580,84 +581,84 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 
 			// -- Optional --
 
-			"primary": &schema.Schema{
+			"primary": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not this is the primary interface.",
 			},
-			"ip": &schema.Schema{
+			"ip": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IsIPAddress,
 				Description:  "IP address associated with the interface.",
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    false,
 				Computed:    true,
 				Description: "Name of the interface",
 			},
-			"mac": &schema.Schema{
+			"mac": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
 				Description: "MAC address associated with the interface.",
 			},
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the subnet to associate with this interface.",
 			},
-			"identifier": &schema.Schema{
+			"identifier": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Identifier of this interface local to the host.",
 			},
-			"managed": &schema.Schema{
+			"managed": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not this interface is managed by Foreman.",
 			},
-			"provision": &schema.Schema{
+			"provision": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not this interface is used to provision the host.",
 			},
-			"virtual": &schema.Schema{
+			"virtual": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     false,
 				Description: "Whether or not this is a virtual interface.",
 			},
-			"attached_to": &schema.Schema{
+			"attached_to": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Identifier of the interface to which this interface belongs.",
 			},
-			"attached_devices": &schema.Schema{
+			"attached_devices": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list",
 			},
-			"username": &schema.Schema{
+			"username": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Username used for BMC/IPMI functionality.",
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Sensitive:   true,
 				Optional:    true,
 				Description: "Associated password used for BMC/IPMI functionality.",
 			},
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -671,7 +672,7 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 					"`\"bmc\"`, `\"bond\"`, `\"bridge\"`.",
 			},
 			// Provider used for BMC/IPMI calls. (Default: IPMI)
-			"bmc_provider": &schema.Schema{
+			"bmc_provider": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
@@ -681,7 +682,7 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 				Description: "Provider used for BMC/IMPI functionality. Values include: " +
 					"`\"IPMI\"`",
 			},
-			"compute_attributes": &schema.Schema{
+			"compute_attributes": {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,

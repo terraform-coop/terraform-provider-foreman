@@ -28,7 +28,7 @@ func resourceForemanHTTPProxy() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -38,7 +38,7 @@ func resourceForemanHTTPProxy() *schema.Resource {
 				),
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
@@ -48,7 +48,7 @@ func resourceForemanHTTPProxy() *schema.Resource {
 				),
 			},
 
-			"url": &schema.Schema{
+			"url": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validation.IsURLWithHTTPorHTTPS,

@@ -27,7 +27,7 @@ func resourceForemanCommonParameter() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			autodoc.MetaAttribute: &schema.Schema{
+			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
 				Description: fmt.Sprintf(
@@ -37,11 +37,11 @@ func resourceForemanCommonParameter() *schema.Resource {
 			},
 
 			// -- Actual Content --
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"value": &schema.Schema{
+			"value": {
 				Type:     schema.TypeString,
 				Required: true,
 			},

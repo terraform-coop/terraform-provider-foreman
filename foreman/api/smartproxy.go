@@ -21,13 +21,13 @@ const (
 // The ForemanSmartProxy API model representing a proxy server.  Smart proxies
 // provide an API for a higher-level orchestration tool.  Foreman supports
 // the following smart proxies:
-//   1. DHCP - ISC DHCP & MS DHCP servers
-//   2. DNS - bind & MS DNS servers
-//   3. Puppet >= 0.24.x
-//   4. Puppet CA
-//   5. Realm - manage host registration to a realm (eg: FreeIPA)
-//   6. Templates - Proxy template requests from hosts in isolated networks
-//   7. TFTP
+//  1. DHCP - ISC DHCP & MS DHCP servers
+//  2. DNS - bind & MS DNS servers
+//  3. Puppet >= 0.24.x
+//  4. Puppet CA
+//  5. Realm - manage host registration to a realm (eg: FreeIPA)
+//  6. Templates - Proxy template requests from hosts in isolated networks
+//  7. TFTP
 type ForemanSmartProxy struct {
 	// Inherits the base object's attributes
 	ForemanObject

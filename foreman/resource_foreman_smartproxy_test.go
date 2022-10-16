@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -175,7 +175,7 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 	smartProxiesURIById := SmartProxiesURI + "/" + strconv.Itoa(obj.Id)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyCreate",
 				crudFunc:     resourceForemanSmartProxyCreate,
@@ -188,7 +188,7 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyRead",
 				crudFunc:     resourceForemanSmartProxyRead,
@@ -201,7 +201,7 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyUpdate",
 				crudFunc:     resourceForemanSmartProxyUpdate,
@@ -214,7 +214,7 @@ func ResourceForemanSmartProxyCorrectURLAndMethodTestCases(t *testing.T) []TestC
 				},
 			},
 		},
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyDelete",
 				crudFunc:     resourceForemanSmartProxyDelete,
@@ -239,12 +239,12 @@ func ResourceForemanSmartProxyRequestDataEmptyTestCases(t *testing.T) []TestCase
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyRead",
 			crudFunc:     resourceForemanSmartProxyRead,
 			resourceData: MockForemanSmartProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyDelete",
 			crudFunc:     resourceForemanSmartProxyDelete,
 			resourceData: MockForemanSmartProxyResourceData(s),
@@ -268,7 +268,7 @@ func ResourceForemanSmartProxyRequestDataTestCases(t *testing.T) []TestCaseReque
 	reqData, _ := client.WrapJSONWithTaxonomy("smart_proxy", obj)
 
 	return []TestCaseRequestData{
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyCreate",
 				crudFunc:     resourceForemanSmartProxyCreate,
@@ -276,7 +276,7 @@ func ResourceForemanSmartProxyRequestDataTestCases(t *testing.T) []TestCaseReque
 			},
 			expectedData: reqData,
 		},
-		TestCaseRequestData{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyUpdate",
 				crudFunc:     resourceForemanSmartProxyUpdate,
@@ -296,22 +296,22 @@ func ResourceForemanSmartProxyStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyCreate",
 			crudFunc:     resourceForemanSmartProxyCreate,
 			resourceData: MockForemanSmartProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyRead",
 			crudFunc:     resourceForemanSmartProxyRead,
 			resourceData: MockForemanSmartProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyUpdate",
 			crudFunc:     resourceForemanSmartProxyUpdate,
 			resourceData: MockForemanSmartProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyDelete",
 			crudFunc:     resourceForemanSmartProxyDelete,
 			resourceData: MockForemanSmartProxyResourceData(s),
@@ -326,17 +326,17 @@ func ResourceForemanSmartProxyEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanSmartProxyToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyCreate",
 			crudFunc:     resourceForemanSmartProxyCreate,
 			resourceData: MockForemanSmartProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyRead",
 			crudFunc:     resourceForemanSmartProxyRead,
 			resourceData: MockForemanSmartProxyResourceData(s),
 		},
-		TestCase{
+		{
 			funcName:     "resourceForemanSmartProxyUpdate",
 			crudFunc:     resourceForemanSmartProxyUpdate,
 			resourceData: MockForemanSmartProxyResourceData(s),
@@ -354,7 +354,7 @@ func ResourceForemanSmartProxyMockResponseTestCases(t *testing.T) []TestCaseMock
 		// If the server responds with a proper create response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyCreate",
 				crudFunc:     resourceForemanSmartProxyCreate,
@@ -371,7 +371,7 @@ func ResourceForemanSmartProxyMockResponseTestCases(t *testing.T) []TestCaseMock
 		// If the server responds with a proper read response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyRead",
 				crudFunc:     resourceForemanSmartProxyRead,
@@ -388,7 +388,7 @@ func ResourceForemanSmartProxyMockResponseTestCases(t *testing.T) []TestCaseMock
 		// If the server responds with a proper update response, the operation
 		// should succeed and the ResourceData's attributes should be updated
 		// to server's response
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "resourceForemanSmartProxyUpdate",
 				crudFunc:     resourceForemanSmartProxyUpdate,

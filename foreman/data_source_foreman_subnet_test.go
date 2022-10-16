@@ -16,7 +16,7 @@ func DataSourceForemanSubnetCorrectURLAndMethodTestCases(t *testing.T) []TestCas
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCaseCorrectURLAndMethod{
-		TestCaseCorrectURLAndMethod{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSubnetRead",
 				crudFunc:     dataSourceForemanSubnetRead,
@@ -39,7 +39,7 @@ func DataSourceForemanSubnetRequestDataEmptyTestCases(t *testing.T) []TestCase {
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSubnetRead",
 			crudFunc:     dataSourceForemanSubnetRead,
 			resourceData: MockForemanSubnetResourceData(s),
@@ -55,7 +55,7 @@ func DataSourceForemanSubnetStatusCodeTestCases(t *testing.T) []TestCase {
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSubnetRead",
 			crudFunc:     dataSourceForemanSubnetRead,
 			resourceData: MockForemanSubnetResourceData(s),
@@ -71,7 +71,7 @@ func DataSourceForemanSubnetEmptyResponseTestCases(t *testing.T) []TestCase {
 	s := ForemanSubnetToInstanceState(obj)
 
 	return []TestCase{
-		TestCase{
+		{
 			funcName:     "dataSourceForemanSubnetRead",
 			crudFunc:     dataSourceForemanSubnetRead,
 			resourceData: MockForemanSubnetResourceData(s),
@@ -89,7 +89,7 @@ func DataSourceForemanSubnetMockResponseTestCases(t *testing.T) []TestCaseMockRe
 	return []TestCaseMockResponse{
 		// If the server responds with more than one search result for the data
 		// source read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSubnetRead",
 				crudFunc:     dataSourceForemanSubnetRead,
@@ -100,7 +100,7 @@ func DataSourceForemanSubnetMockResponseTestCases(t *testing.T) []TestCaseMockRe
 		},
 		// If the server responds with zero search results for the data source
 		// read, then the operation should return an error
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSubnetRead",
 				crudFunc:     dataSourceForemanSubnetRead,
@@ -112,7 +112,7 @@ func DataSourceForemanSubnetMockResponseTestCases(t *testing.T) []TestCaseMockRe
 		// If the server responds with exactly one search result for the data source
 		// read, then the operation should succeed and the attributes of the
 		// ResourceData should be set properly.
-		TestCaseMockResponse{
+		{
 			TestCase: TestCase{
 				funcName:     "dataSourceForemanSubnetRead",
 				crudFunc:     dataSourceForemanSubnetRead,
