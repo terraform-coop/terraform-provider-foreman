@@ -109,7 +109,7 @@ func RandForemanHost() api.ForemanHost {
 	fo := RandForemanObject()
 	obj.ForemanObject = fo
 
-	obj.Build = rand.Intn(2) > 0
+	obj.Build = rand.Float32() < 0.5
 
 	operatingSystemId := rand.Intn(100)
 	domainId := rand.Intn(100)
