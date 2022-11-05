@@ -551,7 +551,7 @@ func resourceForemanHost() *schema.Resource {
 				DiffSuppressFunc: structure.SuppressJsonDiff,
 			},
 
-			"token": &schema.Schema{
+			"token": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "Build token. Can be used to signal to Foreman that a host build is complete.",
@@ -930,6 +930,8 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.Set("name", fh.Name)
 	d.Set("comment", fh.Comment)
+	d.Set("build", fh.Build)
+	d.Set("managed", fh.Managed)
 	d.Set("parameters", api.FromKV(fh.HostParameters))
 
 	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
