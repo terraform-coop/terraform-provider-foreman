@@ -31,6 +31,7 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	// Build the attribute map from ForemanHost
 	attr := map[string]string{}
 	attr["name"] = obj.Name
+	attr["managed"] = strconv.FormatBool(obj.Managed)
 	if obj.DomainId != nil {
 		attr["domain_id"] = strconv.Itoa(*obj.DomainId)
 	}
@@ -53,6 +54,9 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	}
 	if obj.OwnerId != nil {
 		attr["owner_id"] = strconv.Itoa(*obj.OwnerId)
+	}
+	if obj.ModelId != nil {
+		attr["owner_id"] = strconv.Itoa(*obj.ModelId)
 	}
 	attr["owner_type"] = obj.OwnerType
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
