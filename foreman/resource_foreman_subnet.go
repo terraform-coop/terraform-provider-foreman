@@ -17,7 +17,6 @@ import (
 
 func resourceForemanSubnet() *schema.Resource {
 	return &schema.Resource{
-
 		CreateContext: resourceForemanSubnetCreate,
 		ReadContext:   resourceForemanSubnetRead,
 		UpdateContext: resourceForemanSubnetUpdate,
@@ -28,7 +27,6 @@ func resourceForemanSubnet() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-
 			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -245,20 +243,24 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 		s.Mtu = attr.(int)
 	}
 	if attr, ok = d.GetOk("template_id"); ok {
-		s.TemplateID = attr.(int)
+		templateID := attr.(int)
+		s.TemplateID = &templateID
 	}
 	if attr, ok = d.GetOk("dhcp_id"); ok {
-		s.DhcpID = attr.(int)
+		dhcpID := attr.(int)
+		s.DhcpID = &dhcpID
 	}
 	bmcId := d.Get("bmc_id").(int)
 	if bmcId != 0 {
 		s.BmcID = &bmcId
 	}
 	if attr, ok = d.GetOk("tftp_id"); ok {
-		s.TftpID = attr.(int)
+		tftpID := attr.(int)
+		s.TftpID = &tftpID
 	}
 	if attr, ok = d.GetOk("httpboot_id"); ok {
-		s.HTTPBootID = attr.(int)
+		httpBootID := attr.(int)
+		s.HTTPBootID = &httpBootID
 	}
 	if attr, ok = d.GetOk("domain_ids"); ok {
 		attrSet := attr.(*schema.Set)
