@@ -335,7 +335,7 @@ func InitLogger(logConfig LoggingConfig) {
 	// open it in append mode.  If an error is encountered, fall back to the
 	// default writer.
 	fileFlags := os.O_WRONLY | os.O_CREATE | os.O_APPEND
-	file, fileErr := os.OpenFile(logConfig.LogFile, fileFlags, 0775)
+	file, fileErr := os.OpenFile(logConfig.LogFile, fileFlags, 0664)
 	if fileErr != nil {
 		log.Printf(
 			"[ERROR] Could not initialize provider's file log file [%s]. "+
