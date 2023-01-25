@@ -7,16 +7,16 @@ provider "foreman" {
 
   client_tls_insecure = true
 
-  client_username = "${var.client_username}"
-  client_password = "${var.client_password}"
+  client_username = var.client_username
+  client_password = var.client_password
 }
 
 data "foreman_model" "poweredgem520" {
-	name = "PowerEdge M520"
+  name = "PowerEdge M520"
 }
 
 resource "foreman_model" "terraformtest" {
-	"name" = "Terraform Test"
-	"info" = "Testing hardware model creation with Terraform"
-	"vendor_class" = "Enterprise"
+  name         = "Terraform Test"
+  info         = "Testing hardware model creation with Terraform"
+  vendor_class = "Enterprise"
 }
