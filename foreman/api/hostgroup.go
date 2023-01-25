@@ -184,15 +184,18 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, reqErr
 	}
 
-	var updatedHostgroup ForemanHostgroup
+	var updatedHostgroup foremanHostGroupDecode
 	sendErr := c.SendAndParse(req, &updatedHostgroup)
 	if sendErr != nil {
 		return nil, sendErr
 	}
 
+	updatedHostgroup.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHostgroup.PuppetClassesDecode)
+	updatedHostgroup.HostGroupParameters = updatedHostgroup.HostGroupParametersDecode
+
 	log.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)
 
-	return &updatedHostgroup, nil
+	return &updatedHostgroup.ForemanHostgroup, nil
 }
 
 // DeleteHostgroup deletes the ForemanHostgroup identified by the supplied ID

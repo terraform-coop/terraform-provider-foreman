@@ -254,7 +254,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, reqErr
 	}
 
-	var createdHost ForemanHost
+	var createdHost foremanHostDecode
 
 	retry := 0
 	var sendErr error
@@ -274,6 +274,10 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, sendErr
 	}
 
+	createdHost.InterfacesAttributes = createdHost.InterfacesAttributesDecode
+	createdHost.PuppetClassIds = foremanObjectArrayToIdIntArray(createdHost.PuppetClassesDecode)
+	createdHost.HostParameters = createdHost.HostParametersDecode
+
 	computeAttributes, _ := c.readComputeAttributes(ctx, createdHost.Id)
 	if len(computeAttributes) > 0 {
 		createdHost.ComputeAttributes = computeAttributes
@@ -281,7 +285,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 
 	log.Debugf("createdHost: [%+v]", createdHost)
 
-	return &createdHost, nil
+	return &createdHost.ForemanHost, nil
 }
 
 // ReadHost reads the attributes of a ForemanHost identified by the supplied ID
