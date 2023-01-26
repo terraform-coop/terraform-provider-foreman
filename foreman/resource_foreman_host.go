@@ -775,6 +775,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if attr, ok = d.GetOk("puppet_class_ids"); ok {
 		attrSet := attr.(*schema.Set)
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
+		host.PuppetAttributes.Puppetclass_ids = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 	if attr, ok = d.GetOk("parameters"); ok {
 		host.HostParameters = api.ToKV(attr.(map[string]interface{}))
@@ -1175,6 +1176,7 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.HasChange("operatingsystem_id") ||
 		d.HasChange("interfaces_attributes") ||
 		d.HasChange("build") ||
+		d.HasChange("puppet_class_ids") ||
 		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)

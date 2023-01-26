@@ -95,6 +95,8 @@ type ForemanHost struct {
 	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
 	// Build token
 	Token string `json:"token,omitempty"`
+	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
+	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces

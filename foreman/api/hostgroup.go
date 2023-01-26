@@ -41,6 +41,8 @@ type ForemanHostgroup struct {
 	ArchitectureId int `json:"architecture_id,omitempty"`
 	// ID of the compute profile associated with this hostgroup
 	ComputeProfileId int `json:"compute_profile_id,omitempty"`
+	// List of config groups to apply to the hostgroup
+	ConfigGroupIds []int `json:"config_group_ids"`
 	// ID of the domain associated with this hostgroup
 	DomainId int `json:"domain_id,omitempty"`
 	// ID of the environment associated with this hostgroup
@@ -75,6 +77,8 @@ type ForemanHostgroup struct {
 	ContentSourceId int `json:"content_source_id,omitempty"`
 	// Map of HostGroupParameters
 	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes,omitempty"`
+	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
+	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
 }
 
 // ForemanHostgroup struct used for JSON decode.  Foreman API returns the ids

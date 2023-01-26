@@ -101,6 +101,12 @@ type ForemanKVParameter struct {
 	Value string `json:"value"`
 }
 
+// JSON obect for creating and updating puppetattributes on hosts and hostgroups
+type PuppetAttribute struct {
+	Puppetclass_ids []int `json:"puppetclass_ids"`
+	ConfigGroup_ids []int `json:"config_group_ids"`
+}
+
 func FromKV(kv []ForemanKVParameter) (ret map[string]string) {
 	ret = make(map[string]string)
 	for _, pair := range kv {
@@ -421,5 +427,6 @@ func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) (
 		wrapped["organization_id"] = client.clientConfig.OrganizationID
 		log.Debugf("client.go#WrapJSONWithTaxonomy: item %+v", wrapped)
 	}
+
 	return json.Marshal(wrapped)
 }
