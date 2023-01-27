@@ -25,6 +25,7 @@ The following arguments are supported:
 - `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - (Optional) 
 - `compute_resource_id` - (Optional, Force New) 
+- `config_group_ids` - (Optional) IDs of the applied config groups.
 - `domain_id` - (Optional, Force New) ID of the domain to assign to the host.
 - `enable_bmc` - (Optional) Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
 - `environment_id` - (Optional) ID of the environment to assign to the host.
@@ -55,6 +56,7 @@ The following attributes are exported:
 - `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
 - `compute_resource_id` - 
+- `config_group_ids` - IDs of the applied config groups.
 - `domain_id` - ID of the domain to assign to the host.
 - `domain_name` - The domain name of the host.
 - `enable_bmc` - Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to `false`.
