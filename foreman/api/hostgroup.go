@@ -87,6 +87,7 @@ type ForemanHostgroup struct {
 type foremanHostGroupDecode struct {
 	ForemanHostgroup
 	PuppetClassesDecode       []ForemanObject      `json:"puppetclasses"`
+	ConfigGroupsDecode        []ForemanObject      `json:"config_groups"`
 	HostGroupParametersDecode []ForemanKVParameter `json:"parameters,omitempty"`
 }
 
@@ -155,6 +156,7 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 	}
 
 	readHostgroup.PuppetClassIds = foremanObjectArrayToIdIntArray(readHostgroup.PuppetClassesDecode)
+	readHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(readHostgroup.ConfigGroupsDecode)
 	readHostgroup.HostGroupParameters = readHostgroup.HostGroupParametersDecode
 
 	log.Debugf("readHostgroup: [%+v]", readHostgroup)
@@ -195,6 +197,7 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 	}
 
 	updatedHostgroup.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHostgroup.PuppetClassesDecode)
+	updatedHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHostgroup.ConfigGroupsDecode)
 	updatedHostgroup.HostGroupParameters = updatedHostgroup.HostGroupParametersDecode
 
 	log.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)

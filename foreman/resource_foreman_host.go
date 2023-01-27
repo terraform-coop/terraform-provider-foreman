@@ -527,6 +527,15 @@ func resourceForemanHost() *schema.Resource {
 				},
 				Description: "IDs of the applied puppet classes.",
 			},
+			"config_group_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "IDs of the applied config groups.",
+			},
 			"compute_resource_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -777,6 +786,13 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 		host.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 		host.PuppetAttributes.Puppetclass_ids = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
+
+	if attr, ok = d.GetOk("config_group_ids"); ok {
+		attrSet := attr.(*schema.Set)
+		host.ConfigGroupIds = conv.InterfaceSliceToIntSlice(attrSet.List())
+		host.PuppetAttributes.ConfigGroup_ids = conv.InterfaceSliceToIntSlice(attrSet.List())
+	}
+
 	if attr, ok = d.GetOk("parameters"); ok {
 		host.HostParameters = api.ToKV(attr.(map[string]interface{}))
 	}
@@ -952,6 +968,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("image_id", fh.ImageId)
 	d.Set("model_id", fh.ModelId)
 	d.Set("puppet_class_ids", fh.PuppetClassIds)
+	d.Set("config_group_ids", fh.ConfigGroupIds)
 	d.Set("token", fh.Token)
 
 	setResourceDataFromForemanInterfacesAttributes(d, fh)
@@ -1177,6 +1194,7 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.HasChange("interfaces_attributes") ||
 		d.HasChange("build") ||
 		d.HasChange("puppet_class_ids") ||
+		d.HasChange("config_group_ids") ||
 		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)
