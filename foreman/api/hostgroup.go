@@ -41,6 +41,8 @@ type ForemanHostgroup struct {
 	ArchitectureId int `json:"architecture_id,omitempty"`
 	// ID of the compute profile associated with this hostgroup
 	ComputeProfileId int `json:"compute_profile_id,omitempty"`
+	// List of config groups to apply to the hostgroup
+	ConfigGroupIds []int `json:"config_group_ids"`
 	// ID of the domain associated with this hostgroup
 	DomainId int `json:"domain_id,omitempty"`
 	// ID of the environment associated with this hostgroup
@@ -75,6 +77,8 @@ type ForemanHostgroup struct {
 	ContentSourceId int `json:"content_source_id,omitempty"`
 	// Map of HostGroupParameters
 	HostGroupParameters []ForemanKVParameter `json:"group_parameters_attributes,omitempty"`
+	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
+	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
 }
 
 // ForemanHostgroup struct used for JSON decode.  Foreman API returns the ids
@@ -83,6 +87,7 @@ type ForemanHostgroup struct {
 type foremanHostGroupDecode struct {
 	ForemanHostgroup
 	PuppetClassesDecode       []ForemanObject      `json:"puppetclasses"`
+	ConfigGroupsDecode        []ForemanObject      `json:"config_groups"`
 	HostGroupParametersDecode []ForemanKVParameter `json:"parameters,omitempty"`
 }
 
@@ -151,6 +156,7 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 	}
 
 	readHostgroup.PuppetClassIds = foremanObjectArrayToIdIntArray(readHostgroup.PuppetClassesDecode)
+	readHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(readHostgroup.ConfigGroupsDecode)
 	readHostgroup.HostGroupParameters = readHostgroup.HostGroupParametersDecode
 
 	log.Debugf("readHostgroup: [%+v]", readHostgroup)
@@ -191,6 +197,7 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 	}
 
 	updatedHostgroup.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHostgroup.PuppetClassesDecode)
+	updatedHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHostgroup.ConfigGroupsDecode)
 	updatedHostgroup.HostGroupParameters = updatedHostgroup.HostGroupParametersDecode
 
 	log.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)

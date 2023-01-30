@@ -21,6 +21,7 @@ The following arguments are supported:
 
 - `architecture_id` - (Optional) ID of the architecture associated with this hostgroup.
 - `compute_profile_id` - (Optional) ID of the compute profile associated with this hostgroup.
+- `config_group_ids` - (Optional) IDs of the applied config groups.
 - `content_source_id` - (Optional) ID of the content source associated with this hostgroup.
 - `content_view_id` - (Optional) ID of the content view associated with this hostgroup.
 - `domain_id` - (Optional) ID of the domain associated with this hostgroup.
@@ -47,6 +48,7 @@ The following attributes are exported:
 
 - `architecture_id` - ID of the architecture associated with this hostgroup.
 - `compute_profile_id` - ID of the compute profile associated with this hostgroup.
+- `config_group_ids` - IDs of the applied config groups.
 - `content_source_id` - ID of the content source associated with this hostgroup.
 - `content_view_id` - ID of the content view associated with this hostgroup.
 - `domain_id` - ID of the domain associated with this hostgroup.

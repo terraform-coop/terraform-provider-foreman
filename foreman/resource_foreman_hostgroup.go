@@ -109,6 +109,16 @@ func resourceForemanHostgroup() *schema.Resource {
 				Description:  "ID of the compute profile associated with this hostgroup.",
 			},
 
+			"config_group_ids": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+				Description: "IDs of the applied config groups.",
+			},
+
 			"content_source_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -264,6 +274,12 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 		hostgroup.ComputeProfileId = attr.(int)
 	}
 
+	if attr, ok = d.GetOk("config_group_ids"); ok {
+		attrSet := attr.(*schema.Set)
+		hostgroup.ConfigGroupIds = conv.InterfaceSliceToIntSlice(attrSet.List())
+		hostgroup.PuppetAttributes.ConfigGroup_ids = conv.InterfaceSliceToIntSlice(attrSet.List())
+	}
+
 	if attr, ok = d.GetOk("content_source_id"); ok {
 		hostgroup.ContentSourceId = attr.(int)
 	}
@@ -307,6 +323,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 	if attr, ok = d.GetOk("puppet_class_ids"); ok {
 		attrSet := attr.(*schema.Set)
 		hostgroup.PuppetClassIds = conv.InterfaceSliceToIntSlice(attrSet.List())
+		hostgroup.PuppetAttributes.Puppetclass_ids = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 
 	if attr, ok = d.GetOk("puppet_proxy_id"); ok {
@@ -339,6 +356,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("parameters", api.FromKV(fh.HostGroupParameters))
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
+	d.Set("config_group_ids", fh.ConfigGroupIds)
 	d.Set("content_source_id", fh.ContentSourceId)
 	d.Set("content_view_id", fh.ContentViewId)
 	d.Set("domain_id", fh.DomainId)

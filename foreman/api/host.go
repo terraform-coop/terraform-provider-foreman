@@ -95,6 +95,10 @@ type ForemanHost struct {
 	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
 	// Build token
 	Token string `json:"token,omitempty"`
+	// List of config groups to apply to the hostg
+	ConfigGroupIds []int `json:"config_group_ids"`
+	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
+	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
@@ -138,6 +142,7 @@ type foremanHostDecode struct {
 	ForemanHost
 	InterfacesAttributesDecode []ForemanInterfacesAttribute `json:"interfaces"`
 	PuppetClassesDecode        []ForemanObject              `json:"puppetclasses"`
+	ConfigGroupsDecode         []ForemanObject              `json:"config_groups"`
 	HostParametersDecode       []ForemanKVParameter         `json:"parameters"`
 }
 
@@ -276,6 +281,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 
 	createdHost.InterfacesAttributes = createdHost.InterfacesAttributesDecode
 	createdHost.PuppetClassIds = foremanObjectArrayToIdIntArray(createdHost.PuppetClassesDecode)
+	createdHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(createdHost.ConfigGroupsDecode)
 	createdHost.HostParameters = createdHost.HostParametersDecode
 
 	computeAttributes, _ := c.readComputeAttributes(ctx, createdHost.Id)
@@ -317,6 +323,7 @@ func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 	}
 	readHost.InterfacesAttributes = readHost.InterfacesAttributesDecode
 	readHost.PuppetClassIds = foremanObjectArrayToIdIntArray(readHost.PuppetClassesDecode)
+	readHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(readHost.ConfigGroupsDecode)
 	readHost.HostParameters = readHost.HostParametersDecode
 
 	return &readHost.ForemanHost, nil
@@ -372,6 +379,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	}
 	updatedHost.InterfacesAttributes = updatedHost.InterfacesAttributesDecode
 	updatedHost.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHost.PuppetClassesDecode)
+	updatedHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHost.ConfigGroupsDecode)
 	updatedHost.HostParameters = updatedHost.HostParametersDecode
 	log.Debugf("updatedHost: [%+v]", updatedHost)
 
