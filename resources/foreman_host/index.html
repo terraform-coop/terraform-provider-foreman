@@ -205,6 +205,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - (Optional) </li>
 <li><code>compute_resource_id</code> - (Optional, Force New) </li>
+<li><code>config_group_ids</code> - (Optional) IDs of the applied config groups.</li>
 <li><code>domain_id</code> - (Optional, Force New) ID of the domain to assign to the host.</li>
 <li><code>enable_bmc</code> - (Optional) Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to <code>false</code>.</li>
 <li><code>environment_id</code> - (Optional) ID of the environment to assign to the host.</li>
@@ -233,6 +234,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>compute_attributes</code> - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - </li>
 <li><code>compute_resource_id</code> - </li>
+<li><code>config_group_ids</code> - IDs of the applied config groups.</li>
 <li><code>domain_id</code> - ID of the domain to assign to the host.</li>
 <li><code>domain_name</code> - The domain name of the host.</li>
 <li><code>enable_bmc</code> - Enables PMI/BMC functionality. On create and update calls, having this enabled will force a host to poweroff, set next boot to PXE and power on. Defaults to <code>false</code>.</li>
