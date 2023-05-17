@@ -15,6 +15,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -297,7 +298,28 @@ func resourceForemanHost() *schema.Resource {
 		ReadContext:   resourceForemanHostRead,
 		UpdateContext: resourceForemanHostUpdate,
 		DeleteContext: resourceForemanHostDelete,
-		CustomizeDiff: resourceForemanHostCustomizeDiff,
+
+		CustomizeDiff: customdiff.All(
+			func(ctx context.Context, d *schema.ResourceDiff, i interface{}) error {
+				oldVal, newVal := d.GetChange("compute_attributes")
+
+				oldMap := expandComputeAttributes(oldVal.(string))
+				newMap := expandComputeAttributes(newVal.(string))
+
+				err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
+
+				if err != nil {
+					log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
+				}
+
+				d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
+				return nil
+			},
+			// customdiff.ComputedIf("name", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
+			// 	old, new := d.GetChange("name")
+			// 	return strings.HasPrefix(new.(string), old.(string))
+			// }),
+		),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -1272,20 +1294,4 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 		return ""
 	}
 	return string(json)
-}
-
-func resourceForemanHostCustomizeDiff(context context.Context, d *schema.ResourceDiff, m interface{}) error {
-	oldVal, newVal := d.GetChange("compute_attributes")
-
-	oldMap := expandComputeAttributes(oldVal.(string))
-	newMap := expandComputeAttributes(newVal.(string))
-
-	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
-
-	if err != nil {
-		log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
-	}
-
-	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
-	return nil
 }
