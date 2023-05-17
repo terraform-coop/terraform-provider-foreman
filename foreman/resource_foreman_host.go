@@ -14,6 +14,7 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -348,19 +349,58 @@ func resourceForemanHost() *schema.Resource {
 
 			"name": {
 				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				ForceNew: false, // TODO: Check
+				Computed: true,
+				Optional: true,
 				Description: fmt.Sprintf(
-					"Host fully qualified domain name. "+
+					"Deprecated. Use 'fqdn' instead! "+
+						"Host fully qualified domain name. "+
 						"%s \"compute01.dc1.company.com\"",
 					autodoc.MetaExample,
 				),
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					domainName := d.Get("domain_name").(string)
-					if domainName == "" || !(strings.Contains(new, domainName) || strings.Contains(old, domainName)) {
-						return false
+				ValidateDiagFunc: func(value interface{}, p cty.Path) diag.Diagnostics {
+					var diags diag.Diagnostics
+					if strings.Count(value.(string), ".") == 0 {
+						diag := diag.Diagnostic{
+							Severity: diag.Warning,
+							Summary:  "Name does not contain dots. Is it FQDN?",
+							Detail: fmt.Sprintf("The name %q does not contain dots. Is it an FQDN? "+
+								"If you wish to use the shortname (without domain part), use the 'shortname' field.", value),
+						}
+						diags = append(diags, diag)
 					}
-					return strings.Replace(old, "."+domainName, "", 1) == strings.Replace(new, "."+domainName, "", 1)
+					return diags
+				},
+			},
+
+			"fqdn": {
+				Type:     schema.TypeString,
+				Computed: true, // Read-only value
+				Optional: false,
+				Required: false,
+				Description: fmt.Sprintf(
+					"Host fully qualified domain name. %s \"compute01.dc1.company.com\". "+
+						"Read-only value to be used in variables.",
+					autodoc.MetaExample,
+				),
+			},
+
+			"shortname": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: false,
+				Required: true,
+				ValidateDiagFunc: func(value interface{}, p cty.Path) diag.Diagnostics {
+					var diags diag.Diagnostics
+					if strings.Count(value.(string), ".") > 0 {
+						diag := diag.Diagnostic{
+							Severity: diag.Error,
+							Summary:  "Shortname is not allowed to contain dots",
+							Detail:   fmt.Sprintf("The shortname %q contains dots, but this is not allowed, since the shortname is not the FQDN.", value),
+						}
+						diags = append(diags, diag)
+					}
+					return diags
 				},
 			},
 
@@ -750,10 +790,25 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	var attr interface{}
 	var ok bool
 
-	host.Name = d.Get("name").(string)
+	host.Shortname = d.Get("shortname").(string) // Required
+	host.DomainName = d.Get("domain_name").(string)
+
+	// Set name for Foreman
+	if host.Name == "" {
+		if host.DomainName != "" {
+			// Construct full FQDN
+			log.Infof("Host %s name was set to FQDN", host.Shortname)
+			host.Name = host.Shortname + "." + host.DomainName
+		} else {
+			// Fall back to short name, omitting the domain part
+			log.Infof("Host %s name was set to shortname, because domainname was missing", host.Shortname)
+			host.Name = host.Shortname
+		}
+	}
+
 	host.Comment = d.Get("comment").(string)
 	host.OwnerType = d.Get("owner_type").(string)
-	host.DomainName = d.Get("domain_name").(string)
+
 	host.Managed = d.Get("managed").(bool)
 	host.Build = d.Get("build").(bool)
 	host.Token = d.Get("token").(string)
@@ -969,7 +1024,25 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
-	d.Set("name", fh.Name)
+	log.Debugf("ForemanHost: %+v", fh)
+
+	d.Set("name", fh.Name) // internal name from Foreman meta struct
+
+	// Foreman has a setting called "append_domain_name_for_hosts" which might result in the
+	// "name" field being only the shortname. To present consistent values to Terraform, the
+	// attributes "fqdn" and "shortname" were introduced.
+
+	// To ensure consistency in the fqdn attribute, handle adding the domain part if needed.
+	// This attribute should be used instead of "name".
+	if !strings.Contains(fh.Name, fh.DomainName) {
+		d.Set("fqdn", fmt.Sprintf("%s.%s", fh.Name, fh.DomainName))
+	} else {
+		d.Set("fqdn", fh.Name)
+	}
+
+	// The shortname is created in foreman/api/host.go#constructShortname
+	d.Set("shortname", fh.Shortname)
+
 	d.Set("comment", fh.Comment)
 	d.Set("parameters", api.FromKV(fh.HostParameters))
 
@@ -1204,6 +1277,8 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// We need to test whether a call to update the host is necessary based on what has changed.
 	// Otherwise, a detected update caused by an unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
+		d.HasChange("fqdn") ||
+		d.HasChange("shortname") ||
 		d.HasChange("comment") ||
 		d.HasChange("parameters") ||
 		d.HasChange("compute_attributes") ||

@@ -48,6 +48,15 @@ type ForemanHost struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
+	// Shortname, FQDN without DomainName.
+	// Not provided by the API, only available in templates with embedded Ruby
+	Shortname string
+
+	// The "fqdn" field in the Terraform schema exists only in the schema,
+	// not in this struct. Reason: name is a Foreman-managed field that can either hold
+	// the shortname or the FQDN, but the "fqdn" field is presented to the user
+	// and must be consistent.
+
 	// Whether or not to rebuild the host on reboot
 	Build bool `json:"build"`
 	// Describes the way this host will be provisioned by Foreman
