@@ -1041,12 +1041,31 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 // -----------------------------------------------------------------------------
 
 func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Create")
+	log.Tracef("resource_foreman_host.go#resourceForemanHostCreate")
+	var diags diag.Diagnostics
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
 	managed := d.Get("managed").(bool)
+
+	// Check the Foreman-internal setting for appending domains to host names.
+	// If enabled, passing in a short hostname will result in a different name as return value.
+	// Example: Setting is on, name = "mymachine" -> return value is "mymachine.domain.com"
+	append_domains, err := client.ReadSetting(ctx, "append_domain_name_for_hosts")
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	log.Debugf("append_domain_name_for_hosts: %+v", append_domains.Value)
+
+	if append_domains.Value == true && h.DomainName != "" && !strings.Contains(h.Name, h.DomainName) {
+		diag := diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "Hostname does not contain domain.",
+			Detail:   fmt.Sprintf("The name %q does not contain the domain. Is it an FQDN? ", h.Name),
+		}
+		diags = append(diags, diag)
+	}
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
@@ -1109,7 +1128,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	// Disable partial mode
 	d.Partial(false)
 
-	return nil
+	return diags
 }
 
 func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

@@ -231,6 +231,7 @@ func Provider() *schema.Provider {
 			"foreman_katello_sync_plan":          dataSourceForemanKatelloSyncPlan(),
 			"foreman_user":                       dataSourceForemanUser(),
 			"foreman_usergroup":                  dataSourceForemanUsergroup(),
+			"foreman_setting":                    dataSourceForemanSetting(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}
