@@ -93,7 +93,7 @@ type ForemanHost struct {
 	ComputeProfileId *int `json:"compute_profile_id,omitempty"`
 	// IDs of the puppet classes applied to the host
 	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
-	// Build token
+	// Build token, used by Foreman to provide a phone-home access token
 	Token string `json:"token,omitempty"`
 	// List of config groups to apply to the hostg
 	ConfigGroupIds []int `json:"config_group_ids"`
@@ -238,7 +238,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#Create")
+	log.Tracef("foreman/api/host.go#CreateHost")
 
 	reqEndpoint := fmt.Sprintf("/%s", HostEndpointPrefix)
 
@@ -297,7 +297,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 // ReadHost reads the attributes of a ForemanHost identified by the supplied ID
 // and returns a ForemanHost reference.
 func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#Read")
+	log.Tracef("foreman/api/host.go#ReadHost")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
@@ -333,7 +333,7 @@ func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 // supplied ForemanHost will be updated. A new ForemanHost reference is
 // returned with the attributes from the result of the update operation.
 func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#Update")
+	log.Tracef("foreman/api/host.go#UpdateHost")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
@@ -388,7 +388,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 
 // DeleteHost deletes the ForemanHost identified by the supplied ID
 func (c *Client) DeleteHost(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/host.go#Delete")
+	log.Tracef("foreman/api/host.go#DeleteHost")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
@@ -407,6 +407,7 @@ func (c *Client) DeleteHost(ctx context.Context, id int) error {
 
 // Compute Attributes are only available via dedicated API endpoint. readComputeAttributes gets this endpoint.
 func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]interface{}, error) {
+	log.Tracef("foreman/api/host.go#readComputeAttributes")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/%s", HostEndpointPrefix, id, ComputeAttributesSuffix)
 

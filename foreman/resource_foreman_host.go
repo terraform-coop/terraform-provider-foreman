@@ -820,7 +820,9 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 	// type assert the underlying *schema.Set and convert to a list
 	attrList := attr.([]interface{})
 	attrListLen := len(attrList)
+
 	tempIntAttr = make([]api.ForemanInterfacesAttribute, attrListLen)
+
 	// iterate over each of the map structure entires in the set and convert that
 	// to a concrete struct implementation to append to the interfaces
 	// attributes list.
@@ -976,10 +978,12 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
 func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
+	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanInterfacesAttributes")
+
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
 	// entries.  The hash function will be based on the resource definition
-	//hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
+	// hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
 	// underneath, a *schema.Set stores an array of map[string]interface{} entries.
 	// convert each ForemanInterfaces struct in the supplied array to a
 	// mapstructure and then add it to the set
@@ -1113,7 +1117,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Read")
+	log.Tracef("resource_foreman_host.go#resourceForemanHostRead")
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
@@ -1137,7 +1141,7 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Update")
+	log.Tracef("resource_foreman_host.go#resourceForemanHostUpdate")
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
