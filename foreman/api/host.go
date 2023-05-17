@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -288,6 +290,10 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, sendErr
 	}
 
+	if err := constructShortname(&createdHost); err != nil {
+		return nil, err
+	}
+
 	createdHost.InterfacesAttributes = createdHost.InterfacesAttributesDecode
 	createdHost.PuppetClassIds = foremanObjectArrayToIdIntArray(createdHost.PuppetClassesDecode)
 	createdHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(createdHost.ConfigGroupsDecode)
@@ -324,6 +330,10 @@ func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 	sendErr := c.SendAndParse(req, &readHost)
 	if sendErr != nil {
 		return nil, sendErr
+	}
+
+	if err := constructShortname(&readHost); err != nil {
+		return nil, err
 	}
 
 	computeAttributes, _ := c.readComputeAttributes(ctx, id)
@@ -382,6 +392,10 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, sendErr
 	}
 
+	if err := constructShortname(&updatedHost); err != nil {
+		return nil, err
+	}
+
 	computeAttributes, _ := c.readComputeAttributes(ctx, h.Id)
 	if len(computeAttributes) > 0 {
 		updatedHost.ComputeAttributes = computeAttributes
@@ -437,10 +451,35 @@ func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]
 	}
 
 	readVmAttributesStr := make(map[string]interface{}, len(readVmAttributes))
-
 	for idx, val := range readVmAttributes {
 		readVmAttributesStr[idx] = val
 	}
 
 	return readVmAttributesStr, nil
+}
+
+func constructShortname(host *foremanHostDecode) error {
+	log.Tracef("foreman/api/host.go#constructShortname")
+
+	// Construct shortname from 'name'
+	if host.Shortname == "" {
+		before, after, found := strings.Cut(host.Name, ".")
+
+		// If no dot is found, there's a serious error with the Foreman name attribute for this host
+		if !found {
+			return errors.New("The Foreman API did not return an FQDN as name for the host " + host.Name)
+		}
+
+		// Sanity check
+		if host.DomainName != "" && host.DomainName != after {
+			log.Errorf("After Cut of readHost.Name to find the shortname, the domain part did not match the rest of the 'name' string")
+		}
+
+		// If all went well, set the shortname to the first string from FQDN ('name' in Foreman)
+		log.Debugf("constructShortname: Shortname will be set to first element from FQDN: %s", before)
+		host.Shortname = before
+	} else {
+		log.Debugf("constructShortname: host.Shortname is not empty (is %s), so nothing is done", host.Shortname)
+	}
+	return nil
 }
