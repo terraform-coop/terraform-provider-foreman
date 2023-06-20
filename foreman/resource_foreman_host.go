@@ -749,10 +749,14 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if mediumId != 0 {
 		host.MediumId = &mediumId
 	}
+
+	// TODO: How is this parameter used?
+	// VMware-backed providers need the UUID instead of the Foreman-internal ID
 	imageId := d.Get("image_id").(int)
 	if imageId != 0 {
 		host.ImageId = &imageId
 	}
+
 	modelId := d.Get("model_id").(int)
 	if modelId != 0 {
 		host.ModelId = &modelId
@@ -1046,6 +1050,43 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
+
+	// This query allows to distinguish between different compute resource providers.
+	// See below how it is used in VMware and its usage of UUIDs for images.
+
+	// Sometimes failes with '{"message":"undefined method `resource_pools' for nil:NilClass"}'
+	// Source: https://github.com/fog/fog-vsphere/blob/ca07a0d41f1d1d07e4d791887c0875523fb91da8/lib/fog/vsphere/models/compute/cluster.rb#L15
+	// computeResource, readErr := client.ReadComputeResource(ctx, *h.ComputeResourceId)
+	// if readErr != nil {
+	// 	return diag.FromErr(readErr)
+	// }
+	// log.Debugf("computeResource: [%+v]", computeResource)
+
+	var diags diag.Diagnostics
+	if h.ProvisionMethod == "image" { // && strings.ToLower(computeResource.Provider) == "vmware" {
+		// TODO: is this only vmware specific? Do other providers use the UUID for their images as well?
+		log.Debugf("ProvisionMethod is image, provider is vmware - checking ComputeAttributes")
+		if h.ComputeAttributes == nil {
+			diag := diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Provision method 'image' needs image_id in compute_attributes",
+				Detail:   "When choosing the provision method 'image' you need to provide the image UUID in the 'compute_attributes' (JSON) field 'image_id'.",
+			}
+			diags = append(diags, diag)
+			return diags
+
+		} else if _, ok := h.ComputeAttributes["image_id"]; !ok {
+			log.Debugf("image_id is not in ComputeAttributes,")
+			diag := diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  "Compute attributes need to contain the 'image_id' field when using image-based provisioning",
+				Detail: fmt.Sprintf("You defined the JSON for 'compute_attributes' for host %s, but did not provide the field 'image_id' "+
+					"which must be the image UUID you wish to use.", h.Name),
+			}
+			diags = append(diags, diag)
+			return diags
+		}
+	}
 
 	createdHost, createErr := client.CreateHost(ctx, h, hostRetryCount)
 	if createErr != nil {
