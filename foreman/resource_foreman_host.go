@@ -479,6 +479,15 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
 			},
+
+			"architecture_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the architecture of this host",
+			},
+
 			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -752,6 +761,10 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if hostgroupId != 0 {
 		host.HostgroupId = &hostgroupId
 	}
+	architectureId := d.Get("architecture_id").(int)
+	if architectureId != 0 {
+		host.ArchitectureId = &architectureId
+	}
 	operatingSystemId := d.Get("operatingsystem_id").(int)
 	if operatingSystemId != 0 {
 		host.OperatingSystemId = &operatingSystemId
@@ -959,6 +972,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("owner_id", fh.OwnerId)
 	d.Set("owner_type", fh.OwnerType)
 	d.Set("hostgroup_id", fh.HostgroupId)
+	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_resource_id", fh.ComputeResourceId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)

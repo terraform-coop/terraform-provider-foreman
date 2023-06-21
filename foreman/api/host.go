@@ -64,6 +64,10 @@ type ForemanHost struct {
 	EnvironmentId *int `json:"environment_id,omitempty"`
 	// ID of the hostgroup to assign the host
 	HostgroupId *int `json:"hostgroup_id,omitempty"`
+	// ID of the architecture of this host
+	ArchitectureId *int `json:"architecture_id,omitempty"`
+	// Name of the architecture of this host
+	// ArchitectureName string `json:"architecture_name,omitempty"`
 	// ID of the operating system to put on the host
 	OperatingSystemId *int `json:"operatingsystem_id,omitempty"`
 	// ID of the medium that should be mounted
