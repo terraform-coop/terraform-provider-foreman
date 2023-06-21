@@ -13,7 +13,7 @@ provider "foreman" {
 
 # Read the data resource (it's read-only at the moment)
 data "foreman_setting" "append_domain" {
-	name = "append_domain_name_for_hosts"
+    name = "append_domain_name_for_hosts"
 }
 
 # Then use e.g. data.foreman_setting.append_domain:

@@ -1049,23 +1049,27 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	managed := d.Get("managed").(bool)
 
+	// Here, commit 7dad08886079b82672eee33f9e1247c5ca60bb77 used a query against the settings API to check
+	// the "append_domain_name_for_hosts" setting. In case of true, a shortname will be expanded to
+	// a FQDN, resulting in inconsistent plans. Maybe this issue will arise again, then handle it here.
+
 	// Check the Foreman-internal setting for appending domains to host names.
 	// If enabled, passing in a short hostname will result in a different name as return value.
 	// Example: Setting is on, name = "mymachine" -> return value is "mymachine.domain.com"
-	append_domains, err := client.ReadSetting(ctx, "append_domain_name_for_hosts")
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	log.Debugf("append_domain_name_for_hosts: %+v", append_domains.Value)
+	// append_domains, err := client.ReadSetting(ctx, "append_domain_name_for_hosts")
+	// if err != nil {
+	// 	return diag.FromErr(err)
+	// }
+	// log.Debugf("append_domain_name_for_hosts: %+v", append_domains.Value)
 
-	if append_domains.Value == true && h.DomainName != "" && !strings.Contains(h.Name, h.DomainName) {
-		diag := diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  "Hostname does not contain domain.",
-			Detail:   fmt.Sprintf("The name %q does not contain the domain. Is it an FQDN? ", h.Name),
-		}
-		diags = append(diags, diag)
-	}
+	// if append_domains.Value == true && h.DomainName != "" && !strings.Contains(h.Name, h.DomainName) {
+	// 	diag := diag.Diagnostic{
+	// 		Severity: diag.Warning,
+	// 		Summary:  "Hostname does not contain domain.",
+	// 		Detail:   fmt.Sprintf("The name %q does not contain the domain. Is it an FQDN? ", h.Name),
+	// 	}
+	// 	diags = append(diags, diag)
+	// }
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
