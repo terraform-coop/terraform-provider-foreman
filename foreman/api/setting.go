@@ -51,7 +51,7 @@ type ForemanSetting struct {
 	CategoryName string `json:"category_name"`
 
 	// Type of the setting (boolean, string etc.)
-	SettingsType string `json:"settings_type,omitempty"`
+	SettingsType string `json:"settings_type"`
 }
 
 // ReadSetting reads the attributes of a ForemanSetting identified by the supplied

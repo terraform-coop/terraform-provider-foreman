@@ -73,6 +73,12 @@ func dataSourceForemanSetting() *schema.Resource {
 			Computed:    true,
 			Description: "Name of the category the setting is in.",
 		},
+
+		"settings_type": {
+			Type:        schema.TypeString,
+			Computed:    true,
+			Description: "Data type of this setting (boolean, string, ..)",
+		},
 	}
 
 	return &schema.Resource{
@@ -145,6 +151,7 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 	d.Set("default", setting.Default)
 	d.Set("category_name", setting.CategoryName)
 	d.Set("readonly", setting.ReadOnly)
+	d.Set("settings_type", setting.SettingsType)
 
 	return diags
 }
