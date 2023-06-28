@@ -90,8 +90,6 @@ func dataSourceForemanSetting() *schema.Resource {
 func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("data_source_foreman_setting.go#Read")
 
-	var diags diag.Diagnostics
-
 	client := meta.(*api.Client)
 	setting := &api.ForemanSetting{}
 
@@ -123,20 +121,14 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 	}
 	setting = &querySetting
 
-	// Convert boolean or integer values to strings to match the schema
+	// Convert boolean or integer values to strings to match the Terraform resource schema.
+	// Foreman uses "boolean", "integer", "array" and "hash", besides "string"/"text", as types in "settings_type".
+	// See https://github.com/theforeman/foreman/blob/0025f26123a22b84052292ed3ef749c91a563274/app/models/setting.rb#L111
 	switch setting.Value.(type) {
 	case bool:
 		setting.Value = strconv.FormatBool(setting.Value.(bool))
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  fmt.Sprintf("The value for setting %s was a boolean and was converted to string", setting.Name),
-		})
 	case int:
 		setting.Value = strconv.FormatInt(setting.Value.(int64), 10)
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Warning,
-			Summary:  fmt.Sprintf("The value for setting %s was an integer and was converted to string", setting.Name),
-		})
 	case string:
 	default:
 		// noop
@@ -153,5 +145,5 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 	d.Set("readonly", setting.ReadOnly)
 	d.Set("settings_type", setting.SettingsType)
 
-	return diags
+	return nil
 }
