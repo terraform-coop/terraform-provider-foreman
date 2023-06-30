@@ -50,8 +50,13 @@ type ForemanHost struct {
 
 	// Whether or not to rebuild the host on reboot
 	Build bool `json:"build"`
+	// Current build status
+	// From Foreman: BUILT = 0, PENDING = 1, TOKEN_EXPIRED = 2, BUILD_FAILED = 3
+	BuildStatus int `json:"build_status"`
+	// Current build status label
+	BuildStatusLabel string `json:"build_status_label"`
 	// Describes the way this host will be provisioned by Foreman
-	Method string `json:"provision_method,omitempty"`
+	ProvisionMethod string `json:"provision_method,omitempty"`
 	// ID of the domain to assign the host
 	DomainId *int `json:"domain_id,omitempty"`
 	// Name of the Domain. To substract from the Machine name
@@ -99,6 +104,10 @@ type ForemanHost struct {
 	ConfigGroupIds []int `json:"config_group_ids"`
 	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
 	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
+}
+
+func (fh *ForemanHost) isBuilt() bool {
+	return fh.BuildStatus == 0
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
