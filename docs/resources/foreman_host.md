@@ -20,7 +20,6 @@ resource "foreman_host" "example" {
 The following arguments are supported:
 
 - `bmc_success` - (Optional) REMOVED - Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
-- `build` - (Optional) Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - (Optional) 
@@ -43,6 +42,7 @@ The following arguments are supported:
 - `owner_id` - (Optional) ID of the user or usergroup that owns the host.
 - `owner_type` - (Optional) Owner of the host, must be either User ot Usergroup
 - `parameters` - (Optional) A map of parameters that will be saved as host parameters in the machine config.
+- `provision_method` - (Optional) A string, "build" to deploy from the network, "image" to deploy from a disk image.
 - `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
 
