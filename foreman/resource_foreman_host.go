@@ -85,6 +85,7 @@ func resourceForemanHostV0() *schema.Resource {
 					"Note: Changes to this attribute will trigger a host rebuild.",
 				),
 			},
+
 			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
@@ -404,17 +405,16 @@ func resourceForemanHost() *schema.Resource {
 				},
 			},
 
-			// -- Optional --
-
-			"method": {
-				Type:       schema.TypeString,
-				Optional:   true,
-				Deprecated: "The argument is handled by build instead",
+			"provision_method": {
+				Type:     schema.TypeString,
+				ForceNew: true,
+				Optional: true,
+				Default:  "build",
 				ValidateFunc: validation.StringInSlice([]string{
-					"build",
-					"image",
+					"build", // build = Network Based
+					"image", // image = Image Based
 				}, false),
-				Description: "REMOVED - use build argument instead to manage build flag of host.",
+				Description: "Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')",
 			},
 
 			"comment": {
@@ -427,6 +427,7 @@ func resourceForemanHost() *schema.Resource {
 					"Note: Changes to this attribute will trigger a host rebuild.",
 				),
 			},
+
 			"parameters": {
 				Type:     schema.TypeMap,
 				ForceNew: false,
@@ -448,14 +449,6 @@ func resourceForemanHost() *schema.Resource {
 					"boot to PXE and power on. Defaults to `false`.",
 			},
 
-			"manage_build": {
-				Type:       schema.TypeBool,
-				Optional:   true,
-				Deprecated: "The feature was merged into the new key managed",
-				Description: "REMOVED, please use the new 'managed' key instead." +
-					" Create host only, don't set build status or manage power states",
-			},
-
 			"managed": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -463,19 +456,14 @@ func resourceForemanHost() *schema.Resource {
 				Description: "Whether or not this host is managed by Foreman." +
 					" Create host only, don't set build status or manage power states.",
 			},
-			"build": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
-				Description: "Whether or not this host's build flag will be enabled in Foreman. Default is true, " +
-					"which means host will be built at next boot.",
-			},
+
 			"manage_power_operations": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Default:     true,
 				Description: "Manage power operations, e.g. power on, if host's build flag will be enabled.",
 			},
+
 			"retry_count": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -808,9 +796,8 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	host.Comment = d.Get("comment").(string)
 	host.OwnerType = d.Get("owner_type").(string)
-
+	host.ProvisionMethod = d.Get("provision_method").(string)
 	host.Managed = d.Get("managed").(bool)
-	host.Build = d.Get("build").(bool)
 	host.Token = d.Get("token").(string)
 
 	ownerId := d.Get("owner_id").(int)
@@ -837,10 +824,14 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if mediumId != 0 {
 		host.MediumId = &mediumId
 	}
+
+	// TODO: How is this parameter used?
+	// VMware-backed providers need the UUID instead of the Foreman-internal ID
 	imageId := d.Get("image_id").(int)
 	if imageId != 0 {
 		host.ImageId = &imageId
 	}
+
 	modelId := d.Get("model_id").(int)
 	if modelId != 0 {
 		host.ModelId = &modelId
@@ -1050,6 +1041,10 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 		log.Printf("[WARN] error setting compute attributes: %s", err)
 	}
 
+	// See issue #115 for "Build" attribute
+	d.Set("managed", fh.Managed)
+	d.Set("provision_method", fh.ProvisionMethod)
+
 	d.Set("domain_id", fh.DomainId)
 	d.Set("domain_name", fh.DomainName)
 	d.Set("environment_id", fh.EnvironmentId)
@@ -1145,10 +1140,18 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	managed := d.Get("managed").(bool)
+	// NOTE(ALL): Set the build flag to true on host create
+	if h.ProvisionMethod == "build" && h.Managed {
+		h.Build = true
+	}
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
+
+	// See commit ad2b5890f09645513b520f12291546f26b812c96 for an experimental implementation
+	// for checks of the "computeAttributes" field, when using ProvisionMethod=image.
+	// The feature was removed because it was VMware-specific and the test on the backend provider
+	// could not yet be implemented (via client.ReadComputeResource -> computeResource.Provider)
 
 	createdHost, createErr := client.CreateHost(ctx, h, hostRetryCount)
 	if createErr != nil {
@@ -1164,7 +1167,6 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	setResourceDataFromForemanHost(d, createdHost)
 
-	enablebmc := d.Get("enable_bmc").(bool)
 	ManagePowerOperations := d.Get("manage_power_operations").(bool)
 
 	// Manage power operations only if needed, default is true
@@ -1172,7 +1174,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 		var powerCmds []interface{}
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
 		// Don't modify power state at all if we're not managing the build
-		if enablebmc {
+		if h.EnableBMC {
 			log.Debugf("Calling BMC Reboot/PXE Functions")
 			// List of BMC Actions to perform
 			powerCmds = []interface{}{
@@ -1183,7 +1185,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 					PowerAction: api.PowerCycle,
 				},
 			}
-		} else if managed {
+		} else if h.Managed {
 			log.Debugf("Using default Foreman behaviour for startup")
 			powerCmds = []interface{}{
 				api.Power{
