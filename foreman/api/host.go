@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -465,14 +464,15 @@ func constructShortname(host *foremanHostDecode) error {
 	if host.Shortname == "" {
 		before, after, found := strings.Cut(host.Name, ".")
 
-		// If no dot is found, there's a serious error with the Foreman name attribute for this host
+		// If no dot is found and shortname is not defined, Foreman probably does not expand hostnames with the domain name
 		if !found {
-			return errors.New("The Foreman API did not return an FQDN as name for the host " + host.Name)
+			host.Shortname = host.Name
+			return nil
 		}
 
 		// Sanity check
 		if host.DomainName != "" && host.DomainName != after {
-			log.Errorf("After Cut of readHost.Name to find the shortname, the domain part did not match the rest of the 'name' string")
+			log.Errorf("After Cut of host.Name to find the shortname, the domain part did not match the rest of the 'name' string")
 		}
 
 		// If all went well, set the shortname to the first string from FQDN ('name' in Foreman)
