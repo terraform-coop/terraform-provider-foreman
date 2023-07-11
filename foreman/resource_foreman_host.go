@@ -302,25 +302,7 @@ func resourceForemanHost() *schema.Resource {
 		DeleteContext: resourceForemanHostDelete,
 
 		CustomizeDiff: customdiff.All(
-			func(ctx context.Context, d *schema.ResourceDiff, i interface{}) error {
-				oldVal, newVal := d.GetChange("compute_attributes")
-
-				oldMap := expandComputeAttributes(oldVal.(string))
-				newMap := expandComputeAttributes(newVal.(string))
-
-				err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
-
-				if err != nil {
-					log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
-				}
-
-				d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
-				return nil
-			},
-			// customdiff.ComputedIf("name", func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) bool {
-			// 	old, new := d.GetChange("name")
-			// 	return strings.HasPrefix(new.(string), old.(string))
-			// }),
+			resourceForemanHostCustomizeDiffComputeAttributes,
 		),
 
 		Importer: &schema.ResourceImporter{
@@ -1351,4 +1333,20 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 		return ""
 	}
 	return string(json)
+}
+
+func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *schema.ResourceDiff, i interface{}) error {
+	oldVal, newVal := d.GetChange("compute_attributes")
+
+	oldMap := expandComputeAttributes(oldVal.(string))
+	newMap := expandComputeAttributes(newVal.(string))
+
+	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
+
+	if err != nil {
+		log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
+	}
+
+	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
+	return nil
 }
