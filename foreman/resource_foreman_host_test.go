@@ -45,6 +45,12 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	if obj.HostgroupId != nil {
 		attr["hostgroup_id"] = strconv.Itoa(*obj.HostgroupId)
 	}
+	if obj.ArchitectureId != nil {
+		attr["architecture_id"] = strconv.Itoa(*obj.ArchitectureId)
+	}
+	if obj.SubnetId != nil {
+		attr["subnet_id"] = strconv.Itoa(*obj.SubnetId)
+	}
 	if obj.OperatingSystemId != nil {
 		attr["operatingsystem_id"] = strconv.Itoa(*obj.OperatingSystemId)
 	}
@@ -59,6 +65,9 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	}
 	if obj.ModelId != nil {
 		attr["owner_id"] = strconv.Itoa(*obj.ModelId)
+	}
+	if obj.PtableId != nil {
+		attr["ptable_id"] = strconv.Itoa(*obj.PtableId)
 	}
 	attr["owner_type"] = obj.OwnerType
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
