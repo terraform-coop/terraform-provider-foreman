@@ -50,8 +50,13 @@ type ForemanHost struct {
 
 	// Whether or not to rebuild the host on reboot
 	Build bool `json:"build"`
+	// Current build status
+	// From Foreman: BUILT = 0, PENDING = 1, TOKEN_EXPIRED = 2, BUILD_FAILED = 3
+	BuildStatus int `json:"build_status"`
+	// Current build status label
+	BuildStatusLabel string `json:"build_status_label"`
 	// Describes the way this host will be provisioned by Foreman
-	Method string `json:"provision_method,omitempty"`
+	ProvisionMethod string `json:"provision_method,omitempty"`
 	// ID of the domain to assign the host
 	DomainId *int `json:"domain_id,omitempty"`
 	// Name of the Domain. To substract from the Machine name
@@ -108,6 +113,10 @@ type ForemanHost struct {
 	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
 	// Default Root Password for this host (on creation)
 	RootPassword string `json:"root_pass,omitempty"`
+}
+
+func (fh *ForemanHost) isBuilt() bool {
+	return fh.BuildStatus == 0
 }
 
 // ForemanInterfacesAttribute representing a hosts defined network interfaces
