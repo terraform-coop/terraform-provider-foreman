@@ -97,6 +97,8 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 	obj := buildForemanObject(d)
 	setting.ForemanObject = *obj
 
+	setting.Id = d.Id()
+
 	log.Debugf("ForemanSetting: [%+v]", setting)
 
 	queryResponse, queryErr := client.QuerySetting(ctx, setting)
@@ -129,6 +131,17 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 		setting.Value = strconv.FormatBool(setting.Value.(bool))
 	case int:
 		setting.Value = strconv.FormatInt(setting.Value.(int64), 10)
+	case string:
+	default:
+		// noop
+	}
+
+	// Same for the default value
+	switch setting.Default.(type) {
+	case bool:
+		setting.Default = strconv.FormatBool(setting.Default.(bool))
+	case int:
+		setting.Default = strconv.FormatInt(setting.Default.(int64), 10)
 	case string:
 	default:
 		// noop
