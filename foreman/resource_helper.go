@@ -20,8 +20,6 @@ func buildForemanObject(d *schema.ResourceData) *api.ForemanObject {
 		obj.Id = 0
 	}
 
-	// TODO: settings API returns strings as IDs, but the core.go ForemanObject.Id is int
-
 	var attr interface{}
 	var ok bool
 
