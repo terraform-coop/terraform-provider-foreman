@@ -346,27 +346,28 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 
-			// -- Required --
-
 			"name": {
-				Type:     schema.TypeString,
-				ForceNew: false, // TODO: Check
-				Computed: true,
-				Optional: true,
-				Description: fmt.Sprintf(
-					"Deprecated. Use 'fqdn' instead! "+
-						"Host fully qualified domain name. "+
-						"%s \"compute01.dc1.company.com\"",
-					autodoc.MetaExample,
-				),
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    false,
+				Required:    false,
+				Deprecated:  "[Deprecated. Use 'shortname' instead!]",
+				Description: "Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').",
+			},
+
+			"shortname": {
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    false,
+				Required:    true,
+				Description: "The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.",
 				ValidateDiagFunc: func(value interface{}, p cty.Path) diag.Diagnostics {
 					var diags diag.Diagnostics
-					if strings.Count(value.(string), ".") == 0 {
+					if strings.Count(value.(string), ".") > 0 {
 						diag := diag.Diagnostic{
-							Severity: diag.Warning,
-							Summary:  "Name does not contain dots. Is it FQDN?",
-							Detail: fmt.Sprintf("The name %q does not contain dots. Is it an FQDN? "+
-								"If you wish to use the shortname (without domain part), use the 'shortname' field.", value),
+							Severity: diag.Error,
+							Summary:  "Shortname is not allowed to contain dots",
+							Detail:   fmt.Sprintf("The shortname %q contains dots, but this is not allowed, since the shortname is not the FQDN.", value),
 						}
 						diags = append(diags, diag)
 					}
@@ -380,29 +381,9 @@ func resourceForemanHost() *schema.Resource {
 				Optional: false,
 				Required: false,
 				Description: fmt.Sprintf(
-					"Host fully qualified domain name. %s \"compute01.dc1.company.com\". "+
-						"Read-only value to be used in variables.",
+					"Host fully qualified domain name. Read-only value to be used in variables. %s \"compute01.dc1.company.com\"",
 					autodoc.MetaExample,
 				),
-			},
-
-			"shortname": {
-				Type:     schema.TypeString,
-				ForceNew: true,
-				Optional: false,
-				Required: true,
-				ValidateDiagFunc: func(value interface{}, p cty.Path) diag.Diagnostics {
-					var diags diag.Diagnostics
-					if strings.Count(value.(string), ".") > 0 {
-						diag := diag.Diagnostic{
-							Severity: diag.Error,
-							Summary:  "Shortname is not allowed to contain dots",
-							Detail:   fmt.Sprintf("The shortname %q contains dots, but this is not allowed, since the shortname is not the FQDN.", value),
-						}
-						diags = append(diags, diag)
-					}
-					return diags
-				},
 			},
 
 			"provision_method": {
@@ -1025,7 +1006,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	// To ensure consistency in the fqdn attribute, handle adding the domain part if needed.
 	// This attribute should be used instead of "name".
-	if !strings.Contains(fh.Name, fh.DomainName) {
+	if fh.DomainName != "" && !strings.Contains(fh.Name, fh.DomainName) {
 		d.Set("fqdn", fmt.Sprintf("%s.%s", fh.Name, fh.DomainName))
 	} else {
 		d.Set("fqdn", fh.Name)
@@ -1279,7 +1260,6 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// We need to test whether a call to update the host is necessary based on what has changed.
 	// Otherwise, a detected update caused by an unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
-		d.HasChange("fqdn") ||
 		d.HasChange("shortname") ||
 		d.HasChange("comment") ||
 		d.HasChange("parameters") ||
