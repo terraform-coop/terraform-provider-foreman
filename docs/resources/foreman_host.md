@@ -31,27 +31,25 @@ The following arguments are supported:
 - `hostgroup_id` - (Optional, Force New) ID of the hostgroup to assign to the host.
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - (Optional) Host interface information.
-- `manage_build` - (Optional) REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `manage_power_operations` - (Optional) Manage power operations, e.g. power on, if host's build flag will be enabled.
 - `managed` - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
-- `method` - (Optional) REMOVED - use build argument instead to manage build flag of host.
 - `model_id` - (Optional) ID of the hardware model if applicable
 - `name` - (Required, Force New) Host fully qualified domain name.
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
 - `owner_id` - (Optional) ID of the user or usergroup that owns the host.
 - `owner_type` - (Optional) Owner of the host, must be either User ot Usergroup
 - `parameters` - (Optional) A map of parameters that will be saved as host parameters in the machine config.
-- `provision_method` - (Optional) A string, "build" to deploy from the network, "image" to deploy from a disk image.
+- `provision_method` - (Optional, Force New) Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')
 - `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `set_build_flag` - (Optional) Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.
 
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-- `build` - Whether or not this host's build flag will be enabled in Foreman. Default is true, which means host will be built at next boot.
 - `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
@@ -64,18 +62,18 @@ The following attributes are exported:
 - `hostgroup_id` - ID of the hostgroup to assign to the host.
 - `image_id` - ID of an image to be used as base for this host when cloning
 - `interfaces_attributes` - Host interface information.
-- `manage_build` - REMOVED, please use the new 'managed' key instead. Create host only, don't set build status or manage power states
 - `manage_power_operations` - Manage power operations, e.g. power on, if host's build flag will be enabled.
 - `managed` - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - ID of the medium mounted on the host.
-- `method` - REMOVED - use build argument instead to manage build flag of host.
 - `model_id` - ID of the hardware model if applicable
 - `name` - Host fully qualified domain name.
 - `operatingsystem_id` - ID of the operating system to put on the host.
 - `owner_id` - ID of the user or usergroup that owns the host.
 - `owner_type` - Owner of the host, must be either User ot Usergroup
 - `parameters` - A map of parameters that will be saved as host parameters in the machine config.
+- `provision_method` - Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')
 - `puppet_class_ids` - IDs of the applied puppet classes.
 - `retry_count` - Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `set_build_flag` - Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.
 - `token` - Build token. Can be used to signal to Foreman that a host build is complete.
 

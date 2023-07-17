@@ -395,6 +395,13 @@ func resourceForemanHost() *schema.Resource {
 					" Create host only, don't set build status or manage power states.",
 			},
 
+			"set_build_flag": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Default:     false,
+				Description: "Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.",
+			},
+
 			"manage_power_operations": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -723,6 +730,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	host.ProvisionMethod = d.Get("provision_method").(string)
 	host.Managed = d.Get("managed").(bool)
+	host.Build = d.Get("set_build_flag").(bool)
 	host.Token = d.Get("token").(string)
 
 	ownerId := d.Get("owner_id").(int)
@@ -1047,6 +1055,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	if h.ProvisionMethod == "build" && h.Managed {
 		h.Build = true
 	}
+	// Another way to set this flag is to use the "set_build_flag" argument in Terraform
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
