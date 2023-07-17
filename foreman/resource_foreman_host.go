@@ -343,6 +343,16 @@ func resourceForemanHost() *schema.Resource {
 				},
 			},
 
+			// -- Optional --
+
+			"root_password": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				ValidateFunc: validation.StringLenBetween(8, 256),
+				Description:  "Default root password",
+			},
+
 			"provision_method": {
 				Type:     schema.TypeString,
 				ForceNew: true,
@@ -467,6 +477,31 @@ func resourceForemanHost() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the environment to assign to the host.",
 			},
+
+			"architecture_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the architecture of this host",
+			},
+
+			"subnet_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the subnet the host should be placed in",
+			},
+
+			"ptable_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the partition table the host should use",
+			},
+
 			"operatingsystem_id": {
 				Type:         schema.TypeInt,
 				Optional:     true,
@@ -741,6 +776,18 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if hostgroupId != 0 {
 		host.HostgroupId = &hostgroupId
 	}
+	architectureId := d.Get("architecture_id").(int)
+	if architectureId != 0 {
+		host.ArchitectureId = &architectureId
+	}
+	subnetId := d.Get("subnet_id").(int)
+	if subnetId != 0 {
+		host.SubnetId = &subnetId
+	}
+	ptableId := d.Get("ptable_id").(int)
+	if ptableId != 0 {
+		host.PtableId = &ptableId
+	}
 	operatingSystemId := d.Get("operatingsystem_id").(int)
 	if operatingSystemId != 0 {
 		host.OperatingSystemId = &operatingSystemId
@@ -788,6 +835,10 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 
 	if attr, ok = d.GetOk("parameters"); ok {
 		host.HostParameters = api.ToKV(attr.(map[string]interface{}))
+	}
+
+	if attr, ok = d.GetOk("root_password"); ok {
+		host.RootPassword = attr.(string)
 	}
 
 	host.InterfacesAttributes = buildForemanInterfacesAttributes(d)
@@ -956,6 +1007,9 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("owner_id", fh.OwnerId)
 	d.Set("owner_type", fh.OwnerType)
 	d.Set("hostgroup_id", fh.HostgroupId)
+	d.Set("architecture_id", fh.ArchitectureId)
+	d.Set("ptable_id", fh.PtableId)
+	d.Set("subnet_id", fh.SubnetId)
 	d.Set("compute_resource_id", fh.ComputeResourceId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
 	d.Set("operatingsystem_id", fh.OperatingSystemId)

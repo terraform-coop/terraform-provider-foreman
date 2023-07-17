@@ -69,6 +69,11 @@ type ForemanHost struct {
 	EnvironmentId *int `json:"environment_id,omitempty"`
 	// ID of the hostgroup to assign the host
 	HostgroupId *int `json:"hostgroup_id,omitempty"`
+	// ID of the architecture of this host
+	ArchitectureId *int `json:"architecture_id,omitempty"`
+	// Name of the architecture of this host
+	// ArchitectureName string `json:"architecture_name,omitempty"`
+	SubnetId *int `json:"subnet_id,omitempty"`
 	// ID of the operating system to put on the host
 	OperatingSystemId *int `json:"operatingsystem_id,omitempty"`
 	// ID of the medium that should be mounted
@@ -77,6 +82,8 @@ type ForemanHost struct {
 	ImageId *int `json:"image_id,omitempty"`
 	// ID of the hardware model
 	ModelId *int `json:"model_id,omitempty"`
+	// Ptables ID
+	PtableId *int `json:"ptable_id,omitempty"`
 	// Whether or not to Enable BMC Functionality on this host
 	EnableBMC bool `json:"-"`
 	// Boolean to track success of BMC Calls
@@ -104,6 +111,8 @@ type ForemanHost struct {
 	ConfigGroupIds []int `json:"config_group_ids"`
 	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
 	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
+	// Default Root Password for this host (on creation)
+	RootPassword string `json:"root_pass,omitempty"`
 }
 
 func (fh *ForemanHost) isBuilt() bool {
