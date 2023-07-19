@@ -41,6 +41,7 @@ The following arguments are supported:
 - `provision_method` - (Optional, Force New) Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')
 - `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `set_build_flag` - (Optional) Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.
 - `shortname` - (Required, Force New) The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.
 
 
@@ -73,6 +74,7 @@ The following attributes are exported:
 - `provision_method` - Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')
 - `puppet_class_ids` - IDs of the applied puppet classes.
 - `retry_count` - Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `set_build_flag` - Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.
 - `shortname` - The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.
 - `token` - Build token. Can be used to signal to Foreman that a host build is complete.
 
