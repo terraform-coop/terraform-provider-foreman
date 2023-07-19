@@ -38,6 +38,7 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	attr["domain_name"] = obj.DomainName
 	attr["build"] = strconv.FormatBool(obj.Build)
 	attr["provision_method"] = obj.ProvisionMethod
+	attr["shortname"] = obj.Shortname
 
 	if obj.EnvironmentId != nil {
 		attr["environment_id"] = strconv.Itoa(*obj.EnvironmentId)
@@ -124,6 +125,9 @@ func RandForemanHost() api.ForemanHost {
 	fo := RandForemanObject()
 	obj.ForemanObject = fo
 
+	// RandForemanObject returns a shortname as Name, no FQDN
+	obj.Shortname = obj.Name
+
 	obj.Build = rand.Float32() < 0.5
 
 	operatingSystemId := rand.Intn(100)
@@ -195,6 +199,19 @@ func ForemanHostResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *s
 		if key == "compute_attributes" {
 			continue
 		}
+
+		// Skip Terraform-only computed read-only FQDN field.
+		// Does not exist in Foreman API.
+		if key == "fqdn" {
+			continue
+		}
+
+		// Skip Terraform-only shortname field
+		// (used in Host struct, but does not exist in Foreman API).
+		if key == "shortname" {
+			continue
+		}
+
 		m[key] = value.Type
 	}
 
@@ -272,7 +289,6 @@ func TestBuildForemanHost(t *testing.T) {
 	expectedResourceData := MockForemanHostResourceData(expectedState)
 
 	actualObj := *buildForemanHost(expectedResourceData)
-
 	actualState := ForemanHostToInstanceState(actualObj)
 	actualResourceData := MockForemanHostResourceData(actualState)
 

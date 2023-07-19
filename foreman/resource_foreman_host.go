@@ -14,7 +14,9 @@ import (
 	"github.com/imdario/mergo"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -298,7 +300,10 @@ func resourceForemanHost() *schema.Resource {
 		ReadContext:   resourceForemanHostRead,
 		UpdateContext: resourceForemanHostUpdate,
 		DeleteContext: resourceForemanHostDelete,
-		CustomizeDiff: resourceForemanHostCustomizeDiff,
+
+		CustomizeDiff: customdiff.All(
+			resourceForemanHostCustomizeDiffComputeAttributes,
+		),
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -323,24 +328,44 @@ func resourceForemanHost() *schema.Resource {
 				),
 			},
 
-			// -- Required --
-
 			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Optional:    false,
+				Required:    false,
+				Deprecated:  "[Deprecated. Use 'shortname' instead!]",
+				Description: "Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').",
+			},
+
+			"shortname": {
+				Type:        schema.TypeString,
+				ForceNew:    true,
+				Optional:    false,
+				Required:    true,
+				Description: "The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.",
+				ValidateDiagFunc: func(value interface{}, p cty.Path) diag.Diagnostics {
+					var diags diag.Diagnostics
+					if strings.Count(value.(string), ".") > 0 {
+						diag := diag.Diagnostic{
+							Severity: diag.Error,
+							Summary:  "Shortname is not allowed to contain dots",
+							Detail:   fmt.Sprintf("The shortname %q contains dots, but this is not allowed, since the shortname is not the FQDN.", value),
+						}
+						diags = append(diags, diag)
+					}
+					return diags
+				},
+			},
+
+			"fqdn": {
 				Type:     schema.TypeString,
-				ForceNew: true,
-				Required: true,
+				Computed: true, // Read-only value
+				Optional: false,
+				Required: false,
 				Description: fmt.Sprintf(
-					"Host fully qualified domain name. "+
-						"%s \"compute01.dc1.company.com\"",
+					"Host fully qualified domain name. Read-only value to be used in variables. %s \"compute01.dc1.company.com\"",
 					autodoc.MetaExample,
 				),
-				DiffSuppressFunc: func(k, old, new string, d *schema.ResourceData) bool {
-					domainName := d.Get("domain_name").(string)
-					if domainName == "" || !(strings.Contains(new, domainName) || strings.Contains(old, domainName)) {
-						return false
-					}
-					return strings.Replace(old, "."+domainName, "", 1) == strings.Replace(new, "."+domainName, "", 1)
-				},
 			},
 
 			// -- Optional --
@@ -751,11 +776,24 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	var attr interface{}
 	var ok bool
 
-	host.Name = d.Get("name").(string)
-	host.Comment = d.Get("comment").(string)
-	host.OwnerType = d.Get("owner_type").(string)
+	host.Shortname = d.Get("shortname").(string) // Required
 	host.DomainName = d.Get("domain_name").(string)
 
+	// Set name for Foreman
+	if host.Name == "" {
+		if host.DomainName != "" {
+			// Construct full FQDN
+			log.Infof("Host %s name was set to FQDN", host.Shortname)
+			host.Name = host.Shortname + "." + host.DomainName
+		} else {
+			// Fall back to short name, omitting the domain part
+			log.Infof("Host %s name was set to shortname, because domainname was missing", host.Shortname)
+			host.Name = host.Shortname
+		}
+	}
+
+	host.Comment = d.Get("comment").(string)
+	host.OwnerType = d.Get("owner_type").(string)
 	host.ProvisionMethod = d.Get("provision_method").(string)
 	host.Managed = d.Get("managed").(bool)
 	host.Token = d.Get("token").(string)
@@ -864,7 +902,9 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 	// type assert the underlying *schema.Set and convert to a list
 	attrList := attr.([]interface{})
 	attrListLen := len(attrList)
+
 	tempIntAttr = make([]api.ForemanInterfacesAttribute, attrListLen)
+
 	// iterate over each of the map structure entires in the set and convert that
 	// to a concrete struct implementation to append to the interfaces
 	// attributes list.
@@ -989,7 +1029,25 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
-	d.Set("name", fh.Name)
+	log.Debugf("ForemanHost: %+v", fh)
+
+	d.Set("name", fh.Name) // internal name from Foreman meta struct
+
+	// Foreman has a setting called "append_domain_name_for_hosts" which might result in the
+	// "name" field being only the shortname. To present consistent values to Terraform, the
+	// attributes "fqdn" and "shortname" were introduced.
+
+	// To ensure consistency in the fqdn attribute, handle adding the domain part if needed.
+	// This attribute should be used instead of "name".
+	if fh.DomainName != "" && !strings.Contains(fh.Name, fh.DomainName) {
+		d.Set("fqdn", fmt.Sprintf("%s.%s", fh.Name, fh.DomainName))
+	} else {
+		d.Set("fqdn", fh.Name)
+	}
+
+	// The shortname is created in foreman/api/host.go#constructShortname
+	d.Set("shortname", fh.Shortname)
+
 	d.Set("comment", fh.Comment)
 	d.Set("parameters", api.FromKV(fh.HostParameters))
 
@@ -1027,10 +1085,12 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
 func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
+	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanInterfacesAttributes")
+
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
 	// entries.  The hash function will be based on the resource definition
-	//hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
+	// hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
 	// underneath, a *schema.Set stores an array of map[string]interface{} entries.
 	// convert each ForemanInterfaces struct in the supplied array to a
 	// mapstructure and then add it to the set
@@ -1171,7 +1231,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Read")
+	log.Tracef("resource_foreman_host.go#resourceForemanHostRead")
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
@@ -1195,7 +1255,7 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Update")
+	log.Tracef("resource_foreman_host.go#resourceForemanHostUpdate")
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
@@ -1236,6 +1296,7 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 	// We need to test whether a call to update the host is necessary based on what has changed.
 	// Otherwise, a detected update caused by an unsuccessful BMC operation will cause a 422 on update.
 	if d.HasChange("name") ||
+		d.HasChange("shortname") ||
 		d.HasChange("comment") ||
 		d.HasChange("parameters") ||
 		d.HasChange("compute_attributes") ||
@@ -1328,7 +1389,7 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 	return string(json)
 }
 
-func resourceForemanHostCustomizeDiff(context context.Context, d *schema.ResourceDiff, m interface{}) error {
+func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *schema.ResourceDiff, i interface{}) error {
 	oldVal, newVal := d.GetChange("compute_attributes")
 
 	oldMap := expandComputeAttributes(oldVal.(string))
