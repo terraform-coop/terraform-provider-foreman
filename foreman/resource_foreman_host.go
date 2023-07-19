@@ -1152,7 +1152,8 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 // -----------------------------------------------------------------------------
 
 func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Create")
+	log.Tracef("resource_foreman_host.go#resourceForemanHostCreate")
+	var diags diag.Diagnostics
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
@@ -1161,6 +1162,10 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	if h.ProvisionMethod == "build" && h.Managed {
 		h.Build = true
 	}
+
+	// Here, commit 7dad08886079b82672eee33f9e1247c5ca60bb77 used a query against the settings API to check
+	// the "append_domain_name_for_hosts" setting. In case of true, a shortname will be expanded to
+	// a FQDN, resulting in inconsistent plans. Maybe this issue will arise again, then handle it here.
 
 	log.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
@@ -1227,7 +1232,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	// Disable partial mode
 	d.Partial(false)
 
-	return nil
+	return diags
 }
 
 func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
