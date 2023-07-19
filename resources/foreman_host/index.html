@@ -221,6 +221,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>provision_method</code> - (Optional, Force New) Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')</li>
 <li><code>puppet_class_ids</code> - (Optional) IDs of the applied puppet classes.</li>
 <li><code>retry_count</code> - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.</li>
+<li><code>set_build_flag</code> - (Optional) Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.</li>
 <li><code>shortname</code> - (Required, Force New) The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
@@ -251,6 +252,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>provision_method</code> - Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')</li>
 <li><code>puppet_class_ids</code> - IDs of the applied puppet classes.</li>
 <li><code>retry_count</code> - Number of times to retry on a failed attempt to register or delete a host in foreman.</li>
+<li><code>set_build_flag</code> - Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.</li>
 <li><code>shortname</code> - The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.</li>
 <li><code>token</code> - Build token. Can be used to signal to Foreman that a host build is complete.</li>
 </ul>
