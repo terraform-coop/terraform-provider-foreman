@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -48,6 +49,15 @@ type ForemanHost struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
+	// Shortname, FQDN without DomainName.
+	// Not provided by the API, only available in templates with embedded Ruby
+	Shortname string
+
+	// The "fqdn" field in the Terraform schema exists only in the schema,
+	// not in this struct. Reason: name is a Foreman-managed field that can either hold
+	// the shortname or the FQDN, but the "fqdn" field is presented to the user
+	// and must be consistent.
+
 	// Whether or not to rebuild the host on reboot
 	Build bool `json:"build"`
 	// Current build status
@@ -69,6 +79,11 @@ type ForemanHost struct {
 	EnvironmentId *int `json:"environment_id,omitempty"`
 	// ID of the hostgroup to assign the host
 	HostgroupId *int `json:"hostgroup_id,omitempty"`
+	// ID of the architecture of this host
+	ArchitectureId *int `json:"architecture_id,omitempty"`
+	// Name of the architecture of this host
+	// ArchitectureName string `json:"architecture_name,omitempty"`
+	SubnetId *int `json:"subnet_id,omitempty"`
 	// ID of the operating system to put on the host
 	OperatingSystemId *int `json:"operatingsystem_id,omitempty"`
 	// ID of the medium that should be mounted
@@ -77,6 +92,8 @@ type ForemanHost struct {
 	ImageId *int `json:"image_id,omitempty"`
 	// ID of the hardware model
 	ModelId *int `json:"model_id,omitempty"`
+	// Ptables ID
+	PtableId *int `json:"ptable_id,omitempty"`
 	// Whether or not to Enable BMC Functionality on this host
 	EnableBMC bool `json:"-"`
 	// Boolean to track success of BMC Calls
@@ -98,12 +115,14 @@ type ForemanHost struct {
 	ComputeProfileId *int `json:"compute_profile_id,omitempty"`
 	// IDs of the puppet classes applied to the host
 	PuppetClassIds []int `json:"puppet_class_ids,omitempty"`
-	// Build token
+	// Build token, used by Foreman to provide a phone-home access token
 	Token string `json:"token,omitempty"`
 	// List of config groups to apply to the hostg
 	ConfigGroupIds []int `json:"config_group_ids"`
 	// The puppetattributes object is only used for create and update, it's not populated on read, hence the duplication
 	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
+	// Default Root Password for this host (on creation)
+	RootPassword string `json:"root_pass,omitempty"`
 }
 
 func (fh *ForemanHost) isBuilt() bool {
@@ -247,7 +266,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#Create")
+	log.Tracef("foreman/api/host.go#CreateHost")
 
 	reqEndpoint := fmt.Sprintf("/%s", HostEndpointPrefix)
 
@@ -288,6 +307,10 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, sendErr
 	}
 
+	if err := constructShortname(&createdHost); err != nil {
+		return nil, err
+	}
+
 	createdHost.InterfacesAttributes = createdHost.InterfacesAttributesDecode
 	createdHost.PuppetClassIds = foremanObjectArrayToIdIntArray(createdHost.PuppetClassesDecode)
 	createdHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(createdHost.ConfigGroupsDecode)
@@ -306,7 +329,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 // ReadHost reads the attributes of a ForemanHost identified by the supplied ID
 // and returns a ForemanHost reference.
 func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#Read")
+	log.Tracef("foreman/api/host.go#ReadHost")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
@@ -326,6 +349,10 @@ func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 		return nil, sendErr
 	}
 
+	if err := constructShortname(&readHost); err != nil {
+		return nil, err
+	}
+
 	computeAttributes, _ := c.readComputeAttributes(ctx, id)
 	if len(computeAttributes) > 0 {
 		readHost.ComputeAttributes = computeAttributes
@@ -342,7 +369,7 @@ func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 // supplied ForemanHost will be updated. A new ForemanHost reference is
 // returned with the attributes from the result of the update operation.
 func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#Update")
+	log.Tracef("foreman/api/host.go#UpdateHost")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
@@ -382,6 +409,10 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, sendErr
 	}
 
+	if err := constructShortname(&updatedHost); err != nil {
+		return nil, err
+	}
+
 	computeAttributes, _ := c.readComputeAttributes(ctx, h.Id)
 	if len(computeAttributes) > 0 {
 		updatedHost.ComputeAttributes = computeAttributes
@@ -397,7 +428,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 
 // DeleteHost deletes the ForemanHost identified by the supplied ID
 func (c *Client) DeleteHost(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/host.go#Delete")
+	log.Tracef("foreman/api/host.go#DeleteHost")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
@@ -416,6 +447,7 @@ func (c *Client) DeleteHost(ctx context.Context, id int) error {
 
 // Compute Attributes are only available via dedicated API endpoint. readComputeAttributes gets this endpoint.
 func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]interface{}, error) {
+	log.Tracef("foreman/api/host.go#readComputeAttributes")
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/%s", HostEndpointPrefix, id, ComputeAttributesSuffix)
 
@@ -436,10 +468,36 @@ func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]
 	}
 
 	readVmAttributesStr := make(map[string]interface{}, len(readVmAttributes))
-
 	for idx, val := range readVmAttributes {
 		readVmAttributesStr[idx] = val
 	}
 
 	return readVmAttributesStr, nil
+}
+
+func constructShortname(host *foremanHostDecode) error {
+	log.Tracef("foreman/api/host.go#constructShortname")
+
+	// Construct shortname from 'name'
+	if host.Shortname == "" {
+		before, after, found := strings.Cut(host.Name, ".")
+
+		// If no dot is found and shortname is not defined, Foreman probably does not expand hostnames with the domain name
+		if !found {
+			host.Shortname = host.Name
+			return nil
+		}
+
+		// Sanity check
+		if host.DomainName != "" && host.DomainName != after {
+			log.Errorf("After Cut of host.Name to find the shortname, the domain part did not match the rest of the 'name' string")
+		}
+
+		// If all went well, set the shortname to the first string from FQDN ('name' in Foreman)
+		log.Debugf("constructShortname: Shortname will be set to first element from FQDN: %s", before)
+		host.Shortname = before
+	} else {
+		log.Debugf("constructShortname: host.Shortname is not empty (is %s), so nothing is done", host.Shortname)
+	}
+	return nil
 }

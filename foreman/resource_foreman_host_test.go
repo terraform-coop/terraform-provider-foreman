@@ -38,12 +38,19 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	attr["domain_name"] = obj.DomainName
 	attr["build"] = strconv.FormatBool(obj.Build)
 	attr["provision_method"] = obj.ProvisionMethod
+	attr["shortname"] = obj.Shortname
 
 	if obj.EnvironmentId != nil {
 		attr["environment_id"] = strconv.Itoa(*obj.EnvironmentId)
 	}
 	if obj.HostgroupId != nil {
 		attr["hostgroup_id"] = strconv.Itoa(*obj.HostgroupId)
+	}
+	if obj.ArchitectureId != nil {
+		attr["architecture_id"] = strconv.Itoa(*obj.ArchitectureId)
+	}
+	if obj.SubnetId != nil {
+		attr["subnet_id"] = strconv.Itoa(*obj.SubnetId)
 	}
 	if obj.OperatingSystemId != nil {
 		attr["operatingsystem_id"] = strconv.Itoa(*obj.OperatingSystemId)
@@ -59,6 +66,9 @@ func ForemanHostToInstanceState(obj api.ForemanHost) *terraform.InstanceState {
 	}
 	if obj.ModelId != nil {
 		attr["owner_id"] = strconv.Itoa(*obj.ModelId)
+	}
+	if obj.PtableId != nil {
+		attr["ptable_id"] = strconv.Itoa(*obj.PtableId)
 	}
 	attr["owner_type"] = obj.OwnerType
 	attr["interfaces_attributes.#"] = strconv.Itoa(len(obj.InterfacesAttributes))
@@ -114,6 +124,9 @@ func RandForemanHost() api.ForemanHost {
 
 	fo := RandForemanObject()
 	obj.ForemanObject = fo
+
+	// RandForemanObject returns a shortname as Name, no FQDN
+	obj.Shortname = obj.Name
 
 	obj.Build = rand.Float32() < 0.5
 
@@ -186,6 +199,19 @@ func ForemanHostResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *s
 		if key == "compute_attributes" {
 			continue
 		}
+
+		// Skip Terraform-only computed read-only FQDN field.
+		// Does not exist in Foreman API.
+		if key == "fqdn" {
+			continue
+		}
+
+		// Skip Terraform-only shortname field
+		// (used in Host struct, but does not exist in Foreman API).
+		if key == "shortname" {
+			continue
+		}
+
 		m[key] = value.Type
 	}
 
@@ -263,7 +289,6 @@ func TestBuildForemanHost(t *testing.T) {
 	expectedResourceData := MockForemanHostResourceData(expectedState)
 
 	actualObj := *buildForemanHost(expectedResourceData)
-
 	actualState := ForemanHostToInstanceState(actualObj)
 	actualResourceData := MockForemanHostResourceData(actualState)
 

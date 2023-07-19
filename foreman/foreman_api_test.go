@@ -668,6 +668,8 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 
 	testCases = append(testCases, DataSourceForemanPuppetClassMockResponseTestCases(t)...)
 
+	testCases = append(testCases, DataSourceForemanSettingMockResponseTestCases(t)...)
+
 	testCases = append(testCases, DataSourceForemanSmartClassParameterMockResponseTestCases(t)...)
 
 	testCases = append(testCases, ResourceForemanSmartProxyMockResponseTestCases(t)...)
