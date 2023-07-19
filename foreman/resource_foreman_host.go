@@ -329,19 +329,22 @@ func resourceForemanHost() *schema.Resource {
 			},
 
 			"name": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    false,
-				Required:    false,
-				Deprecated:  "[Deprecated. Use 'shortname' instead!]",
-				Description: "Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').",
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				Required:         false,
+				Deprecated:       "Deprecated. Use 'shortname' instead! Will be read-only in future versions.",
+				Description:      "Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').",
+				DiffSuppressFunc: resourceForemanHostNameDiffSuppressFunc,
 			},
 
 			"shortname": {
 				Type:        schema.TypeString,
 				ForceNew:    true,
-				Optional:    false,
-				Required:    true,
+				Computed:    false,
+				Optional:    true,
+				Required:    false,
 				Description: "The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.",
 				ValidateDiagFunc: func(value interface{}, p cty.Path) diag.Diagnostics {
 					var diags diag.Diagnostics
@@ -354,6 +357,16 @@ func resourceForemanHost() *schema.Resource {
 						diags = append(diags, diag)
 					}
 					return diags
+				},
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					name := d.Get("name").(string)
+
+					// Use case: manifest has no "shortname" defined, but uses "name". Then an apply fetches the shortname,
+					// but a new apply would think it should be re-set to "".
+					if name != "" && newValue == "" && strings.HasPrefix(name, oldValue) {
+						return true
+					}
+					return false
 				},
 			},
 
@@ -1417,4 +1430,44 @@ func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *s
 
 	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
 	return nil
+}
+
+func resourceForemanHostNameDiffSuppressFunc(k, oldValue, newValue string, d *schema.ResourceData) bool {
+	domainName := d.Get("domain_name").(string)
+	if domainName == "" {
+		// If domainName not given, no comparison is possible
+		return false
+	}
+
+	beforeOld, afterOld, foundOld := strings.Cut(oldValue, ".")
+	beforeNew, afterNew, foundNew := strings.Cut(newValue, ".")
+
+	if !foundOld && foundNew {
+		if oldValue == beforeNew {
+			// Shortname was expanded to FQDN
+			return true
+		}
+
+		if afterNew == domainName {
+			return true
+		}
+	}
+
+	if (!foundOld && !foundNew) && (beforeOld != beforeNew) {
+		// Neither value has a dot but values differ, so no suppression
+		return false
+	}
+
+	if (foundOld && foundNew) && (afterOld != afterNew) {
+		// Domains differ
+		return false
+	}
+
+	// Use case: We pass in a shortname, Foreman expands it and the next "terraform apply"
+	// thinks the shortname is a new value.
+	if (foundOld && !foundNew) && strings.HasPrefix(oldValue, newValue) {
+		return true
+	}
+
+	return false
 }

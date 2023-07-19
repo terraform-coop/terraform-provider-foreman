@@ -51,7 +51,7 @@ type ForemanHost struct {
 
 	// Shortname, FQDN without DomainName.
 	// Not provided by the API, only available in templates with embedded Ruby
-	Shortname string
+	Shortname string `json:"-"`
 
 	// The "fqdn" field in the Terraform schema exists only in the schema,
 	// not in this struct. Reason: name is a Foreman-managed field that can either hold

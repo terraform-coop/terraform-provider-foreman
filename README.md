@@ -2,6 +2,13 @@
 
 Terraform provider to interact with [Foreman](https://www.theforeman.org/).
 
+
+## Breaking changes in 0.6.x
+Starting with `v0.6.0` some breaking changes require an update of Terraform manifests.
+
+* The host `build` argument was removed (`0.6.0`) and is replaced by `set_build_flag`. (`0.6.1`)
+* The host `name` argument is deprecated (`0.6.1`). Please use `shortname` for your hostname instead. The `name` attribute has issues based on the "append_domain_name" setting in Foreman. We therefore bypass using the name directly and provide the argument `shortname` and the additional attribute `fqdn`. (`0.6.1`)
+
 ## Migration notice
 
 The provider has moved from its previous location at https://github.com/terraform-coop/terraform-provider-foreman
