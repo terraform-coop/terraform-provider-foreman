@@ -334,7 +334,6 @@ func resourceForemanHost() *schema.Resource {
 				Optional:         true,
 				ForceNew:         true,
 				Required:         false,
-				Deprecated:       "Deprecated. Use 'shortname' instead! Will be read-only in future versions.",
 				Description:      "Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').",
 				DiffSuppressFunc: resourceForemanHostNameDiffSuppressFunc,
 			},
@@ -342,7 +341,7 @@ func resourceForemanHost() *schema.Resource {
 			"shortname": {
 				Type:        schema.TypeString,
 				ForceNew:    true,
-				Computed:    false,
+				Computed:    true,
 				Optional:    true,
 				Required:    false,
 				Description: "The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.",
