@@ -34,57 +34,14 @@ type ForemanImage struct {
 	Name string `json:"name"`
 
 	// OperatingSystemId of the operating system associated with the image
-	OperatingSystemID int `json:"operating_system_id"`
+	OperatingSystemID int `json:"operatingsystem_id"`
 	// ComputeResourceId of the resource this image can be cloned on
 	ComputeResourceID int `json:"compute_resource_id"`
 	// ArchitectureId of the architecture this image works on
 	ArchitectureID int `json:"architecture_id"`
-}
 
-// Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
-// and then convert over to a ForemanImage struct.
-func (fi *ForemanImage) UnmarshalJSON(b []byte) error {
-	var jsonDecErr error
-
-	// Unmarshal the common Foreman object properties
-	var fo ForemanObject
-	jsonDecErr = json.Unmarshal(b, &fo)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	fi.ForemanObject = fo
-
-	// Unmarshal into mapstructure and set the rest of the struct properties
-	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing
-	// Without this, properties will define as default values in state file.
-	var fiMap map[string]interface{}
-	jsonDecErr = json.Unmarshal(b, &fiMap)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	log.Debugf("fiMap: [%v]", fiMap)
-	var ok bool
-
-	if fi.Name, ok = fiMap["name"].(string); !ok {
-		fi.Name = ""
-	}
-	if fi.Username, ok = fiMap["username"].(string); !ok {
-		fi.Username = ""
-	}
-	if fi.UUID, ok = fiMap["uuid"].(string); !ok {
-		fi.UUID = ""
-	}
-	if fi.OperatingSystemID, ok = fiMap["operating_system_id"].(int); !ok {
-		fi.OperatingSystemID = 0
-	}
-	if fi.ComputeResourceID, ok = fiMap["compute_resource_id"].(int); !ok {
-		fi.ComputeResourceID = 0
-	}
-	if fi.ArchitectureID, ok = fiMap["architecture_id"].(int); !ok {
-		fi.ArchitectureID = 0
-	}
-
-	return nil
+	UserData bool   `json:"user_data"`
+	Password string `json:"password"`
 }
 
 // -----------------------------------------------------------------------------
@@ -100,18 +57,25 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 
 	reqEndpoint := fmt.Sprintf("%s/%d/images", ComputeResourceEndpoint, compute_resource)
 
-	imageJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("image", d)
-	if jsonEncErr != nil {
-		return nil, jsonEncErr
-	}
+	// Custom marshalling content to match the Foreman API.
+	// The WrapJSONWithTaxonomy func created problems by adding organization_id/location_id and
+	// not handling the types as expected.
+	marsh := json.RawMessage(fmt.Sprintf(`{"image":{
+		"uuid": "%s",
+		"username": "%s",
+		"name": "%s",
+		"operatingsystem_id": "%d",
+		"architecture_id": "%d",
+		"compute_resource_id": "%d"
+	}}`, d.UUID, d.Username, d.Name, d.OperatingSystemID, d.ArchitectureID, d.ComputeResourceID))
 
-	log.Debugf("imageJSONBytes: [%s]", imageJSONBytes)
+	log.Debugf("marsh: %s", marsh)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
 		reqEndpoint,
-		bytes.NewBuffer(imageJSONBytes),
+		bytes.NewBuffer(marsh),
 	)
 	if reqErr != nil {
 		return nil, reqErr

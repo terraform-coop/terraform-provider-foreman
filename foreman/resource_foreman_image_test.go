@@ -33,7 +33,7 @@ func ForemanImageToInstanceState(obj api.ForemanImage) *terraform.InstanceState 
 		"uuid":                obj.UUID,
 		"architecture_id":     strconv.Itoa(obj.ArchitectureID),
 		"compute_resource_id": strconv.Itoa(obj.ComputeResourceID),
-		"operating_system_id": strconv.Itoa(obj.OperatingSystemID),
+		"operatingsystem_id":  strconv.Itoa(obj.OperatingSystemID),
 	}
 	return &state
 }
