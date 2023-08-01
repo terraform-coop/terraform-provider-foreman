@@ -59,7 +59,6 @@ func RandForemanImage() api.ForemanImage {
 	fo := RandForemanObject()
 	return api.ForemanImage{
 		ForemanObject:     fo,
-		Name:              tfrand.String(10, tfrand.Lower),
 		Username:          tfrand.String(10, tfrand.Lower),
 		UUID:              tfrand.String(10, tfrand.Lower),
 		ArchitectureID:    rand.Intn(100),

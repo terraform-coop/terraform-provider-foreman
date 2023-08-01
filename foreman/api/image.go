@@ -23,25 +23,22 @@ const (
 // a portion of a network.
 
 type ForemanImage struct {
-	// Inherits the base object's attributes
 	ForemanObject
 
 	// UUID of the image. Can be the path to the image on the compute resource e.g.
 	UUID string `json:"uuid"`
 	// Username used for login on the image
 	Username string `json:"username"`
-	// Name of the image on the compute resource
-	Name string `json:"name"`
-
+	// Password for the initial user
+	Password string `json:"password"`
 	// OperatingSystemId of the operating system associated with the image
 	OperatingSystemID int `json:"operatingsystem_id"`
 	// ComputeResourceId of the resource this image can be cloned on
 	ComputeResourceID int `json:"compute_resource_id"`
 	// ArchitectureId of the architecture this image works on
 	ArchitectureID int `json:"architecture_id"`
-
-	UserData bool   `json:"user_data"`
-	Password string `json:"password"`
+	// Does the image support providing user data (e.g. cloud-init)?
+	UserData bool `json:"user_data"`
 }
 
 // -----------------------------------------------------------------------------
