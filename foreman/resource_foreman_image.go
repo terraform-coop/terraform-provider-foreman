@@ -183,6 +183,14 @@ func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, met
 func resourceForemanImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_image.go#Delete")
 
+	client := meta.(*api.Client)
+	image := buildForemanImage(d)
+
+	delErr := client.DeleteImage(ctx, image.ComputeResourceID, image.Id)
+	if delErr != nil {
+		return diag.FromErr(delErr)
+	}
+
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors
 
