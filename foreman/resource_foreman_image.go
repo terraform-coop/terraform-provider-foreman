@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -147,6 +148,13 @@ func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, met
 
 	createdImage, createErr := client.CreateImage(ctx, img, img.ComputeResourceID)
 	if createErr != nil {
+		log.Debugf("%+v", createErr)
+
+		isUuidError := strings.Contains(createErr.(api.HTTPError).RespBody, "UUID has already been taken")
+		if createErr.(api.HTTPError).StatusCode == 422 && isUuidError {
+			return diag.Errorf("You cannot use the same UUID for multiple images: '%s' is already taken by another Foreman image", img.UUID)
+		}
+
 		return diag.FromErr(createErr)
 	}
 
