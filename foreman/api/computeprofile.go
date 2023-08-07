@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -20,6 +21,9 @@ const (
 type ForemanComputeProfile struct {
 	// Inherits the base object's attributes
 	ForemanObject
+
+	// compute_attributes as JSON
+	ComputeAttributes string `json:"compute_attributes"`
 }
 
 // -----------------------------------------------------------------------------
@@ -112,4 +116,37 @@ func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfi
 	queryResponse.Results = iArr
 
 	return queryResponse, nil
+}
+
+func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
+	log.Tracef("foreman/api/computeprofile.go#Create")
+
+	reqEndpoint := ComputeProfileEndpointPrefix //fmt.Sprintf("%s", ComputeProfileEndpointPrefix)
+
+	cprofJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("compute_profile", d)
+	if jsonEncErr != nil {
+		return nil, jsonEncErr
+	}
+
+	log.Debugf("cprofJSONBytes: [%s]", cprofJSONBytes)
+
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		reqEndpoint,
+		bytes.NewBuffer(cprofJSONBytes),
+	)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	var createdComputeprofile ForemanComputeProfile
+	sendErr := c.SendAndParse(req, &createdComputeprofile)
+	if sendErr != nil {
+		return nil, sendErr
+	}
+
+	log.Debugf("createdComputeprofile: [%+v]", createdComputeprofile)
+
+	return &createdComputeprofile, nil
 }

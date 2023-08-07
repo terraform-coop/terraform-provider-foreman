@@ -201,6 +201,7 @@ func Provider() *schema.Provider {
 			"foreman_user":                       resourceForemanUser(),
 			"foreman_usergroup":                  resourceForemanUsergroup(),
 			"foreman_override_value":             resourceForemanOverrideValue(),
+			"foreman_computeprofile":             resourceForemanComputeProfile(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
