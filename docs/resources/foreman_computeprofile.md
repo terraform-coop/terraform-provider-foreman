@@ -18,7 +18,7 @@ resource "foreman_computeprofile" "example" {
 
 The following arguments are supported:
 
-- `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
+- `compute_attributes` - (Required) List of compute attributes
 - `name` - (Required) Name of the compute profile
 
 
@@ -26,6 +26,6 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-- `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
+- `compute_attributes` - List of compute attributes
 - `name` - Name of the compute profile
 

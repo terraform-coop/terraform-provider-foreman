@@ -2,6 +2,7 @@ package foreman
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -9,8 +10,6 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/structure"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 )
 
@@ -42,20 +41,35 @@ func resourceForemanComputeProfile() *schema.Resource {
 				Description: "Name of the compute profile",
 			},
 			"compute_attributes": {
-				Type:             schema.TypeString,
-				ValidateFunc:     validation.StringIsJSON,
-				Optional:         true,
-				Computed:         true,
-				Description:      "Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema",
-				DiffSuppressFunc: structure.SuppressJsonDiff,
+				Type:        schema.TypeList,
+				Required:    true,
+				Description: "List of compute attributes",
+				Elem:        resourceForemanComputeAttribute(),
 			},
-			// "compute_attributes": {
-			// 	Type: schema.TypeList,
-			// 	Required: true,
-			// 	Description: "List of compute attributes",
-			// 	Elem: &schema.Schema{
-			// 	},
-			// },
+		},
+	}
+}
+
+func resourceForemanComputeAttribute() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"compute_resource_id": {
+				Type:        schema.TypeInt,
+				Required:    true,
+				Description: "ID of the compute resource",
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				Computed: false,
+			},
+			"vm_attrs": {
+				Type:        schema.TypeMap,
+				Required:    false,
+				Optional:    true,
+				Computed:    true,
+				Description: "VM attributes as JSON",
+			},
 		},
 	}
 }
@@ -70,7 +84,38 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 	t := api.ForemanComputeProfile{}
 	obj := buildForemanObject(d)
 	t.ForemanObject = *obj
-	t.ComputeAttributes = d.Get("compute_attributes").(string)
+
+	// log.Debugf("compute_attributes: %+v", d.Get("compute_attributes"))
+	caList := d.Get("compute_attributes").([]interface{})
+	var compattrObjList []*api.ForemanComputeAttribute
+
+	// log.Debugf("compattrObjList: %+v", compattrObjList)
+
+	for i := 0; i < len(caList); i++ {
+		ca := caList[i].(map[string]interface{})
+		caObj := new(api.ForemanComputeAttribute)
+		// log.Debugf("caObj: %+v", ca)
+
+		data, err := json.Marshal(ca)
+		if err != nil {
+			return nil
+		}
+
+		err = json.Unmarshal(data, caObj)
+		if err != nil {
+			log.Warningf("Error during json.Unmarshal: %s", err)
+			return nil
+		}
+
+		// log.Debugf("caObjStr: %+v", caObj)
+
+		compattrObjList = append(compattrObjList, caObj)
+	}
+
+	t.ComputeAttributes = compattrObjList
+
+	// log.Debugf("t.ComputeAttributes: %+v", t.ComputeAttributes)
+
 	return &t
 }
 
@@ -81,6 +126,23 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 
 	d.SetId(strconv.Itoa(fk.Id))
 	d.Set("name", fk.Name)
+
+	caList := make([]interface{}, len(fk.ComputeAttributes))
+	for i := 0; i < len(fk.ComputeAttributes); i++ {
+		caObj := *fk.ComputeAttributes[i]
+		data, err := json.Marshal(caObj)
+		if err != nil {
+			log.Errorf("Error in json.Marshal: %s", err)
+		}
+
+		t := make(map[string]interface{})
+		err = json.Unmarshal(data, &t)
+		if err != nil {
+			log.Errorf("Error in json.Unmarshal: %s", err)
+		}
+		caList = append(caList, t)
+	}
+	d.Set("compute_attributes", caList)
 }
 
 func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -113,5 +175,14 @@ func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.Resource
 
 func resourceForemanComputeprofileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileDelete")
+
+	client := meta.(*api.Client)
+	p := buildForemanComputeProfile(d)
+
+	err := client.DeleteComputeProfile(ctx, p.Id)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	return nil
 }

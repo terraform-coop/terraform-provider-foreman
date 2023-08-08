@@ -38,7 +38,7 @@ func dataSourceForemanComputeProfile() *schema.Resource {
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanComputeProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_architecture.go#Read")
+	log.Tracef("data_source_foreman_computeprofile.go#Read")
 
 	client := meta.(*api.Client)
 	t := buildForemanComputeProfile(d)
