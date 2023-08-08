@@ -127,7 +127,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 	d.SetId(strconv.Itoa(fk.Id))
 	d.Set("name", fk.Name)
 
-	caList := make([]interface{}, len(fk.ComputeAttributes))
+	var caList []interface{}
 	for i := 0; i < len(fk.ComputeAttributes); i++ {
 		caObj := *fk.ComputeAttributes[i]
 		data, err := json.Marshal(caObj)
@@ -142,6 +142,9 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 		}
 		caList = append(caList, t)
 	}
+
+	log.Debugf("setResourceDataFromForemanComputeProfile caList: %+v", caList...)
+
 	d.Set("compute_attributes", caList)
 }
 
@@ -165,6 +168,19 @@ func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.Resource
 
 func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileRead")
+
+	client := meta.(*api.Client)
+	p := buildForemanComputeProfile(d)
+
+	cp, err := client.ReadComputeProfile(ctx, p.Id)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	log.Debugf("Read compute_profile: %+v", cp)
+
+	setResourceDataFromForemanComputeProfile(d, cp)
+
 	return nil
 }
 
