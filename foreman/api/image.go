@@ -61,10 +61,14 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 		"uuid": "%s",
 		"username": "%s",
 		"name": "%s",
-		"operatingsystem_id": "%d",
-		"architecture_id": "%d",
-		"compute_resource_id": "%d"
-	}}`, d.UUID, d.Username, d.Name, d.OperatingSystemID, d.ArchitectureID, d.ComputeResourceID))
+		"operatingsystem_id": %d,
+		"architecture_id": %d,
+		"compute_resource_id": %d,
+		"user_data": %t
+	}}`,
+		d.UUID, d.Username, d.Name,
+		d.OperatingSystemID, d.ArchitectureID, d.ComputeResourceID,
+		d.UserData))
 
 	log.Debugf("marsh: %s", marsh)
 

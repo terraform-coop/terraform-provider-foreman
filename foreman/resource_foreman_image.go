@@ -53,17 +53,17 @@ func resourceForemanImage() *schema.Resource {
 			},
 			"compute_resource_id": {
 				Type:        schema.TypeInt,
-				Optional:    true,
+				Required:    true,
 				Description: "ID of the compute resource in Foreman",
 			},
 			"operatingsystem_id": {
 				Type:        schema.TypeInt,
-				Optional:    true,
+				Required:    true,
 				Description: "ID of the operating system in Foreman",
 			},
 			"architecture_id": {
 				Type:        schema.TypeInt,
-				Optional:    true,
+				Required:    true,
 				Description: "ID of the architecture in Foreman",
 			},
 			"user_data": {
