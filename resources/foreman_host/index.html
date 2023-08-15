@@ -8,7 +8,7 @@
     <title>foreman_host - Terraform Provider Foreman</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
@@ -17,12 +17,11 @@
         var mkdocs_page_url = "/terraform-coop/terraform-provider-foreman/resources/foreman_host/";
       </script>
     
-    <script src="../../js/jquery-3.6.0.min.js" defer></script>
     <!--[if lt IE 9]>
       <script src="../../js/html5shiv.min.js"></script>
     <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
-      <script>hljs.initHighlightingOnLoad();</script> 
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
 </head>
 
 <body class="wy-body-for-nav" role="document">
@@ -87,6 +86,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_puppetclass/">foreman_puppetclass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../../data-sources/foreman_setting.md">foreman_setting</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
                   </li>
@@ -177,7 +178,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a> &raquo;</li>
           <li>Resources &raquo;</li>
-      <li>foreman_host</li>
+      <li class="breadcrumb-item active">foreman_host</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/terraform-coop/terraform-provider-foreman/edit/master/docs/resources/foreman_host.md">Edit on terraform-provider-foreman</a>
     </li>
@@ -198,6 +199,7 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
 <p>The following arguments are supported:</p>
 <ul>
+<li><code>architecture_id</code> - (Optional) ID of the architecture of this host</li>
 <li><code>bmc_success</code> - (Optional) REMOVED - Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain <code>false</code>. On the next <code>terraform apply</code> will trigger the host update to pick back up with the BMC operations.</li>
 <li><code>comment</code> - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
 <li><code>compute_attributes</code> - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
@@ -214,19 +216,24 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>managed</code> - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
 <li><code>model_id</code> - (Optional) ID of the hardware model if applicable</li>
+<li><code>name</code> - (Optional, Force New) Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').</li>
 <li><code>operatingsystem_id</code> - (Optional, Force New) ID of the operating system to put on the host.</li>
 <li><code>owner_id</code> - (Optional) ID of the user or usergroup that owns the host.</li>
 <li><code>owner_type</code> - (Optional) Owner of the host, must be either User ot Usergroup</li>
 <li><code>parameters</code> - (Optional) A map of parameters that will be saved as host parameters in the machine config.</li>
 <li><code>provision_method</code> - (Optional, Force New) Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')</li>
+<li><code>ptable_id</code> - (Optional) ID of the partition table the host should use</li>
 <li><code>puppet_class_ids</code> - (Optional) IDs of the applied puppet classes.</li>
 <li><code>retry_count</code> - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.</li>
+<li><code>root_password</code> - (Optional) Default root password</li>
 <li><code>set_build_flag</code> - (Optional) Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.</li>
-<li><code>shortname</code> - (Required, Force New) The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.</li>
+<li><code>shortname</code> - (Optional, Force New) The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.</li>
+<li><code>subnet_id</code> - (Optional) ID of the subnet the host should be placed in</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
 <p>The following attributes are exported:</p>
 <ul>
+<li><code>architecture_id</code> - ID of the architecture of this host</li>
 <li><code>comment</code> - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.</li>
 <li><code>compute_attributes</code> - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema</li>
 <li><code>compute_profile_id</code> - </li>
@@ -250,10 +257,13 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>owner_type</code> - Owner of the host, must be either User ot Usergroup</li>
 <li><code>parameters</code> - A map of parameters that will be saved as host parameters in the machine config.</li>
 <li><code>provision_method</code> - Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')</li>
+<li><code>ptable_id</code> - ID of the partition table the host should use</li>
 <li><code>puppet_class_ids</code> - IDs of the applied puppet classes.</li>
 <li><code>retry_count</code> - Number of times to retry on a failed attempt to register or delete a host in foreman.</li>
+<li><code>root_password</code> - Default root password</li>
 <li><code>set_build_flag</code> - Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.</li>
 <li><code>shortname</code> - The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.</li>
+<li><code>subnet_id</code> - ID of the subnet the host should be placed in</li>
 <li><code>token</code> - Build token. Can be used to signal to Foreman that a host build is complete.</li>
 </ul>
               
@@ -291,14 +301,15 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
     
   </span>
 </div>
-    <script>var base_url = '../..';</script>
-    <script src="../../js/theme_extra.js" defer></script>
-    <script src="../../js/theme.js" defer></script>
-      <script src="../../search/main.js" defer></script>
-    <script defer>
-        window.onload = function () {
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
-        };
+        });
     </script>
 
 </body>
