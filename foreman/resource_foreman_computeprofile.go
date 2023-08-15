@@ -85,16 +85,12 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 	obj := buildForemanObject(d)
 	t.ForemanObject = *obj
 
-	// log.Debugf("compute_attributes: %+v", d.Get("compute_attributes"))
 	caList := d.Get("compute_attributes").([]interface{})
 	var compattrObjList []*api.ForemanComputeAttribute
-
-	// log.Debugf("compattrObjList: %+v", compattrObjList)
 
 	for i := 0; i < len(caList); i++ {
 		ca := caList[i].(map[string]interface{})
 		caObj := new(api.ForemanComputeAttribute)
-		// log.Debugf("caObj: %+v", ca)
 
 		data, err := json.Marshal(ca)
 		if err != nil {
@@ -107,15 +103,10 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 			return nil
 		}
 
-		// log.Debugf("caObjStr: %+v", caObj)
-
 		compattrObjList = append(compattrObjList, caObj)
 	}
 
 	t.ComputeAttributes = compattrObjList
-
-	// log.Debugf("t.ComputeAttributes: %+v", t.ComputeAttributes)
-
 	return &t
 }
 

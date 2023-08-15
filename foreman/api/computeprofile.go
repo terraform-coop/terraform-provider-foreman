@@ -29,6 +29,35 @@ type ForemanComputeAttribute struct {
 	VMAttrs           map[string]interface{} `json:"vm_attrs,omitempty"`
 }
 
+// Implement custom Marshal function for ForemanComputeAttribute to convert
+// the internal vm_attrs map from all-string to their matching types.
+func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
+	fca := map[string]interface{}{
+		"name":                ca.Name,
+		"compute_resource_id": ca.ComputeResourceId,
+		"vm_attrs":            nil,
+	}
+
+	attrs := map[string]interface{}{}
+	for k, v := range ca.VMAttrs {
+		var res interface{}
+		s := v.(string)
+		umErr := json.Unmarshal([]byte(s), &res)
+
+		if umErr != nil {
+			// Most likely a "true" string, that cannot be unmarshalled
+			// Example err: "invalid character 'x' looking for beginning of value"
+			attrs[k] = v
+		} else {
+			// Conversion from JSON string to internal type worked, use it
+			attrs[k] = res
+		}
+	}
+
+	fca["vm_attrs"] = attrs
+	return json.Marshal(fca)
+}
+
 // -----------------------------------------------------------------------------
 // CRUD Implementation
 // -----------------------------------------------------------------------------
@@ -124,7 +153,7 @@ func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfi
 func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
 	log.Tracef("foreman/api/computeprofile.go#Create")
 
-	reqEndpoint := ComputeProfileEndpointPrefix //fmt.Sprintf("%s", ComputeProfileEndpointPrefix)
+	reqEndpoint := ComputeProfileEndpointPrefix
 
 	// Copy the original obj and then remove ComputeAttributes
 	compProfileClean := new(ForemanComputeProfile)
@@ -154,14 +183,14 @@ func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProf
 		return nil, sendErr
 	}
 
-	log.Debugf("d: %+v", d)
-
 	// Add the compute attributes as well
 	for i := 0; i < len(d.ComputeAttributes); i++ {
 		compattrsEndpoint := fmt.Sprintf("%s/%d/compute_resources/%d/compute_attributes",
 			ComputeProfileEndpointPrefix,
 			createdComputeprofile.Id,
 			d.ComputeAttributes[i].ComputeResourceId)
+
+		log.Debugf("d.ComputeAttributes[i]: %+v", d.ComputeAttributes[i])
 
 		by, err := c.WrapJSONWithTaxonomy("compute_attribute", d.ComputeAttributes[i])
 		if err != nil {
