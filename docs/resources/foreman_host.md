@@ -18,6 +18,7 @@ resource "foreman_host" "example" {
 
 The following arguments are supported:
 
+- `architecture_id` - (Optional) ID of the architecture of this host
 - `bmc_success` - (Optional) REMOVED - Tracks the partial state of BMC operations on host creation. If these operations fail, the host will be created in Foreman and this boolean will remain `false`. On the next `terraform apply` will trigger the host update to pick back up with the BMC operations.
 - `comment` - (Optional) Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - (Optional) Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
@@ -34,21 +35,26 @@ The following arguments are supported:
 - `managed` - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
 - `model_id` - (Optional) ID of the hardware model if applicable
+- `name` - (Optional, Force New) Name of this host as stored in Foreman. Can be short name or FQDN, depending on your Foreman settings (especially the setting 'append_domain_name_for_hosts').
 - `operatingsystem_id` - (Optional, Force New) ID of the operating system to put on the host.
 - `owner_id` - (Optional) ID of the user or usergroup that owns the host.
 - `owner_type` - (Optional) Owner of the host, must be either User ot Usergroup
 - `parameters` - (Optional) A map of parameters that will be saved as host parameters in the machine config.
 - `provision_method` - (Optional, Force New) Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')
+- `ptable_id` - (Optional) ID of the partition table the host should use
 - `puppet_class_ids` - (Optional) IDs of the applied puppet classes.
 - `retry_count` - (Optional) Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `root_password` - (Optional) Default root password
 - `set_build_flag` - (Optional) Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.
-- `shortname` - (Required, Force New) The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.
+- `shortname` - (Optional, Force New) The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.
+- `subnet_id` - (Optional) ID of the subnet the host should be placed in
 
 
 ## Attributes Reference
 
 The following attributes are exported:
 
+- `architecture_id` - ID of the architecture of this host
 - `comment` - Add additional information about this host.Note: Changes to this attribute will trigger a host rebuild.
 - `compute_attributes` - Hypervisor specific VM options. Must be a JSON string, as every compute provider has different attributes schema
 - `compute_profile_id` - 
@@ -72,9 +78,12 @@ The following attributes are exported:
 - `owner_type` - Owner of the host, must be either User ot Usergroup
 - `parameters` - A map of parameters that will be saved as host parameters in the machine config.
 - `provision_method` - Sets the provision method in Foreman for this host: either network-based ('build') or image-based ('image')
+- `ptable_id` - ID of the partition table the host should use
 - `puppet_class_ids` - IDs of the applied puppet classes.
 - `retry_count` - Number of times to retry on a failed attempt to register or delete a host in foreman.
+- `root_password` - Default root password
 - `set_build_flag` - Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.
 - `shortname` - The short name of this host. Example: when the FQDN is 'host01.example.org', then 'host01' is the short name.
+- `subnet_id` - ID of the subnet the host should be placed in
 - `token` - Build token. Can be used to signal to Foreman that a host build is complete.
 

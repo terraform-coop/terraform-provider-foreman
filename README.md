@@ -2,6 +2,22 @@
 
 Terraform provider to interact with [Foreman](https://www.theforeman.org/).
 
+
+## Changes in 0.6.x
+Starting with `v0.6.0` some (breaking) changes require an update of Terraform manifests.
+
+* The host `build` argument was removed (`0.6.0`) and is replaced by `set_build_flag`. (`0.6.1`)
+  * The reason behind this change is complex and was thoroughly discussed in https://github.com/terraform-coop/terraform-provider-foreman/discussions/125
+  * Using the argument does one thing: it tells Foreman to set the `build` flag for a host. It defaults to `false`, setting it to `true` causes the host to be re-installed on next boot (network-based installation).
+* The `method` argument is re-introduced as `provision_method`. It can be either `build` (network-based) or `image` (image-based).
+  * Both options require different additional arguments, e.g the image to be used. See `examples/host/`.
+* The host `name` argument was considered for deprecation (`0.6.0`). 
+  * The `name` attribute has issues based on the "append_domain_name" setting in Foreman. It causes "inconsistent plan" errors when you give it a shortname as value, Terraform receives an FQDN back, and the `name` attribute is then used in variables in other places in your Terraform manifests.
+  * As an alternative, the `shortname` argument can be used instead. It is meant for the hostname without the domain part. If you use `name` as input argument, `shortname` will be filled by the provider automatically.
+  * To get the host's FQDN from the provider, use the read-only attribute `fqdn`. (`0.6.1`)
+  * **Use `shortname` and `fqdn` as variables in your manifests**! Example: `other_server = foreman_host.other_server.fqdn`. This will prevent you from running into inconsistent plans.
+
+
 ## Migration notice
 
 The provider has moved from its previous location at https://github.com/terraform-coop/terraform-provider-foreman

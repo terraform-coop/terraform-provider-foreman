@@ -44,6 +44,7 @@ nav:
     - 'foreman_partitiontable': 'data-sources/foreman_partitiontable.md'
     - 'foreman_provisioningtemplate': 'data-sources/foreman_provisioningtemplate.md'
     - 'foreman_puppetclass': 'data-sources/foreman_puppetclass.md'
+    - 'foreman_setting': 'data-sources/foreman_setting.md'
     - 'foreman_smartclassparameter': 'data-sources/foreman_smartclassparameter.md'
     - 'foreman_smartproxy': 'data-sources/foreman_smartproxy.md'
     - 'foreman_subnet': 'data-sources/foreman_subnet.md'
