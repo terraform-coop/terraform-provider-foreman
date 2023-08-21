@@ -185,6 +185,22 @@ func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta 
 
 func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_image.go#Update")
+
+	client := meta.(*api.Client)
+	img := buildForemanImage(d)
+
+	updatedImage, updateErr := client.UpdateImage(ctx, img)
+	if updateErr != nil {
+		isUuidError := strings.Contains(updateErr.(api.HTTPError).RespBody, "UUID has already been taken")
+		if updateErr.(api.HTTPError).StatusCode == 422 && isUuidError {
+			return diag.Errorf("You cannot use the same UUID for multiple images: '%s' is already taken by another Foreman image", img.UUID)
+		}
+
+		return diag.FromErr(updateErr)
+	}
+
+	setResourceDataFromForemanImage(d, updatedImage)
+
 	return nil
 }
 

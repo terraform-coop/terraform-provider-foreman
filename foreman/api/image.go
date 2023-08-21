@@ -127,7 +127,7 @@ func (c *Client) ReadImage(ctx context.Context, d *ForemanImage) (*ForemanImage,
 	return &readImage, nil
 }
 
-// UpdateImage updates a ForemanImage's attributes.  The image with the ID
+// UpdateImage updates a ForemanImage's attributes. The image with the ID
 // of the supplied ForemanImage will be updated. A new ForemanImage reference
 // is returned with the attributes from the result of the update operation.
 func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImage, error) {
