@@ -256,6 +256,77 @@ func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProf
 	return &createdComputeprofile, nil
 }
 
+func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
+	log.Tracef("foreman/api/computeprofile.go#Update")
+
+	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, d.Id)
+
+	jsonBytes, jsonEncErr := c.WrapJSONWithTaxonomy("compute_profile", d)
+	if jsonEncErr != nil {
+		return nil, jsonEncErr
+	}
+
+	log.Debugf("jsonBytes: [%s]", jsonBytes)
+
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		reqEndpoint,
+		bytes.NewBuffer(jsonBytes),
+	)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	var updatedComputeProfile ForemanComputeProfile
+	sendErr := c.SendAndParse(req, &updatedComputeProfile)
+	if sendErr != nil {
+		return nil, sendErr
+	}
+
+	// Handle updates for the compute attributes of this compute profile
+	updatedComputeAttributes := []*ForemanComputeAttribute{}
+	for i := 0; i < len(d.ComputeAttributes); i++ {
+		elem := d.ComputeAttributes[i]
+		updateEndpoint := fmt.Sprintf("%s/%d/compute_resources/%d/compute_attributes/%d",
+			ComputeProfileEndpointPrefix,
+			updatedComputeProfile.Id,
+			elem.ComputeResourceId,
+			elem.Id)
+
+		log.Debugf("d.ComputeAttributes[i]: %+v", elem)
+
+		by, err := c.WrapJSONWithTaxonomy("compute_attribute", elem)
+		if err != nil {
+			return nil, err
+		}
+		log.Debugf("by: %s", by)
+
+		req, reqErr = c.NewRequestWithContext(
+			ctx,
+			http.MethodPut,
+			updateEndpoint,
+			bytes.NewBuffer(by),
+		)
+		if reqErr != nil {
+			return nil, reqErr
+		}
+
+		var updatedComputeAttribute ForemanComputeAttribute
+		sendErr = c.SendAndParse(req, &updatedComputeAttribute)
+		if sendErr != nil {
+			return nil, sendErr
+		}
+		updatedComputeAttributes = append(updatedComputeAttributes, &updatedComputeAttribute)
+	}
+
+	updatedComputeProfile.ComputeAttributes = updatedComputeAttributes
+
+	log.Debugf("updatedComputeprofile: [%+v]", updatedComputeProfile)
+
+	return &updatedComputeProfile, nil
+}
+
 func (c *Client) DeleteComputeProfile(ctx context.Context, id int) error {
 	log.Tracef("foreman/api/computeprofile.go#Delete")
 

@@ -193,6 +193,19 @@ func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceDa
 
 func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileUpdate")
+
+	client := meta.(*api.Client)
+	p := buildForemanComputeProfile(d)
+
+	cp, err := client.UpdateComputeProfile(ctx, p)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	log.Debugf("Update compute_profile: %+v", cp)
+
+	setResourceDataFromForemanComputeProfile(d, cp)
+
 	return nil
 }
 
