@@ -58,11 +58,6 @@ func resourceForemanComputeAttribute() *schema.Resource {
 				Required:    true,
 				Description: "ID of the compute resource",
 			},
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				Computed: false,
-			},
 			"vm_attrs": {
 				Type:        schema.TypeMap,
 				Required:    false,

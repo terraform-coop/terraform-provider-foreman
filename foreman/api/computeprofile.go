@@ -33,7 +33,7 @@ type ForemanComputeAttribute struct {
 // the internal vm_attrs map from all-string to their matching types.
 func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 	fca := map[string]interface{}{
-		"name":                ca.Name,
+		"id":                  ca.Id,
 		"compute_resource_id": ca.ComputeResourceId,
 		"vm_attrs":            nil,
 	}
@@ -86,6 +86,10 @@ func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ForemanComput
 	}
 
 	log.Debugf("readComputeProfile: [%+v]", readComputeProfile)
+
+	for i := 0; i < len(readComputeProfile.ComputeAttributes); i++ {
+		log.Debugf("compute_attribute: [%+v]", readComputeProfile.ComputeAttributes[i])
+	}
 
 	return &readComputeProfile, nil
 }
