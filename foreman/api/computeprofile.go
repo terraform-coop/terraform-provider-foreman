@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -34,23 +35,58 @@ type ForemanComputeAttribute struct {
 func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 	fca := map[string]interface{}{
 		"id":                  ca.Id,
+		"name":                ca.Name,
 		"compute_resource_id": ca.ComputeResourceId,
 		"vm_attrs":            nil,
 	}
 
 	attrs := map[string]interface{}{}
-	for k, v := range ca.VMAttrs {
-		var res interface{}
-		s := v.(string)
-		umErr := json.Unmarshal([]byte(s), &res)
 
-		if umErr != nil {
-			// Most likely a "true" string, that cannot be unmarshalled
-			// Example err: "invalid character 'x' looking for beginning of value"
-			attrs[k] = v
-		} else {
-			// Conversion from JSON string to internal type worked, use it
-			attrs[k] = res
+	// Since we allow all types of input in the VMAttrs JSON,
+	// all types must be handled for conversion
+
+	for k, v := range ca.VMAttrs {
+		// log.Debugf("v %s %T: %+v", k, v, v)
+
+		switch v := v.(type) {
+
+		case int:
+			attrs[k] = strconv.Itoa(v)
+
+		case float32:
+			attrs[k] = strconv.FormatFloat(float64(v), 'f', -1, 32)
+
+		case float64:
+			attrs[k] = strconv.FormatFloat(v, 'f', -1, 64)
+
+		case bool:
+			attrs[k] = strconv.FormatBool(v)
+
+		case nil:
+			attrs[k] = nil
+
+		case string:
+			var res interface{}
+			umErr := json.Unmarshal([]byte(v), &res)
+			if umErr != nil {
+				// Most likely a "true" string, that cannot be unmarshalled
+				// Example err: "invalid character 'x' looking for beginning of value"
+				attrs[k] = v
+			} else {
+				// Conversion from JSON string to internal type worked, use it
+				attrs[k] = res
+			}
+
+		case map[string]interface{}, []interface{}:
+			// JSON array or object passed in, simply convert it to a string
+			by, err := json.Marshal(v)
+			if err != nil {
+				return nil, err
+			}
+			attrs[k] = string(by)
+
+		default:
+			log.Errorf("v had a type that was not handled: %T", v)
 		}
 	}
 

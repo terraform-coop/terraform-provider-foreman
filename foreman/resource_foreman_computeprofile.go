@@ -26,7 +26,6 @@ func resourceForemanComputeProfile() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-
 			autodoc.MetaAttribute: {
 				Type:     schema.TypeBool,
 				Computed: true,
@@ -53,6 +52,16 @@ func resourceForemanComputeProfile() *schema.Resource {
 func resourceForemanComputeAttribute() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "ID of the compute_attribute",
+			},
+			"name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Auto-generated name of the compute attribute",
+			},
 			"compute_resource_id": {
 				Type:        schema.TypeInt,
 				Required:    true,
@@ -85,20 +94,22 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 
 	for i := 0; i < len(caList); i++ {
 		ca := caList[i].(map[string]interface{})
-		caObj := new(api.ForemanComputeAttribute)
+		caObj := api.ForemanComputeAttribute{}
 
 		data, err := json.Marshal(ca)
 		if err != nil {
 			return nil
 		}
 
-		err = json.Unmarshal(data, caObj)
+		err = json.Unmarshal(data, &caObj)
 		if err != nil {
 			log.Warningf("Error during json.Unmarshal: %s", err)
 			return nil
 		}
 
-		compattrObjList = append(compattrObjList, caObj)
+		log.Debugf("buildForemanComputeProfile caObj: [%+v]", caObj)
+
+		compattrObjList = append(compattrObjList, &caObj)
 	}
 
 	t.ComputeAttributes = compattrObjList
@@ -111,27 +122,37 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 	log.Tracef("foreman/resource_foreman_computeprofile.go#setResourceDataFromForemanComputeProfile")
 
 	d.SetId(strconv.Itoa(fk.Id))
-	d.Set("name", fk.Name)
 
-	var caList []interface{}
+	err := d.Set("name", fk.Name)
+	if err != nil {
+		log.Errorf("Error in d.Set: %s", err)
+	}
+
+	var caList []map[string]interface{}
+
 	for i := 0; i < len(fk.ComputeAttributes); i++ {
-		caObj := *fk.ComputeAttributes[i]
-		data, err := json.Marshal(caObj)
+		elem := fk.ComputeAttributes[i]
+		log.Debugf("elem: %+v", elem)
+
+		data, err := json.Marshal(&elem)
 		if err != nil {
 			log.Errorf("Error in json.Marshal: %s", err)
 		}
 
-		t := make(map[string]interface{})
-		err = json.Unmarshal(data, &t)
+		var unmarshElem map[string]interface{}
+		err = json.Unmarshal(data, &unmarshElem)
 		if err != nil {
 			log.Errorf("Error in json.Unmarshal: %s", err)
 		}
-		caList = append(caList, t)
+
+		log.Debugf("unmarshElem: %+v", unmarshElem)
+		caList = append(caList, unmarshElem)
 	}
 
-	log.Debugf("setResourceDataFromForemanComputeProfile caList: %+v", caList...)
-
-	d.Set("compute_attributes", caList)
+	err = d.Set("compute_attributes", caList)
+	if err != nil {
+		log.Errorf("Error in setting compute_attributes: %s", err)
+	}
 }
 
 func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
