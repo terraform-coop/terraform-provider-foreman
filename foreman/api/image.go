@@ -41,6 +41,19 @@ type ForemanImage struct {
 	UserData bool `json:"user_data"`
 }
 
+func (fi *ForemanImage) MarshalJSON() ([]byte, error) {
+	fim := map[string]interface{}{
+		"uuid":                fi.UUID,
+		"name":                fi.Name,
+		"username":            fi.Username,
+		"operatingsystem_id":  fi.OperatingSystemID,
+		"architecture_id":     fi.ArchitectureID,
+		"compute_resource_id": fi.ComputeResourceID,
+		"user_data":           fi.UserData,
+	}
+	return json.Marshal(fim)
+}
+
 // -----------------------------------------------------------------------------
 // CRUD Implementation
 // -----------------------------------------------------------------------------
@@ -57,20 +70,13 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 	// Custom marshalling content to match the Foreman API.
 	// The WrapJSONWithTaxonomy func created problems by adding organization_id/location_id and
 	// not handling the types as expected.
-	marsh := json.RawMessage(fmt.Sprintf(`{"image":{
-		"uuid": "%s",
-		"username": "%s",
-		"name": "%s",
-		"operatingsystem_id": %d,
-		"architecture_id": %d,
-		"compute_resource_id": %d,
-		"user_data": %t
-	}}`,
-		d.UUID, d.Username, d.Name,
-		d.OperatingSystemID, d.ArchitectureID, d.ComputeResourceID,
-		d.UserData))
-
-	log.Debugf("marsh: %s", marsh)
+	// This is a known bug: https://projects.theforeman.org/issues/28133
+	// Error message in logs: "NoMethodError: undefined method `images' for #<Location:0x0>"
+	marshD, err := json.Marshal(d)
+	if err != nil {
+		log.Errorf("Error marshalling image struct: %s", err)
+	}
+	marsh := json.RawMessage(fmt.Sprintf(`{"image":%s}`, marshD))
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
