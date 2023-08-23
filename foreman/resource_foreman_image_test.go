@@ -33,7 +33,7 @@ func ForemanImageToInstanceState(obj api.ForemanImage) *terraform.InstanceState 
 		"uuid":                obj.UUID,
 		"architecture_id":     strconv.Itoa(obj.ArchitectureID),
 		"compute_resource_id": strconv.Itoa(obj.ComputeResourceID),
-		"operating_system_id": strconv.Itoa(obj.OperatingSystemID),
+		"operatingsystem_id":  strconv.Itoa(obj.OperatingSystemID),
 	}
 	return &state
 }
@@ -59,7 +59,6 @@ func RandForemanImage() api.ForemanImage {
 	fo := RandForemanObject()
 	return api.ForemanImage{
 		ForemanObject:     fo,
-		Name:              tfrand.String(10, tfrand.Lower),
 		Username:          tfrand.String(10, tfrand.Lower),
 		UUID:              tfrand.String(10, tfrand.Lower),
 		ArchitectureID:    rand.Intn(100),

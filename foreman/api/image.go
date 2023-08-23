@@ -23,68 +23,35 @@ const (
 // a portion of a network.
 
 type ForemanImage struct {
-	// Inherits the base object's attributes
 	ForemanObject
 
 	// UUID of the image. Can be the path to the image on the compute resource e.g.
 	UUID string `json:"uuid"`
 	// Username used for login on the image
 	Username string `json:"username"`
-	// Name of the image on the compute resource
-	Name string `json:"name"`
-
+	// Password for the initial user
+	Password string `json:"password"`
 	// OperatingSystemId of the operating system associated with the image
-	OperatingSystemID int `json:"operating_system_id"`
+	OperatingSystemID int `json:"operatingsystem_id"`
 	// ComputeResourceId of the resource this image can be cloned on
 	ComputeResourceID int `json:"compute_resource_id"`
 	// ArchitectureId of the architecture this image works on
 	ArchitectureID int `json:"architecture_id"`
+	// Does the image support providing user data (e.g. cloud-init)?
+	UserData bool `json:"user_data"`
 }
 
-// Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
-// and then convert over to a ForemanImage struct.
-func (fi *ForemanImage) UnmarshalJSON(b []byte) error {
-	var jsonDecErr error
-
-	// Unmarshal the common Foreman object properties
-	var fo ForemanObject
-	jsonDecErr = json.Unmarshal(b, &fo)
-	if jsonDecErr != nil {
-		return jsonDecErr
+func (fi *ForemanImage) MarshalJSON() ([]byte, error) {
+	fim := map[string]interface{}{
+		"uuid":                fi.UUID,
+		"name":                fi.Name,
+		"username":            fi.Username,
+		"operatingsystem_id":  fi.OperatingSystemID,
+		"architecture_id":     fi.ArchitectureID,
+		"compute_resource_id": fi.ComputeResourceID,
+		"user_data":           fi.UserData,
 	}
-	fi.ForemanObject = fo
-
-	// Unmarshal into mapstructure and set the rest of the struct properties
-	// NOTE(ALL): Properties unmarshalled are of type float64 as opposed to int, hence the below testing
-	// Without this, properties will define as default values in state file.
-	var fiMap map[string]interface{}
-	jsonDecErr = json.Unmarshal(b, &fiMap)
-	if jsonDecErr != nil {
-		return jsonDecErr
-	}
-	log.Debugf("fiMap: [%v]", fiMap)
-	var ok bool
-
-	if fi.Name, ok = fiMap["name"].(string); !ok {
-		fi.Name = ""
-	}
-	if fi.Username, ok = fiMap["username"].(string); !ok {
-		fi.Username = ""
-	}
-	if fi.UUID, ok = fiMap["uuid"].(string); !ok {
-		fi.UUID = ""
-	}
-	if fi.OperatingSystemID, ok = fiMap["operating_system_id"].(int); !ok {
-		fi.OperatingSystemID = 0
-	}
-	if fi.ComputeResourceID, ok = fiMap["compute_resource_id"].(int); !ok {
-		fi.ComputeResourceID = 0
-	}
-	if fi.ArchitectureID, ok = fiMap["architecture_id"].(int); !ok {
-		fi.ArchitectureID = 0
-	}
-
-	return nil
+	return json.Marshal(fim)
 }
 
 // -----------------------------------------------------------------------------
@@ -100,18 +67,22 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 
 	reqEndpoint := fmt.Sprintf("%s/%d/images", ComputeResourceEndpoint, compute_resource)
 
-	imageJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("image", d)
-	if jsonEncErr != nil {
-		return nil, jsonEncErr
+	// Custom marshalling content to match the Foreman API.
+	// The WrapJSONWithTaxonomy func created problems by adding organization_id/location_id and
+	// not handling the types as expected.
+	// This is a known bug: https://projects.theforeman.org/issues/28133
+	// Error message in logs: "NoMethodError: undefined method `images' for #<Location:0x0>"
+	marshD, err := json.Marshal(d)
+	if err != nil {
+		log.Errorf("Error marshalling image struct: %s", err)
 	}
-
-	log.Debugf("imageJSONBytes: [%s]", imageJSONBytes)
+	marsh := json.RawMessage(fmt.Sprintf(`{"image":%s}`, marshD))
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
 		reqEndpoint,
-		bytes.NewBuffer(imageJSONBytes),
+		bytes.NewBuffer(marsh),
 	)
 	if reqErr != nil {
 		return nil, reqErr
@@ -156,7 +127,7 @@ func (c *Client) ReadImage(ctx context.Context, d *ForemanImage) (*ForemanImage,
 	return &readImage, nil
 }
 
-// UpdateImage updates a ForemanImage's attributes.  The image with the ID
+// UpdateImage updates a ForemanImage's attributes. The image with the ID
 // of the supplied ForemanImage will be updated. A new ForemanImage reference
 // is returned with the attributes from the result of the update operation.
 func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImage, error) {
