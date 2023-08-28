@@ -1,10 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -18,8 +20,78 @@ const (
 // -----------------------------------------------------------------------------
 
 type ForemanComputeProfile struct {
-	// Inherits the base object's attributes
 	ForemanObject
+	ComputeAttributes []*ForemanComputeAttribute `json:"compute_attributes,omitempty"`
+}
+
+type ForemanComputeAttribute struct {
+	ForemanObject
+	ComputeResourceId int                    `json:"compute_resource_id"`
+	VMAttrs           map[string]interface{} `json:"vm_attrs,omitempty"`
+}
+
+// Implement custom Marshal function for ForemanComputeAttribute to convert
+// the internal vm_attrs map from all-string to their matching types.
+func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
+	fca := map[string]interface{}{
+		"id":                  ca.Id,
+		"name":                ca.Name,
+		"compute_resource_id": ca.ComputeResourceId,
+		"vm_attrs":            nil,
+	}
+
+	attrs := map[string]interface{}{}
+
+	// Since we allow all types of input in the VMAttrs JSON,
+	// all types must be handled for conversion
+
+	for k, v := range ca.VMAttrs {
+		// log.Debugf("v %s %T: %+v", k, v, v)
+
+		switch v := v.(type) {
+
+		case int:
+			attrs[k] = strconv.Itoa(v)
+
+		case float32:
+			attrs[k] = strconv.FormatFloat(float64(v), 'f', -1, 32)
+
+		case float64:
+			attrs[k] = strconv.FormatFloat(v, 'f', -1, 64)
+
+		case bool:
+			attrs[k] = strconv.FormatBool(v)
+
+		case nil:
+			attrs[k] = nil
+
+		case string:
+			var res interface{}
+			umErr := json.Unmarshal([]byte(v), &res)
+			if umErr != nil {
+				// Most likely a "true" string, that cannot be unmarshalled
+				// Example err: "invalid character 'x' looking for beginning of value"
+				attrs[k] = v
+			} else {
+				// Conversion from JSON string to internal type worked, use it
+				attrs[k] = res
+			}
+
+		case map[string]interface{}, []interface{}:
+			// JSON array or object passed in, simply convert it to a string
+			by, err := json.Marshal(v)
+			if err != nil {
+				return nil, err
+			}
+			attrs[k] = string(by)
+
+		default:
+			log.Errorf("v had a type that was not handled: %T", v)
+		}
+	}
+
+	fca["vm_attrs"] = attrs
+	return json.Marshal(fca)
 }
 
 // -----------------------------------------------------------------------------
@@ -50,6 +122,10 @@ func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ForemanComput
 	}
 
 	log.Debugf("readComputeProfile: [%+v]", readComputeProfile)
+
+	for i := 0; i < len(readComputeProfile.ComputeAttributes); i++ {
+		log.Debugf("compute_attribute: [%+v]", readComputeProfile.ComputeAttributes[i])
+	}
 
 	return &readComputeProfile, nil
 }
@@ -112,4 +188,153 @@ func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfi
 	queryResponse.Results = iArr
 
 	return queryResponse, nil
+}
+
+func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
+	log.Tracef("foreman/api/computeprofile.go#Create")
+
+	reqEndpoint := ComputeProfileEndpointPrefix
+
+	// Copy the original obj and then remove ComputeAttributes
+	compProfileClean := new(ForemanComputeProfile)
+	compProfileClean.ForemanObject = d.ForemanObject
+	compProfileClean.ComputeAttributes = nil
+
+	cprofJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("compute_profile", compProfileClean)
+	if jsonEncErr != nil {
+		return nil, jsonEncErr
+	}
+
+	log.Debugf("cprofJSONBytes: [%s]", cprofJSONBytes)
+
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		reqEndpoint,
+		bytes.NewBuffer(cprofJSONBytes),
+	)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	var createdComputeprofile ForemanComputeProfile
+	sendErr := c.SendAndParse(req, &createdComputeprofile)
+	if sendErr != nil {
+		return nil, sendErr
+	}
+
+	// Add the compute attributes as well
+	for i := 0; i < len(d.ComputeAttributes); i++ {
+		compattrsEndpoint := fmt.Sprintf("%s/%d/compute_resources/%d/compute_attributes",
+			ComputeProfileEndpointPrefix,
+			createdComputeprofile.Id,
+			d.ComputeAttributes[i].ComputeResourceId)
+
+		log.Debugf("d.ComputeAttributes[i]: %+v", d.ComputeAttributes[i])
+
+		by, err := c.WrapJSONWithTaxonomy("compute_attribute", d.ComputeAttributes[i])
+		if err != nil {
+			return nil, err
+		}
+		log.Debugf("%s", by)
+		req, reqErr = c.NewRequestWithContext(
+			ctx, http.MethodPost, compattrsEndpoint, bytes.NewBuffer(by),
+		)
+		if reqErr != nil {
+			return nil, reqErr
+		}
+		var createdComputeAttribute ForemanComputeAttribute
+		sendErr = c.SendAndParse(req, &createdComputeAttribute)
+		if sendErr != nil {
+			return nil, sendErr
+		}
+		createdComputeprofile.ComputeAttributes = append(createdComputeprofile.ComputeAttributes, &createdComputeAttribute)
+	}
+
+	log.Debugf("createdComputeprofile: [%+v]", createdComputeprofile)
+
+	return &createdComputeprofile, nil
+}
+
+func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
+	log.Tracef("foreman/api/computeprofile.go#Update")
+
+	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, d.Id)
+
+	jsonBytes, jsonEncErr := c.WrapJSONWithTaxonomy("compute_profile", d)
+	if jsonEncErr != nil {
+		return nil, jsonEncErr
+	}
+
+	log.Debugf("jsonBytes: [%s]", jsonBytes)
+
+	req, reqErr := c.NewRequestWithContext(
+		ctx,
+		http.MethodPut,
+		reqEndpoint,
+		bytes.NewBuffer(jsonBytes),
+	)
+	if reqErr != nil {
+		return nil, reqErr
+	}
+
+	var updatedComputeProfile ForemanComputeProfile
+	sendErr := c.SendAndParse(req, &updatedComputeProfile)
+	if sendErr != nil {
+		return nil, sendErr
+	}
+
+	// Handle updates for the compute attributes of this compute profile
+	updatedComputeAttributes := []*ForemanComputeAttribute{}
+	for i := 0; i < len(d.ComputeAttributes); i++ {
+		elem := d.ComputeAttributes[i]
+		updateEndpoint := fmt.Sprintf("%s/%d/compute_resources/%d/compute_attributes/%d",
+			ComputeProfileEndpointPrefix,
+			updatedComputeProfile.Id,
+			elem.ComputeResourceId,
+			elem.Id)
+
+		log.Debugf("d.ComputeAttributes[i]: %+v", elem)
+
+		by, err := c.WrapJSONWithTaxonomy("compute_attribute", elem)
+		if err != nil {
+			return nil, err
+		}
+		log.Debugf("by: %s", by)
+
+		req, reqErr = c.NewRequestWithContext(
+			ctx,
+			http.MethodPut,
+			updateEndpoint,
+			bytes.NewBuffer(by),
+		)
+		if reqErr != nil {
+			return nil, reqErr
+		}
+
+		var updatedComputeAttribute ForemanComputeAttribute
+		sendErr = c.SendAndParse(req, &updatedComputeAttribute)
+		if sendErr != nil {
+			return nil, sendErr
+		}
+		updatedComputeAttributes = append(updatedComputeAttributes, &updatedComputeAttribute)
+	}
+
+	updatedComputeProfile.ComputeAttributes = updatedComputeAttributes
+
+	log.Debugf("updatedComputeprofile: [%+v]", updatedComputeProfile)
+
+	return &updatedComputeProfile, nil
+}
+
+func (c *Client) DeleteComputeProfile(ctx context.Context, id int) error {
+	log.Tracef("foreman/api/computeprofile.go#Delete")
+
+	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, id)
+	req, reqErr := c.NewRequestWithContext(ctx, http.MethodDelete, reqEndpoint, nil)
+	if reqErr != nil {
+		return reqErr
+	}
+
+	return c.SendAndParse(req, nil)
 }

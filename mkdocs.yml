@@ -53,6 +53,7 @@ nav:
     - 'foreman_usergroup': 'data-sources/foreman_usergroup.md'
   - Resources:
     - 'foreman_architecture': 'resources/foreman_architecture.md'
+    - 'foreman_computeprofile': 'resources/foreman_computeprofile.md'
     - 'foreman_computeresource': 'resources/foreman_computeresource.md'
     - 'foreman_defaulttemplate': 'resources/foreman_defaulttemplate.md'
     - 'foreman_domain': 'resources/foreman_domain.md'

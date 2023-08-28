@@ -3,9 +3,9 @@ package foreman
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
+	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
@@ -14,45 +14,23 @@ import (
 )
 
 func dataSourceForemanComputeProfile() *schema.Resource {
-	return &schema.Resource{
+	r := resourceForemanComputeProfile()
+	ds := helper.DataSourceSchemaFromResourceSchema(r.Schema)
 
-		ReadContext: dataSourceForemanComputeProfileRead,
-
-		Schema: map[string]*schema.Schema{
-
-			"name": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: fmt.Sprintf(
-					"Compute profile name."+
-						"%s \"2-Medium\"",
-					autodoc.MetaExample,
-				),
-			},
-		},
+	ds["name"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Required: true,
+		Description: fmt.Sprintf(
+			"Compute profile name."+
+				"%s \"2-Medium\"",
+			autodoc.MetaExample,
+		),
 	}
-}
 
-// -----------------------------------------------------------------------------
-// Conversion Helpers
-// -----------------------------------------------------------------------------
-
-// buildForemanComputeProfile constructs a ForemanComputeProfile reference from a
-// resource data reference.  The struct's  members are populated from the data
-// populated in the resource data.  Missing members will be left to the zero
-// value for that member's type.
-func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfile {
-	t := api.ForemanComputeProfile{}
-	obj := buildForemanObject(d)
-	t.ForemanObject = *obj
-	return &t
-}
-
-// setResourceDataFromForemanComputeProfile sets a ResourceData's attributes from
-// the attributes of the supplied ForemanComputeProfile reference
-func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.ForemanComputeProfile) {
-	d.SetId(strconv.Itoa(fk.Id))
-	d.Set("name", fk.Name)
+	return &schema.Resource{
+		ReadContext: dataSourceForemanComputeProfileRead,
+		Schema:      ds,
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -60,7 +38,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanComputeProfileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_architecture.go#Read")
+	log.Tracef("data_source_foreman_computeprofile.go#Read")
 
 	client := meta.(*api.Client)
 	t := buildForemanComputeProfile(d)
