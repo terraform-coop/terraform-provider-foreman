@@ -202,6 +202,7 @@ func Provider() *schema.Provider {
 			"foreman_usergroup":                  resourceForemanUsergroup(),
 			"foreman_override_value":             resourceForemanOverrideValue(),
 			"foreman_computeprofile":             resourceForemanComputeProfile(),
+			"foreman_jobtemplate":                resourceForemanJobTemplate(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -233,6 +234,7 @@ func Provider() *schema.Provider {
 			"foreman_user":                       dataSourceForemanUser(),
 			"foreman_usergroup":                  dataSourceForemanUsergroup(),
 			"foreman_setting":                    dataSourceForemanSetting(),
+			"foreman_jobtemplate":                dataSourceForemanJobTemplate(),
 		},
 		ConfigureContextFunc: providerConfigure,
 	}

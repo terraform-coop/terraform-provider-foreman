@@ -198,7 +198,7 @@ func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 //
 //	Functions exactly like net/http/NewRequestWithContext()
 func (client *Client) NewRequestWithContext(ctx context.Context, method string, endpoint string, body io.Reader) (*http.Request, error) {
-	log.Tracef("foreman/api/client.go#NewRequestWithContext")
+	TraceFunctionCall()
 	log.Debugf(
 		"method: [%s], endpoint: [%s]",
 		method,
@@ -342,7 +342,7 @@ func (client *Client) Send(request *http.Request) (int, []byte, error) {
 // the server's response is unmarshalled into the supplied interface (if the
 // interface is not nil).
 func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
-	log.Tracef("foreman/api/client.go#SendAndParse")
+	TraceFunctionCall()
 
 	statusCode, respBody, sendErr := client.Send(req)
 	if sendErr != nil {
@@ -418,6 +418,7 @@ func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, erro
 // WrapJSONWithTaxonomy wraps the given parameters as an object of its own name,
 // includes additional information for the api call and marshals it to JSON
 func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) ([]byte, error) {
+	TraceFunctionCall()
 
 	wrapped, _ := client.wrapParameters(name, item)
 
