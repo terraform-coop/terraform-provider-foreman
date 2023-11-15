@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 )
 
 const (
@@ -17,15 +18,15 @@ const (
 type ForemanJobTemplate struct {
 	ForemanObject
 
-	Description       string      `json:"description"`
-	DescriptionFormat string      `json:"description_format"`
-	Template          string      `json:"template"`
-	Locked            bool        `json:"locked"`
-	JobCategory       string      `json:"job_category"`
-	ProviderType      string      `json:"provider_type"`
-	Snippet           bool        `json:"snippet"`
-	TemplateInputs    []string    `json:"template_inputs"`
-	EffectiveUser     interface{} `json:"effective_user"`
+	Description       string                 `json:"description"`
+	DescriptionFormat string                 `json:"description_format"`
+	Template          string                 `json:"template"`
+	Locked            bool                   `json:"locked"`
+	JobCategory       string                 `json:"job_category"`
+	ProviderType      string                 `json:"provider_type"`
+	Snippet           bool                   `json:"snippet"`
+	TemplateInputs    []ForemanTemplateInput `json:"template_inputs"`
+	EffectiveUser     interface{}            `json:"effective_user"`
 
 	Locations     []interface{} `json:"locations"`
 	Organizations []interface{} `json:"organizations"`
@@ -34,7 +35,7 @@ type ForemanJobTemplate struct {
 /// CRUD
 
 func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplate) (*ForemanJobTemplate, error) {
-	TraceFunctionCall()
+	utils.TraceFunctionCall()
 
 	const endpoint = "/" + JobTemplateEndpointPrefix
 
@@ -52,19 +53,41 @@ func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 		return nil, err
 	}
 
-	var created ForemanJobTemplate
-	err = c.SendAndParse(req, &created)
+	var createdJT ForemanJobTemplate
+	err = c.SendAndParse(req, &createdJT)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Debugf("%+v", created)
+	// count_ti := len(jtObj.TemplateInputs)
 
-	return &created, nil
+	// if count_ti > 0 {
+	// 	template_id := createdJT.Id
+	// 	created_inputs := make([]ForemanTemplateInput, count_ti)
+
+	// 	for idx, item := range jtObj.TemplateInputs {
+	// 		item.TemplateId = template_id
+
+	// 		utils.Debug("Creating TemplateInput: %+v", item)
+
+	// 		ti, err := c.CreateTemplateInput(ctx, &item)
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+
+	// 		created_inputs[idx] = *ti
+	// 	}
+
+	// 	createdJT.TemplateInputs = created_inputs
+	// }
+
+	log.Debugf("%+v", createdJT)
+
+	return &createdJT, nil
 }
 
 func (c *Client) QueryJobTemplate(ctx context.Context, jt *ForemanJobTemplate) (QueryResponse, error) {
-	TraceFunctionCall()
+	utils.TraceFunctionCall()
 
 	qresp := QueryResponse{}
 	const endpoint = "/" + JobTemplateEndpointPrefix
@@ -107,7 +130,7 @@ func (c *Client) QueryJobTemplate(ctx context.Context, jt *ForemanJobTemplate) (
 }
 
 func (c *Client) ReadJobTemplate(ctx context.Context, id int) (*ForemanJobTemplate, error) {
-	TraceFunctionCall()
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", JobTemplateEndpointPrefix, id)
 
@@ -157,7 +180,7 @@ func (c *Client) UpdateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 }
 
 func (c *Client) DeleteJobTemplate(ctx context.Context, id int) error {
-	TraceFunctionCall()
+	utils.TraceFunctionCall()
 
 	endpoint := fmt.Sprintf("/%s/%d", JobTemplateEndpointPrefix, id)
 	req, err := c.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)

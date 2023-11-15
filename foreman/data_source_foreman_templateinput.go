@@ -11,32 +11,32 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 )
 
-func dataSourceForemanJobTemplate() *schema.Resource {
-	r := resourceForemanJobTemplate()
+func dataSourceForemanTemplateInput() *schema.Resource {
+	r := resourceForemanTemplateInput()
 	ds := helper.DataSourceSchemaFromResourceSchema(r.Schema)
 
 	return &schema.Resource{
-		ReadContext: dataSourceForemanJobTemplateRead,
+		ReadContext: dataSourceForemanTemplateInputRead,
 		Schema:      ds,
 	}
 }
 
-func dataSourceForemanJobTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceForemanTemplateInputRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
-	jt := buildForemanJobTemplate(d)
+	built := buildForemanTemplateInput(d)
 
-	readResponse, readErr := client.ReadJobTemplate(ctx, jt.Id)
+	readResponse, readErr := client.ReadTemplateInput(ctx, built)
 	if readErr != nil {
 		return diag.FromErr(readErr)
 	}
 
-	jt.Name = readResponse.Name
+	built.Name = readResponse.Name
 
-	log.Debugf("ForemanJobTemplate: [%+v]", jt)
+	log.Debugf("ForemanTemplateInput: [%+v]", built)
 
-	setResourceDataFromForemanJobTemplate(d, jt)
+	setResourceDataFromForemanTemplateInput(d, built)
 
 	return nil
 }
