@@ -48,6 +48,31 @@ type ForemanTemplateInput struct {
 	ResourceType string `json:"resource_type"`
 }
 
+// Converts the struct fields to a map[string]interface as input into Terraform resource deserialization.
+// Needed, because the nested "template_inputs" field in "job_template" uses JSON marshalling to read the attributes into the Terraform-internal object.
+func (f *ForemanTemplateInput) ToResourceDataMap() map[string]interface{} {
+	attrMap := make(map[string]interface{})
+
+	// Setting "id" is not supported
+
+	attrMap["name"] = f.Name
+	attrMap["description"] = f.Description
+	attrMap["template_id"] = f.TemplateId
+	attrMap["fact_name"] = f.FactName
+	attrMap["variable_name"] = f.VariableName
+	attrMap["puppet_parameter_name"] = f.PuppetParameterName
+	attrMap["puppet_class_name"] = f.PuppetClassName
+	attrMap["required"] = f.Required
+	attrMap["advanced"] = f.Advanced
+	attrMap["default"] = f.Default
+	attrMap["hidden_value"] = f.HiddenValue
+	attrMap["input_type"] = f.InputType
+	attrMap["value_type"] = f.ValueType
+	attrMap["resource_type"] = f.ResourceType
+
+	return attrMap
+}
+
 /// CRUD
 
 func (c *Client) CreateTemplateInput(ctx context.Context, tiObj *ForemanTemplateInput) (*ForemanTemplateInput, error) {
@@ -55,12 +80,16 @@ func (c *Client) CreateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 
 	endpoint := fmt.Sprintf("/"+TemplateInputEndpointPrefix, tiObj.TemplateId)
 
-	wrapped, err := c.WrapJSONWithTaxonomy("template_input", tiObj)
+	// No WrapJSONWithTaxonomy here, adding location and organization is not accepted by the API for POST to /api/templates/-tid-/template_inputs
+	to_wrap := map[string]interface{}{
+		"template_input": tiObj,
+	}
+	wrapped, err := json.Marshal(to_wrap)
 	if err != nil {
 		return nil, err
 	}
 
-	// log.Debugf("tiObj: %+v", tiObj)
+	utils.Debug("template_input JSON: \n%s", wrapped)
 
 	req, err := c.NewRequestWithContext(
 		ctx, http.MethodPost, endpoint, bytes.NewBuffer(wrapped),
@@ -75,7 +104,7 @@ func (c *Client) CreateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 		return nil, err
 	}
 
-	log.Debugf("%+v", created)
+	utils.Debug("Created TemplateInput: %+v", created)
 
 	return &created, nil
 }
@@ -154,10 +183,16 @@ func (c *Client) UpdateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 
 	endpoint := fmt.Sprintf("/"+TemplateInputEndpointPrefix+"/%d", tiObj.TemplateId, tiObj.Id)
 
-	wrapped, err := c.WrapJSONWithTaxonomy("template_input", tiObj)
+	// No WrapJSONWithTaxonomy here, adding location and organization is not accepted by the API for PUT to /api/templates/-tid-/template_inputs
+	to_wrap := map[string]interface{}{
+		"template_input": tiObj,
+	}
+	wrapped, err := json.Marshal(to_wrap)
 	if err != nil {
 		return nil, err
 	}
+
+	utils.Debug("template_input JSON: \n%s", wrapped)
 
 	req, err := c.NewRequestWithContext(
 		ctx,

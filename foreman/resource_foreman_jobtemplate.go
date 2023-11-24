@@ -136,15 +136,25 @@ func buildForemanJobTemplate(d *schema.ResourceData) *api.ForemanJobTemplate {
 		tiList := attr.([]interface{})
 		inputs := make([]api.ForemanTemplateInput, len(tiList))
 
-		for idx, tiMap := range tiList {
-			tiInterface := tiMap.(map[string]interface{})
-			log.Debugf("%d, %+v", idx, tiInterface)
+		utils.Debug("attr: %#v | %+v", attr, attr)
+		utils.Debug("tiList: %#v | %+v", tiList, tiList)
 
-			jsonBytes, _ := json.Marshal(tiInterface)
+		for idx, tiMap := range tiList {
+			if tiMap == nil {
+				log.Fatalf("tiMap is nil: %#v", tiMap)
+			}
+
+			tiInterface := tiMap.(map[string]interface{})
+			jsonBytes, err := json.Marshal(tiInterface)
+			if err != nil {
+				utils.Fatal(err)
+			}
 
 			newObj := api.ForemanTemplateInput{}
-			json.Unmarshal(jsonBytes, &newObj)
-			log.Debugf("%+v", newObj)
+			err = json.Unmarshal(jsonBytes, &newObj)
+			if err != nil {
+				utils.Fatalf("Error in json.Unmarshal: %s", err)
+			}
 
 			inputs[idx] = newObj
 		}
@@ -158,6 +168,8 @@ func buildForemanJobTemplate(d *schema.ResourceData) *api.ForemanJobTemplate {
 }
 
 func setResourceDataFromForemanJobTemplate(resdata *schema.ResourceData, jt *api.ForemanJobTemplate) {
+	utils.TraceFunctionCall()
+
 	resdata.SetId(strconv.Itoa(jt.Id))
 	resdata.Set("name", jt.Name)
 	resdata.Set("description", jt.Description)
@@ -168,7 +180,31 @@ func setResourceDataFromForemanJobTemplate(resdata *schema.ResourceData, jt *api
 	resdata.Set("provider_type", jt.ProviderType)
 	resdata.Set("snippet", jt.Snippet)
 
-	resdata.Set("template_inputs", jt.TemplateInputs)
+	utils.Debug("TemplateInputs: %+v", jt.TemplateInputs)
+
+	// At this point the nested TemplateInputs need to be handled.
+	// It would be more natively to use `tiList := []schema.ResourceData{}` as the data type and
+	// then read it with `resdata.Set("template_inputs", tiList)`, but this does not work.
+	// What does work is passing in a simple map[string]interface, which is parsed by `resdata.Set()`
+
+	var tiList []map[string]interface{}
+
+	for _, inputItem := range jt.TemplateInputs {
+		mapData := inputItem.ToResourceDataMap()
+		utils.Debug("mapData: %#v", mapData)
+		tiList = append(tiList, mapData)
+	}
+
+	utils.Debug("tiList: %+v", tiList)
+
+	err := resdata.Set("template_inputs", tiList)
+	if err != nil {
+		log.Fatalf("Error in setting resdata template_input: %s", err)
+	}
+
+	utils.Debug("resdata setResourceDataFromForemanJobTemplate: %+v", resdata)
+
+	utils.Debug("resdata template_inputs: %+v", resdata.Get("template_inputs"))
 }
 
 // Resource CRUD Operations
@@ -182,52 +218,6 @@ func resourceForemanJobTemplateCreate(ctx context.Context, resdata *schema.Resou
 	created, err := client.CreateJobTemplate(ctx, jt)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	// Create template inputs
-
-	utils.Debug("resdata TIs: %+v", resdata.Get("template_inputs"))
-
-	if tis, ok := resdata.GetOk("template_inputs"); ok {
-		// Convert interface to list
-		tis := tis.([]interface{})
-
-		var tiList []*api.ForemanTemplateInput
-
-		//
-
-		for _, item := range tis {
-			utils.Debug("%#v", item)
-
-			converted_rd_map := item.(map[string]interface{})
-			// utils.Debug("%#v", converted_rd_map)
-			// new_rd := new(schema.ResourceData)
-			rdObj := api.ForemanTemplateInput{}
-
-			data, err := json.Marshal(converted_rd_map)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			err = json.Unmarshal(data, &rdObj)
-			if err != nil {
-				return diag.FromErr(err)
-			}
-
-			tiList = append(tiList, &rdObj)
-
-			// for key, val := range converted_rd_map {
-			// 	utils.Debug("%#v %#v", key, val)
-
-			// 	err := new_rd.Set(key, val)
-			// 	if err != nil {
-			// 		log.Fatalf("Error in building ResourceData: %s", err)
-			// 	}
-			// }
-
-			// ti := buildForemanTemplateInput(new_rd)
-			// utils.Debug("built TI: %+v", ti)
-		}
 	}
 
 	setResourceDataFromForemanJobTemplate(resdata, created)
@@ -277,7 +267,7 @@ func resourceForemanJobTemplateDelete(ctx context.Context, resdata *schema.Resou
 	client := meta.(*api.Client)
 	jt := buildForemanJobTemplate(resdata)
 
-	err := client.DeleteJobTemplate(ctx, jt.Id)
+	err := client.DeleteJobTemplate(ctx, jt)
 	if err != nil {
 		return diag.FromErr(err)
 	}

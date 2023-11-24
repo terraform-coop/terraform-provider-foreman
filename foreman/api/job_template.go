@@ -46,6 +46,8 @@ func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 
 	log.Debugf("jtObj: %+v", jtObj)
 
+	utils.Debug("job_template JSON: \n%s", wrapped)
+
 	req, err := c.NewRequestWithContext(
 		ctx, http.MethodPost, endpoint, bytes.NewBuffer(wrapped),
 	)
@@ -59,29 +61,30 @@ func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 		return nil, err
 	}
 
-	// count_ti := len(jtObj.TemplateInputs)
+	// Handle TemplateInputs
 
-	// if count_ti > 0 {
-	// 	template_id := createdJT.Id
-	// 	created_inputs := make([]ForemanTemplateInput, count_ti)
+	count_ti := len(jtObj.TemplateInputs)
+	if count_ti > 0 {
+		template_id := createdJT.Id
+		created_inputs := make([]ForemanTemplateInput, count_ti)
 
-	// 	for idx, item := range jtObj.TemplateInputs {
-	// 		item.TemplateId = template_id
+		for idx, item := range jtObj.TemplateInputs {
+			item.TemplateId = template_id
 
-	// 		utils.Debug("Creating TemplateInput: %+v", item)
+			utils.Debug("Creating TemplateInput: %+v", item)
 
-	// 		ti, err := c.CreateTemplateInput(ctx, &item)
-	// 		if err != nil {
-	// 			return nil, err
-	// 		}
+			ti, err := c.CreateTemplateInput(ctx, &item)
+			if err != nil {
+				return nil, err
+			}
 
-	// 		created_inputs[idx] = *ti
-	// 	}
+			created_inputs[idx] = *ti
+		}
 
-	// 	createdJT.TemplateInputs = created_inputs
-	// }
+		createdJT.TemplateInputs = created_inputs
+	}
 
-	log.Debugf("%+v", createdJT)
+	utils.Debug("CreatedJT: %#v", createdJT)
 
 	return &createdJT, nil
 }
@@ -176,13 +179,42 @@ func (c *Client) UpdateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 		return nil, err
 	}
 
+	// Handle TemplateInputs
+
+	count_ti := len(jtObj.TemplateInputs)
+	if count_ti > 0 {
+		updatedTIs := make([]ForemanTemplateInput, count_ti)
+
+		for idx, item := range jtObj.TemplateInputs {
+			ti, err := c.UpdateTemplateInput(ctx, &item)
+			if err != nil {
+				return nil, err
+			}
+
+			updatedTIs[idx] = *ti
+		}
+
+		updatedJT.TemplateInputs = updatedTIs
+	}
+
 	return &updatedJT, nil
 }
 
-func (c *Client) DeleteJobTemplate(ctx context.Context, id int) error {
+func (c *Client) DeleteJobTemplate(ctx context.Context, jt *ForemanJobTemplate) error {
 	utils.TraceFunctionCall()
 
-	endpoint := fmt.Sprintf("/%s/%d", JobTemplateEndpointPrefix, id)
+	// Delete all TemplateInputs
+	// if len(jt.TemplateInputs) > 0 {
+	// 	for _, item := range jt.TemplateInputs {
+	// 		err := c.DeleteTemplateInput(ctx, &item)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// }
+
+	// Then handle the JobTemplate itself
+	endpoint := fmt.Sprintf("/%s/%d", JobTemplateEndpointPrefix, jt.Id)
 	req, err := c.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)
 	if err != nil {
 		return err

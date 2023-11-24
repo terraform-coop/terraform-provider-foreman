@@ -41,7 +41,6 @@ func resourceForemanTemplateInput() *schema.Resource {
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The name of the template input",
 			},
 
@@ -188,6 +187,8 @@ func buildForemanTemplateInput(d *schema.ResourceData) *api.ForemanTemplateInput
 }
 
 func setResourceDataFromForemanTemplateInput(resdata *schema.ResourceData, ti *api.ForemanTemplateInput) {
+	utils.TraceFunctionCall()
+
 	resdata.SetId(strconv.Itoa(ti.Id))
 
 	resdata.Set("name", ti.Name)
@@ -204,6 +205,8 @@ func setResourceDataFromForemanTemplateInput(resdata *schema.ResourceData, ti *a
 	resdata.Set("input_type", ti.InputType)
 	resdata.Set("value_type", ti.ValueType)
 	resdata.Set("resource_type", ti.ResourceType)
+
+	utils.Debug("resdata after setResourceDataFromForemanTemplateInput: %+v", resdata)
 }
 
 // Resource CRUD Operations

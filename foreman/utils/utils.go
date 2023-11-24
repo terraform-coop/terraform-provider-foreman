@@ -14,7 +14,7 @@ import (
 func TraceFunctionCall() {
 	pc, file, line, ok := runtime.Caller(1)
 	if !ok {
-		log.Fatal("not ok")
+		log.Fatal("TraceFunctionCall failed")
 	}
 
 	dirName, fileName := path.Split(file)
@@ -34,7 +34,7 @@ func TraceFunctionCall() {
 func Debug(format string, a ...interface{}) {
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
-		log.Fatal("not ok")
+		log.Fatal("Debug() failed")
 	}
 
 	_, fileName := path.Split(file)
@@ -42,4 +42,22 @@ func Debug(format string, a ...interface{}) {
 	args := []interface{}{fileName, line}
 	args = append(args, a...)
 	log.Debugf("%s:%d \n"+format, args...)
+}
+
+// Prints line and file and then exits with fatal error message
+func Fatalf(format string, a ...interface{}) {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		log.Fatal("Fatal() failed")
+	}
+
+	_, fileName := path.Split(file)
+
+	args := []interface{}{fileName, line}
+	args = append(args, a...)
+	log.Fatalf("%s:%d \n"+format, args...)
+}
+
+func Fatal(a interface{}) {
+	Fatalf("%s", a)
 }
