@@ -13,34 +13,13 @@ import (
 )
 
 const (
-	// second parameter is the template_id
+	// parameter is the template_id
 	TemplateInputEndpointPrefix string = "templates/%d/template_inputs"
 )
-
-// type CustomIdType int
-
-// func (c *CustomIdType) UnmarshalJSON(b []byte) error {
-// 	utils.TraceFunctionCall()
-
-// 	var fcrMap map[string]interface{}
-// 	jsonDecErr := json.Unmarshal(b, &fcrMap)
-// 	if jsonDecErr != nil {
-// 		return jsonDecErr
-// 	}
-
-// 	utils.Debug("CustomIdType UnmarshalJSON: %+v", fcrMap)
-
-// 	// if (strings.HasPrefix(string(b), "\"")) {
-// 	// 	return json.Unmarshal(b, c)
-// 	// }
-
-// 	return nil
-// }
 
 type ForemanTemplateInput struct {
 	ForemanObject
 
-	// Id                  CustomIdType `json:"id"`
 	TemplateId          int    `json:"template_id"`
 	FactName            string `json:"fact_name"`
 	VariableName        string `json:"variable_name"`
@@ -195,6 +174,10 @@ func (f *ForemanTemplateInput) ToResourceDataMap(includeId bool) map[string]inte
 
 	attrMap := make(map[string]interface{})
 
+	// Differentiate cases for including ID or not. Creating the object should not include the ID parameter,
+	// because it will cause "PG::UniqueViolation: ERROR:  duplicate key value violates unique constraint" if multiple
+	// template inputs are defined. Reason being, that the provider will try to set id=0.
+	// Foreman automatically creates unique IDs if 'id' is not passed as parameter (they will be non-zero).
 	if includeId {
 		attrMap["id"] = strconv.Itoa(f.Id)
 	}
