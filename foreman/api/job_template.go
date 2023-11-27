@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 )
 
@@ -44,10 +43,6 @@ func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 		return nil, err
 	}
 
-	log.Debugf("jtObj: %+v", jtObj)
-
-	utils.Debug("job_template JSON: \n%s", wrapped)
-
 	req, err := c.NewRequestWithContext(
 		ctx, http.MethodPost, endpoint, bytes.NewBuffer(wrapped),
 	)
@@ -83,8 +78,6 @@ func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 
 		createdJT.TemplateInputs = created_inputs
 	}
-
-	utils.Debug("CreatedJT: %#v", createdJT)
 
 	return &createdJT, nil
 }
@@ -153,12 +146,35 @@ func (c *Client) ReadJobTemplate(ctx context.Context, id int) (*ForemanJobTempla
 		return nil, sendErr
 	}
 
-	log.Debugf("ReadJobTemplate jt: [%+v]", readJT)
+	// Handle TemplateInputs
+
+	count_ti := len(readJT.TemplateInputs)
+	if count_ti > 0 {
+		template_id := readJT.Id
+		read_inputs := make([]ForemanTemplateInput, count_ti)
+
+		for idx, item := range readJT.TemplateInputs {
+			item.TemplateId = template_id
+
+			utils.Debug("Reading TemplateInput: %+v", item)
+
+			readTI, err := c.ReadTemplateInput(ctx, &item)
+			if err != nil {
+				return nil, err
+			}
+
+			read_inputs[idx] = *readTI
+		}
+
+		readJT.TemplateInputs = read_inputs
+	}
 
 	return &readJT, nil
 }
 
 func (c *Client) UpdateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplate) (*ForemanJobTemplate, error) {
+	utils.TraceFunctionCall()
+
 	endpoint := fmt.Sprintf("/%s/%d", JobTemplateEndpointPrefix, jtObj.Id)
 
 	wrappedJT, err := c.WrapJSONWithTaxonomy("job_template", jtObj)
@@ -203,17 +219,6 @@ func (c *Client) UpdateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 func (c *Client) DeleteJobTemplate(ctx context.Context, jt *ForemanJobTemplate) error {
 	utils.TraceFunctionCall()
 
-	// Delete all TemplateInputs
-	// if len(jt.TemplateInputs) > 0 {
-	// 	for _, item := range jt.TemplateInputs {
-	// 		err := c.DeleteTemplateInput(ctx, &item)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 	}
-	// }
-
-	// Then handle the JobTemplate itself
 	endpoint := fmt.Sprintf("/%s/%d", JobTemplateEndpointPrefix, jt.Id)
 	req, err := c.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)
 	if err != nil {

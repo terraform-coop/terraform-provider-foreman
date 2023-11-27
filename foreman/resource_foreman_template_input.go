@@ -23,10 +23,6 @@ func resourceForemanTemplateInput() *schema.Resource {
 		UpdateContext: resourceForemanTemplateInputUpdate,
 		DeleteContext: resourceForemanTemplateInputDelete,
 
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
-
 		Schema: map[string]*schema.Schema{
 
 			autodoc.MetaAttribute: {
@@ -36,6 +32,11 @@ func resourceForemanTemplateInput() *schema.Resource {
 					"%s Foreman representation of a template input.",
 					autodoc.MetaSummary,
 				),
+			},
+
+			"id": {
+				Type:     schema.TypeString,
+				Computed: true,
 			},
 
 			"name": {
@@ -52,7 +53,6 @@ func resourceForemanTemplateInput() *schema.Resource {
 
 			"template_id": {
 				Type:     schema.TypeInt,
-				Optional: true,
 				Computed: true,
 			},
 
@@ -132,6 +132,8 @@ func resourceForemanTemplateInput() *schema.Resource {
 
 func buildForemanTemplateInput(d *schema.ResourceData) *api.ForemanTemplateInput {
 	utils.TraceFunctionCall()
+
+	utils.Debug("buildForemanTemplateInput schema: %+v", d)
 
 	newObj := api.ForemanTemplateInput{}
 

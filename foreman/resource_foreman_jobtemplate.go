@@ -23,10 +23,6 @@ func resourceForemanJobTemplate() *schema.Resource {
 		UpdateContext: resourceForemanJobTemplateUpdate,
 		DeleteContext: resourceForemanJobTemplateDelete,
 
-		Importer: &schema.ResourceImporter{
-			StateContext: schema.ImportStatePassthroughContext,
-		},
-
 		Schema: map[string]*schema.Schema{
 
 			autodoc.MetaAttribute: {
@@ -89,6 +85,7 @@ func resourceForemanJobTemplate() *schema.Resource {
 
 			"template_inputs": {
 				Optional: true,
+				ForceNew: true,
 				Type:     schema.TypeList,
 				Elem:     resourceForemanTemplateInput(),
 			},
@@ -129,15 +126,13 @@ func buildForemanJobTemplate(d *schema.ResourceData) *api.ForemanJobTemplate {
 		jt.Snippet = attr.(bool)
 	}
 
-	log.Debugf("ResourceData: %+v", d)
-
 	// Template inputs with default values
 	if attr, ok = d.GetOk("template_inputs"); ok {
 		tiList := attr.([]interface{})
 		inputs := make([]api.ForemanTemplateInput, len(tiList))
 
-		utils.Debug("attr: %#v | %+v", attr, attr)
-		utils.Debug("tiList: %#v | %+v", tiList, tiList)
+		// utils.Debug("attr: %#v | %+v", attr, attr)
+		// utils.Debug("tiList: %#v | %+v", tiList, tiList)
 
 		for idx, tiMap := range tiList {
 			if tiMap == nil {
@@ -190,7 +185,7 @@ func setResourceDataFromForemanJobTemplate(resdata *schema.ResourceData, jt *api
 	var tiList []map[string]interface{}
 
 	for _, inputItem := range jt.TemplateInputs {
-		mapData := inputItem.ToResourceDataMap()
+		mapData := inputItem.ToResourceDataMap(true)
 		utils.Debug("mapData: %#v", mapData)
 		tiList = append(tiList, mapData)
 	}

@@ -5,9 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"strconv"
 
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 )
 
@@ -16,9 +17,30 @@ const (
 	TemplateInputEndpointPrefix string = "templates/%d/template_inputs"
 )
 
+// type CustomIdType int
+
+// func (c *CustomIdType) UnmarshalJSON(b []byte) error {
+// 	utils.TraceFunctionCall()
+
+// 	var fcrMap map[string]interface{}
+// 	jsonDecErr := json.Unmarshal(b, &fcrMap)
+// 	if jsonDecErr != nil {
+// 		return jsonDecErr
+// 	}
+
+// 	utils.Debug("CustomIdType UnmarshalJSON: %+v", fcrMap)
+
+// 	// if (strings.HasPrefix(string(b), "\"")) {
+// 	// 	return json.Unmarshal(b, c)
+// 	// }
+
+// 	return nil
+// }
+
 type ForemanTemplateInput struct {
 	ForemanObject
 
+	// Id                  CustomIdType `json:"id"`
 	TemplateId          int    `json:"template_id"`
 	FactName            string `json:"fact_name"`
 	VariableName        string `json:"variable_name"`
@@ -48,12 +70,134 @@ type ForemanTemplateInput struct {
 	ResourceType string `json:"resource_type"`
 }
 
+func (fti *ForemanTemplateInput) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
+	var exists bool
+
+	var m map[string]interface{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+
+	// Special handling for Id
+	if val, exists := m["id"]; exists {
+		switch v := val.(type) {
+		case int:
+			fti.Id = v
+		case float32:
+			fti.Id = int(v)
+		case float64:
+			fti.Id = int(v)
+		case string:
+			utils.Debug("ForemanTemplateInput val is string")
+			if len(v) == 0 {
+				// If empty string, no Id is present
+				break
+			}
+			// Else, convert from string to int
+			id, err := strconv.Atoi(v)
+			if err != nil {
+				return err
+			}
+			// And set in struct
+			fti.Id = id
+		default:
+			log.Fatalf("Unhandled 'id' type %T", v)
+		}
+	} else {
+		log.Fatalf("id not in ForemanTemplateInput JSON!")
+	}
+
+	// Same for TemplateId
+	if val, exists := m["template_id"]; exists {
+		switch v := val.(type) {
+		case int:
+			fti.TemplateId = v
+		case float32:
+			fti.TemplateId = int(v)
+		case float64:
+			fti.TemplateId = int(v)
+		case string:
+			if len(v) == 0 {
+				break
+			}
+			id, err := strconv.Atoi(v)
+			if err != nil {
+				return err
+			}
+			// And set in struct
+			fti.TemplateId = id
+		default:
+			log.Fatalf("Unhandled 'template_id' type %T", v)
+		}
+	}
+
+	// Then unmarshal the rest
+
+	// Foreman object embedded
+	if fti.Name, exists = m["name"].(string); !exists {
+		fti.Name = ""
+	}
+	if fti.CreatedAt, exists = m["created_at"].(string); !exists {
+		fti.CreatedAt = ""
+	}
+	if fti.UpdatedAt, exists = m["updated_at"].(string); !exists {
+		fti.UpdatedAt = ""
+	}
+
+	// ForemanTemplateInput
+	if fti.FactName, exists = m["fact_name"].(string); !exists {
+		fti.FactName = ""
+	}
+	if fti.VariableName, exists = m["variable_name"].(string); !exists {
+		fti.VariableName = ""
+	}
+	if fti.PuppetParameterName, exists = m["puppet_parameter_name"].(string); !exists {
+		fti.PuppetParameterName = ""
+	}
+	if fti.PuppetClassName, exists = m["puppet_class_name"].(string); !exists {
+		fti.PuppetClassName = ""
+	}
+	if fti.Description, exists = m["description"].(string); !exists {
+		fti.Description = ""
+	}
+	if fti.Required, exists = m["required"].(bool); !exists {
+		fti.Required = false
+	}
+	if fti.Advanced, exists = m["advanced"].(bool); !exists {
+		fti.Advanced = false
+	}
+	if fti.Default, exists = m["default"].(string); !exists {
+		fti.Default = ""
+	}
+	if fti.HiddenValue, exists = m["hidden_value"].(bool); !exists {
+		fti.HiddenValue = false
+	}
+	if fti.InputType, exists = m["input_type"].(string); !exists {
+		fti.InputType = ""
+	}
+	if fti.ValueType, exists = m["value_type"].(string); !exists {
+		fti.ValueType = ""
+	}
+	if fti.ResourceType, exists = m["resource_type"].(string); !exists {
+		fti.ResourceType = ""
+	}
+
+	return nil
+}
+
 // Converts the struct fields to a map[string]interface as input into Terraform resource deserialization.
 // Needed, because the nested "template_inputs" field in "job_template" uses JSON marshalling to read the attributes into the Terraform-internal object.
-func (f *ForemanTemplateInput) ToResourceDataMap() map[string]interface{} {
+func (f *ForemanTemplateInput) ToResourceDataMap(includeId bool) map[string]interface{} {
+	utils.TraceFunctionCall()
+
 	attrMap := make(map[string]interface{})
 
-	// Setting "id" is not supported
+	if includeId {
+		attrMap["id"] = strconv.Itoa(f.Id)
+	}
 
 	attrMap["name"] = f.Name
 	attrMap["description"] = f.Description
@@ -82,7 +226,8 @@ func (c *Client) CreateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 
 	// No WrapJSONWithTaxonomy here, adding location and organization is not accepted by the API for POST to /api/templates/-tid-/template_inputs
 	to_wrap := map[string]interface{}{
-		"template_input": tiObj,
+		// Use ToResourceDataMap to remove id, created_at and updated_at
+		"template_input": tiObj.ToResourceDataMap(false),
 	}
 	wrapped, err := json.Marshal(to_wrap)
 	if err != nil {
@@ -173,13 +318,13 @@ func (c *Client) ReadTemplateInput(ctx context.Context, tiObj *ForemanTemplateIn
 		return nil, err
 	}
 
-	log.Debugf("readObj: [%+v]", readObj)
-
 	return &readObj, nil
 }
 
 func (c *Client) UpdateTemplateInput(ctx context.Context, tiObj *ForemanTemplateInput) (*ForemanTemplateInput, error) {
 	utils.TraceFunctionCall()
+
+	utils.Debug("%+v", tiObj)
 
 	endpoint := fmt.Sprintf("/"+TemplateInputEndpointPrefix+"/%d", tiObj.TemplateId, tiObj.Id)
 

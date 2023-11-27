@@ -31,6 +31,7 @@ func TraceFunctionCall() {
 	log.Tracef("%s (%s%s:%d)", funcName, prefix_path, fileName, line)
 }
 
+// Like `log.Debugf` but also prints the current file name and line number with the log output
 func Debug(format string, a ...interface{}) {
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
@@ -58,6 +59,7 @@ func Fatalf(format string, a ...interface{}) {
 	log.Fatalf("%s:%d \n"+format, args...)
 }
 
+// Wrapper for single value output
 func Fatal(a interface{}) {
 	Fatalf("%s", a)
 }
