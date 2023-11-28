@@ -25,13 +25,13 @@ type ForemanKatelloProduct struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	Description string `json:"description"`
-	GpgKeyId    int    `json:"gpg_key_id"`
-	/* 	SslCaCertId int `json:"ssl_ca_cert_id"`
-	   	SslClientCertId int `json:"ssl_client_cert_id"`
-	   	SslClientKeyId  int `json:"ssl_client_key_id"` */
-	SyncPlanId int    `json:"sync_plan_id"`
-	Label      string `json:"label"`
+	Description     string `json:"description,omitempty"`
+	GpgKeyId        int    `json:"gpg_key_id,omitempty"`
+	SslCaCertId     int    `json:"ssl_ca_cert_id,omitempty"`
+	SslClientCertId int    `json:"ssl_client_cert_id,omitempty"`
+	SslClientKeyId  int    `json:"ssl_client_key_id,omitempty"`
+	SyncPlanId      int    `json:"sync_plan_id,omitempty"`
+	Label           string `json:"label,omitempty"`
 }
 
 // -----------------------------------------------------------------------------
@@ -45,7 +45,8 @@ type ForemanKatelloProduct struct {
 func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProduct) (*ForemanKatelloProduct, error) {
 	log.Tracef("foreman/api/product.go#Create")
 
-	sJSONBytes, jsonEncErr := c.WrapJSON(nil, p)
+	// Add organization and location IDs, no name wrapper
+	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, p)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
