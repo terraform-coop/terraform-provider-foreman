@@ -23,6 +23,10 @@ func resourceForemanJobTemplate() *schema.Resource {
 		UpdateContext: resourceForemanJobTemplateUpdate,
 		DeleteContext: resourceForemanJobTemplateDelete,
 
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
+
 		Schema: map[string]*schema.Schema{
 
 			autodoc.MetaAttribute: {
