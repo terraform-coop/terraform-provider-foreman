@@ -4,11 +4,13 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/dpotapov/go-spnego"
@@ -22,10 +24,16 @@ const (
 	// of the URL.  The client hepler functions utilize this to automatically
 	// create endpoint URLs.
 	FOREMAN_API_URL_PREFIX = "/api"
+
 	// FOREMAN_KATELLO_API_URL_PREFIX is the Foreman Katello API endpoint
 	FOREMAN_KATELLO_API_URL_PREFIX = "/katello/api"
+
+	// FOREMAN_TASKS_API_URL_PREFIX is the prefix for async tasks
+	FOREMAN_TASKS_API_URL_PREFIX = "/foreman_tasks/api"
+
 	// API Prefix for Puppet plugin
 	FOREMAN_PUPPET_API_URL_PREFIX = "/foreman_puppet/api"
+
 	// The Foreman API allows you to request a specific API version in the
 	// Accept header of the HTTP request.  The two supported versions (at
 	// the time of writing) are 1 and 2, which version 1 planning on being
@@ -74,6 +82,17 @@ type Client struct {
 
 	// Keep a copy of the client configuration for use in API calls
 	clientConfig ClientConfig
+}
+
+// ForemanAsyncTask is either the task from /foreman_tasks/.../<uuid> or a response
+// from a Katello endpoint, which uses the async_task (in Foreman source code) function.
+// The most important fields are covered, but there are more.
+type ForemanAsyncTask struct {
+	// TaskID is in the format of a UUID string
+	TaskID  string `json:"id"`
+	Label   string `json:"label"`
+	Pending bool   `json:"pending"`
+	Action  string `json:"action"`
 }
 
 type HTTPError struct {
@@ -214,11 +233,14 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 
 	// Build the URL for the request
 	reqURL := client.server.URL
+
 	// Check for katello endpoint
 	if strings.HasPrefix(endpoint, "katello") {
 		reqURL.Path = FOREMAN_KATELLO_API_URL_PREFIX + strings.TrimPrefix(endpoint, "katello")
 	} else if strings.HasPrefix(endpoint, "puppet") {
 		reqURL.Path = FOREMAN_PUPPET_API_URL_PREFIX + strings.TrimPrefix(endpoint, "puppet")
+	} else if strings.HasPrefix(endpoint, "foreman_tasks") || strings.HasPrefix(endpoint, "/foreman_tasks") {
+		reqURL.Path = endpoint
 	} else {
 		if strings.HasPrefix(endpoint, "/") {
 			reqURL.Path = FOREMAN_API_URL_PREFIX + endpoint
@@ -362,6 +384,27 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 		respBody,
 	)
 
+	// Handle Katello async responses.
+	// Be aware, that waitForKatelloAsyncTask also lands here. We just need to trust that the
+	// foreman_tasks API endpoint does not omit 202 as well.
+	// Officially, 202 is the code for "accepted, but not processed yet".
+	if statusCode == 202 {
+		var asyncTask ForemanAsyncTask
+		err := json.Unmarshal(respBody, &asyncTask)
+		if err != nil {
+			return err
+		}
+		log.Debugf("foremanAsyncTask asyncTask: %+v", asyncTask)
+
+		if asyncTask.Pending {
+			log.Debugf("KatelloResponse is pending")
+			err = client.waitForKatelloAsyncTask(asyncTask.TaskID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	if statusCode < 200 || statusCode > 299 {
 		return HTTPError{req.URL.String(), statusCode, string(respBody[:])}
 	}
@@ -382,6 +425,40 @@ func CheckDeleted(d *schema.ResourceData, err error) error {
 	}
 
 	return err
+}
+
+// waitForKatelloAsyncTask provides a method to wait for a Katello asynchronous task to finish.
+func (c *Client) waitForKatelloAsyncTask(taskid string) error {
+	log.Tracef("waitForKatelloAsyncTask")
+
+	ctx := context.TODO()
+	const endpoint = "/foreman_tasks/api/tasks/%s"
+	req, err := c.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(endpoint, taskid), nil)
+	if err != nil {
+		return err
+	}
+
+	// This works as a retry counter, currently set to 3 tries, e.g. 2 retries
+	for counter := 0; counter < 3; counter++ {
+		log.Tracef("waitForKatelloAsyncTask retry loop with counter %d", counter)
+
+		var task ForemanAsyncTask
+		err = c.SendAndParse(req, &task)
+		if err != nil {
+			return err
+		}
+
+		log.Debugf("task: %+v", task)
+		if !task.Pending {
+			return nil
+		}
+
+		log.Infof("Task %s is still pending, sleeping for 500ms and then retrying…", task.TaskID)
+		time.Sleep(time.Duration(time.Millisecond * 500))
+	}
+
+	// The retries should produce a success. If not, fail with error
+	return errors.New("Error in retrying to wait for task " + taskid)
 }
 
 // wrapParameter wraps the given parameters as an object of its own name
