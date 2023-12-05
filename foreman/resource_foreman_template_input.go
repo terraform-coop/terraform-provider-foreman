@@ -120,6 +120,20 @@ func resourceForemanTemplateInput() *schema.Resource {
 					"date",
 					"resource",
 				}, false),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					log.Debugf("DiffSuppressFunc for template_input value_type: '%s' '%s' '%s'", k, oldValue, newValue)
+
+					// Using only `d.IsNewResource` as check does not work, so we check the Id value as well
+					isNew := d.IsNewResource() || d.Id() == ""
+
+					// If this operation is NOT creation, then ignore the value_type field if Terraform tries to
+					// "fix" an empty value in Foreman. The key "value_type" is not returned from the Foreman API
+					// and is therefore always empty from the providers POV. The newValue is chosen from the default.
+					if oldValue == "" && newValue == "plain" && !isNew {
+						return true
+					}
+					return false
+				},
 			},
 
 			"resource_type": {

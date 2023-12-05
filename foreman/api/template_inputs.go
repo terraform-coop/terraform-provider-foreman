@@ -37,7 +37,7 @@ type ForemanTemplateInput struct {
 	InputType string `json:"input_type"`
 
 	// Value type, defaults to plain. Must be one of: plain, search, date, resource.
-	ValueType string `json:"value_type"`
+	ValueType string `json:"value_type,omitempty"`
 
 	// For values of type search, this is the resource the value searches in Validations:
 	// Must be one of: Architecture, Audit, AuthSource, Bookmark, ComputeProfile, ComputeResource, ConfigReport, Domain, ExternalUsergroup,
@@ -319,6 +319,8 @@ func (c *Client) UpdateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: handle `tiObj.ValueType == ""` here if omitempty fails
 
 	utils.Debug("template_input JSON: \n%s", wrapped)
 
