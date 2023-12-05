@@ -2,6 +2,8 @@ package foreman
 
 import (
 	"context"
+	"fmt"
+	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -14,6 +16,16 @@ import (
 func dataSourceForemanJobTemplate() *schema.Resource {
 	r := resourceForemanJobTemplate()
 	ds := helper.DataSourceSchemaFromResourceSchema(r.Schema)
+
+	// define searchable attributes for the data source
+	ds["name"] = &schema.Schema{
+		Type:     schema.TypeString,
+		Required: true,
+		Description: fmt.Sprintf(
+			"job template name. %s \"change content sources\"",
+			autodoc.MetaExample,
+		),
+	}
 
 	return &schema.Resource{
 		ReadContext: dataSourceForemanJobTemplateRead,
