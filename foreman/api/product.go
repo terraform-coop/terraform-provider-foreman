@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -184,6 +185,10 @@ func (c *Client) QueryKatelloProduct(ctx context.Context, p *ForemanKatelloProdu
 	reqQuery := req.URL.Query()
 	name := `"` + p.Name + `"`
 	reqQuery.Set("search", "name="+name)
+
+	// organization_id is a required parameter
+	orgId := strconv.Itoa(c.clientConfig.OrganizationID)
+	reqQuery.Set("organization_id", orgId)
 
 	req.URL.RawQuery = reqQuery.Encode()
 	sendErr := c.SendAndParse(req, &queryResponse)
