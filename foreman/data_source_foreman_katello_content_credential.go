@@ -3,7 +3,6 @@ package foreman
 import (
 	"context"
 	"fmt"
-
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
