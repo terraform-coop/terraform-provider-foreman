@@ -4,13 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/dpotapov/go-spnego"
@@ -82,17 +80,6 @@ type Client struct {
 
 	// Keep a copy of the client configuration for use in API calls
 	clientConfig ClientConfig
-}
-
-// ForemanAsyncTask is either the task from /foreman_tasks/.../<uuid> or a response
-// from a Katello endpoint, which uses the async_task (in Foreman source code) function.
-// The most important fields are covered, but there are more.
-type ForemanAsyncTask struct {
-	// TaskID is in the format of a UUID string
-	TaskID  string `json:"id"`
-	Label   string `json:"label"`
-	Pending bool   `json:"pending"`
-	Action  string `json:"action"`
 }
 
 type HTTPError struct {
@@ -389,7 +376,7 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 	// foreman_tasks API endpoint does not omit 202 as well.
 	// Officially, 202 is the code for "accepted, but not processed yet".
 	if statusCode == 202 {
-		var asyncTask ForemanAsyncTask
+		var asyncTask ForemanTask
 		err := json.Unmarshal(respBody, &asyncTask)
 		if err != nil {
 			return err
@@ -398,7 +385,7 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 
 		if asyncTask.Pending {
 			log.Debugf("KatelloResponse is pending")
-			err = client.waitForKatelloAsyncTask(asyncTask.TaskID)
+			err = client.waitForKatelloAsyncTask(asyncTask.Id)
 			if err != nil {
 				return err
 			}
@@ -425,40 +412,6 @@ func CheckDeleted(d *schema.ResourceData, err error) error {
 	}
 
 	return err
-}
-
-// waitForKatelloAsyncTask provides a method to wait for a Katello asynchronous task to finish.
-func (c *Client) waitForKatelloAsyncTask(taskid string) error {
-	log.Tracef("waitForKatelloAsyncTask")
-
-	ctx := context.TODO()
-	const endpoint = "/foreman_tasks/api/tasks/%s"
-	req, err := c.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(endpoint, taskid), nil)
-	if err != nil {
-		return err
-	}
-
-	// This works as a retry counter, currently set to 3 tries, e.g. 2 retries
-	for counter := 0; counter < 3; counter++ {
-		log.Tracef("waitForKatelloAsyncTask retry loop with counter %d", counter)
-
-		var task ForemanAsyncTask
-		err = c.SendAndParse(req, &task)
-		if err != nil {
-			return err
-		}
-
-		log.Debugf("task: %+v", task)
-		if !task.Pending {
-			return nil
-		}
-
-		log.Infof("Task %s is still pending, sleeping for 500ms and then retrying…", task.TaskID)
-		time.Sleep(time.Duration(time.Millisecond * 500))
-	}
-
-	// The retries should produce a success. If not, fail with error
-	return errors.New("Error in retrying to wait for task " + taskid)
 }
 
 // wrapParameter wraps the given parameters as an object of its own name
