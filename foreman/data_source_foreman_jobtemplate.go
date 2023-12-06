@@ -39,16 +39,30 @@ func dataSourceForemanJobTemplateRead(ctx context.Context, d *schema.ResourceDat
 	client := meta.(*api.Client)
 	jt := buildForemanJobTemplate(d)
 
-	readResponse, readErr := client.ReadJobTemplate(ctx, jt.Id)
-	if readErr != nil {
-		return diag.FromErr(readErr)
+	queryResponse, err := client.QueryJobTemplate(ctx, jt)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
-	jt.Name = readResponse.Name
+	if queryResponse.Subtotal == 0 {
+		return diag.Errorf("Data source job_template returned no results")
+	} else if queryResponse.Subtotal > 1 {
+		return diag.Errorf("Data source job_template returned more than 1 result")
+	}
 
-	log.Debugf("ForemanJobTemplate: [%+v]", jt)
+	var queryJt api.ForemanJobTemplate
+	var ok bool
+	if queryJt, ok = queryResponse.Results[0].(api.ForemanJobTemplate); !ok {
+		return diag.Errorf(
+			"Data source results contain unexpected type. Expected "+
+				"[api.ForemanJobTemplate], got [%T]",
+			queryResponse.Results[0],
+		)
+	}
 
-	setResourceDataFromForemanJobTemplate(d, jt)
+	log.Debugf("ForemanJobTemplate: [%+v]", queryJt)
+
+	setResourceDataFromForemanJobTemplate(d, &queryJt)
 
 	return nil
 }
