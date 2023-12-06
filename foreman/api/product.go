@@ -26,13 +26,13 @@ type ForemanKatelloProduct struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	Description string `json:"description"`
-	GpgKeyId    int    `json:"gpg_key_id"`
-	/* 	SslCaCertId int `json:"ssl_ca_cert_id"`
-	   	SslClientCertId int `json:"ssl_client_cert_id"`
-	   	SslClientKeyId  int `json:"ssl_client_key_id"` */
-	SyncPlanId int    `json:"sync_plan_id"`
-	Label      string `json:"label"`
+	Description     string `json:"description"`
+	GpgKeyId        int    `json:"gpg_key_id,omitempty"`
+	SslCaCertId     int    `json:"ssl_ca_cert_id"`
+	SslClientCertId int    `json:"ssl_client_cert_id"`
+	SslClientKeyId  int    `json:"ssl_client_key_id"`
+	SyncPlanId      int    `json:"sync_plan_id"`
+	Label           string `json:"label"`
 }
 
 // -----------------------------------------------------------------------------
