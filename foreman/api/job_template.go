@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 )
@@ -152,6 +153,15 @@ func (c *Client) ReadJobTemplate(ctx context.Context, id int) (*ForemanJobTempla
 	if count_ti > 0 {
 		template_id := readJT.Id
 		read_inputs := make([]ForemanTemplateInput, count_ti)
+
+		// Sort template_inputs by their ID, because the Foreman API sometimes returns them in non-linear order.
+		// This results in e.g. a list of two template_inputs with IDs 108 and 109, but the readJT.TemplateInputs
+		// was parsed with array [{Id: 109}, {Id: 108}], which is correct because it's the original payload from
+		// the API, but confuses the provider because the indices changed (Terraform: .template_inputs[0].id).
+		sort.SliceStable(readJT.TemplateInputs, func(i, j int) bool {
+			// Returns true if the ID of i is less than j, ordering i before j
+			return readJT.TemplateInputs[i].Id < readJT.TemplateInputs[j].Id
+		})
 
 		for idx, item := range readJT.TemplateInputs {
 			item.TemplateId = template_id
