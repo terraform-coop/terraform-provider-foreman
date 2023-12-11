@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -67,10 +69,41 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				Description: fmt.Sprintf(
-					"Start datetime of synchronization."+
-						"%s \"1970-01-01 00:00:00 UTC\"",
+					"Start datetime of synchronization. Use the specified format: YYYY-MM-DD HH:MM:SS +0000, "+
+						"where '+0000' is the timezone difference. A value of '+0000' means UTC. "+
+						"%s \"1970-01-01 00:00:00 +0000\"",
 					autodoc.MetaExample,
 				),
+				DiffSuppressFunc: func(key, oldValue, newValue string, d *schema.ResourceData) bool {
+					if oldValue == "" || newValue == "" {
+						return false
+					}
+
+					const timeLayout = "2006-01-02 15:04:05 -0700" // TZ as +-0000
+
+					// If someone uses "UTC" instead of +0000, replace the string first
+					if strings.Contains(newValue, "UTC") {
+						newValue = strings.Replace(newValue, "UTC", "+0000", 1)
+					}
+
+					// Then parse the old value
+					tOld, err := time.Parse(timeLayout, oldValue)
+					if err != nil {
+						log.Fatalf("Error in time.Parse: %v", err)
+					}
+
+					// And the new value
+					tNew, err := time.Parse(timeLayout, newValue)
+					if err != nil {
+						log.Fatalf("Error in time.Parse: %v", err)
+					}
+
+					// And compare the two time.Time objects
+					if tOld == tNew {
+						return true
+					}
+					return false
+				},
 			},
 			"description": {
 				Type:     schema.TypeString,

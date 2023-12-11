@@ -28,7 +28,7 @@ type ForemanKatelloProduct struct {
 
 	Description     string `json:"description"`
 	GpgKeyId        int    `json:"gpg_key_id,omitempty"`
-	SslCaCertId     int    `json:"ssl_ca_cert_id"`
+	SslCaCertId     int    `json:"ssl_ca_cert_id,omitempty"`
 	SslClientCertId int    `json:"ssl_client_cert_id"`
 	SslClientKeyId  int    `json:"ssl_client_key_id"`
 	SyncPlanId      int    `json:"sync_plan_id"`
