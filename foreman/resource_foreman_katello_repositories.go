@@ -55,9 +55,11 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				),
 			},
 			"label": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: autodoc.MetaExample,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: "Label of the repository. Cannot be changed after creation. " +
+					"Is auto generated from name if not specified.",
 			},
 			"product_id": {
 				Type:     schema.TypeInt,
@@ -77,10 +79,11 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					"file",
 					"puppet",
 					"yum",
+					"ansible_collection",
 				}, false),
 				Description: fmt.Sprintf(
-					"Product the repository belongs to. Valid values include:"+
-						"`\"deb\"`, \"docker\"`, \"file\"`, \"puppet\"`, \"yum\"`."+
+					"Content type of the repository. Valid values include:"+
+						"`\"deb\"`, \"docker\"`, \"file\"`, \"puppet\"`, \"yum\"`, `\"ansible_collection\"`."+
 						"%s \"yum\"",
 					autodoc.MetaExample,
 				),
@@ -89,7 +92,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
-					"Repository source url."+
+					"Repository source URL or Docker registry URL"+
 						"%s \"http://mirror.centos.org/centos/7/os/x86_64/\"",
 					autodoc.MetaExample,
 				),
