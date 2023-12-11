@@ -161,11 +161,25 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(
-					"Used to determine download concurrency of the repository in pulp3. "+
-						"Use value less than 20. Defaults to 10"+
-						"%s",
-					autodoc.MetaExample,
+					"Used to determine download concurrency of the repository in pulp3. " +
+						"Use value less than 20. Defaults to 10. Warning: the value is not returned from the API and " +
+						"is therefore handled by a DiffSuppressFunc.",
 				),
+				DiffSuppressFunc: func(key, oldValue, newValue string, d *schema.ResourceData) bool {
+					// "download_concurrency" is not returned from the Katello API, but still exists in the
+					// source code at https://github.com/Katello/katello/blob/6d8d3ca36e1469d1f7c2c8e180e42467176ac1a4/app/controllers/katello/api/v2/repositories_controller.rb#L56.
+					// So we use a diffsuppression if the value is defined in the .tf manifest, but
+					// would be reset to 0 every time an "apply" is executed.
+					newAsInt, err := strconv.Atoi(newValue)
+					if err != nil {
+						log.Fatalf("download_concurrency value was not an int!")
+					}
+
+					if oldValue == "0" && newAsInt > 0 {
+						return true
+					}
+					return false
+				},
 			},
 			"mirror_on_sync": {
 				Type:       schema.TypeBool,
