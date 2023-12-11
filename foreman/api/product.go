@@ -63,6 +63,12 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, reqErr
 	}
 
+	// organization_id is a required parameter
+	reqQuery := req.URL.Query()
+	orgId := strconv.Itoa(c.clientConfig.OrganizationID)
+	reqQuery.Set("organization_id", orgId)
+	req.URL.RawQuery = reqQuery.Encode()
+
 	var createdKatelloProduct ForemanKatelloProduct
 	sendErr := c.SendAndParse(req, &createdKatelloProduct)
 	if sendErr != nil {
