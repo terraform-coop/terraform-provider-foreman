@@ -2,7 +2,9 @@ package foreman
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/hashicorp/go-cty/cty"
 	"strconv"
 	"strings"
 	"time"
@@ -15,6 +17,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
+
+// TIMELAYOUT specifies the format of the datetime string used in sync_date
+const TIMELAYOUT = "2006-01-02 15:04:05 -0700" // TZ as +-0000
 
 func resourceForemanKatelloSyncPlan() *schema.Resource {
 	return &schema.Resource{
@@ -65,6 +70,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
+
 			"sync_date": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -74,12 +80,27 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 						"%s \"1970-01-01 00:00:00 +0000\"",
 					autodoc.MetaExample,
 				),
+				ValidateDiagFunc: func(obj interface{}, path cty.Path) diag.Diagnostics {
+					datetimeString := obj.(string)
+
+					if strings.Contains(datetimeString, "UTC") {
+						log.Warningf("sync_date used 'UTC' instead of '+0000'. This is internally corrected" +
+							"because of historic documentation but might be changed in the future.")
+						datetimeString = strings.Replace(datetimeString, "UTC", "+0000", 1)
+					}
+
+					_, err := time.Parse(TIMELAYOUT, datetimeString)
+					if err != nil {
+						e := fmt.Sprintf("Your 'sync_date' value is incorrectly formatted. Use the "+
+							"format 'YYYY-MM-DD HH:MM:SS +0000' as documented. (Error: %s)", err)
+						return diag.FromErr(errors.New(e))
+					}
+					return nil
+				},
 				DiffSuppressFunc: func(key, oldValue, newValue string, d *schema.ResourceData) bool {
 					if oldValue == "" || newValue == "" {
 						return false
 					}
-
-					const timeLayout = "2006-01-02 15:04:05 -0700" // TZ as +-0000
 
 					// If someone uses "UTC" instead of +0000, replace the string first
 					if strings.Contains(newValue, "UTC") {
@@ -87,15 +108,17 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					}
 
 					// Then parse the old value
-					tOld, err := time.Parse(timeLayout, oldValue)
+					tOld, err := time.Parse(TIMELAYOUT, oldValue)
 					if err != nil {
-						log.Fatalf("Error in time.Parse: %v", err)
+						log.Warningf("Error in time.Parse: %v", err)
+						return false
 					}
 
 					// And the new value
-					tNew, err := time.Parse(timeLayout, newValue)
+					tNew, err := time.Parse(TIMELAYOUT, newValue)
 					if err != nil {
-						log.Fatalf("Error in time.Parse: %v", err)
+						log.Warningf("Error in time.Parse: %v", err)
+						return false
 					}
 
 					// And compare the two time.Time objects
@@ -105,6 +128,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					return false
 				},
 			},
+
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -114,6 +138,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
+
 			"enabled": {
 				Type:     schema.TypeBool,
 				Required: true,
@@ -123,6 +148,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
+
 			"cron_expression": {
 				Type:     schema.TypeString,
 				Optional: true,
