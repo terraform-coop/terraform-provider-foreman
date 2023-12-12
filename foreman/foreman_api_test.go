@@ -242,6 +242,8 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 	testCases = append(testCases, ResourceForemanImageCorrectURLAndMethodTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanImageCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, DataSourceForemanJobTemplateCorrectURLAndMethodTestCases(t)...)
+
 	testCases = append(testCases, DataSourceForemanTemplateKindCorrectURLAndMethodTestCases(t)...)
 
 	cred := api.ClientCredentials{}
@@ -334,6 +336,8 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanSubnetRequestDataEmptyTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSubnetRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanJobTemplateRequestDataEmptyTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindRequestDataEmptyTestCases(t)...)
 
@@ -482,6 +486,8 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 	testCases = append(testCases, ResourceForemanImageStatusCodeTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanImageStatusCodeTestCases(t)...)
 
+	testCases = append(testCases, DataSourceForemanJobTemplateStatusCodeTestCases(t)...)
+
 	testCases = append(testCases, DataSourceForemanTemplateKindStatusCodeTestCases(t)...)
 
 	cred := api.ClientCredentials{}
@@ -562,6 +568,8 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanImageEmptyResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanImageEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanJobTemplateEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindEmptyResponseTestCases(t)...)
 
@@ -677,6 +685,11 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 
 	testCases = append(testCases, ResourceForemanSubnetMockResponseTestCases(t)...)
 	testCases = append(testCases, DataSourceForemanSubnetMockResponseTestCases(t)...)
+
+	//testCases = append(testCases, ResourceForemanImageMockResponseTestCases(t)...)
+	//testCases = append(testCases, DataSourceForemanImageMockResponseTestCases(t)...)
+
+	testCases = append(testCases, DataSourceForemanJobTemplateMockResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindMockResponseTestCases(t)...)
 
