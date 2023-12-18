@@ -30,31 +30,89 @@ type ForemanKatelloRepository struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	Description                   string  `json:"description"`
-	Label                         string  `json:"label"`
-	ProductId                     int     `json:"product_id"`
-	Product                       Product `json:"product"`
-	ContentType                   string  `json:"content_type"`
-	Url                           string  `json:"url"`
-	GpgKeyId                      int     `json:"gpg_key_id"`
-	Unprotected                   bool    `json:"unprotected"`
-	ChecksumType                  string  `json:"checksum_type"`
-	DockerUpstreamName            string  `json:"docker_upstream_name"`
-	DockerTagsWhitelist           string  `json:"docker_tags_whitelist"`
-	DownloadPolicy                string  `json:"download_policy"`
-	DownloadConcurrency           int     `json:"download_concurrency"`
-	MirrorOnSync                  bool    `json:"mirror_on_sync"`
-	VerifySslOnSync               bool    `json:"verify_ssl_on_sync"`
-	UpstreamUsername              string  `json:"upstream_username"`
-	UpstreamPassword              string  `json:"upstream_password"`
-	DebReleases                   string  `json:"deb_releases"`
-	DebComponents                 string  `json:"deb_components"`
-	DebArchitectures              string  `json:"deb_architectures"`
-	IgnoreGlobalProxy             bool    `json:"ignore_global_proxy"`
-	IgnorableContent              string  `json:"ignorable_content"`
-	AnsibleCollectionRequirements string  `json:"ansible_collection_requirements"`
-	HttpProxyPolicy               string  `json:"http_proxy_policy"`
-	HttpProxyId                   int     `json:"http_proxy_id"`
+	Description         string  `json:"description"`
+	Label               string  `json:"label"`
+	ProductId           int     `json:"product_id"`
+	Product             Product `json:"product"`
+	ContentType         string  `json:"content_type"`
+	Url                 string  `json:"url"`
+	GpgKeyId            int     `json:"gpg_key_id"`
+	Unprotected         bool    `json:"unprotected"`
+	ChecksumType        string  `json:"checksum_type"`
+	IgnoreGlobalProxy   bool    `json:"ignore_global_proxy"`
+	IgnorableContent    string  `json:"ignorable_content"`
+	DownloadPolicy      string  `json:"download_policy"`
+	DownloadConcurrency int     `json:"download_concurrency"`
+
+	// MirrorOnSync is deprecated
+	MirrorOnSync bool `json:"mirror_on_sync"`
+	// MirroringPolicy replaces MirrorOnSync
+	// Values: "mirror_content_only" or "additive"
+	MirroringPolicy string `json:"mirroring_policy"`
+
+	VerifySslOnSync  bool   `json:"verify_ssl_on_sync"`
+	UpstreamUsername string `json:"upstream_username"`
+	UpstreamPassword string `json:"upstream_password"`
+
+	HttpProxyPolicy string `json:"http_proxy_policy"`
+	HttpProxyId     int    `json:"http_proxy_id"`
+
+	DebReleases      string `json:"deb_releases"`
+	DebComponents    string `json:"deb_components"`
+	DebArchitectures string `json:"deb_architectures"`
+
+	DockerUpstreamName  string `json:"docker_upstream_name"`
+	DockerTagsWhitelist string `json:"docker_tags_whitelist"`
+
+	AnsibleCollectionRequirements string `json:"ansible_collection_requirements"`
+}
+
+func (r *ForemanKatelloRepository) MarshalJSON() ([]byte, error) {
+	m := map[string]interface{}{
+		"id":                   r.Id,
+		"name":                 r.Name,
+		"description":          r.Description,
+		"label":                r.Label,
+		"product_id":           r.ProductId,
+		"url":                  r.Url,
+		"unprotected":          r.Unprotected,
+		"checksum_type":        r.ChecksumType,
+		"ignore_global_proxy":  r.IgnoreGlobalProxy,
+		"ignorable_content":    r.IgnorableContent,
+		"download_policy":      r.DownloadPolicy,
+		"download_concurrency": r.DownloadConcurrency,
+		"mirroring_policy":     r.MirroringPolicy,
+		"mirror_on_sync":       r.MirrorOnSync, // deprecated
+		"verify_ssl_on_sync":   r.VerifySslOnSync,
+		"upstream_username":    r.UpstreamUsername,
+		"upstream_password":    r.UpstreamPassword,
+	}
+
+	m["content_type"] = r.ContentType
+	switch r.ContentType {
+	case "deb":
+		m["deb_releases"] = r.DebReleases
+		m["deb_components"] = r.DebComponents
+		m["deb_architectures"] = r.DebArchitectures
+		break
+	case "docker":
+		m["docker_upstream_name"] = r.DockerUpstreamName
+		m["docker_tags_whitelist"] = r.DockerTagsWhitelist
+	case "ansible_collection":
+		m["ansible_collection_requirements"] = r.AnsibleCollectionRequirements
+	}
+
+	if r.GpgKeyId != 0 {
+		m["gpg_key_id"] = r.GpgKeyId
+	}
+
+	m["http_proxy_policy"] = r.HttpProxyPolicy
+	if r.HttpProxyPolicy != "global_default_http_proxy" {
+		m["http_proxy_id"] = r.HttpProxyId
+	}
+
+	return json.Marshal(m)
+
 }
 
 // -----------------------------------------------------------------------------

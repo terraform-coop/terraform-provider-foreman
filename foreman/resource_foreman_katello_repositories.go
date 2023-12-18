@@ -55,9 +55,11 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				),
 			},
 			"label": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: autodoc.MetaExample,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				Description: "Label of the repository. Cannot be changed after creation. " +
+					"Is auto generated from name if not specified.",
 			},
 			"product_id": {
 				Type:     schema.TypeInt,
@@ -77,10 +79,11 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					"file",
 					"puppet",
 					"yum",
+					"ansible_collection",
 				}, false),
 				Description: fmt.Sprintf(
-					"Product the repository belongs to. Valid values include:"+
-						"`\"deb\"`, \"docker\"`, \"file\"`, \"puppet\"`, \"yum\"`."+
+					"Content type of the repository. Valid values include:"+
+						"`\"deb\"`, \"docker\"`, \"file\"`, \"puppet\"`, \"yum\"`, `\"ansible_collection\"`."+
 						"%s \"yum\"",
 					autodoc.MetaExample,
 				),
@@ -89,7 +92,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Description: fmt.Sprintf(
-					"Repository source url."+
+					"Repository source URL or Docker registry URL"+
 						"%s \"http://mirror.centos.org/centos/7/os/x86_64/\"",
 					autodoc.MetaExample,
 				),
@@ -158,20 +161,43 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Description: fmt.Sprintf(
-					"Used to determine download concurrency of the repository in pulp3. "+
-						"Use value less than 20. Defaults to 10"+
-						"%s",
-					autodoc.MetaExample,
+					"Used to determine download concurrency of the repository in pulp3. " +
+						"Use value less than 20. Defaults to 10. Warning: the value is not returned from the API and " +
+						"is therefore handled by a DiffSuppressFunc.",
 				),
+				DiffSuppressFunc: func(key, oldValue, newValue string, d *schema.ResourceData) bool {
+					// "download_concurrency" is not returned from the Katello API, but still exists in the
+					// source code at https://github.com/Katello/katello/blob/6d8d3ca36e1469d1f7c2c8e180e42467176ac1a4/app/controllers/katello/api/v2/repositories_controller.rb#L56.
+					// So we use a diffsuppression if the value is defined in the .tf manifest, but
+					// would be reset to 0 every time an "apply" is executed.
+					newAsInt, err := strconv.Atoi(newValue)
+					if err != nil {
+						log.Fatalf("download_concurrency value was not an int!")
+					}
+
+					if oldValue == "0" && newAsInt > 0 {
+						return true
+					}
+					return false
+				},
 			},
 			"mirror_on_sync": {
-				Type:     schema.TypeBool,
-				Optional: true,
+				Type:       schema.TypeBool,
+				Optional:   true,
+				Deprecated: "Deprecated and removed in Katello 4.9 in favor of mirroring_policy",
 				Description: fmt.Sprintf(
-					"true if this repository when synced has to be mirrored from the source and stale rpms removed."+
-						"%s true",
-					autodoc.MetaExample,
+					"'True' if this repository when synced has to be mirrored from the source and stale rpms removed.",
 				),
+			},
+			"mirroring_policy": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: fmt.Sprintf("Mirroring policy for this repo. Values: \"mirror_content_only\" "+
+					"or \"additive\". %s \"mirror_content_only\"", autodoc.MetaExample),
+				ValidateFunc: validation.StringInSlice([]string{
+					"additive",
+					"mirror_content_only",
+				}, false),
 			},
 			"verify_ssl_on_sync": {
 				Type:     schema.TypeBool,
@@ -294,70 +320,72 @@ func resourceForemanKatelloRepository() *schema.Resource {
 func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRepository {
 	log.Tracef("resource_foreman_katello_repository.go#buildForemanKatelloRepository")
 
-	Repository := api.ForemanKatelloRepository{}
+	repo := api.ForemanKatelloRepository{}
 
 	obj := buildForemanObject(d)
-	Repository.ForemanObject = *obj
+	repo.ForemanObject = *obj
 
-	Repository.Description = d.Get("description").(string)
-	Repository.Label = d.Get("label").(string)
-	Repository.ProductId = d.Get("product_id").(int)
-	Repository.ContentType = d.Get("content_type").(string)
-	Repository.Url = d.Get("url").(string)
-	Repository.GpgKeyId = d.Get("gpg_key_id").(int)
-	Repository.Unprotected = d.Get("unprotected").(bool)
-	Repository.ChecksumType = d.Get("checksum_type").(string)
-	Repository.DockerUpstreamName = d.Get("docker_upstream_name").(string)
-	Repository.DockerTagsWhitelist = d.Get("docker_tags_whitelist").(string)
-	Repository.DownloadPolicy = d.Get("download_policy").(string)
-	Repository.DownloadConcurrency = d.Get("download_concurrency").(int)
-	Repository.MirrorOnSync = d.Get("mirror_on_sync").(bool)
-	Repository.VerifySslOnSync = d.Get("verify_ssl_on_sync").(bool)
-	Repository.UpstreamUsername = d.Get("upstream_username").(string)
-	Repository.UpstreamPassword = d.Get("upstream_password").(string)
-	Repository.DebReleases = d.Get("deb_releases").(string)
-	Repository.DebComponents = d.Get("deb_components").(string)
-	Repository.DebArchitectures = d.Get("deb_architectures").(string)
-	Repository.IgnoreGlobalProxy = d.Get("ignore_global_proxy").(bool)
-	Repository.IgnorableContent = d.Get("ignorable_content").(string)
-	Repository.AnsibleCollectionRequirements = d.Get("ansible_collection_requirements").(string)
-	Repository.HttpProxyPolicy = d.Get("http_proxy_policy").(string)
-	Repository.HttpProxyId = d.Get("http_proxy_id").(int)
+	repo.Description = d.Get("description").(string)
+	repo.Label = d.Get("label").(string)
+	repo.ProductId = d.Get("product_id").(int)
+	repo.ContentType = d.Get("content_type").(string)
+	repo.Url = d.Get("url").(string)
+	repo.GpgKeyId = d.Get("gpg_key_id").(int)
+	repo.Unprotected = d.Get("unprotected").(bool)
+	repo.ChecksumType = d.Get("checksum_type").(string)
+	repo.DockerUpstreamName = d.Get("docker_upstream_name").(string)
+	repo.DockerTagsWhitelist = d.Get("docker_tags_whitelist").(string)
+	repo.DownloadPolicy = d.Get("download_policy").(string)
+	repo.DownloadConcurrency = d.Get("download_concurrency").(int)
+	repo.MirrorOnSync = d.Get("mirror_on_sync").(bool)
+	repo.MirroringPolicy = d.Get("mirroring_policy").(string)
+	repo.VerifySslOnSync = d.Get("verify_ssl_on_sync").(bool)
+	repo.UpstreamUsername = d.Get("upstream_username").(string)
+	repo.UpstreamPassword = d.Get("upstream_password").(string)
+	repo.DebReleases = d.Get("deb_releases").(string)
+	repo.DebComponents = d.Get("deb_components").(string)
+	repo.DebArchitectures = d.Get("deb_architectures").(string)
+	repo.IgnoreGlobalProxy = d.Get("ignore_global_proxy").(bool)
+	repo.IgnorableContent = d.Get("ignorable_content").(string)
+	repo.AnsibleCollectionRequirements = d.Get("ansible_collection_requirements").(string)
+	repo.HttpProxyPolicy = d.Get("http_proxy_policy").(string)
+	repo.HttpProxyId = d.Get("http_proxy_id").(int)
 
-	return &Repository
+	return &repo
 }
 
 // setResourceDataFromForemanKatelloRepository sets a ResourceData's attributes from
 // the attributes of the supplied ForemanKatelloRepository struct
-func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, Repository *api.ForemanKatelloRepository) {
+func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *api.ForemanKatelloRepository) {
 	log.Tracef("resource_foreman_katello_repository.go#setResourceDataFromForemanKatelloRepository")
 
-	d.SetId(strconv.Itoa(Repository.Id))
-	d.Set("name", Repository.Name)
-	d.Set("description", Repository.Description)
-	d.Set("label", Repository.Label)
-	d.Set("product_id", Repository.ProductId)
-	d.Set("content_type", Repository.ContentType)
-	d.Set("url", Repository.Url)
-	d.Set("gpg_key_id", Repository.GpgKeyId)
-	d.Set("unprotected", Repository.Unprotected)
-	d.Set("checksum_type", Repository.ChecksumType)
-	d.Set("docker_upstream_name", Repository.DockerUpstreamName)
-	d.Set("docker_tags_whitelist", Repository.DockerTagsWhitelist)
-	d.Set("download_policy", Repository.DownloadPolicy)
-	d.Set("download_concurrency", Repository.DownloadConcurrency)
-	d.Set("mirror_on_sync", Repository.MirrorOnSync)
-	d.Set("verify_ssl_on_sync", Repository.VerifySslOnSync)
-	d.Set("upstream_username", Repository.UpstreamUsername)
-	d.Set("upstream_password", Repository.UpstreamPassword)
-	d.Set("deb_releases", Repository.DebReleases)
-	d.Set("deb_components", Repository.DebComponents)
-	d.Set("deb_architectures", Repository.DebArchitectures)
-	d.Set("ignore_global_proxy", Repository.IgnoreGlobalProxy)
-	d.Set("ignorable_content", Repository.IgnorableContent)
-	d.Set("ansible_collection_requirements", Repository.AnsibleCollectionRequirements)
-	d.Set("http_proxy_policy", Repository.HttpProxyPolicy)
-	d.Set("http_proxy_id", Repository.HttpProxyId)
+	d.SetId(strconv.Itoa(repo.Id))
+	d.Set("name", repo.Name)
+	d.Set("description", repo.Description)
+	d.Set("label", repo.Label)
+	d.Set("product_id", repo.ProductId)
+	d.Set("content_type", repo.ContentType)
+	d.Set("url", repo.Url)
+	d.Set("gpg_key_id", repo.GpgKeyId)
+	d.Set("unprotected", repo.Unprotected)
+	d.Set("checksum_type", repo.ChecksumType)
+	d.Set("docker_upstream_name", repo.DockerUpstreamName)
+	d.Set("docker_tags_whitelist", repo.DockerTagsWhitelist)
+	d.Set("download_policy", repo.DownloadPolicy)
+	d.Set("download_concurrency", repo.DownloadConcurrency)
+	d.Set("mirror_on_sync", repo.MirrorOnSync)
+	d.Set("mirroring_policy", repo.MirroringPolicy)
+	d.Set("verify_ssl_on_sync", repo.VerifySslOnSync)
+	d.Set("upstream_username", repo.UpstreamUsername)
+	d.Set("upstream_password", repo.UpstreamPassword)
+	d.Set("deb_releases", repo.DebReleases)
+	d.Set("deb_components", repo.DebComponents)
+	d.Set("deb_architectures", repo.DebArchitectures)
+	d.Set("ignore_global_proxy", repo.IgnoreGlobalProxy)
+	d.Set("ignorable_content", repo.IgnorableContent)
+	d.Set("ansible_collection_requirements", repo.AnsibleCollectionRequirements)
+	d.Set("http_proxy_policy", repo.HttpProxyPolicy)
+	d.Set("http_proxy_id", repo.HttpProxyId)
 }
 
 // -----------------------------------------------------------------------------

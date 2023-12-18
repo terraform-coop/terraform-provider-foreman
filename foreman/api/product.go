@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
@@ -25,13 +26,13 @@ type ForemanKatelloProduct struct {
 	// Inherits the base object's attributes
 	ForemanObject
 
-	Description string `json:"description"`
-	GpgKeyId    int    `json:"gpg_key_id"`
-	/* 	SslCaCertId int `json:"ssl_ca_cert_id"`
-	   	SslClientCertId int `json:"ssl_client_cert_id"`
-	   	SslClientKeyId  int `json:"ssl_client_key_id"` */
-	SyncPlanId int    `json:"sync_plan_id"`
-	Label      string `json:"label"`
+	Description     string `json:"description"`
+	GpgKeyId        int    `json:"gpg_key_id,omitempty"`
+	SslCaCertId     int    `json:"ssl_ca_cert_id,omitempty"`
+	SslClientCertId int    `json:"ssl_client_cert_id"`
+	SslClientKeyId  int    `json:"ssl_client_key_id"`
+	SyncPlanId      int    `json:"sync_plan_id"`
+	Label           string `json:"label"`
 }
 
 // -----------------------------------------------------------------------------
@@ -61,6 +62,12 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 	if reqErr != nil {
 		return nil, reqErr
 	}
+
+	// organization_id is a required parameter
+	reqQuery := req.URL.Query()
+	orgId := strconv.Itoa(c.clientConfig.OrganizationID)
+	reqQuery.Set("organization_id", orgId)
+	req.URL.RawQuery = reqQuery.Encode()
 
 	var createdKatelloProduct ForemanKatelloProduct
 	sendErr := c.SendAndParse(req, &createdKatelloProduct)
@@ -183,6 +190,10 @@ func (c *Client) QueryKatelloProduct(ctx context.Context, p *ForemanKatelloProdu
 	reqQuery := req.URL.Query()
 	name := `"` + p.Name + `"`
 	reqQuery.Set("search", "name="+name)
+
+	// organization_id is a required parameter
+	orgId := strconv.Itoa(c.clientConfig.OrganizationID)
+	reqQuery.Set("organization_id", orgId)
 
 	req.URL.RawQuery = reqQuery.Encode()
 	sendErr := c.SendAndParse(req, &queryResponse)
