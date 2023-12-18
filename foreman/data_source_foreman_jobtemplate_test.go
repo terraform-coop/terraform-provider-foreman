@@ -91,6 +91,10 @@ func DataSourceForemanJobTemplateMockResponseTestCases(t *testing.T) []TestCaseM
 		},
 
 		{
+			// TODO: The query_response_single appends the attributes "template" and "locked", even though the
+			// upstream Foreman API does NOT return these two fields on query. Only on read, by ID at .../<id>.
+			// They were inserted into the test data to support the test case, otherwise they would fail.
+
 			TestCase:     tc(s),
 			responseFile: testDataPathJobTemplates + "/query_response_single.json",
 			returnError:  false,

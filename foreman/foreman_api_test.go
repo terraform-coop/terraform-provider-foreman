@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"encoding/json"
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"io"
 	"math/rand"
 	"net/http"
@@ -88,7 +89,15 @@ func ParseJSONFile(t *testing.T, path string, obj interface{}) {
 func CompareResourceDataAttributes(t *testing.T, m map[string]schema.ValueType, r1 *schema.ResourceData, r2 *schema.ResourceData) {
 	for key, value := range m {
 		ok1, ok2 := false, false
-		attr1, attr2 := r1.Get(key), r2.Get(key)
+		attr1, okGet1 := r1.GetOk(key)
+		attr2, okGet2 := r2.GetOk(key)
+
+		// If the OK return values DIFFER, print error
+		if (!okGet1 || !okGet2) && (okGet1 != okGet2) {
+			log.Warningf("Error in CompareResourceDataAttributes. "+
+				"Parameter %s failed in .Get: okGet1 is %t, okGet2 is %t",
+				key, okGet1, okGet2)
+		}
 
 		if value == schema.TypeBool {
 			attr1, ok1 = attr1.(bool)
