@@ -1,7 +1,20 @@
 # Foreman Terraform Provider
 
-Terraform provider to interact with [Foreman](https://www.theforeman.org/).
+Terraform provider to interact with [Foreman](https://www.theforeman.org/)
+and, partly, [Katello](https://theforeman.org/plugins/katello/).
 
+Use the provider from the official **Terraform registry**:
+[registry.terraform.io/providers/terraform-coop/foreman](https://registry.terraform.io/providers/terraform-coop/foreman/latest).
+
+This is a fork of the project previously developed, owned, and maintained by
+the SRE - Orchestration pod at Wayfair.
+
+This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation and
+Go modules for dependency management.  Dependencies are tracked as part of the
+repository.
+
+**Example use-cases** of this provider are included in this repository under `./examples`.
+See the examples for more information.
 
 ## Changes in 0.6.x
 Starting with `v0.6.0` some (breaking) changes require an update of Terraform manifests.
@@ -18,35 +31,10 @@ Starting with `v0.6.0` some (breaking) changes require an update of Terraform ma
   * **Use `shortname` and `fqdn` as variables in your manifests**! Example: `other_server = foreman_host.other_server.fqdn`. This will prevent you from running into inconsistent plans.
 
 
-## Migration notice
 
-The provider has moved from its previous location at https://github.com/terraform-coop/terraform-provider-foreman
 
-Versions 0.5.1 and newer can be directly used from the new location in the registry.
-The new provider registry address is terraform-coop/foreman.
 
-## Project Info
-
-This is a fork of the project previously developed, owned, and maintained by
-the SRE - Orchestration pod at Wayfair.
-
-This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation and
-Go modules for dependency management.  Dependencies are tracked as part of the
-repository.
-
-## Foreman Requirements:
-
-- [Foreman BMC Plugin](https://projects.theforeman.org/projects/smart-proxy/wiki/BMC)
-- [ipmitool](https://github.com/ipmitool/ipmitool)
-
-Foreman Smart proxies will need to be provisioned with the Foreman BMC plugin
-and have the ipmitool installed.
-
-Currently supported Foreman versions are all >= 1.16 and <= 1.20. Above 1.20
-the API was changed with some new required parameters which are not yet
-implemented in the provider.
-
-## Requirements:
+## Requirements
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 0.12.x
 - [Golang](https://golang.org/doc/install) >= 1.13
@@ -55,6 +43,19 @@ Follow the setup instructions provided on the install sections of their
 respective websites. Windows environments should have a \*nix-style terminal
 emulator installed such as [Cygwin](https://www.cygwin.com/) to be compatible
 with the `makefile`.
+
+### Foreman Requirements
+
+In case you are using an older version of Foreman (<= 1.20), the following tools might
+be useful in your setup:
+
+- [Foreman BMC Plugin](https://projects.theforeman.org/projects/smart-proxy/wiki/BMC)
+- [ipmitool](https://github.com/ipmitool/ipmitool)
+
+Foreman Smart proxies will need to be provisioned with the Foreman BMC plugin
+and have the ipmitool installed.
+
+
 
 ## Provider / Repository Setup
 
@@ -70,7 +71,8 @@ section:
 2. Enter the root directory of the project and install the provider:
 
     ```sh
-    $ go build
+    $ export CGO_ENABLED=0
+    $ go build -trimpath -ldflags '-s -w'
     ```
 
     **NOTE:** See the Third-party Plugins section on Terraform's website over
@@ -105,7 +107,10 @@ section:
     binary is located at `terraform.d/plugins/windows_amd64/terraform-provider-foreman.exe`
     and then try step 3 again.
 
-## [Documentation](https://terraform-coop.github.io/terraform-provider-foreman/)
+## Documentation
+
+The rendered documentation is available at
+[terraform-coop.github.io/terraform-provider-foreman](https://terraform-coop.github.io/terraform-provider-foreman/).
 
 This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation.
 Follow the installation instructions on
@@ -208,8 +213,3 @@ Windows
 > $env:FOREMAN_PROVIDER_LOGLEVEL = "DEBUG"
 > $env:FOREMAN_PROVIDER_LOGFILE = "terraform-provider-foreman.log"
 ```
-
-## Using the Provider:
-
-An example of of usage of this provider is included in this repository under
-`./examples`. See the examples for more information.
