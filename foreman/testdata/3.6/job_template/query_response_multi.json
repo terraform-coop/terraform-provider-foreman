@@ -1,0 +1,44 @@
+{
+  "total": 3,
+  "subtotal": 3,
+  "page": 1,
+  "per_page": 20,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "id": 50,
+      "name": "Change content source",
+      "job_category": "Katello",
+      "provider_type": "script",
+      "snippet": false,
+      "description_format": "Configure subscription manager to new content source",
+      "created_at": "2023-09-11 15:20:14 +0200",
+      "updated_at": "2023-09-11 15:20:14 +0200"
+    },
+    {
+      "id": 60,
+      "name": "Check Update - Script Default",
+      "job_category": "Packages",
+      "provider_type": "script",
+      "snippet": false,
+      "description_format": "Check for package updates",
+      "created_at": "2023-09-11 15:20:13 +0200",
+      "updated_at": "2023-09-11 15:20:13 +0200"
+    },
+    },
+    {
+      "id": 70,
+      "name": "Install errata by search query - Katello Script Default",
+      "job_category": "Katello",
+      "provider_type": "script",
+      "snippet": false,
+      "description_format": "Install errata %{Errata search query}",
+      "created_at": "2023-09-11 15:20:14 +0200",
+      "updated_at": "2023-09-11 15:20:14 +0200"
+    }
+  ]
+}
