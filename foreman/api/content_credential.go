@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -39,7 +40,7 @@ type ForemanKatelloContentCredential struct {
 // ForemanKatelloContentCredential reference.  The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateKatelloContentCredential(ctx context.Context, s *ForemanKatelloContentCredential) (*ForemanKatelloContentCredential, error) {
-	log.Tracef("foreman/api/content_credential.go#Create")
+	utils.TraceFunctionCall()
 
 	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, s)
 	if jsonEncErr != nil {
@@ -72,7 +73,7 @@ func (c *Client) CreateKatelloContentCredential(ctx context.Context, s *ForemanK
 // ReadKatelloContentCredential reads the attributes of a ForemanKatelloContentCredential identified by the
 // supplied ID and returns a ForemanKatelloContentCredential reference.
 func (c *Client) ReadKatelloContentCredential(ctx context.Context, id int) (*ForemanKatelloContentCredential, error) {
-	log.Tracef("foreman/api/content_credential.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloContentCredentialEndpointPrefix, id)
 
@@ -102,7 +103,7 @@ func (c *Client) ReadKatelloContentCredential(ctx context.Context, id int) (*For
 // ForemanKatelloContentCredential reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateKatelloContentCredential(ctx context.Context, s *ForemanKatelloContentCredential) (*ForemanKatelloContentCredential, error) {
-	log.Tracef("foreman/api/content_credential.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloContentCredentialEndpointPrefix, s.Id)
 
@@ -136,7 +137,7 @@ func (c *Client) UpdateKatelloContentCredential(ctx context.Context, s *ForemanK
 
 // DeleteKatelloContentCredential deletes the ForemanKatelloContentCredential identified by the supplied ID
 func (c *Client) DeleteKatelloContentCredential(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/content_credential.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloContentCredentialEndpointPrefix, id)
 
@@ -161,7 +162,7 @@ func (c *Client) DeleteKatelloContentCredential(ctx context.Context, id int) err
 // the supplied ForemanKatelloContentCredential reference and returns a QueryResponse struct
 // containing query/response metadata and the matching smart proxy.
 func (c *Client) QueryKatelloContentCredential(ctx context.Context, s *ForemanKatelloContentCredential) (QueryResponse, error) {
-	log.Tracef("foreman/api/content_credential.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

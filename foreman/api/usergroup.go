@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -29,7 +30,7 @@ type ForemanUsergroup struct {
 
 // Implement the Marshaler interface
 func (fh ForemanUsergroup) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/usergroup.go#MarshalJSON")
+	utils.TraceFunctionCall()
 
 	// NOTE(ALL): omit the "name" property from the JSON marshal since it is a
 	//   computed value
@@ -45,6 +46,8 @@ func (fh ForemanUsergroup) MarshalJSON() ([]byte, error) {
 }
 
 func (fh *ForemanUsergroup) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -79,7 +82,7 @@ func (fh *ForemanUsergroup) UnmarshalJSON(b []byte) error {
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
 func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*ForemanUsergroup, error) {
-	log.Tracef("foreman/api/usergroup.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", UsergroupEndpointPrefix)
 
@@ -114,7 +117,7 @@ func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 // ReadUsergroup reads the attributes of a ForemanUsergroup identified by the
 // supplied ID and returns a ForemanUsergroup reference.
 func (c *Client) ReadUsergroup(ctx context.Context, id int) (*ForemanUsergroup, error) {
-	log.Tracef("foreman/api/usergroup.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, id)
 
@@ -144,7 +147,7 @@ func (c *Client) ReadUsergroup(ctx context.Context, id int) (*ForemanUsergroup, 
 // ForemanUsergroup reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*ForemanUsergroup, error) {
-	log.Tracef("foreman/api/usergroup.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, h.Id)
 
@@ -178,7 +181,7 @@ func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 
 // DeleteUsergroup deletes the ForemanUsergroup identified by the supplied ID
 func (c *Client) DeleteUsergroup(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/usergroup.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, id)
 
@@ -203,7 +206,7 @@ func (c *Client) DeleteUsergroup(ctx context.Context, id int) error {
 // supplied ForemanUsergroup reference and returns a QueryResponse struct
 // containing query/response metadata and the matching usergroups.
 func (c *Client) QueryUsergroup(ctx context.Context, u *ForemanUsergroup) (QueryResponse, error) {
-	log.Tracef("foreman/api/usergroup.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

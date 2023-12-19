@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -77,7 +78,7 @@ func resourceForemanDomain() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
-	log.Tracef("resource_foreman_domain.go#buildForemanDomain")
+	utils.TraceFunctionCall()
 
 	domain := api.ForemanDomain{}
 
@@ -102,6 +103,7 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 // attributes of the supplied ForemanDomain reference
 func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDomain) {
 	log.Tracef("resource_foreman_domain.go#setResourceDataFromForemanDomain")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -114,7 +116,7 @@ func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDom
 // -----------------------------------------------------------------------------
 
 func resourceForemanDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanDomain(d)
@@ -134,7 +136,7 @@ func resourceForemanDomainCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	domain := buildForemanDomain(d)
@@ -154,7 +156,8 @@ func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Update")
+	utils.TraceFunctionCall()
+
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)
 
@@ -173,7 +176,7 @@ func resourceForemanDomainUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)

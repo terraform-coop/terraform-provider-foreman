@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -58,6 +59,8 @@ type foremanPartitionTableJSON struct {
 
 // Implement the Unmarshaler interface
 func (ft *ForemanPartitionTable) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -112,7 +115,7 @@ func (ft *ForemanPartitionTable) UnmarshalJSON(b []byte) error {
 // ForemanPartitionTable reference.  The returned reference will have its ID
 // and other API default values set by this function.
 func (c *Client) CreatePartitionTable(ctx context.Context, t *ForemanPartitionTable) (*ForemanPartitionTable, error) {
-	log.Tracef("foreman/api/partitiontable.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", PartitionTableEndpointPrefix)
 
@@ -147,7 +150,7 @@ func (c *Client) CreatePartitionTable(ctx context.Context, t *ForemanPartitionTa
 // ReadPartitionTable reads the attributes of a ForemanPartitionTable
 // identified by the supplied ID and returns a ForemanPartitionTable reference.
 func (c *Client) ReadPartitionTable(ctx context.Context, id int) (*ForemanPartitionTable, error) {
-	log.Tracef("foreman/api/partitiontable.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, id)
 
@@ -177,7 +180,7 @@ func (c *Client) ReadPartitionTable(ctx context.Context, id int) (*ForemanPartit
 // updated. A new ForemanPartitionTable reference is returned with the
 // attributes from the result of the update operation.
 func (c *Client) UpdatePartitionTable(ctx context.Context, t *ForemanPartitionTable) (*ForemanPartitionTable, error) {
-	log.Tracef("foreman/api/partitiontable.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, t.Id)
 
@@ -212,7 +215,7 @@ func (c *Client) UpdatePartitionTable(ctx context.Context, t *ForemanPartitionTa
 // DeletePartitionTable deletes the ForemanPartitionTable identified by the
 // supplied ID
 func (c *Client) DeletePartitionTable(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/partitiontable.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", PartitionTableEndpointPrefix, id)
 
@@ -238,7 +241,7 @@ func (c *Client) DeletePartitionTable(ctx context.Context, id int) error {
 // QueryResponse struct containing query/response metadata and the matching
 // partition tables.
 func (c *Client) QueryPartitionTable(ctx context.Context, t *ForemanPartitionTable) (QueryResponse, error) {
-	log.Tracef("foreman/api/partitiontable.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -37,7 +38,7 @@ type ForemanHTTPProxy struct {
 // ForemanHTTPProxy reference.  The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*ForemanHTTPProxy, error) {
-	log.Tracef("foreman/api/httpproxy.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", HTTPProxyEndpointPrefix)
 
@@ -72,7 +73,7 @@ func (c *Client) CreateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*For
 // ReadHTTPProxy reads the attributes of a ForemanHTTPProxy identified by the
 // supplied ID and returns a ForemanHTTPProxy reference.
 func (c *Client) ReadHTTPProxy(ctx context.Context, id int) (*ForemanHTTPProxy, error) {
-	log.Tracef("foreman/api/HTTPProxy.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, id)
 
@@ -102,7 +103,7 @@ func (c *Client) ReadHTTPProxy(ctx context.Context, id int) (*ForemanHTTPProxy, 
 // ForemanHTTPProxy reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*ForemanHTTPProxy, error) {
-	log.Tracef("foreman/api/HTTPProxy.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, s.Id)
 
@@ -136,7 +137,7 @@ func (c *Client) UpdateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*For
 
 // DeleteHTTPProxy deletes the ForemanHTTPProxy identified by the supplied ID
 func (c *Client) DeleteHTTPProxy(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/HTTPProxy.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HTTPProxyEndpointPrefix, id)
 
@@ -161,7 +162,7 @@ func (c *Client) DeleteHTTPProxy(ctx context.Context, id int) error {
 // the supplied ForemanHTTPProxy reference and returns a QueryResponse struct
 // containing query/response metadata and the matching smart proxy.
 func (c *Client) QueryHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (QueryResponse, error) {
-	log.Tracef("foreman/api/HTTPProxy.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

@@ -130,6 +130,7 @@ func ToKV(m map[string]interface{}) (ret []ForemanKVParameter) {
 // the API gateway.
 func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 	utils.TraceFunctionCall()
+
 	log.Debugf(
 		"Server: [%+v], "+
 			"ClientConfig: [%+v]",
@@ -200,6 +201,7 @@ func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 //	Functions exactly like net/http/NewRequestWithContext()
 func (client *Client) NewRequestWithContext(ctx context.Context, method string, endpoint string, body io.Reader) (*http.Request, error) {
 	utils.TraceFunctionCall()
+
 	log.Debugf(
 		"method: [%s], endpoint: [%s]",
 		method,
@@ -387,7 +389,6 @@ func CheckDeleted(d *schema.ResourceData, err error) error {
 
 // wrapParameter wraps the given parameters as an object of its own name
 func (client *Client) wrapParameters(name interface{}, item interface{}) (map[string]interface{}, error) {
-
 	var wrapped map[string]interface{}
 
 	if name != nil {
@@ -410,9 +411,7 @@ func (client *Client) wrapParameters(name interface{}, item interface{}) (map[st
 
 // WrapJSON wraps the given parameters as an object of its own name and marshals it to JSON
 func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, error) {
-
 	wrapped, _ := client.wrapParameters(name, item)
-
 	return json.Marshal(wrapped)
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -36,7 +37,7 @@ type ForemanSmartClassParameter struct {
 // ReadSmartClassParamter reads the attributes of a ForemanSmartClassParameter identified by
 // the supplied ID and returns a ForemanSmartClassParameter reference.
 func (c *Client) ReadSmartClassParameter(ctx context.Context, id int) (*ForemanSmartClassParameter, error) {
-	log.Tracef("foreman/api/smartsclassparameter.go#Read")
+	utils.TraceFunctionCall()
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -67,7 +68,7 @@ func (c *Client) ReadSmartClassParameter(ctx context.Context, id int) (*ForemanS
 // of the supplied ForemanSmartClassParameter reference and returns a QueryResponse
 // struct containing query/response metadata
 func (c *Client) QuerySmartClassParameter(ctx context.Context, t *ForemanSmartClassParameter) (QueryResponse, error) {
-	log.Tracef("foreman/api/smartclassparameter.go#Search")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(SmartClassParameterQueryEndpointPrefix, t.PuppetClassId)
 

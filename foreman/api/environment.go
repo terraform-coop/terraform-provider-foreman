@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -33,7 +34,7 @@ type ForemanEnvironment struct {
 // ForemanEnvironment reference.  The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (*ForemanEnvironment, error) {
-	log.Tracef("foreman/api/environment.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", EnvironmentEndpointPrefix)
 
@@ -68,7 +69,7 @@ func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 // ReadEnvironment reads the attributes of a ForemanEnvironment identified by
 // the supplied ID and returns a ForemanEnvironment reference.
 func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironment, error) {
-	log.Tracef("foreman/api/environment.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, id)
 
@@ -98,7 +99,7 @@ func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironme
 // A new ForemanEnvironment reference is returned with the attributes from the
 // result of the update operation.
 func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (*ForemanEnvironment, error) {
-	log.Tracef("foreman/api/environment.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, e.Id)
 
@@ -133,7 +134,7 @@ func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 // DeleteEnvironment deletes the ForemanEnvironment identified by the supplied
 // ID
 func (c *Client) DeleteEnvironment(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/environment.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, id)
 
@@ -158,7 +159,7 @@ func (c *Client) DeleteEnvironment(ctx context.Context, id int) error {
 // the supplied ForemanEnvironment reference and returns a QueryResponse struct
 // containing query/response metadata and the matching environments.
 func (c *Client) QueryEnvironment(ctx context.Context, e *ForemanEnvironment) (QueryResponse, error) {
-	log.Tracef("foreman/api/environment.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

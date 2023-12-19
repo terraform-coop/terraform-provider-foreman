@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -39,7 +40,7 @@ type ForemanCommonParameter struct {
 // The returned reference will have its ID and other API default values set by
 // this function.
 func (c *Client) CreateCommonParameter(ctx context.Context, d *ForemanCommonParameter) (*ForemanCommonParameter, error) {
-	log.Tracef("foreman/api/common_parameter.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := CommonParameterEndpointPrefix
 
@@ -77,7 +78,7 @@ func (c *Client) CreateCommonParameter(ctx context.Context, d *ForemanCommonPara
 // ReadCommonParameter reads the attributes of a ForemanCommonParameter identified by the
 // supplied ID and returns a ForemanCommonParameter reference.
 func (c *Client) ReadCommonParameter(ctx context.Context, d *ForemanCommonParameter, id int) (*ForemanCommonParameter, error) {
-	log.Tracef("foreman/api/common_parameter.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
 
@@ -108,7 +109,7 @@ func (c *Client) ReadCommonParameter(ctx context.Context, d *ForemanCommonParame
 // UpdateCommonParameter deletes all commonParameters for the subject resource and re-creates them
 // as we look at them differently on either side this is the safest way to reach sync
 func (c *Client) UpdateCommonParameter(ctx context.Context, d *ForemanCommonParameter, id int) (*ForemanCommonParameter, error) {
-	log.Tracef("foreman/api/common_parameter.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
 
@@ -145,7 +146,7 @@ func (c *Client) UpdateCommonParameter(ctx context.Context, d *ForemanCommonPara
 
 // DeleteCommonParameter deletes the ForemanCommonParameters for the given resource
 func (c *Client) DeleteCommonParameter(ctx context.Context, d *ForemanCommonParameter, id int) error {
-	log.Tracef("foreman/api/common_parameter.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(CommonParameterEndpointPrefix+"/%d", id)
 
@@ -170,7 +171,7 @@ func (c *Client) DeleteCommonParameter(ctx context.Context, d *ForemanCommonPara
 // supplied ForemanCommonParameter reference and returns a QueryResponse struct
 // containing query/response metadata and the matching commonParameters.
 func (c *Client) QueryCommonParameter(ctx context.Context, d *ForemanCommonParameter) (QueryResponse, error) {
-	log.Tracef("foreman/api/common_parameter.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -52,6 +53,8 @@ type foremanMediaJSON struct {
 
 // Implement the Unmarshaler interface
 func (fm *ForemanMedia) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -97,7 +100,7 @@ func (fm *ForemanMedia) UnmarshalJSON(b []byte) error {
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedia, error) {
-	log.Tracef("foreman/api/media.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", MediaEndpointPrefix)
 
@@ -132,7 +135,7 @@ func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 // ReadMedia reads the attributes of a ForemanMedia identified by the supplied
 // ID and returns a ForemanMedia reference.
 func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
-	log.Tracef("foreman/api/media.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, id)
 
@@ -161,7 +164,7 @@ func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
 // the supplied ForemanMedia will be updated. A new ForemanMedia reference is
 // returned with the attributes from the result of the update operation.
 func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedia, error) {
-	log.Tracef("foreman/api/media.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, m.Id)
 
@@ -195,7 +198,7 @@ func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 
 // DeleteMedia deletes the ForemanMedia identified by the supplied ID
 func (c *Client) DeleteMedia(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/media.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, id)
 
@@ -220,7 +223,7 @@ func (c *Client) DeleteMedia(ctx context.Context, id int) error {
 // supplied ForemanMedia reference and returns a QueryResponse struct
 // containing query/response metadata and the matching media.
 func (c *Client) QueryMedia(ctx context.Context, m *ForemanMedia) (QueryResponse, error) {
-	log.Tracef("foreman/api/media.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

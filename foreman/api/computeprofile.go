@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strconv"
 
@@ -33,6 +34,8 @@ type ForemanComputeAttribute struct {
 // Implement custom Marshal function for ForemanComputeAttribute to convert
 // the internal vm_attrs map from all-string to their matching types.
 func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
+	utils.TraceFunctionCall()
+
 	fca := map[string]interface{}{
 		"id":                  ca.Id,
 		"name":                ca.Name,
@@ -101,7 +104,7 @@ func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 // ReadComputeProfile reads the attributes of a ForemanComputeProfile identified by
 // the supplied ID and returns a ForemanComputeProfile reference.
 func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ForemanComputeProfile, error) {
-	log.Tracef("foreman/api/templatekind.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, id)
 
@@ -138,7 +141,7 @@ func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ForemanComput
 // of the supplied ForemanComputeProfile reference and returns a QueryResponse
 // struct containing query/response metadata and the matching template kinds
 func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfile) (QueryResponse, error) {
-	log.Tracef("foreman/api/templatekind.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -191,7 +194,7 @@ func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfi
 }
 
 func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
-	log.Tracef("foreman/api/computeprofile.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := ComputeProfileEndpointPrefix
 
@@ -257,7 +260,7 @@ func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProf
 }
 
 func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProfile) (*ForemanComputeProfile, error) {
-	log.Tracef("foreman/api/computeprofile.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, d.Id)
 
@@ -328,7 +331,7 @@ func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProf
 }
 
 func (c *Client) DeleteComputeProfile(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/computeprofile.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeProfileEndpointPrefix, id)
 	req, reqErr := c.NewRequestWithContext(ctx, http.MethodDelete, reqEndpoint, nil)

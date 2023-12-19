@@ -207,9 +207,9 @@ func (c *Client) UpdateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 
 	// Handle TemplateInputs
 
-	count_ti := len(jtObj.TemplateInputs)
-	if count_ti > 0 {
-		updatedTIs := make([]ForemanTemplateInput, count_ti)
+	countTi := len(jtObj.TemplateInputs)
+	if countTi > 0 {
+		updatedTIs := make([]ForemanTemplateInput, countTi)
 
 		for idx, item := range jtObj.TemplateInputs {
 			ti, err := c.UpdateTemplateInput(ctx, &item)

@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strconv"
 	"strings"
@@ -39,7 +40,7 @@ type ForemanOverrideValue struct {
 
 // Implement the Marshaler interface
 func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/override_value.go#MarshalJSON")
+	utils.TraceFunctionCall()
 
 	ovMap := map[string]interface{}{}
 	ovMap["omit"] = ov.Omit
@@ -57,7 +58,7 @@ func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
 	}
 	if err != nil {
 		ovMap["value"] = ov.Value
-		log.Tracef("foreman/api/override_value.go#MarshalJSON/passraw")
+		log.Debugf("override_value.go #MarshalJSON/passraw")
 	}
 
 	log.Debugf("ovMap: [%+v]", ovMap)
@@ -68,6 +69,8 @@ func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
 // Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
 // and then convert over to a ForemanHost struct.
 func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -108,7 +111,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 		ov.MatchValue = strings.TrimPrefix(match, "os=")
 	}
 
-	log.Tracef("foreman/api/override_value.go#UnarshalJSON/postMatch")
+	log.Debugf("override_value.go #UnmarshalJSON/postMatch")
 
 	if ov.Omit, ok = tmpMap["omit"].(bool); !ok {
 		ov.Omit = false
@@ -119,7 +122,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 		ov.Value = string(vb)
 	}
 
-	log.Tracef("foreman/api/override_value.go#UnarshalJSON/postValue")
+	log.Debugf("override_value.go #UnmarshalJSON/postValue")
 
 	return nil
 }
@@ -133,7 +136,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
-	log.Tracef("foreman/api/override_value.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix, ov.SmartClassParameterId)
 
@@ -173,7 +176,7 @@ func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 // NOTE - although override value ids appear to be unique the API requires the smart
 // class parameter id as well.
 func (c *Client) ReadOverrideValue(ctx context.Context, id int, scp_id int) (*ForemanOverrideValue, error) {
-	log.Tracef("foreman/api/override_value.go#Read")
+	utils.TraceFunctionCall()
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", scp_id, id)
@@ -202,7 +205,7 @@ func (c *Client) ReadOverrideValue(ctx context.Context, id int, scp_id int) (*Fo
 
 // UpdateOverrideValue updates a ForemanOverrideValue's attributes.
 func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
-	log.Tracef("foreman/api/override_value.go#Update")
+	utils.TraceFunctionCall()
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", ov.SmartClassParameterId, ov.Id)
@@ -240,7 +243,7 @@ func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 
 // DeleteOverideValue deletes the ForemanOverrideValue identified by the supplied ID and smarts class param ID
 func (c *Client) DeleteOverrideValue(ctx context.Context, id int, scp_id int) error {
-	log.Tracef("foreman/api/override_value.go#Delete")
+	utils.TraceFunctionCall()
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", scp_id, id)
@@ -262,6 +265,6 @@ func (c *Client) DeleteOverrideValue(ctx context.Context, id int, scp_id int) er
 // Query Implementation
 // -----------------------------------------------------------------------------
 
-// Doesn't lool like this is possible in the API
+// Doesn't look like this is possible in the API
 // The only field it makes sense to search on is match, but this is not supported
 // So we cannot have a data object, only resource

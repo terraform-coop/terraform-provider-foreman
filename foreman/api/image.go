@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -42,6 +43,8 @@ type ForemanImage struct {
 }
 
 func (fi *ForemanImage) MarshalJSON() ([]byte, error) {
+	utils.TraceFunctionCall()
+
 	fim := map[string]interface{}{
 		"uuid":                fi.UUID,
 		"name":                fi.Name,
@@ -63,7 +66,7 @@ func (fi *ForemanImage) MarshalJSON() ([]byte, error) {
 // The returned reference will have its ID and other API default values set by
 // this function.
 func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resource int) (*ForemanImage, error) {
-	log.Tracef("foreman/api/image.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d/images", ComputeResourceEndpoint, compute_resource)
 
@@ -102,7 +105,7 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 // ReadImage reads the attributes of a ForemanImage identified by the
 // supplied ID and returns a ForemanImage reference.
 func (c *Client) ReadImage(ctx context.Context, d *ForemanImage) (*ForemanImage, error) {
-	log.Tracef("foreman/api/image.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, d.ComputeResourceID, d.Id)
 
@@ -131,7 +134,7 @@ func (c *Client) ReadImage(ctx context.Context, d *ForemanImage) (*ForemanImage,
 // of the supplied ForemanImage will be updated. A new ForemanImage reference
 // is returned with the attributes from the result of the update operation.
 func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImage, error) {
-	log.Tracef("foreman/api/image.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, d.ComputeResourceID, d.Id)
 
@@ -165,7 +168,7 @@ func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImag
 
 // DeleteImage deletes the ForemanImage identified by the supplied ID
 func (c *Client) DeleteImage(ctx context.Context, compute_resource, id int) error {
-	log.Tracef("foreman/api/image.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/images/%d", ComputeResourceEndpoint, compute_resource, id)
 
@@ -190,7 +193,7 @@ func (c *Client) DeleteImage(ctx context.Context, compute_resource, id int) erro
 // supplied ForemanImage reference and returns a QueryResponse struct
 // containing query/response metadata and the matching images.
 func (c *Client) QueryImage(ctx context.Context, d *ForemanImage) (QueryResponse, error) {
-	log.Tracef("foreman/api/image.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

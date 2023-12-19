@@ -1,9 +1,33 @@
 package utils
 
+import (
+	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"runtime"
+	"strings"
+)
+
 // Provides util functions for the provider package
 
 func TraceFunctionCall() {
-	// Removed in branch feat/job_templates, to be filled in separate branch
+	// Get the program counter and result from the Go stack
+	pc, _, _, ok := runtime.Caller(1)
+	if !ok {
+		log.Warningf("Error in TraceFunctionCall runtime.Caller")
+		return
+	}
+
+	// Get details about the caller function (the one that calls utils.TraceFunctionCall)
+	fun := runtime.FuncForPC(pc)
+	funName := fun.Name()
+	funFile, funLine := fun.FileLine(pc)
+
+	// Strip the package prefix
+	const prefix = "github.com/terraform-coop/terraform-provider-foreman/"
+	funName = strings.TrimPrefix(funName, prefix)
+	funFile = strings.TrimPrefix(funFile, prefix)
+
+	log.Tracef("%s (called from %s:%d)",
+		funName, funFile, funLine)
 }
 
 // Like `log.Debugf` but also prints the current file name and line number with the log output

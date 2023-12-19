@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -71,7 +72,7 @@ type ForemanUser struct {
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
 func (c *Client) CreateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, error) {
-	log.Tracef("foreman/api/user.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", UserEndpointPrefix)
 
@@ -106,7 +107,7 @@ func (c *Client) CreateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, 
 // ReadUser reads the attributes of a ForemanUser identified by the
 // supplied ID and returns a ForemanUser reference.
 func (c *Client) ReadUser(ctx context.Context, id int) (*ForemanUser, error) {
-	log.Tracef("foreman/api/user.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UserEndpointPrefix, id)
 
@@ -136,7 +137,7 @@ func (c *Client) ReadUser(ctx context.Context, id int) (*ForemanUser, error) {
 // ForemanUser reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, error) {
-	log.Tracef("foreman/api/user.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UserEndpointPrefix, u.Id)
 
@@ -170,7 +171,7 @@ func (c *Client) UpdateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, 
 
 // DeleteUser deletes the ForemanUser identified by the supplied ID
 func (c *Client) DeleteUser(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/user.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UserEndpointPrefix, id)
 
@@ -191,7 +192,7 @@ func (c *Client) DeleteUser(ctx context.Context, id int) error {
 // supplied ForemanUser reference and returns a QueryResponse struct
 // containing query/response metadata and the matching subnets
 func (c *Client) QueryUser(ctx context.Context, s *ForemanUser) (QueryResponse, error) {
-	log.Tracef("foreman/api/user.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

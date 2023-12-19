@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 
 	"github.com/HanseMerkur/terraform-provider-utils/log"
@@ -100,7 +101,7 @@ type foremanHostGroupDecode struct {
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
 func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*ForemanHostgroup, error) {
-	log.Tracef("foreman/api/hostgroup.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", HostgroupEndpointPrefix)
 
@@ -135,7 +136,7 @@ func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 // ReadHostgroup reads the attributes of a ForemanHostgroup identified by the
 // supplied ID and returns a ForemanHostgroup reference.
 func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, error) {
-	log.Tracef("foreman/api/hostgroup.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, id)
 
@@ -169,7 +170,7 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 // ForemanHostgroup reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*ForemanHostgroup, error) {
-	log.Tracef("foreman/api/hostgroup.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, h.Id)
 
@@ -207,7 +208,7 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 
 // DeleteHostgroup deletes the ForemanHostgroup identified by the supplied ID
 func (c *Client) DeleteHostgroup(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/hostgroup.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, id)
 
@@ -232,7 +233,7 @@ func (c *Client) DeleteHostgroup(ctx context.Context, id int) error {
 // supplied ForemanHostgroup reference and returns a QueryResponse struct
 // containing query/response metadata and the matching hostgroups.
 func (c *Client) QueryHostgroup(ctx context.Context, h *ForemanHostgroup) (QueryResponse, error) {
-	log.Tracef("foreman/api/hostgroup.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
