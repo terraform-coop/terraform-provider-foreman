@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -199,7 +200,7 @@ func resourceForemanSubnet() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
-	log.Tracef("resource_foreman_subnet.go#buildForemanSubnet")
+	utils.TraceFunctionCall()
 
 	s := api.ForemanSubnet{}
 
@@ -275,7 +276,7 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 // setResourceDataFromForemanSubnet sets a ResourceData's attributes from the
 // attributes of the supplied ForemanSubnet reference
 func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSubnet) {
-	log.Tracef("resource_foreman_subnet.go#setResourceDataFromForemanSubnet")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fs.Id))
 	d.Set("name", fs.Name)
@@ -305,7 +306,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 // -----------------------------------------------------------------------------
 
 func resourceForemanSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
@@ -325,7 +326,7 @@ func resourceForemanSubnetCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
@@ -345,7 +346,7 @@ func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Update")
+	utils.TraceFunctionCall()
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
@@ -364,7 +365,7 @@ func resourceForemanSubnetUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)

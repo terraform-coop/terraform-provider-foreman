@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -104,7 +105,7 @@ func resourceForemanComputeResource() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanComputeResource(d *schema.ResourceData) *api.ForemanComputeResource {
-	log.Tracef("resource_foreman_computeresource.go#buildForemanComputeResource")
+	utils.TraceFunctionCall()
 
 	computeresource := api.ForemanComputeResource{}
 
@@ -151,7 +152,7 @@ func buildForemanComputeResource(d *schema.ResourceData) *api.ForemanComputeReso
 // setResourceDataFromForemanComputeResource sets a ResourceData's attributes from the
 // attributes of the supplied ForemanComputeResource reference
 func setResourceDataFromForemanComputeResource(d *schema.ResourceData, fd *api.ForemanComputeResource) {
-	log.Tracef("resource_foreman_computeresource.go#setResourceDataFromForemanComputeResource")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -171,12 +172,12 @@ func setResourceDataFromForemanComputeResource(d *schema.ResourceData, fd *api.F
 // -----------------------------------------------------------------------------
 
 func resourceForemanComputeResourceCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_computeresource.go#Create")
+	utils.TraceFunctionCall()
 	return nil
 }
 
 func resourceForemanComputeResourceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_computeresource.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	computeresource := buildForemanComputeResource(d)
@@ -196,12 +197,12 @@ func resourceForemanComputeResourceRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanComputeResourceUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_computeresource.go#Update")
+	utils.TraceFunctionCall()
 	return nil
 }
 
 func resourceForemanComputeResourceDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_computeresource.go#Delete")
+	utils.TraceFunctionCall()
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

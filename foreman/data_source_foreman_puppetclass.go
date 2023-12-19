@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -68,7 +69,7 @@ func setResourceDataFromForemanPuppetClass(d *schema.ResourceData, fk *api.Forem
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanPuppetClassRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_puppetclass.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanPuppetClass(d)

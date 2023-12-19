@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -58,7 +59,7 @@ func resourceForemanCommonParameter() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanCommonParameter(d *schema.ResourceData) *api.ForemanCommonParameter {
-	log.Tracef("resource_foreman_common_parameter.go#buildForemanCommonParameter")
+	utils.TraceFunctionCall()
 
 	commonParameter := api.ForemanCommonParameter{}
 
@@ -80,7 +81,7 @@ func buildForemanCommonParameter(d *schema.ResourceData) *api.ForemanCommonParam
 // setResourceDataFromForemanCommonParameter sets a ResourceData's attributes from the
 // attributes of the supplied ForemanCommonParameter reference
 func setResourceDataFromForemanCommonParameter(d *schema.ResourceData, fd *api.ForemanCommonParameter) {
-	log.Tracef("resource_foreman_common_parameter.go#setResourceDataFromForemanCommonParameter")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -92,7 +93,7 @@ func setResourceDataFromForemanCommonParameter(d *schema.ResourceData, fd *api.F
 // -----------------------------------------------------------------------------
 
 func resourceForemanCommonParameterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanCommonParameter(d)
@@ -112,7 +113,7 @@ func resourceForemanCommonParameterCreate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	commonParameter := buildForemanCommonParameter(d)
@@ -132,7 +133,7 @@ func resourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanCommonParameterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanCommonParameter(d)
@@ -152,7 +153,7 @@ func resourceForemanCommonParameterUpdate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanCommonParameterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanCommonParameter(d)

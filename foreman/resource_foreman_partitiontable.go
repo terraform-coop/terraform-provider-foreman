@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -154,7 +155,7 @@ func resourceForemanPartitionTable() *schema.Resource {
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
 func buildForemanPartitionTable(d *schema.ResourceData) *api.ForemanPartitionTable {
-	log.Tracef("resource_foreman_partitiontable.go#buildForemanPartitionTable")
+	utils.TraceFunctionCall()
 
 	table := api.ForemanPartitionTable{}
 
@@ -203,7 +204,7 @@ func buildForemanPartitionTable(d *schema.ResourceData) *api.ForemanPartitionTab
 // setResourceDataFromForemanPartitionTable sets a ResourceData's attributes
 // from the attributes of the supplied ForemanPartitionTable struct
 func setResourceDataFromForemanPartitionTable(d *schema.ResourceData, ft *api.ForemanPartitionTable) {
-	log.Tracef("resource_foreman_partitiontable.go#setResourceDataFromForemanPartitionTable")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(ft.Id))
 	d.Set("name", ft.Name)
@@ -250,7 +251,7 @@ func setResourceDataFromForemanPartitionTable(d *schema.ResourceData, ft *api.Fo
 // -----------------------------------------------------------------------------
 
 func resourceForemanPartitionTableCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_partitiontable.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
@@ -270,7 +271,7 @@ func resourceForemanPartitionTableCreate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanPartitionTableRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_partitiontable.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
@@ -290,7 +291,7 @@ func resourceForemanPartitionTableRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceForemanPartitionTableUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_partitiontable.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
@@ -310,7 +311,7 @@ func resourceForemanPartitionTableUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanPartitionTableDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_partitiontable.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)

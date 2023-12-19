@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -244,7 +245,7 @@ func resourceForemanHostgroup() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
-	log.Tracef("resource_foreman_hostgroup.go#buildForemanHostgroup")
+	utils.TraceFunctionCall()
 
 	hostgroup := api.ForemanHostgroup{}
 
@@ -347,7 +348,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 // setResourceDataFromForemanHostgroup sets a ResourceData's attributes from
 // the attributes of the supplied ForemanHostgroup struct
 func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.ForemanHostgroup) {
-	log.Tracef("resource_foreman_hostgroup.go#setResourceDataFromForemanHostgroup")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fh.Id))
 	d.Set("title", fh.Title)
@@ -378,7 +379,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 // -----------------------------------------------------------------------------
 
 func resourceForemanHostgroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
@@ -398,7 +399,7 @@ func resourceForemanHostgroupCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
@@ -418,7 +419,7 @@ func resourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Update")
+	utils.TraceFunctionCall()
 
 	// TODO(ALL): 404 errors here (for v.1.11.4 ) - i think we need to
 	//   concatentate the id with the title, replacing forward slash with a dash?
@@ -443,7 +444,7 @@ func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanHostgroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)

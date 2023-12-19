@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -84,7 +85,7 @@ func setResourceDataFromForemanSmartClassParameter(d *schema.ResourceData, fk *a
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanSmartClassParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_smartclassparameter.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanSmartClassParameter(d)

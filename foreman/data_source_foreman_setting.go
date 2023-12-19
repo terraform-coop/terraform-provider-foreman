@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -88,7 +89,7 @@ func dataSourceForemanSetting() *schema.Resource {
 }
 
 func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_setting.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	setting := &api.ForemanSetting{}

@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -59,7 +60,7 @@ func resourceForemanEnvironment() *schema.Resource {
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
 func buildForemanEnvironment(d *schema.ResourceData) *api.ForemanEnvironment {
-	log.Tracef("resource_foreman_environment.go#buildForemanEnvironment")
+	utils.TraceFunctionCall()
 
 	environment := api.ForemanEnvironment{}
 
@@ -79,7 +80,7 @@ func buildForemanEnvironment(d *schema.ResourceData) *api.ForemanEnvironment {
 // setResourceDataFromForemanEnvironment sets a ResourceData's attributes from
 // the attributes of the supplied ForemanEnvironment reference
 func setResourceDataFromForemanEnvironment(d *schema.ResourceData, fe *api.ForemanEnvironment) {
-	log.Tracef("resource_foreman_environment.go#setResourceDataFromForemanEnvironment")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fe.Id))
 	d.Set("name", fe.Name)
@@ -90,7 +91,7 @@ func setResourceDataFromForemanEnvironment(d *schema.ResourceData, fe *api.Forem
 // -----------------------------------------------------------------------------
 
 func resourceForemanEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
@@ -110,7 +111,7 @@ func resourceForemanEnvironmentCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
@@ -130,7 +131,7 @@ func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
@@ -150,7 +151,7 @@ func resourceForemanEnvironmentUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceForemanEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)

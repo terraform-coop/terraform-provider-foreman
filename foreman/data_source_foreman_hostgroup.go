@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
@@ -43,7 +44,7 @@ func dataSourceForemanHostgroup() *schema.Resource {
 }
 
 func dataSourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_hostgroup.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)

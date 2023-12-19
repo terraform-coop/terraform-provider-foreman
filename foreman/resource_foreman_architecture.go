@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"regexp"
 	"strconv"
 
@@ -87,7 +88,7 @@ func resourceForemanArchitecture() *schema.Resource {
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
 func buildForemanArchitecture(d *schema.ResourceData) *api.ForemanArchitecture {
-	log.Tracef("resource_foreman_architecture.go#buildForemanArchitecture")
+	utils.TraceFunctionCall()
 
 	arch := api.ForemanArchitecture{}
 
@@ -108,7 +109,7 @@ func buildForemanArchitecture(d *schema.ResourceData) *api.ForemanArchitecture {
 // setResourceDataFromForemanArchitecture sets a ResourceData's attributes from
 // the attributes of the supplied ForemanArchitecture reference
 func setResourceDataFromForemanArchitecture(d *schema.ResourceData, fa *api.ForemanArchitecture) {
-	log.Tracef("resource_foreman_architecture.go#setResourceDataFromForemanArchitecture")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fa.Id))
 	d.Set("name", fa.Name)
@@ -120,7 +121,7 @@ func setResourceDataFromForemanArchitecture(d *schema.ResourceData, fa *api.Fore
 // -----------------------------------------------------------------------------
 
 func resourceForemanArchitectureCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_architecture.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
@@ -140,7 +141,7 @@ func resourceForemanArchitectureCreate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceForemanArchitectureRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_architecture.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
@@ -160,7 +161,7 @@ func resourceForemanArchitectureRead(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceForemanArchitectureUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_architecture.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
@@ -180,7 +181,7 @@ func resourceForemanArchitectureUpdate(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceForemanArchitectureDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_architecture.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)

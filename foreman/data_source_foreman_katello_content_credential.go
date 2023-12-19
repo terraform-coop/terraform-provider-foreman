@@ -7,6 +7,7 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
 	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -38,7 +39,7 @@ func dataSourceForemanKatelloContentCredential() *schema.Resource {
 }
 
 func dataSourceForemanKatelloContentCredentialRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_katello_content_credential.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	contentCredential := buildForemanKatelloContentCredential(d)

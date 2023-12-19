@@ -102,7 +102,6 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 // setResourceDataFromForemanDomain sets a ResourceData's attributes from the
 // attributes of the supplied ForemanDomain reference
 func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDomain) {
-	log.Tracef("resource_foreman_domain.go#setResourceDataFromForemanDomain")
 	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))

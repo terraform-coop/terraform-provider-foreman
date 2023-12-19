@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -71,7 +72,7 @@ func resourceForemanHTTPProxy() *schema.Resource {
 // in the resource data.  Missing members will be left to the zero value for
 // that member's type.
 func buildForemanHTTPProxy(d *schema.ResourceData) *api.ForemanHTTPProxy {
-	log.Tracef("resource_foreman_httpproxy.go#buildForemanHTTPProxy")
+	utils.TraceFunctionCall()
 
 	proxy := api.ForemanHTTPProxy{}
 
@@ -86,7 +87,7 @@ func buildForemanHTTPProxy(d *schema.ResourceData) *api.ForemanHTTPProxy {
 // setResourceDataFromForemanHTTPProxy sets a ResourceData's attributes from
 // the attributes of the supplied ForemanHTTPProxy struct
 func setResourceDataFromForemanHTTPProxy(d *schema.ResourceData, fp *api.ForemanHTTPProxy) {
-	log.Tracef("resource_foreman_httpproxy.go#setResourceDataFromForemanHTTPProxy")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fp.Id))
 	d.Set("name", fp.Name)
@@ -98,7 +99,7 @@ func setResourceDataFromForemanHTTPProxy(d *schema.ResourceData, fp *api.Foreman
 // -----------------------------------------------------------------------------
 
 func resourceForemanHTTPProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_httpproxy.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
@@ -118,7 +119,7 @@ func resourceForemanHTTPProxyCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_httpproxy.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
@@ -138,7 +139,7 @@ func resourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceForemanHTTPProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_httpproxy.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
@@ -158,7 +159,7 @@ func resourceForemanHTTPProxyUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanHTTPProxyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_httpproxy.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)

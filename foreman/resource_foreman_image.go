@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 	"strings"
 
@@ -84,7 +85,7 @@ func resourceForemanImage() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanImage(d *schema.ResourceData) *api.ForemanImage {
-	log.Tracef("resource_foreman_image.go#buildForemanImage")
+	utils.TraceFunctionCall()
 
 	image := api.ForemanImage{}
 
@@ -122,7 +123,7 @@ func buildForemanImage(d *schema.ResourceData) *api.ForemanImage {
 // setResourceDataFromForemanImage sets a ResourceData's attributes from the
 // attributes of the supplied ForemanImage reference
 func setResourceDataFromForemanImage(d *schema.ResourceData, fd *api.ForemanImage) {
-	log.Tracef("resource_foreman_image.go#setResourceDataFromForemanImage")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -139,7 +140,7 @@ func setResourceDataFromForemanImage(d *schema.ResourceData, fd *api.ForemanImag
 // -----------------------------------------------------------------------------
 
 func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	img := buildForemanImage(d)
@@ -164,7 +165,7 @@ func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	image := buildForemanImage(d)
@@ -184,7 +185,7 @@ func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	img := buildForemanImage(d)
@@ -205,7 +206,7 @@ func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	image := buildForemanImage(d)

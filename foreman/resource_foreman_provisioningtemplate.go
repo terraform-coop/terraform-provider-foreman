@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -164,7 +165,7 @@ func resourceForemanTemplateCombinationsAttributes() *schema.Resource {
 // with the data populated in the resource data.  Missing members will be left
 // to the zero value for that member's type.
 func buildForemanProvisioningTemplate(d *schema.ResourceData) *api.ForemanProvisioningTemplate {
-	log.Tracef("resource_foreman_provisioningtemplate.go#buildForemanProvisioningTemplate")
+	utils.TraceFunctionCall()
 
 	template := api.ForemanProvisioningTemplate{}
 
@@ -203,7 +204,7 @@ func buildForemanProvisioningTemplate(d *schema.ResourceData) *api.ForemanProvis
 // The struct's members are populated with the data populated in the resource
 // data. Missing members will be left to the zero value for that member's type.
 func buildForemanTemplateCombinationsAttributes(d *schema.ResourceData) []api.ForemanTemplateCombinationAttribute {
-	log.Tracef("resource_foreman_provisioningtemplate.go#buildForemanTemplateCombinationsAttributes")
+	utils.TraceFunctionCall()
 
 	tempComboAttr := []api.ForemanTemplateCombinationAttribute{}
 	var attr interface{}
@@ -243,7 +244,7 @@ func buildForemanTemplateCombinationsAttributes(d *schema.ResourceData) []api.Fo
 //	environment_id (int)
 //	_destroy (bool)
 func mapToForemanTemplateCombinationAttribute(m map[string]interface{}) api.ForemanTemplateCombinationAttribute {
-	log.Tracef("mapToForemanTemplateCombinationAttribute")
+	utils.TraceFunctionCall()
 
 	tempComboAttr := api.ForemanTemplateCombinationAttribute{}
 	var ok bool
@@ -272,7 +273,7 @@ func mapToForemanTemplateCombinationAttribute(m map[string]interface{}) api.Fore
 // attributes from the attributes of the supplied ForemanProvisioningTemplate
 // struct
 func setResourceDataFromForemanProvisioningTemplate(d *schema.ResourceData, ft *api.ForemanProvisioningTemplate) {
-	log.Tracef("resource_foreman_provisioningtemplate.go#setResourceDataFromForemanProvisioningTemplate")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(ft.Id))
 
@@ -293,7 +294,7 @@ func setResourceDataFromForemanProvisioningTemplate(d *schema.ResourceData, ft *
 // ResourceData's "template_combinations_attributes" attribute to the value of
 // the supplied array of ForemanTemplateCombinationAttribute structs
 func setResourceDataFromForemanTemplateCombinationsAttributes(d *schema.ResourceData, ftca []api.ForemanTemplateCombinationAttribute) {
-	log.Tracef("resource_foreman_provisioningtemplate.go#setResourceDataFromForemanTemplateCombinationsAttriutes")
+	utils.TraceFunctionCall()
 
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
@@ -326,7 +327,7 @@ func setResourceDataFromForemanTemplateCombinationsAttributes(d *schema.Resource
 // -----------------------------------------------------------------------------
 
 func resourceForemanProvisioningTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
@@ -346,7 +347,7 @@ func resourceForemanProvisioningTemplateCreate(ctx context.Context, d *schema.Re
 }
 
 func resourceForemanProvisioningTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
@@ -360,15 +361,15 @@ func resourceForemanProvisioningTemplateRead(ctx context.Context, d *schema.Reso
 
 	log.Debugf("Read ForemanProvisioningTemplate: [%+v]", readTemplate)
 
-	log.Tracef("BeforeSet: %v", d.Get("operatingsystem_ids"))
+	log.Debugf("BeforeSet: %v", d.Get("operatingsystem_ids"))
 	setResourceDataFromForemanProvisioningTemplate(d, readTemplate)
-	log.Tracef("AfterSet: %v", d.Get("operatingsystem_ids"))
+	log.Debugf("AfterSet: %v", d.Get("operatingsystem_ids"))
 
 	return nil
 }
 
 func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
@@ -431,7 +432,7 @@ func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.Re
 }
 
 func resourceForemanProvisioningTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)

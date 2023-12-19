@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -70,7 +71,7 @@ func resourceForemanDefaultTemplate() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanDefaultTemplate(d *schema.ResourceData) *api.ForemanDefaultTemplate {
-	log.Tracef("resource_foreman_defaultTemplate.go#buildForemanDefaultTemplate")
+	utils.TraceFunctionCall()
 
 	defaultTemplate := api.ForemanDefaultTemplate{}
 
@@ -95,7 +96,7 @@ func buildForemanDefaultTemplate(d *schema.ResourceData) *api.ForemanDefaultTemp
 // setResourceDataFromForemanDefaultTemplate sets a ResourceData's attributes from the
 // attributes of the supplied ForemanDefaultTemplate reference
 func setResourceDataFromForemanDefaultTemplate(d *schema.ResourceData, fd *api.ForemanDefaultTemplate) {
-	log.Tracef("resource_foreman_defaultTemplate.go#setResourceDataFromForemanDefaultTemplate")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("provisioningtemplate_id", fd.ProvisioningTemplateId)
@@ -108,7 +109,7 @@ func setResourceDataFromForemanDefaultTemplate(d *schema.ResourceData, fd *api.F
 // -----------------------------------------------------------------------------
 
 func resourceForemanDefaultTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_defaultTemplate.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanDefaultTemplate(d)
@@ -128,7 +129,7 @@ func resourceForemanDefaultTemplateCreate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanDefaultTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_defaultTemplate.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	defaultTemplate := buildForemanDefaultTemplate(d)
@@ -148,7 +149,7 @@ func resourceForemanDefaultTemplateRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanDefaultTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_defaultTemplate.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanDefaultTemplate(d)
@@ -168,7 +169,7 @@ func resourceForemanDefaultTemplateUpdate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanDefaultTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_defaultTemplate.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanDefaultTemplate(d)

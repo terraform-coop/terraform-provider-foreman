@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -318,7 +319,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRepository {
-	log.Tracef("resource_foreman_katello_repository.go#buildForemanKatelloRepository")
+	utils.TraceFunctionCall()
 
 	repo := api.ForemanKatelloRepository{}
 
@@ -357,7 +358,7 @@ func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRe
 // setResourceDataFromForemanKatelloRepository sets a ResourceData's attributes from
 // the attributes of the supplied ForemanKatelloRepository struct
 func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *api.ForemanKatelloRepository) {
-	log.Tracef("resource_foreman_katello_repository.go#setResourceDataFromForemanKatelloRepository")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(repo.Id))
 	d.Set("name", repo.Name)
@@ -393,7 +394,7 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *a
 // -----------------------------------------------------------------------------
 
 func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
@@ -413,7 +414,7 @@ func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.Resou
 }
 
 func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
@@ -433,7 +434,7 @@ func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
@@ -453,7 +454,7 @@ func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.Resou
 }
 
 func resourceForemanKatelloRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)

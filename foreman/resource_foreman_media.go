@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -113,7 +114,7 @@ func resourceForemanMedia() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanMedia(d *schema.ResourceData) *api.ForemanMedia {
-	log.Tracef("resource_foreman_media.go#buildForemanMedia")
+	utils.TraceFunctionCall()
 
 	media := api.ForemanMedia{}
 
@@ -140,7 +141,7 @@ func buildForemanMedia(d *schema.ResourceData) *api.ForemanMedia {
 // setResourceDataFromForemanMedia sets a ResourceData's attributes from the
 // attributes of the supplied ForemanMedia struct.
 func setResourceDataFromForemanMedia(d *schema.ResourceData, fm *api.ForemanMedia) {
-	log.Tracef("resource_foreman_media.go#setResourceDataFromForemanMedia")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fm.Id))
 	d.Set("name", fm.Name)
@@ -154,7 +155,7 @@ func setResourceDataFromForemanMedia(d *schema.ResourceData, fm *api.ForemanMedi
 // -----------------------------------------------------------------------------
 
 func resourceForemanMediaCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_media.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
@@ -174,7 +175,7 @@ func resourceForemanMediaCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_media.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
@@ -194,7 +195,7 @@ func resourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceForemanMediaUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_media.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
@@ -214,7 +215,7 @@ func resourceForemanMediaUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanMediaDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_media.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)

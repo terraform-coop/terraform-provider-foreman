@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
@@ -39,7 +40,7 @@ func dataSourceForemanArchitecture() *schema.Resource {
 }
 
 func dataSourceForemanArchitectureRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_architecture.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	arch := buildForemanArchitecture(d)

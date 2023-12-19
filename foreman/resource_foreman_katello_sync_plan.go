@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/hashicorp/go-cty/cty"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -171,7 +172,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 // in the resource data.  Missing members will be left to the zero value for
 // that member's type.
 func buildForemanKatelloSyncPlan(d *schema.ResourceData) *api.ForemanKatelloSyncPlan {
-	log.Tracef("resource_foreman_katello_sync_plan.go#buildForemanKatelloSyncPlan")
+	utils.TraceFunctionCall()
 
 	syncPlan := api.ForemanKatelloSyncPlan{}
 
@@ -190,7 +191,7 @@ func buildForemanKatelloSyncPlan(d *schema.ResourceData) *api.ForemanKatelloSync
 // setResourceDataFromForemanKatelloSyncPlan sets a ResourceData's attributes from
 // the attributes of the supplied ForemanKatelloSyncPlan struct
 func setResourceDataFromForemanKatelloSyncPlan(d *schema.ResourceData, syncPlan *api.ForemanKatelloSyncPlan) {
-	log.Tracef("resource_foreman_katello_sync_plan.go#setResourceDataFromForemanKatelloSyncPlan")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(syncPlan.Id))
 	d.Set("name", syncPlan.Name)
@@ -206,7 +207,7 @@ func setResourceDataFromForemanKatelloSyncPlan(d *schema.ResourceData, syncPlan 
 // -----------------------------------------------------------------------------
 
 func resourceForemanKatelloSyncPlanCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_sync_plan.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
@@ -226,7 +227,7 @@ func resourceForemanKatelloSyncPlanCreate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanKatelloSyncPlanRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_sync_plan.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
@@ -246,7 +247,7 @@ func resourceForemanKatelloSyncPlanRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanKatelloSyncPlanUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_sync_plan.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
@@ -266,7 +267,7 @@ func resourceForemanKatelloSyncPlanUpdate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanKatelloSyncPlanDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_sync_plan.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)

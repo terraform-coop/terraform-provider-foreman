@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -83,7 +84,7 @@ func resourceForemanComputeAttribute() *schema.Resource {
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
 func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfile {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#buildForemanComputeProfile")
+	utils.TraceFunctionCall()
 
 	t := api.ForemanComputeProfile{}
 	obj := buildForemanObject(d)
@@ -119,7 +120,7 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 // setResourceDataFromForemanComputeProfile sets a ResourceData's attributes from
 // the attributes of the supplied ForemanComputeProfile reference
 func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.ForemanComputeProfile) {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#setResourceDataFromForemanComputeProfile")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fk.Id))
 
@@ -156,7 +157,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 }
 
 func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileCreate")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)
@@ -174,7 +175,7 @@ func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileRead")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)
@@ -192,7 +193,7 @@ func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileUpdate")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)
@@ -210,7 +211,7 @@ func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanComputeprofileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileDelete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)

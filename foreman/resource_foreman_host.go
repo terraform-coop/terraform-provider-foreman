@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -785,7 +786,7 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
-	log.Tracef("resource_foreman_host.go#buildForemanHost")
+	utils.TraceFunctionCall()
 
 	host := api.ForemanHost{}
 
@@ -909,7 +910,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 // struct's members are populated with the data populated in the resource data.
 // Missing members will be left to the zero value for that member's type.
 func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInterfacesAttribute {
-	log.Tracef("resource_foreman_host.go#buildForemanInterfacesAttributes")
+	utils.TraceFunctionCall()
 
 	tempIntAttr := []api.ForemanInterfacesAttribute{}
 	var attr interface{}
@@ -961,7 +962,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 //   _destroy (bool)
 
 func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterfacesAttribute {
-	log.Tracef("mapToForemanInterfacesAttribute")
+	utils.TraceFunctionCall()
 
 	tempIntAttr := api.ForemanInterfacesAttribute{}
 	var ok bool
@@ -1045,7 +1046,7 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 // setResourceDataFromForemanHost sets a ResourceData's attributes from the
 // attributes of the supplied ForemanHost struct
 func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost) {
-	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanHost")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fh.Id))
 
@@ -1105,7 +1106,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
 func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
-	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanInterfacesAttributes")
+	utils.TraceFunctionCall()
 
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
@@ -1172,7 +1173,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 // -----------------------------------------------------------------------------
 
 func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#resourceForemanHostCreate")
+	utils.TraceFunctionCall()
 	var diags diag.Diagnostics
 
 	client := meta.(*api.Client)
@@ -1257,7 +1258,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#resourceForemanHostRead")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
@@ -1281,7 +1282,7 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#resourceForemanHostUpdate")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
@@ -1359,7 +1360,7 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)

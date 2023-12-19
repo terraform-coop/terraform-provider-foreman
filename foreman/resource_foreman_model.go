@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -76,7 +77,7 @@ func resourceForemanModel() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanModel(d *schema.ResourceData) *api.ForemanModel {
-	log.Tracef("resource_foreman_model.go#buildForemanModel")
+	utils.TraceFunctionCall()
 
 	model := api.ForemanModel{}
 
@@ -104,7 +105,7 @@ func buildForemanModel(d *schema.ResourceData) *api.ForemanModel {
 // setResourceDataFromForemanModel sets a ResourceData's attributes from the
 // attributes of the supplied ForemanModel struct
 func setResourceDataFromForemanModel(d *schema.ResourceData, fm *api.ForemanModel) {
-	log.Tracef("resource_foreman_model.go#setResourceDataFromForemanModel")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fm.Id))
 	d.Set("name", fm.Name)
@@ -118,7 +119,7 @@ func setResourceDataFromForemanModel(d *schema.ResourceData, fm *api.ForemanMode
 // -----------------------------------------------------------------------------
 
 func resourceForemanModelCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_model.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
@@ -138,7 +139,7 @@ func resourceForemanModelCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanModelRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_model.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
@@ -158,7 +159,7 @@ func resourceForemanModelRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceForemanModelUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_model.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
@@ -178,7 +179,7 @@ func resourceForemanModelUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanModelDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_model.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)

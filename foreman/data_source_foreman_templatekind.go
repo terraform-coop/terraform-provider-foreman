@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
@@ -60,7 +61,7 @@ func setResourceDataFromForemanTemplateKind(d *schema.ResourceData, fk *api.Fore
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanTemplateKindRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_architecture.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanTemplateKind(d)
