@@ -67,7 +67,7 @@ func (c *Client) CreateJobTemplate(ctx context.Context, jtObj *ForemanJobTemplat
 		for idx, item := range jtObj.TemplateInputs {
 			item.TemplateId = template_id
 
-			utils.Debug("Creating TemplateInput: %+v", item)
+			utils.Debugf("Creating TemplateInput: %+v", item)
 
 			ti, err := c.CreateTemplateInput(ctx, &item)
 			if err != nil {
@@ -166,7 +166,7 @@ func (c *Client) ReadJobTemplate(ctx context.Context, id int) (*ForemanJobTempla
 		for idx, item := range readJT.TemplateInputs {
 			item.TemplateId = template_id
 
-			utils.Debug("Reading TemplateInput: %+v", item)
+			utils.Debugf("Reading TemplateInput: %+v", item)
 
 			readTI, err := c.ReadTemplateInput(ctx, &item)
 			if err != nil {

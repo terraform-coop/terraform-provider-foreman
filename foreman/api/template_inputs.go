@@ -70,7 +70,7 @@ func (fti *ForemanTemplateInput) UnmarshalJSON(b []byte) error {
 		case float64:
 			fti.Id = int(v)
 		case string:
-			utils.Debug("ForemanTemplateInput val is string")
+			utils.Debugf("ForemanTemplateInput val is string")
 			if len(v) == 0 {
 				// If empty string, no Id is present
 				break
@@ -217,7 +217,7 @@ func (c *Client) CreateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 		return nil, err
 	}
 
-	utils.Debug("template_input JSON: \n%s", wrapped)
+	utils.Debugf("template_input JSON: \n%s", wrapped)
 
 	req, err := c.NewRequestWithContext(
 		ctx, http.MethodPost, endpoint, bytes.NewBuffer(wrapped),
@@ -232,7 +232,7 @@ func (c *Client) CreateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 		return nil, err
 	}
 
-	utils.Debug("Created TemplateInput: %+v", created)
+	utils.Debugf("Created TemplateInput: %+v", created)
 
 	return &created, nil
 }
@@ -307,7 +307,7 @@ func (c *Client) ReadTemplateInput(ctx context.Context, tiObj *ForemanTemplateIn
 func (c *Client) UpdateTemplateInput(ctx context.Context, tiObj *ForemanTemplateInput) (*ForemanTemplateInput, error) {
 	utils.TraceFunctionCall()
 
-	utils.Debug("%+v", tiObj)
+	utils.Debugf("%+v", tiObj)
 
 	endpoint := fmt.Sprintf("/"+TemplateInputEndpointPrefix+"/%d", tiObj.TemplateId, tiObj.Id)
 
@@ -322,7 +322,7 @@ func (c *Client) UpdateTemplateInput(ctx context.Context, tiObj *ForemanTemplate
 
 	// TODO: handle `tiObj.ValueType == ""` here if omitempty fails
 
-	utils.Debug("template_input JSON: \n%s", wrapped)
+	utils.Debugf("template_input JSON: \n%s", wrapped)
 
 	req, err := c.NewRequestWithContext(
 		ctx,

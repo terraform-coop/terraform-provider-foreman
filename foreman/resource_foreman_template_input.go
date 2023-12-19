@@ -147,7 +147,7 @@ func resourceForemanTemplateInput() *schema.Resource {
 func buildForemanTemplateInput(d *schema.ResourceData) *api.ForemanTemplateInput {
 	utils.TraceFunctionCall()
 
-	utils.Debug("buildForemanTemplateInput schema: %+v", d)
+	utils.Debugf("buildForemanTemplateInput schema: %+v", d)
 
 	newObj := api.ForemanTemplateInput{}
 
@@ -222,7 +222,7 @@ func setResourceDataFromForemanTemplateInput(resdata *schema.ResourceData, ti *a
 	resdata.Set("value_type", ti.ValueType)
 	resdata.Set("resource_type", ti.ResourceType)
 
-	utils.Debug("resdata after setResourceDataFromForemanTemplateInput: %+v", resdata)
+	utils.Debugf("resdata after setResourceDataFromForemanTemplateInput: %+v", resdata)
 }
 
 // Resource CRUD Operations

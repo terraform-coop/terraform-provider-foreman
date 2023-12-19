@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -51,7 +49,7 @@ func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDo
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
+	utils.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -69,7 +67,7 @@ func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDo
 		return nil, sendErr
 	}
 
-	log.Debugf("createdDomain: [%+v]", createdDomain)
+	utils.Debugf("createdDomain: [%+v]", createdDomain)
 
 	return &createdDomain, nil
 }
@@ -97,7 +95,7 @@ func (c *Client) ReadDomain(ctx context.Context, id int) (*ForemanDomain, error)
 		return nil, sendErr
 	}
 
-	log.Debugf("readDomain: [%+v]", readDomain)
+	utils.Debugf("readDomain: [%+v]", readDomain)
 
 	return &readDomain, nil
 }
@@ -115,7 +113,7 @@ func (c *Client) UpdateDomain(ctx context.Context, d *ForemanDomain, id int) (*F
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
+	utils.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -133,7 +131,7 @@ func (c *Client) UpdateDomain(ctx context.Context, d *ForemanDomain, id int) (*F
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedDomain: [%+v]", updatedDomain)
+	utils.Debugf("updatedDomain: [%+v]", updatedDomain)
 
 	return &updatedDomain, nil
 }
@@ -191,7 +189,7 @@ func (c *Client) QueryDomain(ctx context.Context, d *ForemanDomain) (QueryRespon
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//
