@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -50,7 +48,7 @@ func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("modelJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("modelJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -68,7 +66,7 @@ func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, sendErr
 	}
 
-	log.Debugf("createdModel: [%+v]", createdModel)
+	utils.Debugf("createdModel: [%+v]", createdModel)
 
 	return &createdModel, nil
 }
@@ -96,7 +94,7 @@ func (c *Client) ReadModel(ctx context.Context, id int) (*ForemanModel, error) {
 		return nil, sendErr
 	}
 
-	log.Debugf("readModel: [%+v]", readModel)
+	utils.Debugf("readModel: [%+v]", readModel)
 
 	return &readModel, nil
 }
@@ -114,7 +112,7 @@ func (c *Client) UpdateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("modelJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("modelJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -132,7 +130,7 @@ func (c *Client) UpdateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedModel: [%+v]", updatedModel)
+	utils.Debugf("updatedModel: [%+v]", updatedModel)
 
 	return &updatedModel, nil
 }
@@ -190,7 +188,7 @@ func (c *Client) QueryModel(ctx context.Context, m *ForemanModel) (QueryResponse
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

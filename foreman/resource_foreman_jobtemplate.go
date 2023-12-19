@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
@@ -140,7 +139,7 @@ func buildForemanJobTemplate(d *schema.ResourceData) *api.ForemanJobTemplate {
 
 		for idx, tiMap := range tiList {
 			if tiMap == nil {
-				log.Fatalf("tiMap is nil: %#v", tiMap)
+				utils.Fatalf("tiMap is nil: %#v", tiMap)
 			}
 
 			tiInterface := tiMap.(map[string]interface{})
@@ -198,7 +197,7 @@ func setResourceDataFromForemanJobTemplate(resdata *schema.ResourceData, jt *api
 
 	err := resdata.Set("template_inputs", tiList)
 	if err != nil {
-		log.Fatalf("Error in setting resdata template_input: %s", err)
+		utils.Fatalf("Error in setting resdata template_input: %s", err)
 	}
 
 	utils.Debugf("resdata setResourceDataFromForemanJobTemplate: %+v", resdata)
@@ -230,14 +229,14 @@ func resourceForemanJobTemplateRead(ctx context.Context, resdata *schema.Resourc
 	client := meta.(*api.Client)
 	jt := buildForemanJobTemplate(resdata)
 
-	log.Debugf("ForemanJobTemplate: [%+v]", jt)
+	utils.Debugf("ForemanJobTemplate: [%+v]", jt)
 
 	readJT, readErr := client.ReadJobTemplate(ctx, jt.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(resdata, readErr))
 	}
 
-	log.Debugf("Read ForemanJobTemplate: [%+v]", readJT)
+	utils.Debugf("Read ForemanJobTemplate: [%+v]", readJT)
 
 	setResourceDataFromForemanJobTemplate(resdata, readJT)
 

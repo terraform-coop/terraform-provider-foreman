@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -47,7 +45,7 @@ func (c *Client) CreateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("HTTPProxyJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("HTTPProxyJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -65,7 +63,7 @@ func (c *Client) CreateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("createdHTTPProxy: [%+v]", createdHTTPProxy)
+	utils.Debugf("createdHTTPProxy: [%+v]", createdHTTPProxy)
 
 	return &createdHTTPProxy, nil
 }
@@ -93,7 +91,7 @@ func (c *Client) ReadHTTPProxy(ctx context.Context, id int) (*ForemanHTTPProxy, 
 		return nil, sendErr
 	}
 
-	log.Debugf("readHTTPProxy: [%+v]", readHTTPProxy)
+	utils.Debugf("readHTTPProxy: [%+v]", readHTTPProxy)
 
 	return &readHTTPProxy, nil
 }
@@ -112,7 +110,7 @@ func (c *Client) UpdateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("HTTPProxyJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("HTTPProxyJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -130,7 +128,7 @@ func (c *Client) UpdateHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedHTTPProxy: [%+v]", updatedHTTPProxy)
+	utils.Debugf("updatedHTTPProxy: [%+v]", updatedHTTPProxy)
 
 	return &updatedHTTPProxy, nil
 }
@@ -188,7 +186,7 @@ func (c *Client) QueryHTTPProxy(ctx context.Context, s *ForemanHTTPProxy) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

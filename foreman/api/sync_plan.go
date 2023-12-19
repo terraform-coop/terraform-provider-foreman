@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -58,7 +56,7 @@ func (c *Client) CreateKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSy
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloSyncPlanJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloSyncPlanJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -76,7 +74,7 @@ func (c *Client) CreateKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSy
 		return nil, sendErr
 	}
 
-	log.Debugf("createdKatelloSyncPlan: [%+v]", createdKatelloSyncPlan)
+	utils.Debugf("createdKatelloSyncPlan: [%+v]", createdKatelloSyncPlan)
 
 	return &createdKatelloSyncPlan, nil
 }
@@ -87,7 +85,7 @@ func (c *Client) ReadKatelloSyncPlan(ctx context.Context, id int) (*ForemanKatel
 	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(KatelloSyncPlanEndpointPrefix, c.clientConfig.OrganizationID)
-	log.Debugf("readKatelloSyncPlan reqEndpoint: [%+v]", reqEndpoint)
+	utils.Debugf("readKatelloSyncPlan reqEndpoint: [%+v]", reqEndpoint)
 	reqEndpoint = fmt.Sprintf("%s/%d", reqEndpoint, id)
 
 	req, reqErr := c.NewRequestWithContext(
@@ -106,7 +104,7 @@ func (c *Client) ReadKatelloSyncPlan(ctx context.Context, id int) (*ForemanKatel
 		return nil, sendErr
 	}
 
-	log.Debugf("readKatelloSyncPlan: [%+v]", readKatelloSyncPlan)
+	utils.Debugf("readKatelloSyncPlan: [%+v]", readKatelloSyncPlan)
 
 	return &readKatelloSyncPlan, nil
 }
@@ -126,7 +124,7 @@ func (c *Client) UpdateKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSy
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloSyncPlanJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloSyncPlanJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -144,7 +142,7 @@ func (c *Client) UpdateKatelloSyncPlan(ctx context.Context, sp *ForemanKatelloSy
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedKatelloSyncPlan: [%+v]", updatedKatelloSyncPlan)
+	utils.Debugf("updatedKatelloSyncPlan: [%+v]", updatedKatelloSyncPlan)
 
 	return &updatedKatelloSyncPlan, nil
 }

@@ -61,12 +61,12 @@ func logInnerFunc(level int, format string, a ...interface{}) {
 
 // Like `log.Debugf` but also prints the current file name and line number with the log output
 func Debugf(format string, a ...interface{}) {
-	logInnerFunc(debug, format, a)
+	logInnerFunc(debug, format, a...)
 }
 
 // Prints line and file and then exits with fatal error message
 func Fatalf(format string, a ...interface{}) {
-	logInnerFunc(fatal, format, a)
+	logInnerFunc(fatal, format, a...)
 }
 
 // Wrapper for single value output

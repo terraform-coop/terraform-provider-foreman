@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -104,14 +103,14 @@ func resourceForemanHTTPProxyCreate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", p)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", p)
 
 	createdHTTPProxy, createErr := client.CreateHTTPProxy(ctx, p)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanHTTPProxy: [%+v]", createdHTTPProxy)
+	utils.Debugf("Created ForemanHTTPProxy: [%+v]", createdHTTPProxy)
 
 	setResourceDataFromForemanHTTPProxy(d, createdHTTPProxy)
 
@@ -124,14 +123,14 @@ func resourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData, m
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", p)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", p)
 
 	readHTTPProxy, readErr := client.ReadHTTPProxy(ctx, p.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanHTTPProxy: [%+v]", readHTTPProxy)
+	utils.Debugf("Read ForemanHTTPProxy: [%+v]", readHTTPProxy)
 
 	setResourceDataFromForemanHTTPProxy(d, readHTTPProxy)
 
@@ -144,14 +143,14 @@ func resourceForemanHTTPProxyUpdate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", p)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", p)
 
 	updatedHTTPProxy, updateErr := client.UpdateHTTPProxy(ctx, p)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", updatedHTTPProxy)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", updatedHTTPProxy)
 
 	setResourceDataFromForemanHTTPProxy(d, updatedHTTPProxy)
 
@@ -164,7 +163,7 @@ func resourceForemanHTTPProxyDelete(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	p := buildForemanHTTPProxy(d)
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", p)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", p)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

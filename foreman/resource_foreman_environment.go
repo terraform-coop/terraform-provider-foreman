@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -96,14 +95,14 @@ func resourceForemanEnvironmentCreate(ctx context.Context, d *schema.ResourceDat
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
 
-	log.Debugf("ForemanEnvironment: [%+v]", e)
+	utils.Debugf("ForemanEnvironment: [%+v]", e)
 
 	createdEnv, createErr := client.CreateEnvironment(ctx, e)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanEnvironment: [%+v]", createdEnv)
+	utils.Debugf("Created ForemanEnvironment: [%+v]", createdEnv)
 
 	setResourceDataFromForemanEnvironment(d, createdEnv)
 
@@ -116,14 +115,14 @@ func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
 
-	log.Debugf("ForemanEnvironment: [%+v]", e)
+	utils.Debugf("ForemanEnvironment: [%+v]", e)
 
 	readEnvironment, readErr := client.ReadEnvironment(ctx, e.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanEnvironment: [%+v]", readEnvironment)
+	utils.Debugf("Read ForemanEnvironment: [%+v]", readEnvironment)
 
 	setResourceDataFromForemanEnvironment(d, readEnvironment)
 
@@ -136,14 +135,14 @@ func resourceForemanEnvironmentUpdate(ctx context.Context, d *schema.ResourceDat
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
 
-	log.Debugf("ForemanEnvironment: [%+v]", e)
+	utils.Debugf("ForemanEnvironment: [%+v]", e)
 
 	updatedEnv, updateErr := client.UpdateEnvironment(ctx, e)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanEnvironment: [%+v]", updatedEnv)
+	utils.Debugf("Updated ForemanEnvironment: [%+v]", updatedEnv)
 
 	setResourceDataFromForemanEnvironment(d, updatedEnv)
 

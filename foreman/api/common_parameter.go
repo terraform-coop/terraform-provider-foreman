@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -51,7 +49,7 @@ func (c *Client) CreateCommonParameter(ctx context.Context, d *ForemanCommonPara
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("commonParameterJSONBytes: [%s]", commonParameterJSONBytes)
+	utils.Debugf("commonParameterJSONBytes: [%s]", commonParameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -67,7 +65,7 @@ func (c *Client) CreateCommonParameter(ctx context.Context, d *ForemanCommonPara
 	if sendErr != nil {
 		return nil, sendErr
 	}
-	log.Debugf("createdCommonParameter: [%+v]", createdCommonParameter)
+	utils.Debugf("createdCommonParameter: [%+v]", createdCommonParameter)
 
 	d.Id = createdCommonParameter.Id
 	d.Name = createdCommonParameter.Name
@@ -98,7 +96,7 @@ func (c *Client) ReadCommonParameter(ctx context.Context, d *ForemanCommonParame
 		return nil, sendErr
 	}
 
-	log.Debugf("readCommonParameter: [%+v]", readCommonParameter)
+	utils.Debugf("readCommonParameter: [%+v]", readCommonParameter)
 
 	d.Id = readCommonParameter.Id
 	d.Name = readCommonParameter.Name
@@ -118,7 +116,7 @@ func (c *Client) UpdateCommonParameter(ctx context.Context, d *ForemanCommonPara
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("commonParameterJSONBytes: [%s]", commonParameterJSONBytes)
+	utils.Debugf("commonParameterJSONBytes: [%s]", commonParameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -136,7 +134,7 @@ func (c *Client) UpdateCommonParameter(ctx context.Context, d *ForemanCommonPara
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedCommonParameter: [%+v]", updatedCommonParameter)
+	utils.Debugf("updatedCommonParameter: [%+v]", updatedCommonParameter)
 
 	d.Id = updatedCommonParameter.Id
 	d.Name = updatedCommonParameter.Name
@@ -197,7 +195,7 @@ func (c *Client) QueryCommonParameter(ctx context.Context, d *ForemanCommonParam
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

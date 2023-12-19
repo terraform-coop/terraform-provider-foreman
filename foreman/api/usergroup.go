@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -40,7 +38,7 @@ func (fh ForemanUsergroup) MarshalJSON() ([]byte, error) {
 	fhMap["name"] = fh.Name
 	fhMap["admin"] = fh.Admin
 
-	log.Debugf("fhMap: [%v]", fhMap)
+	utils.Debugf("fhMap: [%v]", fhMap)
 
 	return json.Marshal(fhMap)
 }
@@ -91,7 +89,7 @@ func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -109,7 +107,7 @@ func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("createdUsergroup: [%+v]", createdUsergroup)
+	utils.Debugf("createdUsergroup: [%+v]", createdUsergroup)
 
 	return &createdUsergroup, nil
 }
@@ -137,7 +135,7 @@ func (c *Client) ReadUsergroup(ctx context.Context, id int) (*ForemanUsergroup, 
 		return nil, sendErr
 	}
 
-	log.Debugf("readUsergroup: [%+v]", readUsergroup)
+	utils.Debugf("readUsergroup: [%+v]", readUsergroup)
 
 	return &readUsergroup, nil
 }
@@ -156,7 +154,7 @@ func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -174,7 +172,7 @@ func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedUsergroup: [%+v]", updatedUsergroup)
+	utils.Debugf("updatedUsergroup: [%+v]", updatedUsergroup)
 
 	return &updatedUsergroup, nil
 }
@@ -232,7 +230,7 @@ func (c *Client) QueryUsergroup(ctx context.Context, u *ForemanUsergroup) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

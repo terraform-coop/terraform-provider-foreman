@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -90,7 +89,7 @@ func dataSourceForemanSmartClassParameterRead(ctx context.Context, d *schema.Res
 	client := meta.(*api.Client)
 	t := buildForemanSmartClassParameter(d)
 
-	log.Debugf("ForemanSmartClassParameter: [%+v]", t)
+	utils.Debugf("ForemanSmartClassParameter: [%+v]", t)
 
 	queryResponse, queryErr := client.QuerySmartClassParameter(ctx, t)
 	if queryErr != nil {
@@ -114,7 +113,7 @@ func dataSourceForemanSmartClassParameterRead(ctx context.Context, d *schema.Res
 	}
 	t = &querySmartClassParameter
 
-	log.Debugf("ForemanSmartClassParameter: [%+v]", t)
+	utils.Debugf("ForemanSmartClassParameter: [%+v]", t)
 
 	setResourceDataFromForemanSmartClassParameter(d, t)
 

@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -78,7 +76,7 @@ func (c *Client) ReadSetting(ctx context.Context, id string) (*ForemanSetting, e
 		return nil, sendErr
 	}
 
-	log.Debugf("readSetting: [%+v]", readSetting)
+	utils.Debugf("readSetting: [%+v]", readSetting)
 
 	return &readSetting, nil
 }
@@ -114,7 +112,7 @@ func (c *Client) QuerySetting(ctx context.Context, d *ForemanSetting) (QueryResp
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

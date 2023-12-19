@@ -8,7 +8,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -280,7 +279,7 @@ func resourceForemanOperatingSystemCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanOperatingSystem: [%+v]", createdOs)
+	utils.Debugf("Created ForemanOperatingSystem: [%+v]", createdOs)
 
 	setResourceDataFromForemanOperatingSystem(d, createdOs)
 
@@ -293,14 +292,14 @@ func resourceForemanOperatingSystemRead(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", o)
 
 	readOS, readErr := client.ReadOperatingSystem(ctx, o.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", readOS)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", readOS)
 
 	setResourceDataFromForemanOperatingSystem(d, readOS)
 
@@ -313,14 +312,14 @@ func resourceForemanOperatingSystemUpdate(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", o)
 
 	updatedOs, updateErr := client.UpdateOperatingSystem(ctx, o)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanOperatingSystem: [%+v]", updatedOs)
+	utils.Debugf("Updated ForemanOperatingSystem: [%+v]", updatedOs)
 
 	setResourceDataFromForemanOperatingSystem(d, updatedOs)
 
@@ -333,7 +332,7 @@ func resourceForemanOperatingSystemDelete(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", o)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

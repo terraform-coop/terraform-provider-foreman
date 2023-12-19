@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -124,14 +123,14 @@ func resourceForemanModelCreate(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
 
-	log.Debugf("ForemanModel: [%+v]", m)
+	utils.Debugf("ForemanModel: [%+v]", m)
 
 	createdModel, createErr := client.CreateModel(ctx, m)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanModel: [%+v]", createdModel)
+	utils.Debugf("Created ForemanModel: [%+v]", createdModel)
 
 	setResourceDataFromForemanModel(d, createdModel)
 
@@ -144,14 +143,14 @@ func resourceForemanModelRead(ctx context.Context, d *schema.ResourceData, meta 
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
 
-	log.Debugf("ForemanModel: [%+v]", m)
+	utils.Debugf("ForemanModel: [%+v]", m)
 
 	readModel, readErr := client.ReadModel(ctx, m.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanModel: [%+v]", readModel)
+	utils.Debugf("Read ForemanModel: [%+v]", readModel)
 
 	setResourceDataFromForemanModel(d, readModel)
 
@@ -164,14 +163,14 @@ func resourceForemanModelUpdate(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
 
-	log.Debugf("ForemanModel: [%+v]", m)
+	utils.Debugf("ForemanModel: [%+v]", m)
 
 	updatedModel, updateErr := client.UpdateModel(ctx, m)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanModel: [%+v]", updatedModel)
+	utils.Debugf("Updated ForemanModel: [%+v]", updatedModel)
 
 	setResourceDataFromForemanModel(d, updatedModel)
 
@@ -184,7 +183,7 @@ func resourceForemanModelDelete(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	m := buildForemanModel(d)
 
-	log.Debugf("ForemanModel: [%+v]", m)
+	utils.Debugf("ForemanModel: [%+v]", m)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

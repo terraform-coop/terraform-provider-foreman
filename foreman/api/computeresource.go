@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -65,7 +63,7 @@ func (fcr *ForemanComputeResource) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
-	log.Debugf("fcrMap: [%v]", fcrMap)
+	utils.Debugf("fcrMap: [%v]", fcrMap)
 	var ok bool
 	if fcr.Description, ok = fcrMap["description"].(string); !ok {
 		fcr.Description = ""
@@ -122,7 +120,7 @@ func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
+	utils.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -140,7 +138,7 @@ func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, sendErr
 	}
 
-	log.Debugf("createdComputeResource: [%+v]", createdComputeResource)
+	utils.Debugf("createdComputeResource: [%+v]", createdComputeResource)
 
 	return &createdComputeResource, nil
 }
@@ -168,7 +166,7 @@ func (c *Client) ReadComputeResource(ctx context.Context, id int) (*ForemanCompu
 		return nil, sendErr
 	}
 
-	log.Debugf("readComputeResource: [%+v]", readComputeResource)
+	utils.Debugf("readComputeResource: [%+v]", readComputeResource)
 
 	return &readComputeResource, nil
 }
@@ -186,7 +184,7 @@ func (c *Client) UpdateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
+	utils.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -204,7 +202,7 @@ func (c *Client) UpdateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedComputeResource: [%+v]", updatedComputeResource)
+	utils.Debugf("updatedComputeResource: [%+v]", updatedComputeResource)
 
 	return &updatedComputeResource, nil
 }
@@ -262,7 +260,7 @@ func (c *Client) QueryComputeResource(ctx context.Context, d *ForemanComputeReso
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

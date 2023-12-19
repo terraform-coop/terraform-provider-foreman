@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -109,7 +107,7 @@ func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -127,7 +125,7 @@ func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, sendErr
 	}
 
-	log.Debugf("createdMedia: [%+v]", createdMedia)
+	utils.Debugf("createdMedia: [%+v]", createdMedia)
 
 	return &createdMedia, nil
 }
@@ -155,7 +153,7 @@ func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
 		return nil, sendErr
 	}
 
-	log.Debugf("readMedia: [%+v]", readMedia)
+	utils.Debugf("readMedia: [%+v]", readMedia)
 
 	return &readMedia, nil
 }
@@ -173,7 +171,7 @@ func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -191,7 +189,7 @@ func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedMedia: [%+v]", updatedMedia)
+	utils.Debugf("updatedMedia: [%+v]", updatedMedia)
 
 	return &updatedMedia, nil
 }
@@ -249,7 +247,7 @@ func (c *Client) QueryMedia(ctx context.Context, m *ForemanMedia) (QueryResponse
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

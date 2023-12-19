@@ -6,8 +6,6 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strings"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -49,7 +47,7 @@ func (c *Client) ReadPuppetClass(ctx context.Context, id int) (*ForemanPuppetCla
 		return nil, sendErr
 	}
 
-	log.Debugf("readCPuppetClass: [%+v]", readPuppetClass)
+	utils.Debugf("readCPuppetClass: [%+v]", readPuppetClass)
 
 	return &readPuppetClass, nil
 }
@@ -92,7 +90,7 @@ func (c *Client) QueryPuppetClass(ctx context.Context, t *ForemanPuppetClass) (Q
 		return QueryResponse{}, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	nestedIndex := strings.Index(t.Name, ":")
 	var indexName string

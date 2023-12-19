@@ -8,7 +8,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -222,14 +221,14 @@ func resourceForemanUserCreate(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	createdUser, createErr := client.CreateUser(ctx, u)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanUser: [%+v]", createdUser)
+	utils.Debugf("Created ForemanUser: [%+v]", createdUser)
 
 	setResourceDataFromForemanUser(d, createdUser)
 
@@ -242,14 +241,14 @@ func resourceForemanUserRead(ctx context.Context, d *schema.ResourceData, meta i
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	readUser, readErr := client.ReadUser(ctx, u.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanUser: [%+v]", readUser)
+	utils.Debugf("Read ForemanUser: [%+v]", readUser)
 
 	setResourceDataFromForemanUser(d, readUser)
 
@@ -262,14 +261,14 @@ func resourceForemanUserUpdate(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	updatedUser, updateErr := client.UpdateUser(ctx, u)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanUser: [%+v]", updatedUser)
+	utils.Debugf("Updated ForemanUser: [%+v]", updatedUser)
 
 	setResourceDataFromForemanUser(d, updatedUser)
 
@@ -282,7 +281,7 @@ func resourceForemanUserDelete(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -102,7 +100,7 @@ func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -118,7 +116,7 @@ func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*For
 	if sendErr != nil {
 		return nil, sendErr
 	}
-	log.Debugf("createdParameter: [%+v]", createdParameter)
+	utils.Debugf("createdParameter: [%+v]", createdParameter)
 
 	d.Id = createdParameter.Id
 	d.Parameter = createdParameter.Parameter
@@ -149,7 +147,7 @@ func (c *Client) ReadParameter(ctx context.Context, d *ForemanParameter, id int)
 		return nil, sendErr
 	}
 
-	log.Debugf("readParameter: [%+v]", readParameter)
+	utils.Debugf("readParameter: [%+v]", readParameter)
 
 	d.Id = readParameter.Id
 	d.Parameter = readParameter.Parameter
@@ -169,7 +167,7 @@ func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id in
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -187,7 +185,7 @@ func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id in
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedParameter: [%+v]", updatedParameter)
+	utils.Debugf("updatedParameter: [%+v]", updatedParameter)
 
 	d.Id = updatedParameter.Id
 	d.Parameter = updatedParameter.Parameter
@@ -248,7 +246,7 @@ func (c *Client) QueryParameter(ctx context.Context, d *ForemanParameter) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

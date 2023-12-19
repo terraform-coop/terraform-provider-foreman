@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -124,7 +122,7 @@ func (c *Client) CreatePartitionTable(ctx context.Context, t *ForemanPartitionTa
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("partitiontableJSONBytes: [%s]", tJSONBytes)
+	utils.Debugf("partitiontableJSONBytes: [%s]", tJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -142,7 +140,7 @@ func (c *Client) CreatePartitionTable(ctx context.Context, t *ForemanPartitionTa
 		return nil, sendErr
 	}
 
-	log.Debugf("createdPartitionTable: [%+v]", createdPartitionTable)
+	utils.Debugf("createdPartitionTable: [%+v]", createdPartitionTable)
 
 	return &createdPartitionTable, nil
 }
@@ -170,7 +168,7 @@ func (c *Client) ReadPartitionTable(ctx context.Context, id int) (*ForemanPartit
 		return nil, sendErr
 	}
 
-	log.Debugf("readPartitionTable: [%+v]", readPartitionTable)
+	utils.Debugf("readPartitionTable: [%+v]", readPartitionTable)
 
 	return &readPartitionTable, nil
 }
@@ -189,7 +187,7 @@ func (c *Client) UpdatePartitionTable(ctx context.Context, t *ForemanPartitionTa
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("partitiontableJSONBytes: [%s]", tJSONBytes)
+	utils.Debugf("partitiontableJSONBytes: [%s]", tJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -207,7 +205,7 @@ func (c *Client) UpdatePartitionTable(ctx context.Context, t *ForemanPartitionTa
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedPartitionTable: [%+v]", updatedPartitionTable)
+	utils.Debugf("updatedPartitionTable: [%+v]", updatedPartitionTable)
 
 	return &updatedPartitionTable, nil
 }
@@ -267,7 +265,7 @@ func (c *Client) QueryPartitionTable(ctx context.Context, t *ForemanPartitionTab
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

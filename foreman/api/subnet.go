@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -95,7 +93,7 @@ func (c *Client) CreateSubnet(ctx context.Context, s *ForemanSubnet) (*ForemanSu
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("sJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("sJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -113,7 +111,7 @@ func (c *Client) CreateSubnet(ctx context.Context, s *ForemanSubnet) (*ForemanSu
 		return nil, sendErr
 	}
 
-	log.Debugf("createdSubnet: [%+v]", createdSubnet)
+	utils.Debugf("createdSubnet: [%+v]", createdSubnet)
 
 	return &createdSubnet, nil
 }
@@ -146,7 +144,7 @@ func (c *Client) ReadSubnet(ctx context.Context, id int) (*ForemanSubnet, error)
 		readSubnet.DomainIDs = append(readSubnet.DomainIDs, m.ID)
 	}
 
-	log.Debugf("readSubnet: [%+v]", readSubnet)
+	utils.Debugf("readSubnet: [%+v]", readSubnet)
 
 	return &readSubnet, nil
 }
@@ -164,7 +162,7 @@ func (c *Client) UpdateSubnet(ctx context.Context, s *ForemanSubnet) (*ForemanSu
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("sJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("sJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -182,7 +180,7 @@ func (c *Client) UpdateSubnet(ctx context.Context, s *ForemanSubnet) (*ForemanSu
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedSubnet: [%+v]", updatedSubnet)
+	utils.Debugf("updatedSubnet: [%+v]", updatedSubnet)
 
 	return &updatedSubnet, nil
 }
@@ -245,7 +243,7 @@ func (c *Client) QuerySubnet(ctx context.Context, s *ForemanSubnet) (QueryRespon
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

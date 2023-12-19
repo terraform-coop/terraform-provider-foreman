@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -120,14 +119,14 @@ func resourceForemanDomainCreate(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	p := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", d)
+	utils.Debugf("ForemanDomain: [%+v]", d)
 
 	createdDomain, createErr := client.CreateDomain(ctx, p)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanDomain: [%+v]", createdDomain)
+	utils.Debugf("Created ForemanDomain: [%+v]", createdDomain)
 
 	setResourceDataFromForemanDomain(d, createdDomain)
 
@@ -140,14 +139,14 @@ func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	domain := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", domain)
+	utils.Debugf("ForemanDomain: [%+v]", domain)
 
 	readDomain, readErr := client.ReadDomain(ctx, domain.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanDomain: [%+v]", readDomain)
+	utils.Debugf("Read ForemanDomain: [%+v]", readDomain)
 
 	setResourceDataFromForemanDomain(d, readDomain)
 
@@ -160,14 +159,14 @@ func resourceForemanDomainUpdate(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", do)
+	utils.Debugf("ForemanDomain: [%+v]", do)
 
 	updatedDomain, updateErr := client.UpdateDomain(ctx, do, do.Id)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanDomain: [%+v]", updatedDomain)
+	utils.Debugf("Updated ForemanDomain: [%+v]", updatedDomain)
 
 	setResourceDataFromForemanDomain(d, updatedDomain)
 
@@ -180,7 +179,7 @@ func resourceForemanDomainDelete(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", do)
+	utils.Debugf("ForemanDomain: [%+v]", do)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteDomain(ctx, do.Id)))
 }

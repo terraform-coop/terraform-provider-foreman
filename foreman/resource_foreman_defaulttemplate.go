@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -114,14 +113,14 @@ func resourceForemanDefaultTemplateCreate(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	p := buildForemanDefaultTemplate(d)
 
-	log.Debugf("ForemanDefaultTemplate: [%+v]", d)
+	utils.Debugf("ForemanDefaultTemplate: [%+v]", d)
 
 	createdParam, createErr := client.CreateDefaultTemplate(ctx, p)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanDefaultTemplate: [%+v]", createdParam)
+	utils.Debugf("Created ForemanDefaultTemplate: [%+v]", createdParam)
 
 	setResourceDataFromForemanDefaultTemplate(d, createdParam)
 
@@ -134,14 +133,14 @@ func resourceForemanDefaultTemplateRead(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	defaultTemplate := buildForemanDefaultTemplate(d)
 
-	log.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
+	utils.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
 
 	readDefaultTemplate, readErr := client.ReadDefaultTemplate(ctx, defaultTemplate, defaultTemplate.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanDefaultTemplate: [%+v]", readDefaultTemplate)
+	utils.Debugf("Read ForemanDefaultTemplate: [%+v]", readDefaultTemplate)
 
 	setResourceDataFromForemanDefaultTemplate(d, readDefaultTemplate)
 
@@ -154,14 +153,14 @@ func resourceForemanDefaultTemplateUpdate(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	p := buildForemanDefaultTemplate(d)
 
-	log.Debugf("ForemanDefaultTemplate: [%+v]", p)
+	utils.Debugf("ForemanDefaultTemplate: [%+v]", p)
 
 	updatedParam, updateErr := client.UpdateDefaultTemplate(ctx, p, p.Id)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanDefaultTemplate: [%+v]", updatedParam)
+	utils.Debugf("Updated ForemanDefaultTemplate: [%+v]", updatedParam)
 
 	setResourceDataFromForemanDefaultTemplate(d, updatedParam)
 
@@ -174,7 +173,7 @@ func resourceForemanDefaultTemplateDelete(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	p := buildForemanDefaultTemplate(d)
 
-	log.Debugf("ForemanDefaultTemplate: [%+v]", p)
+	utils.Debugf("ForemanDefaultTemplate: [%+v]", p)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteDefaultTemplate(ctx, p, p.Id)))
 }

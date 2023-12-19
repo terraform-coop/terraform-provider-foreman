@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -108,14 +107,14 @@ func resourceForemanUsergroupCreate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanUsergroup(d)
 
-	log.Debugf("ForemanUsergroup: [%+v]", h)
+	utils.Debugf("ForemanUsergroup: [%+v]", h)
 
 	createdUsergroup, createErr := client.CreateUsergroup(ctx, h)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanUsergroup: [%+v]", createdUsergroup)
+	utils.Debugf("Created ForemanUsergroup: [%+v]", createdUsergroup)
 
 	setResourceDataFromForemanUsergroup(d, createdUsergroup)
 
@@ -128,14 +127,14 @@ func resourceForemanUsergroupRead(ctx context.Context, d *schema.ResourceData, m
 	client := meta.(*api.Client)
 	h := buildForemanUsergroup(d)
 
-	log.Debugf("ForemanUsergroup: [%+v]", h)
+	utils.Debugf("ForemanUsergroup: [%+v]", h)
 
 	readUsergroup, readErr := client.ReadUsergroup(ctx, h.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanUsergroup: [%+v]", readUsergroup)
+	utils.Debugf("Read ForemanUsergroup: [%+v]", readUsergroup)
 
 	setResourceDataFromForemanUsergroup(d, readUsergroup)
 
@@ -153,14 +152,14 @@ func resourceForemanUsergroupUpdate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanUsergroup(d)
 
-	log.Debugf("ForemanUsergroup: [%+v]", h)
+	utils.Debugf("ForemanUsergroup: [%+v]", h)
 
 	updatedUsergroup, updateErr := client.UpdateUsergroup(ctx, h)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanUsergroup: [%+v]", updatedUsergroup)
+	utils.Debugf("Updated ForemanUsergroup: [%+v]", updatedUsergroup)
 
 	setResourceDataFromForemanUsergroup(d, updatedUsergroup)
 
@@ -173,7 +172,7 @@ func resourceForemanUsergroupDelete(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanUsergroup(d)
 
-	log.Debugf("ForemanUsergroup: [%+v]", h)
+	utils.Debugf("ForemanUsergroup: [%+v]", h)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

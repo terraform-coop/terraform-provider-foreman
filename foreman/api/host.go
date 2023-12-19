@@ -222,7 +222,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 	if jsonEncErr != nil {
 		return jsonEncErr
 	}
-	log.Debugf("JSONBytes: [%s]", JSONBytes)
+	utils.Debugf("JSONBytes: [%s]", JSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(ctx, http.MethodPut, reqHost, bytes.NewBuffer(JSONBytes))
 	if reqErr != nil {
@@ -234,7 +234,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 	// retry until the successful Operation
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("SendPower: Retry #[%d]", retry)
+		utils.Debugf("SendPower: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &cmd)
 		if sendErr != nil {
 			retry++
@@ -251,7 +251,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 	powerMap, _ := cmd.(map[string]interface{})
 	bootMap, _ := cmd.(map[string]map[string]interface{})
 
-	log.Debugf("Power Response: [%+v]", cmd)
+	utils.Debugf("Power Response: [%+v]", cmd)
 
 	// Test operation and return an error if result is false
 	if powerMap[PowerSuffix] == false || bootMap[BootSuffix]["result"] == false {
@@ -278,7 +278,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -297,7 +297,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	// retry until successful Host creation
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("CreatedHost: Retry #[%d]", retry)
+		utils.Debugf("CreatedHost: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &createdHost)
 		if sendErr != nil {
 			retry++
@@ -324,7 +324,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		createdHost.ComputeAttributes = computeAttributes
 	}
 
-	log.Debugf("createdHost: [%+v]", createdHost)
+	utils.Debugf("createdHost: [%+v]", createdHost)
 
 	return &createdHost.ForemanHost, nil
 }
@@ -381,7 +381,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hostJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hostJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -399,7 +399,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	// retry until the successful Host Update
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("UpdateHost: Retry #[%d]", retry)
+		utils.Debugf("UpdateHost: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &updatedHost)
 		if sendErr != nil {
 			retry++
@@ -424,7 +424,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	updatedHost.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHost.PuppetClassesDecode)
 	updatedHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHost.ConfigGroupsDecode)
 	updatedHost.HostParameters = updatedHost.HostParametersDecode
-	log.Debugf("updatedHost: [%+v]", updatedHost)
+	utils.Debugf("updatedHost: [%+v]", updatedHost)
 
 	return &updatedHost.ForemanHost, nil
 }
@@ -497,10 +497,10 @@ func constructShortname(host *foremanHostDecode) error {
 		}
 
 		// If all went well, set the shortname to the first string from FQDN ('name' in Foreman)
-		log.Debugf("constructShortname: Shortname will be set to first element from FQDN: %s", before)
+		utils.Debugf("constructShortname: Shortname will be set to first element from FQDN: %s", before)
 		host.Shortname = before
 	} else {
-		log.Debugf("constructShortname: host.Shortname is not empty (is %s), so nothing is done", host.Shortname)
+		utils.Debugf("constructShortname: host.Shortname is not empty (is %s), so nothing is done", host.Shortname)
 	}
 	return nil
 }

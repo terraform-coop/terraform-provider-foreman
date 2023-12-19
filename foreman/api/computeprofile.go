@@ -49,25 +49,17 @@ func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 	// all types must be handled for conversion
 
 	for k, v := range ca.VMAttrs {
-		// log.Debugf("v %s %T: %+v", k, v, v)
-
 		switch v := v.(type) {
-
 		case int:
 			attrs[k] = strconv.Itoa(v)
-
 		case float32:
 			attrs[k] = strconv.FormatFloat(float64(v), 'f', -1, 32)
-
 		case float64:
 			attrs[k] = strconv.FormatFloat(v, 'f', -1, 64)
-
 		case bool:
 			attrs[k] = strconv.FormatBool(v)
-
 		case nil:
 			attrs[k] = nil
-
 		case string:
 			var res interface{}
 			umErr := json.Unmarshal([]byte(v), &res)
@@ -79,7 +71,6 @@ func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 				// Conversion from JSON string to internal type worked, use it
 				attrs[k] = res
 			}
-
 		case map[string]interface{}, []interface{}:
 			// JSON array or object passed in, simply convert it to a string
 			by, err := json.Marshal(v)
@@ -87,7 +78,6 @@ func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 				return nil, err
 			}
 			attrs[k] = string(by)
-
 		default:
 			log.Errorf("v had a type that was not handled: %T", v)
 		}
@@ -124,10 +114,10 @@ func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ForemanComput
 		return nil, sendErr
 	}
 
-	log.Debugf("readComputeProfile: [%+v]", readComputeProfile)
+	utils.Debugf("readComputeProfile: [%+v]", readComputeProfile)
 
 	for i := 0; i < len(readComputeProfile.ComputeAttributes); i++ {
-		log.Debugf("compute_attribute: [%+v]", readComputeProfile.ComputeAttributes[i])
+		utils.Debugf("compute_attribute: [%+v]", readComputeProfile.ComputeAttributes[i])
 	}
 
 	return &readComputeProfile, nil
@@ -167,7 +157,7 @@ func (c *Client) QueryComputeProfile(ctx context.Context, t *ForemanComputeProfi
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//
@@ -208,7 +198,7 @@ func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProf
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("cprofJSONBytes: [%s]", cprofJSONBytes)
+	utils.Debugf("cprofJSONBytes: [%s]", cprofJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -233,13 +223,13 @@ func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProf
 			createdComputeprofile.Id,
 			d.ComputeAttributes[i].ComputeResourceId)
 
-		log.Debugf("d.ComputeAttributes[i]: %+v", d.ComputeAttributes[i])
+		utils.Debugf("d.ComputeAttributes[i]: %+v", d.ComputeAttributes[i])
 
 		by, err := c.WrapJSONWithTaxonomy("compute_attribute", d.ComputeAttributes[i])
 		if err != nil {
 			return nil, err
 		}
-		log.Debugf("%s", by)
+		utils.Debugf("%s", by)
 		req, reqErr = c.NewRequestWithContext(
 			ctx, http.MethodPost, compattrsEndpoint, bytes.NewBuffer(by),
 		)
@@ -254,7 +244,7 @@ func (c *Client) CreateComputeprofile(ctx context.Context, d *ForemanComputeProf
 		createdComputeprofile.ComputeAttributes = append(createdComputeprofile.ComputeAttributes, &createdComputeAttribute)
 	}
 
-	log.Debugf("createdComputeprofile: [%+v]", createdComputeprofile)
+	utils.Debugf("createdComputeprofile: [%+v]", createdComputeprofile)
 
 	return &createdComputeprofile, nil
 }
@@ -269,7 +259,7 @@ func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProf
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("jsonBytes: [%s]", jsonBytes)
+	utils.Debugf("jsonBytes: [%s]", jsonBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -297,13 +287,13 @@ func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProf
 			elem.ComputeResourceId,
 			elem.Id)
 
-		log.Debugf("d.ComputeAttributes[i]: %+v", elem)
+		utils.Debugf("d.ComputeAttributes[i]: %+v", elem)
 
 		by, err := c.WrapJSONWithTaxonomy("compute_attribute", elem)
 		if err != nil {
 			return nil, err
 		}
-		log.Debugf("by: %s", by)
+		utils.Debugf("by: %s", by)
 
 		req, reqErr = c.NewRequestWithContext(
 			ctx,
@@ -325,7 +315,7 @@ func (c *Client) UpdateComputeProfile(ctx context.Context, d *ForemanComputeProf
 
 	updatedComputeProfile.ComputeAttributes = updatedComputeAttributes
 
-	log.Debugf("updatedComputeprofile: [%+v]", updatedComputeProfile)
+	utils.Debugf("updatedComputeprofile: [%+v]", updatedComputeProfile)
 
 	return &updatedComputeProfile, nil
 }

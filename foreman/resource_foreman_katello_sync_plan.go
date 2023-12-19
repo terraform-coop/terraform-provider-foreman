@@ -212,14 +212,14 @@ func resourceForemanKatelloSyncPlanCreate(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
 
-	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
+	utils.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
 	createdKatelloSyncPlan, createErr := client.CreateKatelloSyncPlan(ctx, syncPlan)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanKatelloSyncPlan: [%+v]", createdKatelloSyncPlan)
+	utils.Debugf("Created ForemanKatelloSyncPlan: [%+v]", createdKatelloSyncPlan)
 
 	setResourceDataFromForemanKatelloSyncPlan(d, createdKatelloSyncPlan)
 
@@ -232,14 +232,14 @@ func resourceForemanKatelloSyncPlanRead(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
 
-	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
+	utils.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
 	readKatelloSyncPlan, readErr := client.ReadKatelloSyncPlan(ctx, syncPlan.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanKatelloSyncPlan: [%+v]", readKatelloSyncPlan)
+	utils.Debugf("Read ForemanKatelloSyncPlan: [%+v]", readKatelloSyncPlan)
 
 	setResourceDataFromForemanKatelloSyncPlan(d, readKatelloSyncPlan)
 
@@ -252,14 +252,14 @@ func resourceForemanKatelloSyncPlanUpdate(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
 
-	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
+	utils.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
 	updatedKatelloSyncPlan, updateErr := client.UpdateKatelloSyncPlan(ctx, syncPlan)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanKatelloSyncPlan: [%+v]", updatedKatelloSyncPlan)
+	utils.Debugf("ForemanKatelloSyncPlan: [%+v]", updatedKatelloSyncPlan)
 
 	setResourceDataFromForemanKatelloSyncPlan(d, updatedKatelloSyncPlan)
 
@@ -272,7 +272,7 @@ func resourceForemanKatelloSyncPlanDelete(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	syncPlan := buildForemanKatelloSyncPlan(d)
 
-	log.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
+	utils.Debugf("ForemanKatelloSyncPlan: [%+v]", syncPlan)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloSyncPlan(ctx, syncPlan.Id)))
 }

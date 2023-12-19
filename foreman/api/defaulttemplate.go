@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -51,7 +49,7 @@ func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -67,7 +65,7 @@ func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 	if sendErr != nil {
 		return nil, sendErr
 	}
-	log.Debugf("createdDefaultTemplate: [%+v]", createdDefaultTemplate)
+	utils.Debugf("createdDefaultTemplate: [%+v]", createdDefaultTemplate)
 
 	return &createdDefaultTemplate, nil
 }
@@ -95,7 +93,7 @@ func (c *Client) ReadDefaultTemplate(ctx context.Context, d *ForemanDefaultTempl
 		return nil, sendErr
 	}
 
-	log.Debugf("readDefaultTemplate: [%+v]", readDefaultTemplate)
+	utils.Debugf("readDefaultTemplate: [%+v]", readDefaultTemplate)
 
 	return &readDefaultTemplate, nil
 }
@@ -113,7 +111,7 @@ func (c *Client) UpdateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -131,7 +129,7 @@ func (c *Client) UpdateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedDefaultTemplate: [%+v]", updatedDefaultTemplate)
+	utils.Debugf("updatedDefaultTemplate: [%+v]", updatedDefaultTemplate)
 
 	return &updatedDefaultTemplate, nil
 }
@@ -189,7 +187,7 @@ func (c *Client) QueryDefaultTemplate(ctx context.Context, d *ForemanDefaultTemp
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

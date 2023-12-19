@@ -8,7 +8,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -160,14 +159,14 @@ func resourceForemanMediaCreate(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
 
-	log.Debugf("ForemanMedia: [%+v]", m)
+	utils.Debugf("ForemanMedia: [%+v]", m)
 
 	createdMedia, createErr := client.CreateMedia(ctx, m)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanMedia: [%+v]", createdMedia)
+	utils.Debugf("Created ForemanMedia: [%+v]", createdMedia)
 
 	setResourceDataFromForemanMedia(d, createdMedia)
 
@@ -180,14 +179,14 @@ func resourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta 
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
 
-	log.Debugf("ForemanMedia: [%+v]", m)
+	utils.Debugf("ForemanMedia: [%+v]", m)
 
 	readMedia, readErr := client.ReadMedia(ctx, m.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanMedia: [%+v]", readMedia)
+	utils.Debugf("Read ForemanMedia: [%+v]", readMedia)
 
 	setResourceDataFromForemanMedia(d, readMedia)
 
@@ -200,14 +199,14 @@ func resourceForemanMediaUpdate(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
 
-	log.Debugf("ForemanMedia: [%+v]", m)
+	utils.Debugf("ForemanMedia: [%+v]", m)
 
 	updatedMedia, updateErr := client.UpdateMedia(ctx, m)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanMedia: [%+v]", updatedMedia)
+	utils.Debugf("Updated ForemanMedia: [%+v]", updatedMedia)
 
 	setResourceDataFromForemanMedia(d, updatedMedia)
 
@@ -220,7 +219,7 @@ func resourceForemanMediaDelete(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
 
-	log.Debugf("ForemanMedia: [%+v]", m)
+	utils.Debugf("ForemanMedia: [%+v]", m)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

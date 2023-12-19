@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -66,7 +65,7 @@ func dataSourceForemanTemplateKindRead(ctx context.Context, d *schema.ResourceDa
 	client := meta.(*api.Client)
 	t := buildForemanTemplateKind(d)
 
-	log.Debugf("ForemanTemplateKind: [%+v]", t)
+	utils.Debugf("ForemanTemplateKind: [%+v]", t)
 
 	queryResponse, queryErr := client.QueryTemplateKind(ctx, t)
 	if queryErr != nil {
@@ -90,7 +89,7 @@ func dataSourceForemanTemplateKindRead(ctx context.Context, d *schema.ResourceDa
 	}
 	t = &queryTemplateKind
 
-	log.Debugf("ForemanTemplateKind: [%+v]", t)
+	utils.Debugf("ForemanTemplateKind: [%+v]", t)
 
 	setResourceDataFromForemanTemplateKind(d, t)
 

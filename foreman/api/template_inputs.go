@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -83,10 +82,10 @@ func (fti *ForemanTemplateInput) UnmarshalJSON(b []byte) error {
 			// And set in struct
 			fti.Id = id
 		default:
-			log.Fatalf("Unhandled 'id' type %T", v)
+			utils.Fatalf("Unhandled 'id' type %T", v)
 		}
 	} else {
-		log.Fatalf("id not in ForemanTemplateInput JSON!")
+		utils.Fatalf("id not in ForemanTemplateInput JSON!")
 	}
 
 	// Same for TemplateId
@@ -109,7 +108,7 @@ func (fti *ForemanTemplateInput) UnmarshalJSON(b []byte) error {
 			// And set in struct
 			fti.TemplateId = id
 		default:
-			log.Fatalf("Unhandled 'template_id' type %T", v)
+			utils.Fatalf("Unhandled 'template_id' type %T", v)
 		}
 	}
 

@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -55,7 +53,7 @@ func (c *Client) CreateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -73,7 +71,7 @@ func (c *Client) CreateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, sendErr
 	}
 
-	log.Debugf("createdSmartProxy: [%+v]", createdSmartProxy)
+	utils.Debugf("createdSmartProxy: [%+v]", createdSmartProxy)
 
 	return &createdSmartProxy, nil
 }
@@ -101,7 +99,7 @@ func (c *Client) ReadSmartProxy(ctx context.Context, id int) (*ForemanSmartProxy
 		return nil, sendErr
 	}
 
-	log.Debugf("readSmartProxy: [%+v]", readSmartProxy)
+	utils.Debugf("readSmartProxy: [%+v]", readSmartProxy)
 
 	return &readSmartProxy, nil
 }
@@ -120,7 +118,7 @@ func (c *Client) UpdateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -138,7 +136,7 @@ func (c *Client) UpdateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedSmartProxy: [%+v]", updatedSmartProxy)
+	utils.Debugf("updatedSmartProxy: [%+v]", updatedSmartProxy)
 
 	return &updatedSmartProxy, nil
 }
@@ -196,7 +194,7 @@ func (c *Client) QuerySmartProxy(ctx context.Context, s *ForemanSmartProxy) (Que
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

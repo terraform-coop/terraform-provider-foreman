@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -134,7 +132,7 @@ func (c *Client) CreateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -152,7 +150,7 @@ func (c *Client) CreateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, sendErr
 	}
 
-	log.Debugf("createdKatelloRepository: [%+v]", createdKatelloRepository)
+	utils.Debugf("createdKatelloRepository: [%+v]", createdKatelloRepository)
 
 	return &createdKatelloRepository, nil
 }
@@ -182,7 +180,7 @@ func (c *Client) ReadKatelloRepository(ctx context.Context, id int) (*ForemanKat
 
 	readKatelloRepository.ProductId = readKatelloRepository.Product.Id
 
-	log.Debugf("readKatelloRepository: [%+v]", readKatelloRepository)
+	utils.Debugf("readKatelloRepository: [%+v]", readKatelloRepository)
 
 	return &readKatelloRepository, nil
 }
@@ -201,7 +199,7 @@ func (c *Client) UpdateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -219,7 +217,7 @@ func (c *Client) UpdateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedKatelloRepository: [%+v]", updatedKatelloRepository)
+	utils.Debugf("updatedKatelloRepository: [%+v]", updatedKatelloRepository)
 
 	return &updatedKatelloRepository, nil
 }

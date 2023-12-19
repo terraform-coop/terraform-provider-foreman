@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -58,10 +56,10 @@ func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
 	}
 	if err != nil {
 		ovMap["value"] = ov.Value
-		log.Debugf("override_value.go #MarshalJSON/passraw")
+		utils.Debugf("override_value.go #MarshalJSON/passraw")
 	}
 
-	log.Debugf("ovMap: [%+v]", ovMap)
+	utils.Debugf("ovMap: [%+v]", ovMap)
 
 	return json.Marshal(ovMap)
 }
@@ -86,7 +84,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
-	log.Debugf("tmpMap: [%v]", tmpMap)
+	utils.Debugf("tmpMap: [%v]", tmpMap)
 
 	var ok bool
 	var match string
@@ -111,7 +109,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 		ov.MatchValue = strings.TrimPrefix(match, "os=")
 	}
 
-	log.Debugf("override_value.go #UnmarshalJSON/postMatch")
+	utils.Debugf("override_value.go #UnmarshalJSON/postMatch")
 
 	if ov.Omit, ok = tmpMap["omit"].(bool); !ok {
 		ov.Omit = false
@@ -122,7 +120,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 		ov.Value = string(vb)
 	}
 
-	log.Debugf("override_value.go #UnmarshalJSON/postValue")
+	utils.Debugf("override_value.go #UnmarshalJSON/postValue")
 
 	return nil
 }
@@ -145,7 +143,7 @@ func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("overrideJSONBytes: [%s]", oJSONBytes)
+	utils.Debugf("overrideJSONBytes: [%s]", oJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -166,7 +164,7 @@ func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 	// Smart class param id is not returned in the respoonse so it must be manually added
 	createdOverrideValue.SmartClassParameterId = ov.SmartClassParameterId
 
-	log.Debugf("createdOverrideValue: [%+v]", createdOverrideValue)
+	utils.Debugf("createdOverrideValue: [%+v]", createdOverrideValue)
 	return &createdOverrideValue, nil
 
 }
@@ -198,7 +196,7 @@ func (c *Client) ReadOverrideValue(ctx context.Context, id int, scp_id int) (*Fo
 	}
 
 	readOverrideValue.SmartClassParameterId = scp_id
-	log.Debugf("readOverrideValue: [%+v]", readOverrideValue)
+	utils.Debugf("readOverrideValue: [%+v]", readOverrideValue)
 
 	return &readOverrideValue, nil
 }
@@ -215,7 +213,7 @@ func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("OverrideValueJSONBytes: [%s]", ovJSONBytes)
+	utils.Debugf("OverrideValueJSONBytes: [%s]", ovJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -236,7 +234,7 @@ func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 	// Smart class param id is not returned in the respoonse so it must be manually added
 	updatedOverrideValue.SmartClassParameterId = ov.SmartClassParameterId
 
-	log.Debugf("updatedOverrideValue: [%+v]", updatedOverrideValue)
+	utils.Debugf("updatedOverrideValue: [%+v]", updatedOverrideValue)
 
 	return &updatedOverrideValue, nil
 }

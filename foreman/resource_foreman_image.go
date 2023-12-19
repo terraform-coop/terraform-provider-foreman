@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -145,11 +144,11 @@ func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, met
 	client := meta.(*api.Client)
 	img := buildForemanImage(d)
 
-	log.Debugf("img: [%+v]", img)
+	utils.Debugf("img: [%+v]", img)
 
 	createdImage, createErr := client.CreateImage(ctx, img, img.ComputeResourceID)
 	if createErr != nil {
-		log.Debugf("%+v", createErr)
+		utils.Debugf("%+v", createErr)
 
 		isUuidError := strings.Contains(createErr.(api.HTTPError).RespBody, "UUID has already been taken")
 		if createErr.(api.HTTPError).StatusCode == 422 && isUuidError {
@@ -170,14 +169,14 @@ func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta 
 	client := meta.(*api.Client)
 	image := buildForemanImage(d)
 
-	log.Debugf("ForemanImage: [%+v]", image)
+	utils.Debugf("ForemanImage: [%+v]", image)
 
 	readImage, readErr := client.ReadImage(ctx, image)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanImage: [%+v]", readImage)
+	utils.Debugf("Read ForemanImage: [%+v]", readImage)
 
 	setResourceDataFromForemanImage(d, readImage)
 

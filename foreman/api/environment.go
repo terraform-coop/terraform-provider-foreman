@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -43,7 +41,7 @@ func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
+	utils.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -61,7 +59,7 @@ func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, sendErr
 	}
 
-	log.Debugf("createdEnvironment: [%+v]", createdEnvironment)
+	utils.Debugf("createdEnvironment: [%+v]", createdEnvironment)
 
 	return &createdEnvironment, nil
 }
@@ -89,7 +87,7 @@ func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironme
 		return nil, sendErr
 	}
 
-	log.Debugf("readEnvironment: [%+v]", readEnvironment)
+	utils.Debugf("readEnvironment: [%+v]", readEnvironment)
 
 	return &readEnvironment, nil
 }
@@ -108,7 +106,7 @@ func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
+	utils.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -126,7 +124,7 @@ func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedEnvironment: [%+v]", updatedEnvironment)
+	utils.Debugf("updatedEnvironment: [%+v]", updatedEnvironment)
 
 	return &updatedEnvironment, nil
 }
@@ -185,7 +183,7 @@ func (c *Client) QueryEnvironment(ctx context.Context, e *ForemanEnvironment) (Q
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

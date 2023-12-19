@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -121,7 +119,7 @@ func (ft ForemanProvisioningTemplate) MarshalJSON() ([]byte, error) {
 		ftMap["template_combinations_attributes"] = ft.TemplateCombinationsAttributes
 	}
 
-	log.Debugf("ftMap: [%v]", ftMap)
+	utils.Debugf("ftMap: [%v]", ftMap)
 
 	return json.Marshal(ftMap)
 }
@@ -200,7 +198,7 @@ func (c *Client) CreateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("templateJSONBytes: [%s]", tJSONBytes)
+	utils.Debugf("templateJSONBytes: [%s]", tJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -218,7 +216,7 @@ func (c *Client) CreateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, sendErr
 	}
 
-	log.Debugf("createdTemplate: [%+v]", createdTemplate)
+	utils.Debugf("createdTemplate: [%+v]", createdTemplate)
 
 	return &createdTemplate, nil
 }
@@ -247,7 +245,7 @@ func (c *Client) ReadProvisioningTemplate(ctx context.Context, id int) (*Foreman
 		return nil, sendErr
 	}
 
-	log.Debugf("readTemplate: [%+v]", readTemplate)
+	utils.Debugf("readTemplate: [%+v]", readTemplate)
 
 	return &readTemplate, nil
 }
@@ -266,7 +264,7 @@ func (c *Client) UpdateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("templateJSONBytes: [%s]", tJSONBytes)
+	utils.Debugf("templateJSONBytes: [%s]", tJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -284,7 +282,7 @@ func (c *Client) UpdateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedTemplate: [%+v]", updatedTemplate)
+	utils.Debugf("updatedTemplate: [%+v]", updatedTemplate)
 
 	return &updatedTemplate, nil
 }
@@ -344,7 +342,7 @@ func (c *Client) QueryProvisioningTemplate(ctx context.Context, t *ForemanProvis
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

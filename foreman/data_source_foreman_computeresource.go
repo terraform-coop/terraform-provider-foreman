@@ -7,7 +7,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -41,7 +40,7 @@ func dataSourceForemanComputeResourceRead(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	computeresource := buildForemanComputeResource(d)
 
-	log.Debugf("ForemanComputeResource: [%+v]", computeresource)
+	utils.Debugf("ForemanComputeResource: [%+v]", computeresource)
 
 	queryResponse, queryErr := client.QueryComputeResource(ctx, computeresource)
 	if queryErr != nil {
@@ -65,7 +64,7 @@ func dataSourceForemanComputeResourceRead(ctx context.Context, d *schema.Resourc
 	}
 	computeresource = &queryComputeResource
 
-	log.Debugf("ForemanComputeResource: [%+v]", computeresource)
+	utils.Debugf("ForemanComputeResource: [%+v]", computeresource)
 
 	setResourceDataFromForemanComputeResource(d, computeresource)
 

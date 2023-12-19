@@ -7,8 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
-
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -100,7 +98,7 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 
 	setting.Id = d.Id()
 
-	log.Debugf("ForemanSetting: [%+v]", setting)
+	utils.Debugf("ForemanSetting: [%+v]", setting)
 
 	queryResponse, queryErr := client.QuerySetting(ctx, setting)
 	if queryErr != nil {
@@ -148,7 +146,7 @@ func dataSourceForemanSettingRead(ctx context.Context, d *schema.ResourceData, m
 		// noop
 	}
 
-	log.Debugf("ForemanSetting: [%+v]", setting)
+	utils.Debugf("ForemanSetting: [%+v]", setting)
 
 	d.SetId(setting.Id)
 	d.Set("name", setting.Name)

@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -170,14 +169,14 @@ func resourceForemanOverrideValueCreate(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	createdOverrideValue, createErr := client.CreateOverrideValue(ctx, override)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanOverrideValue: [%+v]", createdOverrideValue)
+	utils.Debugf("Created ForemanOverrideValue: [%+v]", createdOverrideValue)
 
 	setResourceDataFromForemanOverrideValue(d, createdOverrideValue)
 
@@ -190,14 +189,14 @@ func resourceForemanOverrideValueRead(ctx context.Context, d *schema.ResourceDat
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	readOverrideValue, readErr := client.ReadOverrideValue(ctx, override.Id, override.SmartClassParameterId)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanOverrideValue: [%+v]", readOverrideValue)
+	utils.Debugf("Read ForemanOverrideValue: [%+v]", readOverrideValue)
 
 	setResourceDataFromForemanOverrideValue(d, readOverrideValue)
 
@@ -215,14 +214,14 @@ func resourceForemanOverrideValueUpdate(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	updatedOverrideValue, updateErr := client.UpdateOverrideValue(ctx, override)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanOverrideValue: [%+v]", updatedOverrideValue)
+	utils.Debugf("ForemanOverrideValue: [%+v]", updatedOverrideValue)
 
 	setResourceDataFromForemanOverrideValue(d, updatedOverrideValue)
 
@@ -235,7 +234,7 @@ func resourceForemanOverrideValueDelete(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteOverrideValue(ctx, override.Id, override.SmartClassParameterId)))
 }

@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -156,14 +155,14 @@ func resourceForemanParameterCreate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	p := buildForemanParameter(d)
 
-	log.Debugf("ForemanParameter: [%+v]", d)
+	utils.Debugf("ForemanParameter: [%+v]", d)
 
 	createdParam, createErr := client.CreateParameter(ctx, p)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanParameter: [%+v]", createdParam)
+	utils.Debugf("Created ForemanParameter: [%+v]", createdParam)
 
 	setResourceDataFromForemanParameter(d, createdParam)
 
@@ -176,14 +175,14 @@ func resourceForemanParameterRead(ctx context.Context, d *schema.ResourceData, m
 	client := meta.(*api.Client)
 	parameter := buildForemanParameter(d)
 
-	log.Debugf("ForemanParameter: [%+v]", parameter)
+	utils.Debugf("ForemanParameter: [%+v]", parameter)
 
 	readParameter, readErr := client.ReadParameter(ctx, parameter, parameter.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanParameter: [%+v]", readParameter)
+	utils.Debugf("Read ForemanParameter: [%+v]", readParameter)
 
 	setResourceDataFromForemanParameter(d, readParameter)
 
@@ -196,14 +195,14 @@ func resourceForemanParameterUpdate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	p := buildForemanParameter(d)
 
-	log.Debugf("ForemanParameter: [%+v]", p)
+	utils.Debugf("ForemanParameter: [%+v]", p)
 
 	updatedParam, updateErr := client.UpdateParameter(ctx, p, p.Id)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanParameter: [%+v]", updatedParam)
+	utils.Debugf("Updated ForemanParameter: [%+v]", updatedParam)
 
 	setResourceDataFromForemanParameter(d, updatedParam)
 
@@ -216,7 +215,7 @@ func resourceForemanParameterDelete(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	p := buildForemanParameter(d)
 
-	log.Debugf("ForemanParameter: [%+v]", p)
+	utils.Debugf("ForemanParameter: [%+v]", p)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteParameter(ctx, p, p.Id)))
 }

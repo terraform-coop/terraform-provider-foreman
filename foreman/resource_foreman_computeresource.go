@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -182,14 +181,14 @@ func resourceForemanComputeResourceRead(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	computeresource := buildForemanComputeResource(d)
 
-	log.Debugf("ForemanComputeResource: [%+v]", computeresource)
+	utils.Debugf("ForemanComputeResource: [%+v]", computeresource)
 
 	readComputeResource, readErr := client.ReadComputeResource(ctx, computeresource.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanComputeResource: [%+v]", readComputeResource)
+	utils.Debugf("Read ForemanComputeResource: [%+v]", readComputeResource)
 
 	setResourceDataFromForemanComputeResource(d, readComputeResource)
 

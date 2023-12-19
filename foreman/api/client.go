@@ -131,7 +131,7 @@ func ToKV(m map[string]interface{}) (ret []ForemanKVParameter) {
 func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 	utils.TraceFunctionCall()
 
-	log.Debugf(
+	utils.Debugf(
 		"Server: [%+v], "+
 			"ClientConfig: [%+v]",
 		s,
@@ -202,7 +202,7 @@ func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 func (client *Client) NewRequestWithContext(ctx context.Context, method string, endpoint string, body io.Reader) (*http.Request, error) {
 	utils.TraceFunctionCall()
 
-	log.Debugf(
+	utils.Debugf(
 		"method: [%s], endpoint: [%s]",
 		method,
 		endpoint,
@@ -231,7 +231,7 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 		version_append = "version=" + FOREMAN_API_VERSION
 	}
 
-	log.Debugf(
+	utils.Debugf(
 		"reqURL: [%s]\n",
 		reqURL.String(),
 	)
@@ -352,7 +352,7 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 		return sendErr
 	}
 
-	log.Debugf(
+	utils.Debugf(
 		"server response:{\n"+
 			"  endpoint:   [%s]\n"+
 			"  method:     [%s]\n"+
@@ -426,7 +426,7 @@ func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) (
 	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {
 		wrapped["location_id"] = client.clientConfig.LocationID
 		wrapped["organization_id"] = client.clientConfig.OrganizationID
-		log.Debugf("client.go#WrapJSONWithTaxonomy: item %+v", wrapped)
+		utils.Debugf("client.go#WrapJSONWithTaxonomy: item %+v", wrapped)
 	}
 
 	return json.Marshal(wrapped)

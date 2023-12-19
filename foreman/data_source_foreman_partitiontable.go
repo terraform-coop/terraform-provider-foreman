@@ -7,7 +7,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -45,7 +44,7 @@ func dataSourceForemanPartitionTableRead(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
 
-	log.Debugf("ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("ForemanPartitionTable: [%+v]", t)
 
 	queryResponse, queryErr := client.QueryPartitionTable(ctx, t)
 	if queryErr != nil {
@@ -69,7 +68,7 @@ func dataSourceForemanPartitionTableRead(ctx context.Context, d *schema.Resource
 	}
 	t = &queryPartitionTable
 
-	log.Debugf("[DEBUG] ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("[DEBUG] ForemanPartitionTable: [%+v]", t)
 
 	setResourceDataFromForemanPartitionTable(d, t)
 

@@ -1039,7 +1039,7 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 		tempIntAttr.Destroy = false
 	}
 
-	log.Debugf("m: [%v], tempIntAttr: [%+v]", m, tempIntAttr)
+	utils.Debugf("m: [%v], tempIntAttr: [%+v]", m, tempIntAttr)
 	return tempIntAttr
 }
 
@@ -1050,7 +1050,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 
 	d.SetId(strconv.Itoa(fh.Id))
 
-	log.Debugf("ForemanHost: %+v", fh)
+	utils.Debugf("ForemanHost: %+v", fh)
 
 	d.Set("name", fh.Name) // internal name from Foreman meta struct
 
@@ -1189,7 +1189,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	// the "append_domain_name_for_hosts" setting. In case of true, a shortname will be expanded to
 	// a FQDN, resulting in inconsistent plans. Maybe this issue will arise again, then handle it here.
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
 	// See commit ad2b5890f09645513b520f12291546f26b812c96 for an experimental implementation
@@ -1202,7 +1202,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanHost: [%+v]", createdHost)
+	utils.Debugf("Created ForemanHost: [%+v]", createdHost)
 
 	// Enables partial state mode in the event of failure of one of API calls required for host creation
 	// This requires you to call the SetPartial function for each changed key.
@@ -1219,7 +1219,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
 		// Don't modify power state at all if we're not managing the build
 		if h.EnableBMC {
-			log.Debugf("Calling BMC Reboot/PXE Functions")
+			utils.Debugf("Calling BMC Reboot/PXE Functions")
 			// List of BMC Actions to perform
 			powerCmds = []interface{}{
 				api.BMCBoot{
@@ -1230,7 +1230,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 				},
 			}
 		} else if h.Managed {
-			log.Debugf("Using default Foreman behaviour for startup")
+			utils.Debugf("Using default Foreman behaviour for startup")
 			powerCmds = []interface{}{
 				api.Power{
 					PowerAction: api.PowerOn,
@@ -1263,14 +1263,14 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 
 	readHost, readErr := client.ReadHost(ctx, h.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanHost: [%+v]", readHost)
+	utils.Debugf("Read ForemanHost: [%+v]", readHost)
 
 	setResourceDataFromForemanHost(d, readHost)
 
@@ -1287,7 +1287,7 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 
 	// Enable partial mode in the event of failure of one of API calls required for host update
 	d.Partial(true)
@@ -1341,14 +1341,14 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.HasChange("config_group_ids") ||
 		d.Get("managed") == false {
 
-		log.Debugf("host: [%+v]", h)
+		utils.Debugf("host: [%+v]", h)
 
 		updatedHost, updateErr := client.UpdateHost(ctx, h, hostRetryCount)
 		if updateErr != nil {
 			return diag.FromErr(updateErr)
 		}
 
-		log.Debugf("Updated FormanHost: [%+v]", updatedHost)
+		utils.Debugf("Updated FormanHost: [%+v]", updatedHost)
 
 		setResourceDataFromForemanHost(d, updatedHost)
 	} // end HasChange("name")
@@ -1365,7 +1365,7 @@ func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
@@ -1376,7 +1376,7 @@ func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 	retry := 0
 	for retry < hostRetryCount {
-		log.Debugf("ForemanHostDelete: Waiting for deletion #[%d]", retry)
+		utils.Debugf("ForemanHostDelete: Waiting for deletion #[%d]", retry)
 		_, deleting := client.ReadHost(ctx, h.Id)
 		if deleting == nil {
 			retry++

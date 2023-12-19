@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -173,7 +172,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					// would be reset to 0 every time an "apply" is executed.
 					newAsInt, err := strconv.Atoi(newValue)
 					if err != nil {
-						log.Fatalf("download_concurrency value was not an int!")
+						utils.Fatal("download_concurrency value was not an int!")
 					}
 
 					if oldValue == "0" && newAsInt > 0 {
@@ -399,14 +398,14 @@ func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.Resou
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	createdKatelloRepository, createErr := client.CreateKatelloRepository(ctx, repository)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanKatelloRepository: [%+v]", createdKatelloRepository)
+	utils.Debugf("Created ForemanKatelloRepository: [%+v]", createdKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, createdKatelloRepository)
 
@@ -419,14 +418,14 @@ func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.Resourc
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	readKatelloRepository, readErr := client.ReadKatelloRepository(ctx, repository.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
+	utils.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, readKatelloRepository)
 
@@ -439,14 +438,14 @@ func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.Resou
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	updatedKatelloRepository, updateErr := client.UpdateKatelloRepository(ctx, repository)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", updatedKatelloRepository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", updatedKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, updatedKatelloRepository)
 
@@ -459,7 +458,7 @@ func resourceForemanKatelloRepositoryDelete(ctx context.Context, d *schema.Resou
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloRepository(ctx, repository.Id)))
 }

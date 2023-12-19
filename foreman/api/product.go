@@ -8,8 +8,6 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strconv"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -52,7 +50,7 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -76,7 +74,7 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, sendErr
 	}
 
-	log.Debugf("createdKatelloProduct: [%+v]", createdKatelloProduct)
+	utils.Debugf("createdKatelloProduct: [%+v]", createdKatelloProduct)
 
 	return &createdKatelloProduct, nil
 }
@@ -104,7 +102,7 @@ func (c *Client) ReadKatelloProduct(ctx context.Context, id int) (*ForemanKatell
 		return nil, sendErr
 	}
 
-	log.Debugf("readKatelloProduct: [%+v]", readKatelloProduct)
+	utils.Debugf("readKatelloProduct: [%+v]", readKatelloProduct)
 
 	return &readKatelloProduct, nil
 }
@@ -123,7 +121,7 @@ func (c *Client) UpdateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -141,7 +139,7 @@ func (c *Client) UpdateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedKatelloProduct: [%+v]", updatedKatelloProduct)
+	utils.Debugf("updatedKatelloProduct: [%+v]", updatedKatelloProduct)
 
 	return &updatedKatelloProduct, nil
 }

@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -55,7 +53,7 @@ func (c *Client) ReadSmartClassParameter(ctx context.Context, id int) (*ForemanS
 		return nil, sendErr
 	}
 
-	log.Debugf("readSmartClassParameter: [%+v]", readSmartClassParameter)
+	utils.Debugf("readSmartClassParameter: [%+v]", readSmartClassParameter)
 
 	return &readSmartClassParameter, nil
 }
@@ -95,7 +93,7 @@ func (c *Client) QuerySmartClassParameter(ctx context.Context, t *ForemanSmartCl
 		return QueryResponse{}, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	// Encode back to JSON, then Unmarshal into []ForemanPuppetClass for

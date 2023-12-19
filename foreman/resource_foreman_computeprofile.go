@@ -108,7 +108,7 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 			return nil
 		}
 
-		log.Debugf("buildForemanComputeProfile caObj: [%+v]", caObj)
+		utils.Debugf("buildForemanComputeProfile caObj: [%+v]", caObj)
 
 		compattrObjList = append(compattrObjList, &caObj)
 	}
@@ -133,7 +133,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 
 	for i := 0; i < len(fk.ComputeAttributes); i++ {
 		elem := fk.ComputeAttributes[i]
-		log.Debugf("elem: %+v", elem)
+		utils.Debugf("elem: %+v", elem)
 
 		data, err := json.Marshal(&elem)
 		if err != nil {
@@ -146,7 +146,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 			log.Errorf("Error in json.Unmarshal: %s", err)
 		}
 
-		log.Debugf("unmarshElem: %+v", unmarshElem)
+		utils.Debugf("unmarshElem: %+v", unmarshElem)
 		caList = append(caList, unmarshElem)
 	}
 
@@ -167,7 +167,7 @@ func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanComputeprofile [%+v]", createdComputeprofile)
+	utils.Debugf("Created ForemanComputeprofile [%+v]", createdComputeprofile)
 
 	setResourceDataFromForemanComputeProfile(d, createdComputeprofile)
 
@@ -185,7 +185,7 @@ func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	log.Debugf("Read compute_profile: %+v", cp)
+	utils.Debugf("Read compute_profile: %+v", cp)
 
 	setResourceDataFromForemanComputeProfile(d, cp)
 
@@ -203,7 +203,7 @@ func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	log.Debugf("Update compute_profile: %+v", cp)
+	utils.Debugf("Update compute_profile: %+v", cp)
 
 	setResourceDataFromForemanComputeProfile(d, cp)
 

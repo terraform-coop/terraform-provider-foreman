@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -110,7 +108,7 @@ func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -128,7 +126,7 @@ func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("createdHostgroup: [%+v]", createdHostgroup)
+	utils.Debugf("createdHostgroup: [%+v]", createdHostgroup)
 
 	return &createdHostgroup, nil
 }
@@ -160,7 +158,7 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 	readHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(readHostgroup.ConfigGroupsDecode)
 	readHostgroup.HostGroupParameters = readHostgroup.HostGroupParametersDecode
 
-	log.Debugf("readHostgroup: [%+v]", readHostgroup)
+	utils.Debugf("readHostgroup: [%+v]", readHostgroup)
 
 	return &readHostgroup.ForemanHostgroup, nil
 }
@@ -179,7 +177,7 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -201,7 +199,7 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 	updatedHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHostgroup.ConfigGroupsDecode)
 	updatedHostgroup.HostGroupParameters = updatedHostgroup.HostGroupParametersDecode
 
-	log.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)
+	utils.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)
 
 	return &updatedHostgroup.ForemanHostgroup, nil
 }
@@ -259,7 +257,7 @@ func (c *Client) QueryHostgroup(ctx context.Context, h *ForemanHostgroup) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

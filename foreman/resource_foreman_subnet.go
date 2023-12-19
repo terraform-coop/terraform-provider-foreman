@@ -8,7 +8,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -311,14 +310,14 @@ func resourceForemanSubnetCreate(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	createdSubnet, createErr := client.CreateSubnet(ctx, s)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
+	utils.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
 
 	setResourceDataFromForemanSubnet(d, createdSubnet)
 
@@ -331,14 +330,14 @@ func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	readSubnet, readErr := client.ReadSubnet(ctx, s.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanSubnet: [%+v]", readSubnet)
+	utils.Debugf("Read ForemanSubnet: [%+v]", readSubnet)
 
 	setResourceDataFromForemanSubnet(d, readSubnet)
 
@@ -350,14 +349,14 @@ func resourceForemanSubnetUpdate(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	updatedSubnet, updateErr := client.UpdateSubnet(ctx, s)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
+	utils.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
 
 	setResourceDataFromForemanSubnet(d, updatedSubnet)
 
@@ -370,7 +369,7 @@ func resourceForemanSubnetDelete(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteSubnet(ctx, s.Id)))
 }

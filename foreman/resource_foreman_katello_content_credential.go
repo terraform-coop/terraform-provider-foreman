@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -104,14 +103,14 @@ func resourceForemanKatelloContentCredentialCreate(ctx context.Context, d *schem
 	client := meta.(*api.Client)
 	contentCredential := buildForemanKatelloContentCredential(d)
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
 	createdKatelloContentCredential, createErr := client.CreateKatelloContentCredential(ctx, contentCredential)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanKatelloContentCredential: [%+v]", createdKatelloContentCredential)
+	utils.Debugf("Created ForemanKatelloContentCredential: [%+v]", createdKatelloContentCredential)
 
 	setResourceDataFromForemanKatelloContentCredential(d, createdKatelloContentCredential)
 
@@ -124,14 +123,14 @@ func resourceForemanKatelloContentCredentialRead(ctx context.Context, d *schema.
 	client := meta.(*api.Client)
 	contentCredential := buildForemanKatelloContentCredential(d)
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
 	readKatelloContentCredential, readErr := client.ReadKatelloContentCredential(ctx, contentCredential.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanKatelloContentCredential: [%+v]", readKatelloContentCredential)
+	utils.Debugf("Read ForemanKatelloContentCredential: [%+v]", readKatelloContentCredential)
 
 	setResourceDataFromForemanKatelloContentCredential(d, readKatelloContentCredential)
 
@@ -144,14 +143,14 @@ func resourceForemanKatelloContentCredentialUpdate(ctx context.Context, d *schem
 	client := meta.(*api.Client)
 	contentCredential := buildForemanKatelloContentCredential(d)
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
 	updatedKatelloContentCredential, updateErr := client.UpdateKatelloContentCredential(ctx, contentCredential)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", updatedKatelloContentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", updatedKatelloContentCredential)
 
 	setResourceDataFromForemanKatelloContentCredential(d, updatedKatelloContentCredential)
 
@@ -164,7 +163,7 @@ func resourceForemanKatelloContentCredentialDelete(ctx context.Context, d *schem
 	client := meta.(*api.Client)
 	contentCredential := buildForemanKatelloContentCredential(d)
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloContentCredential(ctx, contentCredential.Id)))
 }

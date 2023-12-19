@@ -97,7 +97,7 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 		return nil, sendErr
 	}
 
-	log.Debugf("createdImage: [%+v]", createdImage)
+	utils.Debugf("createdImage: [%+v]", createdImage)
 
 	return &createdImage, nil
 }
@@ -125,7 +125,7 @@ func (c *Client) ReadImage(ctx context.Context, d *ForemanImage) (*ForemanImage,
 		return nil, sendErr
 	}
 
-	log.Debugf("readImage: [%+v]", readImage)
+	utils.Debugf("readImage: [%+v]", readImage)
 
 	return &readImage, nil
 }
@@ -143,7 +143,7 @@ func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImag
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("imageJSONBytes: [%s]", imageJSONBytes)
+	utils.Debugf("imageJSONBytes: [%s]", imageJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -161,7 +161,7 @@ func (c *Client) UpdateImage(ctx context.Context, d *ForemanImage) (*ForemanImag
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedImage: [%+v]", updatedImage)
+	utils.Debugf("updatedImage: [%+v]", updatedImage)
 
 	return &updatedImage, nil
 }
@@ -219,7 +219,7 @@ func (c *Client) QueryImage(ctx context.Context, d *ForemanImage) (QueryResponse
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

@@ -7,7 +7,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -46,7 +45,7 @@ func dataSourceForemanUsergroupRead(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	u := buildForemanUsergroup(d)
 
-	log.Debugf("ForemanUsergroup: [%+v]", u)
+	utils.Debugf("ForemanUsergroup: [%+v]", u)
 
 	queryResponse, queryErr := client.QueryUsergroup(ctx, u)
 	if queryErr != nil {
@@ -70,7 +69,7 @@ func dataSourceForemanUsergroupRead(ctx context.Context, d *schema.ResourceData,
 	}
 	u = &queryUsergroup
 
-	log.Debugf("ForemanUsergroup: [%+v]", u)
+	utils.Debugf("ForemanUsergroup: [%+v]", u)
 
 	setResourceDataFromForemanUsergroup(d, u)
 

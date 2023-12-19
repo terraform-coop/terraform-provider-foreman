@@ -7,7 +7,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -45,7 +44,7 @@ func dataSourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	s := buildForemanHTTPProxy(d)
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", s)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", s)
 
 	queryResponse, queryErr := client.QueryHTTPProxy(ctx, s)
 	if queryErr != nil {
@@ -69,7 +68,7 @@ func dataSourceForemanHTTPProxyRead(ctx context.Context, d *schema.ResourceData,
 	}
 	s = &queryHTTPProxy
 
-	log.Debugf("ForemanHTTPProxy: [%+v]", s)
+	utils.Debugf("ForemanHTTPProxy: [%+v]", s)
 
 	setResourceDataFromForemanHTTPProxy(d, s)
 

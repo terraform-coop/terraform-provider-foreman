@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -81,7 +79,7 @@ func (c *Client) CreateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, 
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("userJSONBytes: [%s]", uJSONBytes)
+	utils.Debugf("userJSONBytes: [%s]", uJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -99,7 +97,7 @@ func (c *Client) CreateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, 
 		return nil, sendErr
 	}
 
-	log.Debugf("createdUser: [%+v]", createdUser)
+	utils.Debugf("createdUser: [%+v]", createdUser)
 
 	return &createdUser, nil
 }
@@ -127,7 +125,7 @@ func (c *Client) ReadUser(ctx context.Context, id int) (*ForemanUser, error) {
 		return nil, sendErr
 	}
 
-	log.Debugf("readUser: [%+v]", readUser)
+	utils.Debugf("readUser: [%+v]", readUser)
 
 	return &readUser, nil
 }
@@ -146,7 +144,7 @@ func (c *Client) UpdateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, 
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("userJSONBytes: [%s]", uJSONBytes)
+	utils.Debugf("userJSONBytes: [%s]", uJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -164,7 +162,7 @@ func (c *Client) UpdateUser(ctx context.Context, u *ForemanUser) (*ForemanUser, 
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedUser: [%+v]", updatedUser)
+	utils.Debugf("updatedUser: [%+v]", updatedUser)
 
 	return &updatedUser, nil
 }
@@ -233,7 +231,7 @@ func (c *Client) QueryUser(ctx context.Context, s *ForemanUser) (QueryResponse, 
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

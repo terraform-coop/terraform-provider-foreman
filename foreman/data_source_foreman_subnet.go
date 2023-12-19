@@ -7,7 +7,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -55,7 +54,7 @@ func dataSourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, me
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	queryResponse, queryErr := client.QuerySubnet(ctx, s)
 	if queryErr != nil {
@@ -79,7 +78,7 @@ func dataSourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, me
 	}
 	s = &querySubnet
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	setResourceDataFromForemanSubnet(d, s)
 

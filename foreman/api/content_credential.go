@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -47,7 +45,7 @@ func (c *Client) CreateKatelloContentCredential(ctx context.Context, s *ForemanK
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloContentCredentialJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloContentCredentialJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -65,7 +63,7 @@ func (c *Client) CreateKatelloContentCredential(ctx context.Context, s *ForemanK
 		return nil, sendErr
 	}
 
-	log.Debugf("createdKatelloContentCredential: [%+v]", createdKatelloContentCredential)
+	utils.Debugf("createdKatelloContentCredential: [%+v]", createdKatelloContentCredential)
 
 	return &createdKatelloContentCredential, nil
 }
@@ -93,7 +91,7 @@ func (c *Client) ReadKatelloContentCredential(ctx context.Context, id int) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("readKatelloContentCredential: [%+v]", readKatelloContentCredential)
+	utils.Debugf("readKatelloContentCredential: [%+v]", readKatelloContentCredential)
 
 	return &readKatelloContentCredential, nil
 }
@@ -112,7 +110,7 @@ func (c *Client) UpdateKatelloContentCredential(ctx context.Context, s *ForemanK
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloContentCredentialJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloContentCredentialJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -130,7 +128,7 @@ func (c *Client) UpdateKatelloContentCredential(ctx context.Context, s *ForemanK
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedKatelloContentCredential: [%+v]", updatedKatelloContentCredential)
+	utils.Debugf("updatedKatelloContentCredential: [%+v]", updatedKatelloContentCredential)
 
 	return &updatedKatelloContentCredential, nil
 }
@@ -171,7 +169,7 @@ func (c *Client) QueryKatelloContentCredential(ctx context.Context, s *ForemanKa
 		return queryResponse, jsonEncErr
 	}
 
-	log.Debugf("KatelloContentCredentialJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloContentCredentialJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -194,7 +192,7 @@ func (c *Client) QueryKatelloContentCredential(ctx context.Context, s *ForemanKa
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

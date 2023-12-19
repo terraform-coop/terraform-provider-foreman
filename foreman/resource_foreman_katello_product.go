@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -167,14 +166,14 @@ func resourceForemanKatelloProductCreate(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	createdKatelloProduct, createErr := client.CreateKatelloProduct(ctx, product)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanKatelloProduct: [%+v]", createdKatelloProduct)
+	utils.Debugf("Created ForemanKatelloProduct: [%+v]", createdKatelloProduct)
 
 	setResourceDataFromForemanKatelloProduct(d, createdKatelloProduct)
 
@@ -187,14 +186,14 @@ func resourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceDa
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	readKatelloProduct, readErr := client.ReadKatelloProduct(ctx, product.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanKatelloProduct: [%+v]", readKatelloProduct)
+	utils.Debugf("Read ForemanKatelloProduct: [%+v]", readKatelloProduct)
 
 	setResourceDataFromForemanKatelloProduct(d, readKatelloProduct)
 
@@ -207,14 +206,14 @@ func resourceForemanKatelloProductUpdate(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	updatedKatelloProduct, updateErr := client.UpdateKatelloProduct(ctx, product)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", updatedKatelloProduct)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", updatedKatelloProduct)
 
 	setResourceDataFromForemanKatelloProduct(d, updatedKatelloProduct)
 
@@ -227,7 +226,7 @@ func resourceForemanKatelloProductDelete(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloProduct(ctx, product.Id)))
 }

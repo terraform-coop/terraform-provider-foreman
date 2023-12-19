@@ -9,7 +9,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -126,14 +125,14 @@ func resourceForemanArchitectureCreate(ctx context.Context, d *schema.ResourceDa
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
 
-	log.Debugf("ForemanArchitecture: [%+v]", a)
+	utils.Debugf("ForemanArchitecture: [%+v]", a)
 
 	createdArch, createErr := client.CreateArchitecture(ctx, a)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanArchitecture: [%+v]", createdArch)
+	utils.Debugf("Created ForemanArchitecture: [%+v]", createdArch)
 
 	setResourceDataFromForemanArchitecture(d, createdArch)
 
@@ -146,14 +145,14 @@ func resourceForemanArchitectureRead(ctx context.Context, d *schema.ResourceData
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
 
-	log.Debugf("ForemanArchitecture: [%+v]", a)
+	utils.Debugf("ForemanArchitecture: [%+v]", a)
 
 	readArch, readErr := client.ReadArchitecture(ctx, a.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanArchitecture: [%+v]", readArch)
+	utils.Debugf("Read ForemanArchitecture: [%+v]", readArch)
 
 	setResourceDataFromForemanArchitecture(d, readArch)
 
@@ -166,14 +165,14 @@ func resourceForemanArchitectureUpdate(ctx context.Context, d *schema.ResourceDa
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
 
-	log.Debugf("ForemanArchitecture: [%+v]", a)
+	utils.Debugf("ForemanArchitecture: [%+v]", a)
 
 	updatedArch, updateErr := client.UpdateArchitecture(ctx, a)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanArchitecture: [%+v]", updatedArch)
+	utils.Debugf("Updated ForemanArchitecture: [%+v]", updatedArch)
 
 	setResourceDataFromForemanArchitecture(d, updatedArch)
 
@@ -186,7 +185,7 @@ func resourceForemanArchitectureDelete(ctx context.Context, d *schema.ResourceDa
 	client := meta.(*api.Client)
 	a := buildForemanArchitecture(d)
 
-	log.Debugf("ForemanArchitecture: [%+v]", a)
+	utils.Debugf("ForemanArchitecture: [%+v]", a)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

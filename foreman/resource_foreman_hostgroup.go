@@ -8,7 +8,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -384,14 +383,14 @@ func resourceForemanHostgroupCreate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	createdHostgroup, createErr := client.CreateHostgroup(ctx, h)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanHostgroup: [%+v]", createdHostgroup)
+	utils.Debugf("Created ForemanHostgroup: [%+v]", createdHostgroup)
 
 	setResourceDataFromForemanHostgroup(d, createdHostgroup)
 
@@ -404,14 +403,14 @@ func resourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, m
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	readHostgroup, readErr := client.ReadHostgroup(ctx, h.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanHostgroup: [%+v]", readHostgroup)
+	utils.Debugf("Read ForemanHostgroup: [%+v]", readHostgroup)
 
 	setResourceDataFromForemanHostgroup(d, readHostgroup)
 
@@ -429,14 +428,14 @@ func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	updatedHostgroup, updateErr := client.UpdateHostgroup(ctx, h)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanHostgroup: [%+v]", updatedHostgroup)
+	utils.Debugf("Updated ForemanHostgroup: [%+v]", updatedHostgroup)
 
 	setResourceDataFromForemanHostgroup(d, updatedHostgroup)
 
@@ -449,7 +448,7 @@ func resourceForemanHostgroupDelete(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

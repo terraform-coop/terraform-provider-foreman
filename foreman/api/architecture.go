@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -81,7 +79,7 @@ func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("archJSONBytes: [%s]", archJSONBytes)
+	utils.Debugf("archJSONBytes: [%s]", archJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -99,7 +97,7 @@ func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, sendErr
 	}
 
-	log.Debugf("createdArch: [%+v]", createdArch)
+	utils.Debugf("createdArch: [%+v]", createdArch)
 
 	return &createdArch, nil
 }
@@ -127,7 +125,7 @@ func (c *Client) ReadArchitecture(ctx context.Context, id int) (*ForemanArchitec
 		return nil, sendErr
 	}
 
-	log.Debugf("readArch: [%+v]", readArch)
+	utils.Debugf("readArch: [%+v]", readArch)
 
 	return &readArch, nil
 }
@@ -146,7 +144,7 @@ func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("archJSONBytes: [%s]", archJSONBytes)
+	utils.Debugf("archJSONBytes: [%s]", archJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -164,7 +162,7 @@ func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedArch: [%+v]", updatedArch)
+	utils.Debugf("updatedArch: [%+v]", updatedArch)
 
 	return &updatedArch, nil
 }
@@ -223,7 +221,7 @@ func (c *Client) QueryArchitecture(ctx context.Context, a *ForemanArchitecture) 
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

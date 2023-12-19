@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -56,7 +54,7 @@ func (c *Client) ReadTemplateKind(ctx context.Context, id int) (*ForemanTemplate
 		return nil, sendErr
 	}
 
-	log.Debugf("readTemplateKind: [%+v]", readTemplateKind)
+	utils.Debugf("readTemplateKind: [%+v]", readTemplateKind)
 
 	return &readTemplateKind, nil
 }
@@ -95,7 +93,7 @@ func (c *Client) QueryTemplateKind(ctx context.Context, t *ForemanTemplateKind) 
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

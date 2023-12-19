@@ -8,7 +8,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -256,14 +255,14 @@ func resourceForemanPartitionTableCreate(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
 
-	log.Debugf("ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("ForemanPartitionTable: [%+v]", t)
 
 	createdTable, createErr := client.CreatePartitionTable(ctx, t)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanPartitionTable: [%+v]", createdTable)
+	utils.Debugf("Created ForemanPartitionTable: [%+v]", createdTable)
 
 	setResourceDataFromForemanPartitionTable(d, createdTable)
 
@@ -276,14 +275,14 @@ func resourceForemanPartitionTableRead(ctx context.Context, d *schema.ResourceDa
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
 
-	log.Debugf("ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("ForemanPartitionTable: [%+v]", t)
 
 	readTable, readErr := client.ReadPartitionTable(ctx, t.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanPartitionTable: [%+v]", readTable)
+	utils.Debugf("Read ForemanPartitionTable: [%+v]", readTable)
 
 	setResourceDataFromForemanPartitionTable(d, readTable)
 
@@ -296,14 +295,14 @@ func resourceForemanPartitionTableUpdate(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
 
-	log.Debugf("ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("ForemanPartitionTable: [%+v]", t)
 
 	updatedTable, updateErr := client.UpdatePartitionTable(ctx, t)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanPartitionTable: [%+v]", updatedTable)
+	utils.Debugf("Updated ForemanPartitionTable: [%+v]", updatedTable)
 
 	setResourceDataFromForemanPartitionTable(d, updatedTable)
 
@@ -316,7 +315,7 @@ func resourceForemanPartitionTableDelete(ctx context.Context, d *schema.Resource
 	client := meta.(*api.Client)
 	t := buildForemanPartitionTable(d)
 
-	log.Debugf("ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("ForemanPartitionTable: [%+v]", t)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -95,7 +93,7 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
-	log.Debugf("foMap: [%v]", foMap)
+	utils.Debugf("foMap: [%v]", foMap)
 
 	var ok bool
 	if o.Title, ok = foMap["title"].(string); !ok {
@@ -144,7 +142,7 @@ func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("osJSONBytes: [%s]", osJSONBytes)
+	utils.Debugf("osJSONBytes: [%s]", osJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -162,7 +160,7 @@ func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, sendErr
 	}
 
-	log.Debugf("createdOperatingSystem: [%+v]", createdOperatingSystem)
+	utils.Debugf("createdOperatingSystem: [%+v]", createdOperatingSystem)
 
 	return &createdOperatingSystem, nil
 }
@@ -191,7 +189,7 @@ func (c *Client) ReadOperatingSystem(ctx context.Context, id int) (*ForemanOpera
 		return nil, sendErr
 	}
 
-	log.Debugf("readOperatingSystem: [%+v]", readOperatingSystem)
+	utils.Debugf("readOperatingSystem: [%+v]", readOperatingSystem)
 
 	return &readOperatingSystem, nil
 }
@@ -210,7 +208,7 @@ func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("osJSONBytes: [%s]", osJSONBytes)
+	utils.Debugf("osJSONBytes: [%s]", osJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -228,7 +226,7 @@ func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedOperatingSystem: [%+v]", updatedOperatingSystem)
+	utils.Debugf("updatedOperatingSystem: [%+v]", updatedOperatingSystem)
 
 	return &updatedOperatingSystem, nil
 }
@@ -289,7 +287,7 @@ func (c *Client) QueryOperatingSystem(ctx context.Context, o *ForemanOperatingSy
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//
