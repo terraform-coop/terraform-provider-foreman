@@ -46,8 +46,7 @@ with the `makefile`.
 
 ### Foreman Requirements
 
-In case you are using an older version of Foreman (<= 1.20), the following tools might
-be useful in your setup:
+The following tools might be useful to control power of bare-metal hosts through proxy in your setup:
 
 - [Foreman BMC Plugin](https://projects.theforeman.org/projects/smart-proxy/wiki/BMC)
 - [ipmitool](https://github.com/ipmitool/ipmitool)
@@ -55,6 +54,7 @@ be useful in your setup:
 Foreman Smart proxies will need to be provisioned with the Foreman BMC plugin
 and have the ipmitool installed.
 
+In case you are still using an older version of Foreman with disabled organizations and locations (< 1.21), you need to disable organizations and locations in the provider by setting `organization_id` and `location_id` to a value < 0.
 
 
 ## Provider / Repository Setup
