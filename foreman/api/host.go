@@ -8,8 +8,6 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strings"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -493,7 +491,7 @@ func constructShortname(host *foremanHostDecode) error {
 
 		// Sanity check
 		if host.DomainName != "" && host.DomainName != after {
-			log.Errorf("After Cut of host.Name to find the shortname, the domain part did not match the rest of the 'name' string")
+			utils.Errorf("After Cut of host.Name to find the shortname, the domain part did not match the rest of the 'name' string")
 		}
 
 		// If all went well, set the shortname to the first string from FQDN ('name' in Foreman)

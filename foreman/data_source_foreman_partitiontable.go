@@ -68,7 +68,7 @@ func dataSourceForemanPartitionTableRead(ctx context.Context, d *schema.Resource
 	}
 	t = &queryPartitionTable
 
-	utils.Debugf("[DEBUG] ForemanPartitionTable: [%+v]", t)
+	utils.Debugf("ForemanPartitionTable: [%+v]", t)
 
 	setResourceDataFromForemanPartitionTable(d, t)
 

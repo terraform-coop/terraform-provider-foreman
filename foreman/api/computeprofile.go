@@ -8,8 +8,6 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strconv"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -79,7 +77,7 @@ func (ca *ForemanComputeAttribute) MarshalJSON() ([]byte, error) {
 			}
 			attrs[k] = string(by)
 		default:
-			log.Errorf("v had a type that was not handled: %T", v)
+			utils.Errorf("v had a type that was not handled: %T", v)
 		}
 	}
 

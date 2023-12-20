@@ -31,18 +31,27 @@ func TraceFunctionCall() {
 }
 
 const (
-	debug = iota
+	err = iota
+	warning
+	info
+	debug
 	fatal
 )
 
-// Inner function of Debugf and Fatalf to prevent duplicate code.
+// Inner function of wrapper log functions below to prevent duplicate code.
 func logInnerFunc(level int, format string, a ...interface{}) {
 	var logFunc func(string, ...interface{})
 	switch level {
+	case err:
+		logFunc = log.Errorf
+	case warning:
+		logFunc = log.Warningf
+	case info:
+		logFunc = log.Infof
 	case debug:
 		logFunc = log.Debugf
 	case fatal:
-		logFunc = log.Tracef
+		logFunc = log.Fatalf
 	default:
 		logFunc = log.Infof
 	}
@@ -59,17 +68,33 @@ func logInnerFunc(level int, format string, a ...interface{}) {
 	logFunc("[%s:%d] "+format, args...)
 }
 
+// Like `log.Errorf` but also prints the current file name and line number with the log output
+func Errorf(format string, a ...interface{}) {
+	logInnerFunc(err, format, a...)
+}
+
+// Like `log.Warningf` but also prints the current file name and line number with the log output
+func Warningf(format string, a ...interface{}) {
+	logInnerFunc(warning, format, a...)
+}
+
+// Like `log.Infof` but also prints the current file name and line number with the log output
+func Infof(format string, a ...interface{}) {
+	logInnerFunc(info, format, a...)
+}
+
 // Like `log.Debugf` but also prints the current file name and line number with the log output
 func Debugf(format string, a ...interface{}) {
 	logInnerFunc(debug, format, a...)
 }
 
-// Prints line and file and then exits with fatal error message
+// Like `log.Fatalf` but also prints the current file name and line number with the log output.
+// Exits with fatal error.
 func Fatalf(format string, a ...interface{}) {
 	logInnerFunc(fatal, format, a...)
 }
 
-// Wrapper for single value output
+// Wrapper for Fatalf with only a single value output
 func Fatal(a interface{}) {
 	Fatalf("%s", a)
 }

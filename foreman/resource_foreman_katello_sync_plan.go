@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -85,7 +84,7 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					datetimeString := obj.(string)
 
 					if strings.Contains(datetimeString, "UTC") {
-						log.Warningf("sync_date used 'UTC' instead of '+0000'. This is internally corrected" +
+						utils.Warningf("sync_date used 'UTC' instead of '+0000'. This is internally corrected" +
 							"because of historic documentation but might be changed in the future.")
 						datetimeString = strings.Replace(datetimeString, "UTC", "+0000", 1)
 					}
@@ -111,14 +110,14 @@ func resourceForemanKatelloSyncPlan() *schema.Resource {
 					// Then parse the old value
 					tOld, err := time.Parse(TIMELAYOUT, oldValue)
 					if err != nil {
-						log.Warningf("Error in time.Parse: %v", err)
+						utils.Warningf("Error in time.Parse: %v", err)
 						return false
 					}
 
 					// And the new value
 					tNew, err := time.Parse(TIMELAYOUT, newValue)
 					if err != nil {
-						log.Warningf("Error in time.Parse: %v", err)
+						utils.Warningf("Error in time.Parse: %v", err)
 						return false
 					}
 

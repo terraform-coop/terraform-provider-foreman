@@ -11,7 +11,6 @@ import (
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/imdario/mergo"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
@@ -803,11 +802,11 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if host.Name == "" {
 		if host.DomainName != "" {
 			// Construct full FQDN
-			log.Infof("Host %s name was set to FQDN", host.Shortname)
+			utils.Infof("Host %s name was set to FQDN", host.Shortname)
 			host.Name = host.Shortname + "." + host.DomainName
 		} else {
 			// Fall back to short name, omitting the domain part
-			log.Infof("Host %s name was set to shortname, because domainname was missing", host.Shortname)
+			utils.Infof("Host %s name was set to shortname, because domainname was missing", host.Shortname)
 			host.Name = host.Shortname
 		}
 	}
@@ -1073,7 +1072,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("parameters", api.FromKV(fh.HostParameters))
 
 	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
-		log.Printf("[WARN] error setting compute attributes: %s", err)
+		utils.Warningf("Error setting compute attributes: %s", err)
 	}
 
 	// See issue #115 for "Build" attribute
@@ -1397,7 +1396,7 @@ func expandComputeAttributes(v string) map[string]interface{} {
 	}
 
 	if err := json.Unmarshal([]byte(v), &attrs); err != nil {
-		log.Printf("[ERROR] Could not unmarshal compute attributes %s: %v", v, err)
+		utils.Errorf("Could not unmarshal compute attributes %s: %v", v, err)
 		return nil
 	}
 
@@ -1410,7 +1409,7 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 	}
 	json, err := json.Marshal(attrs)
 	if err != nil {
-		log.Printf("[ERROR] Could not marshal compute attributes %v: %v", attrs, err)
+		utils.Errorf("Could not marshal compute attributes %v: %v", attrs, err)
 		return ""
 	}
 	return string(json)
@@ -1425,7 +1424,7 @@ func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *s
 	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
 
 	if err != nil {
-		log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
+		utils.Errorf("Could not merge defined and existing compute attributes, [%v]", err)
 	}
 
 	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))

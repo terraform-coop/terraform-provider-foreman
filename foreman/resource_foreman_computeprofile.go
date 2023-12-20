@@ -8,7 +8,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -104,7 +103,7 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 
 		err = json.Unmarshal(data, &caObj)
 		if err != nil {
-			log.Warningf("Error during json.Unmarshal: %s", err)
+			utils.Warningf("Error during json.Unmarshal: %s", err)
 			return nil
 		}
 
@@ -126,7 +125,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 
 	err := d.Set("name", fk.Name)
 	if err != nil {
-		log.Errorf("Error in d.Set: %s", err)
+		utils.Errorf("Error in d.Set: %s", err)
 	}
 
 	var caList []map[string]interface{}
@@ -137,13 +136,13 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 
 		data, err := json.Marshal(&elem)
 		if err != nil {
-			log.Errorf("Error in json.Marshal: %s", err)
+			utils.Errorf("Error in json.Marshal: %s", err)
 		}
 
 		var unmarshElem map[string]interface{}
 		err = json.Unmarshal(data, &unmarshElem)
 		if err != nil {
-			log.Errorf("Error in json.Unmarshal: %s", err)
+			utils.Errorf("Error in json.Unmarshal: %s", err)
 		}
 
 		utils.Debugf("unmarshElem: %+v", unmarshElem)
@@ -152,7 +151,7 @@ func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.Fo
 
 	err = d.Set("compute_attributes", caList)
 	if err != nil {
-		log.Errorf("Error in setting compute_attributes: %s", err)
+		utils.Errorf("Error in setting compute_attributes: %s", err)
 	}
 }
 

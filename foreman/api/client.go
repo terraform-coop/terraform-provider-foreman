@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/dpotapov/go-spnego"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
@@ -209,7 +208,7 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 	)
 
 	if !isValidRequestMethod(method) {
-		log.Errorf("Invalid HTTP request method: [%s]\n", method)
+		utils.Errorf("Invalid HTTP request method: [%s]\n", method)
 		return nil, fmt.Errorf("Invalid HTTP request method: [%s]", method)
 	}
 
@@ -244,7 +243,7 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 		body,
 	)
 	if reqErr != nil {
-		log.Errorf(
+		utils.Errorf(
 			"Failed to construct a new HTTP request\n"+
 				"  Error: %s",
 			reqErr.Error(),
@@ -306,14 +305,14 @@ func (client *Client) Send(request *http.Request) (int, []byte, error) {
 	emptySlice := []byte{}
 
 	if request == nil {
-		log.Errorf("Client trying to send a nil request")
+		utils.Errorf("Client trying to send a nil request")
 		return -1, emptySlice, fmt.Errorf("Client trying to send a nil request")
 	}
 
 	// Send the request to the server
 	resp, respErr := client.httpClient.Do(request)
 	if respErr != nil {
-		log.Errorf(
+		utils.Errorf(
 			"Error encountered when sending HTTP request to server\n"+
 				"  Error: %s",
 			respErr.Error(),
@@ -328,7 +327,7 @@ func (client *Client) Send(request *http.Request) (int, []byte, error) {
 	// Read the server's response
 	respBody, readErr := ioutil.ReadAll(resp.Body)
 	if readErr != nil {
-		log.Errorf(
+		utils.Errorf(
 			"Error encountered when reading HTTP response from server\n"+
 				"  Error: %s",
 			readErr.Error(),

@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -77,7 +75,7 @@ func (c *Client) CreateImage(ctx context.Context, d *ForemanImage, compute_resou
 	// Error message in logs: "NoMethodError: undefined method `images' for #<Location:0x0>"
 	marshD, err := json.Marshal(d)
 	if err != nil {
-		log.Errorf("Error marshalling image struct: %s", err)
+		utils.Errorf("Error marshalling image struct: %s", err)
 	}
 	marsh := json.RawMessage(fmt.Sprintf(`{"image":%s}`, marshD))
 
