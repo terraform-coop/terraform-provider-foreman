@@ -11,6 +11,10 @@ func Debug(format string, a ...interface{}) {
 	// Removed in branch feat/job_templates, to be filled in separate branch
 }
 
+func Debugf(format string, a ...interface{}) {
+	//
+}
+
 // Prints line and file and then exits with fatal error message
 func Fatalf(format string, a ...interface{}) {
 	// Removed in branch feat/job_templates, to be filled in separate branch
