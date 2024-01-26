@@ -218,6 +218,8 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 	// Check for katello endpoint
 	if strings.HasPrefix(endpoint, "katello") {
 		reqURL.Path = FOREMAN_KATELLO_API_URL_PREFIX + strings.TrimPrefix(endpoint, "katello")
+	} else if strings.HasPrefix(endpoint, "/katello/api") {
+		reqURL.Path = endpoint
 	} else if strings.HasPrefix(endpoint, "puppet") {
 		reqURL.Path = FOREMAN_PUPPET_API_URL_PREFIX + strings.TrimPrefix(endpoint, "puppet")
 	} else {
