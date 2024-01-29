@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -40,12 +40,12 @@ func dataSourceForemanImage() *schema.Resource {
 }
 
 func dataSourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_image.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	image := buildForemanImage(d)
 
-	log.Debugf("ForemanImage: [%+v]", image)
+	utils.Debugf("ForemanImage: [%+v]", image)
 
 	queryResponse, queryErr := client.QueryImage(ctx, image)
 	if queryErr != nil {
@@ -69,7 +69,7 @@ func dataSourceForemanImageRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	image = &queryImage
 
-	log.Debugf("ForemanImage: [%+v]", image)
+	utils.Debugf("ForemanImage: [%+v]", image)
 
 	setResourceDataFromForemanImage(d, image)
 

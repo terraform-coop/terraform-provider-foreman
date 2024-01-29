@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -122,7 +122,7 @@ func resourceForemanKatelloProduct() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanKatelloProduct(d *schema.ResourceData) *api.ForemanKatelloProduct {
-	log.Tracef("resource_foreman_katello_product.go#buildForemanKatelloProduct")
+	utils.TraceFunctionCall()
 
 	Product := api.ForemanKatelloProduct{}
 
@@ -143,7 +143,7 @@ func buildForemanKatelloProduct(d *schema.ResourceData) *api.ForemanKatelloProdu
 // setResourceDataFromForemanKatelloProduct sets a ResourceData's attributes from
 // the attributes of the supplied ForemanKatelloProduct struct
 func setResourceDataFromForemanKatelloProduct(d *schema.ResourceData, Product *api.ForemanKatelloProduct) {
-	log.Tracef("resource_foreman_katello_product.go#setResourceDataFromForemanKatelloProduct")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(Product.Id))
 	d.Set("name", Product.Name)
@@ -161,19 +161,19 @@ func setResourceDataFromForemanKatelloProduct(d *schema.ResourceData, Product *a
 // -----------------------------------------------------------------------------
 
 func resourceForemanKatelloProductCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_product.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	createdKatelloProduct, createErr := client.CreateKatelloProduct(ctx, product)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanKatelloProduct: [%+v]", createdKatelloProduct)
+	utils.Debugf("Created ForemanKatelloProduct: [%+v]", createdKatelloProduct)
 
 	setResourceDataFromForemanKatelloProduct(d, createdKatelloProduct)
 
@@ -181,19 +181,19 @@ func resourceForemanKatelloProductCreate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_product.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	readKatelloProduct, readErr := client.ReadKatelloProduct(ctx, product.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanKatelloProduct: [%+v]", readKatelloProduct)
+	utils.Debugf("Read ForemanKatelloProduct: [%+v]", readKatelloProduct)
 
 	setResourceDataFromForemanKatelloProduct(d, readKatelloProduct)
 
@@ -201,19 +201,19 @@ func resourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceForemanKatelloProductUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_product.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	updatedKatelloProduct, updateErr := client.UpdateKatelloProduct(ctx, product)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", updatedKatelloProduct)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", updatedKatelloProduct)
 
 	setResourceDataFromForemanKatelloProduct(d, updatedKatelloProduct)
 
@@ -221,12 +221,12 @@ func resourceForemanKatelloProductUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanKatelloProductDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_product.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloProduct(ctx, product.Id)))
 }

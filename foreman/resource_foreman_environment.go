@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -59,7 +59,7 @@ func resourceForemanEnvironment() *schema.Resource {
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
 func buildForemanEnvironment(d *schema.ResourceData) *api.ForemanEnvironment {
-	log.Tracef("resource_foreman_environment.go#buildForemanEnvironment")
+	utils.TraceFunctionCall()
 
 	environment := api.ForemanEnvironment{}
 
@@ -79,7 +79,7 @@ func buildForemanEnvironment(d *schema.ResourceData) *api.ForemanEnvironment {
 // setResourceDataFromForemanEnvironment sets a ResourceData's attributes from
 // the attributes of the supplied ForemanEnvironment reference
 func setResourceDataFromForemanEnvironment(d *schema.ResourceData, fe *api.ForemanEnvironment) {
-	log.Tracef("resource_foreman_environment.go#setResourceDataFromForemanEnvironment")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fe.Id))
 	d.Set("name", fe.Name)
@@ -90,19 +90,19 @@ func setResourceDataFromForemanEnvironment(d *schema.ResourceData, fe *api.Forem
 // -----------------------------------------------------------------------------
 
 func resourceForemanEnvironmentCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
 
-	log.Debugf("ForemanEnvironment: [%+v]", e)
+	utils.Debugf("ForemanEnvironment: [%+v]", e)
 
 	createdEnv, createErr := client.CreateEnvironment(ctx, e)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanEnvironment: [%+v]", createdEnv)
+	utils.Debugf("Created ForemanEnvironment: [%+v]", createdEnv)
 
 	setResourceDataFromForemanEnvironment(d, createdEnv)
 
@@ -110,19 +110,19 @@ func resourceForemanEnvironmentCreate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
 
-	log.Debugf("ForemanEnvironment: [%+v]", e)
+	utils.Debugf("ForemanEnvironment: [%+v]", e)
 
 	readEnvironment, readErr := client.ReadEnvironment(ctx, e.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanEnvironment: [%+v]", readEnvironment)
+	utils.Debugf("Read ForemanEnvironment: [%+v]", readEnvironment)
 
 	setResourceDataFromForemanEnvironment(d, readEnvironment)
 
@@ -130,19 +130,19 @@ func resourceForemanEnvironmentRead(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanEnvironmentUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)
 
-	log.Debugf("ForemanEnvironment: [%+v]", e)
+	utils.Debugf("ForemanEnvironment: [%+v]", e)
 
 	updatedEnv, updateErr := client.UpdateEnvironment(ctx, e)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanEnvironment: [%+v]", updatedEnv)
+	utils.Debugf("Updated ForemanEnvironment: [%+v]", updatedEnv)
 
 	setResourceDataFromForemanEnvironment(d, updatedEnv)
 
@@ -150,7 +150,7 @@ func resourceForemanEnvironmentUpdate(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceForemanEnvironmentDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_environment.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	e := buildForemanEnvironment(d)

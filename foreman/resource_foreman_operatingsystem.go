@@ -3,11 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -189,7 +189,7 @@ func resourceForemanOperatingSystem() *schema.Resource {
 // the data populated in the resource data.  Missing members will be left to
 // the zero value for that member's type.
 func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSystem {
-	log.Tracef("resource_foreman_operatingsystem.go#buildForemanOperatingSystem")
+	utils.TraceFunctionCall()
 
 	os := api.ForemanOperatingSystem{}
 
@@ -246,7 +246,7 @@ func buildForemanOperatingSystem(d *schema.ResourceData) *api.ForemanOperatingSy
 // setResourceDataFromOperatingSystem sets a ResourceData's attributes from the
 // attributes of the supplied ForemanOperatingSystem reference
 func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.ForemanOperatingSystem) {
-	log.Tracef("resource_foreman_operatingsystem.go#setResourceDataFromForemanOperatingSystem")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fo.Id))
 	d.Set("name", fo.Name)
@@ -269,7 +269,7 @@ func setResourceDataFromForemanOperatingSystem(d *schema.ResourceData, fo *api.F
 // -----------------------------------------------------------------------------
 
 func resourceForemanOperatingSystemCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_operatingsystem.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
@@ -279,7 +279,7 @@ func resourceForemanOperatingSystemCreate(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanOperatingSystem: [%+v]", createdOs)
+	utils.Debugf("Created ForemanOperatingSystem: [%+v]", createdOs)
 
 	setResourceDataFromForemanOperatingSystem(d, createdOs)
 
@@ -287,19 +287,19 @@ func resourceForemanOperatingSystemCreate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanOperatingSystemRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_operatingsystem.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", o)
 
 	readOS, readErr := client.ReadOperatingSystem(ctx, o.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", readOS)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", readOS)
 
 	setResourceDataFromForemanOperatingSystem(d, readOS)
 
@@ -307,19 +307,19 @@ func resourceForemanOperatingSystemRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanOperatingSystemUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_operatingsystem.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", o)
 
 	updatedOs, updateErr := client.UpdateOperatingSystem(ctx, o)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanOperatingSystem: [%+v]", updatedOs)
+	utils.Debugf("Updated ForemanOperatingSystem: [%+v]", updatedOs)
 
 	setResourceDataFromForemanOperatingSystem(d, updatedOs)
 
@@ -327,12 +327,12 @@ func resourceForemanOperatingSystemUpdate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanOperatingSystemDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_operatingsystem.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	o := buildForemanOperatingSystem(d)
 
-	log.Debugf("ForemanOperatingSystem: [%+v]", o)
+	utils.Debugf("ForemanOperatingSystem: [%+v]", o)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

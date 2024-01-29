@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -38,12 +38,12 @@ func dataSourceForemanKatelloContentCredential() *schema.Resource {
 }
 
 func dataSourceForemanKatelloContentCredentialRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_katello_content_credential.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	contentCredential := buildForemanKatelloContentCredential(d)
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
 	queryResponse, queryErr := client.QueryKatelloContentCredential(ctx, contentCredential)
 	if queryErr != nil {
@@ -67,7 +67,7 @@ func dataSourceForemanKatelloContentCredentialRead(ctx context.Context, d *schem
 	}
 	contentCredential = &queryKatelloContentCredential
 
-	log.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
+	utils.Debugf("ForemanKatelloContentCredential: [%+v]", contentCredential)
 
 	setResourceDataFromForemanKatelloContentCredential(d, contentCredential)
 

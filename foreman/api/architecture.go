@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -39,7 +38,7 @@ type foremanArchitectureJSON struct {
 // Custom JSON unmarshal function.  Unmarshal to the unexported JSON struct
 // and then convert over to a ForemanArchitecture struct.
 func (fa *ForemanArchitecture) UnmarshalJSON(b []byte) error {
-	log.Tracef("foreman/api/architecture.go#UnmarshalJSON")
+	utils.TraceFunctionCall()
 
 	var jsonDecErr error
 
@@ -71,7 +70,7 @@ func (fa *ForemanArchitecture) UnmarshalJSON(b []byte) error {
 // ForemanArchitecture reference.  The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture) (*ForemanArchitecture, error) {
-	log.Tracef("foreman/api/architecture.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", ArchitectureEndpointPrefix)
 
@@ -80,7 +79,7 @@ func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("archJSONBytes: [%s]", archJSONBytes)
+	utils.Debugf("archJSONBytes: [%s]", archJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -98,7 +97,7 @@ func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, sendErr
 	}
 
-	log.Debugf("createdArch: [%+v]", createdArch)
+	utils.Debugf("createdArch: [%+v]", createdArch)
 
 	return &createdArch, nil
 }
@@ -106,7 +105,7 @@ func (c *Client) CreateArchitecture(ctx context.Context, a *ForemanArchitecture)
 // ReadArchitecture reads the attributes of a ForemanArchitecture identified by
 // the supplied ID and returns a ForemanArchitecture reference.
 func (c *Client) ReadArchitecture(ctx context.Context, id int) (*ForemanArchitecture, error) {
-	log.Tracef("foreman/api/architecture.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, id)
 
@@ -126,7 +125,7 @@ func (c *Client) ReadArchitecture(ctx context.Context, id int) (*ForemanArchitec
 		return nil, sendErr
 	}
 
-	log.Debugf("readArch: [%+v]", readArch)
+	utils.Debugf("readArch: [%+v]", readArch)
 
 	return &readArch, nil
 }
@@ -136,7 +135,7 @@ func (c *Client) ReadArchitecture(ctx context.Context, id int) (*ForemanArchitec
 // updated. A new ForemanArchitecture reference is returned with the attributes
 // from the result of the update operation.
 func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture) (*ForemanArchitecture, error) {
-	log.Tracef("foreman/api/architecture.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, a.Id)
 
@@ -145,7 +144,7 @@ func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("archJSONBytes: [%s]", archJSONBytes)
+	utils.Debugf("archJSONBytes: [%s]", archJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -163,7 +162,7 @@ func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture)
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedArch: [%+v]", updatedArch)
+	utils.Debugf("updatedArch: [%+v]", updatedArch)
 
 	return &updatedArch, nil
 }
@@ -171,7 +170,7 @@ func (c *Client) UpdateArchitecture(ctx context.Context, a *ForemanArchitecture)
 // DeleteArchitecture deletes the ForemanArchitecture identified by the
 // supplied ID
 func (c *Client) DeleteArchitecture(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/architecture.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ArchitectureEndpointPrefix, id)
 
@@ -196,7 +195,7 @@ func (c *Client) DeleteArchitecture(ctx context.Context, id int) error {
 // of the supplied ForemanArchitecture reference and returns a QueryResponse
 // struct containing query/response metadata and the matching architectures.
 func (c *Client) QueryArchitecture(ctx context.Context, a *ForemanArchitecture) (QueryResponse, error) {
-	log.Tracef("foreman/api/architecture.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -222,7 +221,7 @@ func (c *Client) QueryArchitecture(ctx context.Context, a *ForemanArchitecture) 
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -77,7 +77,7 @@ func resourceForemanDomain() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
-	log.Tracef("resource_foreman_domain.go#buildForemanDomain")
+	utils.TraceFunctionCall()
 
 	domain := api.ForemanDomain{}
 
@@ -101,7 +101,7 @@ func buildForemanDomain(d *schema.ResourceData) *api.ForemanDomain {
 // setResourceDataFromForemanDomain sets a ResourceData's attributes from the
 // attributes of the supplied ForemanDomain reference
 func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDomain) {
-	log.Tracef("resource_foreman_domain.go#setResourceDataFromForemanDomain")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -114,19 +114,19 @@ func setResourceDataFromForemanDomain(d *schema.ResourceData, fd *api.ForemanDom
 // -----------------------------------------------------------------------------
 
 func resourceForemanDomainCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", d)
+	utils.Debugf("ForemanDomain: [%+v]", d)
 
 	createdDomain, createErr := client.CreateDomain(ctx, p)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanDomain: [%+v]", createdDomain)
+	utils.Debugf("Created ForemanDomain: [%+v]", createdDomain)
 
 	setResourceDataFromForemanDomain(d, createdDomain)
 
@@ -134,19 +134,19 @@ func resourceForemanDomainCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	domain := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", domain)
+	utils.Debugf("ForemanDomain: [%+v]", domain)
 
 	readDomain, readErr := client.ReadDomain(ctx, domain.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanDomain: [%+v]", readDomain)
+	utils.Debugf("Read ForemanDomain: [%+v]", readDomain)
 
 	setResourceDataFromForemanDomain(d, readDomain)
 
@@ -154,18 +154,19 @@ func resourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanDomainUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Update")
+	utils.TraceFunctionCall()
+
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", do)
+	utils.Debugf("ForemanDomain: [%+v]", do)
 
 	updatedDomain, updateErr := client.UpdateDomain(ctx, do, do.Id)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanDomain: [%+v]", updatedDomain)
+	utils.Debugf("Updated ForemanDomain: [%+v]", updatedDomain)
 
 	setResourceDataFromForemanDomain(d, updatedDomain)
 
@@ -173,12 +174,12 @@ func resourceForemanDomainUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanDomainDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_domain.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	do := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", do)
+	utils.Debugf("ForemanDomain: [%+v]", do)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteDomain(ctx, do.Id)))
 }

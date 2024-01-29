@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -33,7 +32,7 @@ type ForemanEnvironment struct {
 // ForemanEnvironment reference.  The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (*ForemanEnvironment, error) {
-	log.Tracef("foreman/api/environment.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", EnvironmentEndpointPrefix)
 
@@ -42,7 +41,7 @@ func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
+	utils.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -60,7 +59,7 @@ func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, sendErr
 	}
 
-	log.Debugf("createdEnvironment: [%+v]", createdEnvironment)
+	utils.Debugf("createdEnvironment: [%+v]", createdEnvironment)
 
 	return &createdEnvironment, nil
 }
@@ -68,7 +67,7 @@ func (c *Client) CreateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 // ReadEnvironment reads the attributes of a ForemanEnvironment identified by
 // the supplied ID and returns a ForemanEnvironment reference.
 func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironment, error) {
-	log.Tracef("foreman/api/environment.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, id)
 
@@ -88,7 +87,7 @@ func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironme
 		return nil, sendErr
 	}
 
-	log.Debugf("readEnvironment: [%+v]", readEnvironment)
+	utils.Debugf("readEnvironment: [%+v]", readEnvironment)
 
 	return &readEnvironment, nil
 }
@@ -98,7 +97,7 @@ func (c *Client) ReadEnvironment(ctx context.Context, id int) (*ForemanEnvironme
 // A new ForemanEnvironment reference is returned with the attributes from the
 // result of the update operation.
 func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (*ForemanEnvironment, error) {
-	log.Tracef("foreman/api/environment.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, e.Id)
 
@@ -107,7 +106,7 @@ func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
+	utils.Debugf("environmentJSONBytes: [%s]", environmentJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -125,7 +124,7 @@ func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedEnvironment: [%+v]", updatedEnvironment)
+	utils.Debugf("updatedEnvironment: [%+v]", updatedEnvironment)
 
 	return &updatedEnvironment, nil
 }
@@ -133,7 +132,7 @@ func (c *Client) UpdateEnvironment(ctx context.Context, e *ForemanEnvironment) (
 // DeleteEnvironment deletes the ForemanEnvironment identified by the supplied
 // ID
 func (c *Client) DeleteEnvironment(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/environment.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", EnvironmentEndpointPrefix, id)
 
@@ -158,7 +157,7 @@ func (c *Client) DeleteEnvironment(ctx context.Context, id int) error {
 // the supplied ForemanEnvironment reference and returns a QueryResponse struct
 // containing query/response metadata and the matching environments.
 func (c *Client) QueryEnvironment(ctx context.Context, e *ForemanEnvironment) (QueryResponse, error) {
-	log.Tracef("foreman/api/environment.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -184,7 +183,7 @@ func (c *Client) QueryEnvironment(ctx context.Context, e *ForemanEnvironment) (Q
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

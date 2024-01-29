@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -29,7 +28,7 @@ type ForemanUsergroup struct {
 
 // Implement the Marshaler interface
 func (fh ForemanUsergroup) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/usergroup.go#MarshalJSON")
+	utils.TraceFunctionCall()
 
 	// NOTE(ALL): omit the "name" property from the JSON marshal since it is a
 	//   computed value
@@ -39,12 +38,14 @@ func (fh ForemanUsergroup) MarshalJSON() ([]byte, error) {
 	fhMap["name"] = fh.Name
 	fhMap["admin"] = fh.Admin
 
-	log.Debugf("fhMap: [%v]", fhMap)
+	utils.Debugf("fhMap: [%v]", fhMap)
 
 	return json.Marshal(fhMap)
 }
 
 func (fh *ForemanUsergroup) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -79,7 +80,7 @@ func (fh *ForemanUsergroup) UnmarshalJSON(b []byte) error {
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
 func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*ForemanUsergroup, error) {
-	log.Tracef("foreman/api/usergroup.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", UsergroupEndpointPrefix)
 
@@ -88,7 +89,7 @@ func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -106,7 +107,7 @@ func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("createdUsergroup: [%+v]", createdUsergroup)
+	utils.Debugf("createdUsergroup: [%+v]", createdUsergroup)
 
 	return &createdUsergroup, nil
 }
@@ -114,7 +115,7 @@ func (c *Client) CreateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 // ReadUsergroup reads the attributes of a ForemanUsergroup identified by the
 // supplied ID and returns a ForemanUsergroup reference.
 func (c *Client) ReadUsergroup(ctx context.Context, id int) (*ForemanUsergroup, error) {
-	log.Tracef("foreman/api/usergroup.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, id)
 
@@ -134,7 +135,7 @@ func (c *Client) ReadUsergroup(ctx context.Context, id int) (*ForemanUsergroup, 
 		return nil, sendErr
 	}
 
-	log.Debugf("readUsergroup: [%+v]", readUsergroup)
+	utils.Debugf("readUsergroup: [%+v]", readUsergroup)
 
 	return &readUsergroup, nil
 }
@@ -144,7 +145,7 @@ func (c *Client) ReadUsergroup(ctx context.Context, id int) (*ForemanUsergroup, 
 // ForemanUsergroup reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*ForemanUsergroup, error) {
-	log.Tracef("foreman/api/usergroup.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, h.Id)
 
@@ -153,7 +154,7 @@ func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("usergroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -171,14 +172,14 @@ func (c *Client) UpdateUsergroup(ctx context.Context, h *ForemanUsergroup) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedUsergroup: [%+v]", updatedUsergroup)
+	utils.Debugf("updatedUsergroup: [%+v]", updatedUsergroup)
 
 	return &updatedUsergroup, nil
 }
 
 // DeleteUsergroup deletes the ForemanUsergroup identified by the supplied ID
 func (c *Client) DeleteUsergroup(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/usergroup.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", UsergroupEndpointPrefix, id)
 
@@ -203,7 +204,7 @@ func (c *Client) DeleteUsergroup(ctx context.Context, id int) error {
 // supplied ForemanUsergroup reference and returns a QueryResponse struct
 // containing query/response metadata and the matching usergroups.
 func (c *Client) QueryUsergroup(ctx context.Context, u *ForemanUsergroup) (QueryResponse, error) {
-	log.Tracef("foreman/api/usergroup.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -229,7 +230,7 @@ func (c *Client) QueryUsergroup(ctx context.Context, u *ForemanUsergroup) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

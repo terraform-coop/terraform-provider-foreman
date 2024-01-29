@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -68,12 +68,12 @@ func setResourceDataFromForemanPuppetClass(d *schema.ResourceData, fk *api.Forem
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanPuppetClassRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_puppetclass.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanPuppetClass(d)
 
-	log.Debugf("ForemanPuppetClass: [%+v]", t)
+	utils.Debugf("ForemanPuppetClass: [%+v]", t)
 
 	queryResponse, queryErr := client.QueryPuppetClass(ctx, t)
 	if queryErr != nil {
@@ -97,7 +97,7 @@ func dataSourceForemanPuppetClassRead(ctx context.Context, d *schema.ResourceDat
 	}
 	t = &queryPuppetClass
 
-	log.Debugf("ForemanPuppetClass: [%+v]", t)
+	utils.Debugf("ForemanPuppetClass: [%+v]", t)
 
 	setResourceDataFromForemanPuppetClass(d, t)
 

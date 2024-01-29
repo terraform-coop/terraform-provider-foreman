@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -57,7 +56,7 @@ type ForemanSetting struct {
 // ReadSetting reads the attributes of a ForemanSetting identified by the supplied
 // ID and returns a ForemanSetting reference.
 func (c *Client) ReadSetting(ctx context.Context, id string) (*ForemanSetting, error) {
-	log.Tracef("foreman/api/setting.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%s", SettingEndpointPrefix, id)
 
@@ -77,7 +76,7 @@ func (c *Client) ReadSetting(ctx context.Context, id string) (*ForemanSetting, e
 		return nil, sendErr
 	}
 
-	log.Debugf("readSetting: [%+v]", readSetting)
+	utils.Debugf("readSetting: [%+v]", readSetting)
 
 	return &readSetting, nil
 }
@@ -87,7 +86,7 @@ func (c *Client) ReadSetting(ctx context.Context, id string) (*ForemanSetting, e
 // containing query/response metadata and the matching settings.
 // TODO: Copied from QueryDomains.
 func (c *Client) QuerySetting(ctx context.Context, d *ForemanSetting) (QueryResponse, error) {
-	log.Tracef("foreman/api/setting.go#Query")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -113,7 +112,7 @@ func (c *Client) QuerySetting(ctx context.Context, d *ForemanSetting) (QueryResp
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

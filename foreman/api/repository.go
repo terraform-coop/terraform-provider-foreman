@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -68,6 +67,8 @@ type ForemanKatelloRepository struct {
 }
 
 func (r *ForemanKatelloRepository) MarshalJSON() ([]byte, error) {
+	utils.TraceFunctionCall()
+
 	m := map[string]interface{}{
 		"id":                   r.Id,
 		"name":                 r.Name,
@@ -124,14 +125,14 @@ func (r *ForemanKatelloRepository) MarshalJSON() ([]byte, error) {
 // ForemanKatelloRepository reference. The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateKatelloRepository(ctx context.Context, p *ForemanKatelloRepository) (*ForemanKatelloRepository, error) {
-	log.Tracef("foreman/api/repository.go#Create")
+	utils.TraceFunctionCall()
 
 	sJSONBytes, jsonEncErr := c.WrapJSON(nil, p)
 	if jsonEncErr != nil {
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -149,7 +150,7 @@ func (c *Client) CreateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, sendErr
 	}
 
-	log.Debugf("createdKatelloRepository: [%+v]", createdKatelloRepository)
+	utils.Debugf("createdKatelloRepository: [%+v]", createdKatelloRepository)
 
 	return &createdKatelloRepository, nil
 }
@@ -157,7 +158,7 @@ func (c *Client) CreateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 // ReadKatelloRepository reads the attributes of a ForemanKatelloRepository identified by the
 // supplied ID and returns a ForemanKatelloRepository reference.
 func (c *Client) ReadKatelloRepository(ctx context.Context, id int) (*ForemanKatelloRepository, error) {
-	log.Tracef("foreman/api/repository.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloRepositoryEndpointPrefix, id)
 
@@ -179,7 +180,7 @@ func (c *Client) ReadKatelloRepository(ctx context.Context, id int) (*ForemanKat
 
 	readKatelloRepository.ProductId = readKatelloRepository.Product.Id
 
-	log.Debugf("readKatelloRepository: [%+v]", readKatelloRepository)
+	utils.Debugf("readKatelloRepository: [%+v]", readKatelloRepository)
 
 	return &readKatelloRepository, nil
 }
@@ -189,7 +190,7 @@ func (c *Client) ReadKatelloRepository(ctx context.Context, id int) (*ForemanKat
 // ForemanKatelloRepository reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateKatelloRepository(ctx context.Context, p *ForemanKatelloRepository) (*ForemanKatelloRepository, error) {
-	log.Tracef("foreman/api/repository.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloRepositoryEndpointPrefix, p.Id)
 
@@ -198,7 +199,7 @@ func (c *Client) UpdateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloRepositoryJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -216,14 +217,14 @@ func (c *Client) UpdateKatelloRepository(ctx context.Context, p *ForemanKatelloR
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedKatelloRepository: [%+v]", updatedKatelloRepository)
+	utils.Debugf("updatedKatelloRepository: [%+v]", updatedKatelloRepository)
 
 	return &updatedKatelloRepository, nil
 }
 
 // DeleteKatelloRepository deletes the ForemanKatelloRepository identified by the supplied ID
 func (c *Client) DeleteKatelloRepository(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/repository.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloRepositoryEndpointPrefix, id)
 
@@ -248,7 +249,7 @@ func (c *Client) DeleteKatelloRepository(ctx context.Context, id int) error {
 // the supplied ForemanKatelloRepository reference and returns a QueryResponse struct
 // containing query/response metadata and the matching sync plan.
 func (c *Client) QueryKatelloRepository(ctx context.Context, p *ForemanKatelloRepository) (QueryResponse, error) {
-	log.Tracef("foreman/api/repository.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

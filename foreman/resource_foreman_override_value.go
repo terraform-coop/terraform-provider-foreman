@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -92,7 +92,7 @@ func resourceForemanOverrideValue() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanOverrideValue(d *schema.ResourceData) *api.ForemanOverrideValue {
-	log.Tracef("resource_foreman_override_value.go#buildForemanOverrideValue")
+	utils.TraceFunctionCall()
 
 	override := api.ForemanOverrideValue{}
 
@@ -123,7 +123,7 @@ func buildForemanOverrideValue(d *schema.ResourceData) *api.ForemanOverrideValue
 // setResourceDataFromForemanKatelloProduct sets a ResourceData's attributes from
 // the attributes of the supplied ForemanKatelloProduct struct
 func setResourceDataFromForemanOverrideValue(d *schema.ResourceData, override *api.ForemanOverrideValue) {
-	log.Tracef("resource_foreman_override_value.go#setResourceDataFromForemanOverrideValue")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(override.Id))
 	d.Set("omit", override.Omit)
@@ -140,7 +140,7 @@ func setResourceDataFromForemanOverrideValue(d *schema.ResourceData, override *a
 // Validate that the match map contains the required keys. We have to perform this manually
 // as Terraform does not support validation of complex types.
 func validateOverrideMatchMap(d *schema.ResourceData) error {
-	log.Tracef("resource_foreman_override_value.go#validateOverrideMatchMap")
+	utils.TraceFunctionCall()
 
 	matchParams := d.Get("match").(map[string]interface{})
 
@@ -159,7 +159,7 @@ func validateOverrideMatchMap(d *schema.ResourceData) error {
 // -----------------------------------------------------------------------------
 
 func resourceForemanOverrideValueCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_override_value.go#Create")
+	utils.TraceFunctionCall()
 
 	valErr := validateOverrideMatchMap(d)
 	if valErr != nil {
@@ -169,14 +169,14 @@ func resourceForemanOverrideValueCreate(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	createdOverrideValue, createErr := client.CreateOverrideValue(ctx, override)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanOverrideValue: [%+v]", createdOverrideValue)
+	utils.Debugf("Created ForemanOverrideValue: [%+v]", createdOverrideValue)
 
 	setResourceDataFromForemanOverrideValue(d, createdOverrideValue)
 
@@ -184,19 +184,19 @@ func resourceForemanOverrideValueCreate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanOverrideValueRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_override_value.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	readOverrideValue, readErr := client.ReadOverrideValue(ctx, override.Id, override.SmartClassParameterId)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanOverrideValue: [%+v]", readOverrideValue)
+	utils.Debugf("Read ForemanOverrideValue: [%+v]", readOverrideValue)
 
 	setResourceDataFromForemanOverrideValue(d, readOverrideValue)
 
@@ -204,7 +204,7 @@ func resourceForemanOverrideValueRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func resourceForemanOverrideValueUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_override_value.go#Update")
+	utils.TraceFunctionCall()
 
 	valErr := validateOverrideMatchMap(d)
 	if valErr != nil {
@@ -214,14 +214,14 @@ func resourceForemanOverrideValueUpdate(ctx context.Context, d *schema.ResourceD
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	updatedOverrideValue, updateErr := client.UpdateOverrideValue(ctx, override)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanOverrideValue: [%+v]", updatedOverrideValue)
+	utils.Debugf("ForemanOverrideValue: [%+v]", updatedOverrideValue)
 
 	setResourceDataFromForemanOverrideValue(d, updatedOverrideValue)
 
@@ -229,12 +229,12 @@ func resourceForemanOverrideValueUpdate(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanOverrideValueDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_override_value.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	override := buildForemanOverrideValue(d)
 
-	log.Debugf("ForemanOverrideValue: [%+v]", override)
+	utils.Debugf("ForemanOverrideValue: [%+v]", override)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteOverrideValue(ctx, override.Id, override.SmartClassParameterId)))
 }

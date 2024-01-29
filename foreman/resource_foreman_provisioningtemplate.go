@@ -3,11 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -164,7 +164,7 @@ func resourceForemanTemplateCombinationsAttributes() *schema.Resource {
 // with the data populated in the resource data.  Missing members will be left
 // to the zero value for that member's type.
 func buildForemanProvisioningTemplate(d *schema.ResourceData) *api.ForemanProvisioningTemplate {
-	log.Tracef("resource_foreman_provisioningtemplate.go#buildForemanProvisioningTemplate")
+	utils.TraceFunctionCall()
 
 	template := api.ForemanProvisioningTemplate{}
 
@@ -203,7 +203,7 @@ func buildForemanProvisioningTemplate(d *schema.ResourceData) *api.ForemanProvis
 // The struct's members are populated with the data populated in the resource
 // data. Missing members will be left to the zero value for that member's type.
 func buildForemanTemplateCombinationsAttributes(d *schema.ResourceData) []api.ForemanTemplateCombinationAttribute {
-	log.Tracef("resource_foreman_provisioningtemplate.go#buildForemanTemplateCombinationsAttributes")
+	utils.TraceFunctionCall()
 
 	tempComboAttr := []api.ForemanTemplateCombinationAttribute{}
 	var attr interface{}
@@ -243,7 +243,7 @@ func buildForemanTemplateCombinationsAttributes(d *schema.ResourceData) []api.Fo
 //	environment_id (int)
 //	_destroy (bool)
 func mapToForemanTemplateCombinationAttribute(m map[string]interface{}) api.ForemanTemplateCombinationAttribute {
-	log.Tracef("mapToForemanTemplateCombinationAttribute")
+	utils.TraceFunctionCall()
 
 	tempComboAttr := api.ForemanTemplateCombinationAttribute{}
 	var ok bool
@@ -264,7 +264,7 @@ func mapToForemanTemplateCombinationAttribute(m map[string]interface{}) api.Fore
 		tempComboAttr.Destroy = false
 	}
 
-	log.Debugf("m: [%v], tempComboAttr: [%+v]", m, tempComboAttr)
+	utils.Debugf("m: [%v], tempComboAttr: [%+v]", m, tempComboAttr)
 	return tempComboAttr
 }
 
@@ -272,7 +272,7 @@ func mapToForemanTemplateCombinationAttribute(m map[string]interface{}) api.Fore
 // attributes from the attributes of the supplied ForemanProvisioningTemplate
 // struct
 func setResourceDataFromForemanProvisioningTemplate(d *schema.ResourceData, ft *api.ForemanProvisioningTemplate) {
-	log.Tracef("resource_foreman_provisioningtemplate.go#setResourceDataFromForemanProvisioningTemplate")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(ft.Id))
 
@@ -293,7 +293,7 @@ func setResourceDataFromForemanProvisioningTemplate(d *schema.ResourceData, ft *
 // ResourceData's "template_combinations_attributes" attribute to the value of
 // the supplied array of ForemanTemplateCombinationAttribute structs
 func setResourceDataFromForemanTemplateCombinationsAttributes(d *schema.ResourceData, ftca []api.ForemanTemplateCombinationAttribute) {
-	log.Tracef("resource_foreman_provisioningtemplate.go#setResourceDataFromForemanTemplateCombinationsAttriutes")
+	utils.TraceFunctionCall()
 
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
@@ -326,19 +326,19 @@ func setResourceDataFromForemanTemplateCombinationsAttributes(d *schema.Resource
 // -----------------------------------------------------------------------------
 
 func resourceForemanProvisioningTemplateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
 
-	log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
+	utils.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
 	createdTemplate, createErr := client.CreateProvisioningTemplate(ctx, t)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanProvisioningTemplate: [%+v]", createdTemplate)
+	utils.Debugf("Created ForemanProvisioningTemplate: [%+v]", createdTemplate)
 
 	setResourceDataFromForemanProvisioningTemplate(d, createdTemplate)
 
@@ -346,34 +346,34 @@ func resourceForemanProvisioningTemplateCreate(ctx context.Context, d *schema.Re
 }
 
 func resourceForemanProvisioningTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
 
-	log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
+	utils.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
 	readTemplate, readErr := client.ReadProvisioningTemplate(ctx, t.Id)
 	if readErr != nil {
 		return diag.FromErr(readErr)
 	}
 
-	log.Debugf("Read ForemanProvisioningTemplate: [%+v]", readTemplate)
+	utils.Debugf("Read ForemanProvisioningTemplate: [%+v]", readTemplate)
 
-	log.Tracef("BeforeSet: %v", d.Get("operatingsystem_ids"))
+	utils.Debugf("BeforeSet: %v", d.Get("operatingsystem_ids"))
 	setResourceDataFromForemanProvisioningTemplate(d, readTemplate)
-	log.Tracef("AfterSet: %v", d.Get("operatingsystem_ids"))
+	utils.Debugf("AfterSet: %v", d.Get("operatingsystem_ids"))
 
 	return nil
 }
 
 func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
 
-	log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
+	utils.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
 	// NOTE(ALL): Handling the removal of a template combination.  See the note
 	//   in ForemanTemplateCombinationAttribute's Destroy property
@@ -398,7 +398,7 @@ func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.Re
 
 		setDiff := oldValSet.Difference(newValSet)
 		setDiffList := setDiff.List()
-		log.Debugf("setDiffList: [%v]", setDiffList)
+		utils.Debugf("setDiffList: [%v]", setDiffList)
 
 		// iterate over the removed items, add them back to the template's
 		// combination array, but tag them for removal.
@@ -414,7 +414,7 @@ func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.Re
 			t.TemplateCombinationsAttributes = append(t.TemplateCombinationsAttributes, rmCombination)
 		}
 
-		log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
+		utils.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
 	} // end HasChange("template_combinations_attributes")
 
@@ -423,7 +423,7 @@ func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.Re
 		return diag.FromErr(api.CheckDeleted(d, updateErr))
 	}
 
-	log.Debugf("Updated ForemanProvisioningTemplate: [%+v]", t)
+	utils.Debugf("Updated ForemanProvisioningTemplate: [%+v]", t)
 
 	setResourceDataFromForemanProvisioningTemplate(d, updatedTemplate)
 
@@ -431,32 +431,32 @@ func resourceForemanProvisioningTemplateUpdate(ctx context.Context, d *schema.Re
 }
 
 func resourceForemanProvisioningTemplateDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_provisioningtemplate.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanProvisioningTemplate(d)
 
-	log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
+	utils.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
 	// NOTE(ALL): The Foreman API will return a '422: Unprocessable Entity' error
 	//   if you try to delete a provisioning template with template combinations.
 	//   First, you must update the provisioning template to remove the combinations,
 	//   then proceed with deletion.
 	if len(t.TemplateCombinationsAttributes) > 0 {
-		log.Debugf("deleting template that has combinations set")
+		utils.Debugf("deleting template that has combinations set")
 		// iterate through each of the template combinations and tag them for
 		// removal from the list
 		for idx := range t.TemplateCombinationsAttributes {
 			t.TemplateCombinationsAttributes[idx].Destroy = true
 		}
-		log.Debugf("ForemanProvisioningTemplate: [%+v]", t)
+		utils.Debugf("ForemanProvisioningTemplate: [%+v]", t)
 
 		updatedTemplate, updateErr := client.UpdateProvisioningTemplate(ctx, t)
 		if updateErr != nil {
 			return diag.FromErr(updateErr)
 		}
 
-		log.Debugf("Updated ForemanProvisioningTemplate: [%+v]", updatedTemplate)
+		utils.Debugf("Updated ForemanProvisioningTemplate: [%+v]", updatedTemplate)
 
 		// NOTE(ALL): set the resource data's properties to what comes back from
 		//   the update call. This allows us to recover from a partial state if
@@ -464,7 +464,7 @@ func resourceForemanProvisioningTemplateDelete(ctx context.Context, d *schema.Re
 		//   state will be saved with the correct template combinations.
 		setResourceDataFromForemanProvisioningTemplate(d, updatedTemplate)
 
-		log.Debugf("completed the template combination deletion")
+		utils.Debugf("completed the template combination deletion")
 
 	} // end if len(template.TemplateCombinationsAttributes) > 0
 

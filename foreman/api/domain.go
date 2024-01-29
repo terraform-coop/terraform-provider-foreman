@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -41,7 +40,7 @@ type ForemanDomain struct {
 // The returned reference will have its ID and other API default values set by
 // this function.
 func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDomain, error) {
-	log.Tracef("foreman/api/domain.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", DomainEndpointPrefix)
 
@@ -50,7 +49,7 @@ func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDo
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
+	utils.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -68,7 +67,7 @@ func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDo
 		return nil, sendErr
 	}
 
-	log.Debugf("createdDomain: [%+v]", createdDomain)
+	utils.Debugf("createdDomain: [%+v]", createdDomain)
 
 	return &createdDomain, nil
 }
@@ -76,7 +75,7 @@ func (c *Client) CreateDomain(ctx context.Context, d *ForemanDomain) (*ForemanDo
 // ReadDomain reads the attributes of a ForemanDomain identified by the
 // supplied ID and returns a ForemanDomain reference.
 func (c *Client) ReadDomain(ctx context.Context, id int) (*ForemanDomain, error) {
-	log.Tracef("foreman/api/domain.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
@@ -96,7 +95,7 @@ func (c *Client) ReadDomain(ctx context.Context, id int) (*ForemanDomain, error)
 		return nil, sendErr
 	}
 
-	log.Debugf("readDomain: [%+v]", readDomain)
+	utils.Debugf("readDomain: [%+v]", readDomain)
 
 	return &readDomain, nil
 }
@@ -105,7 +104,7 @@ func (c *Client) ReadDomain(ctx context.Context, id int) (*ForemanDomain, error)
 // of the supplied ForemanDomain will be updated. A new ForemanDomain reference
 // is returned with the attributes from the result of the update operation.
 func (c *Client) UpdateDomain(ctx context.Context, d *ForemanDomain, id int) (*ForemanDomain, error) {
-	log.Tracef("foreman/api/domain.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
@@ -114,7 +113,7 @@ func (c *Client) UpdateDomain(ctx context.Context, d *ForemanDomain, id int) (*F
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
+	utils.Debugf("domainJSONBytes: [%s]", domainJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -132,14 +131,14 @@ func (c *Client) UpdateDomain(ctx context.Context, d *ForemanDomain, id int) (*F
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedDomain: [%+v]", updatedDomain)
+	utils.Debugf("updatedDomain: [%+v]", updatedDomain)
 
 	return &updatedDomain, nil
 }
 
 // DeleteDomain deletes the ForemanDomain identified by the supplied ID
 func (c *Client) DeleteDomain(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/domain.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", DomainEndpointPrefix, id)
 
@@ -164,7 +163,7 @@ func (c *Client) DeleteDomain(ctx context.Context, id int) error {
 // supplied ForemanDomain reference and returns a QueryResponse struct
 // containing query/response metadata and the matching domains.
 func (c *Client) QueryDomain(ctx context.Context, d *ForemanDomain) (QueryResponse, error) {
-	log.Tracef("foreman/api/domain.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -190,7 +189,7 @@ func (c *Client) QueryDomain(ctx context.Context, d *ForemanDomain) (QueryRespon
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

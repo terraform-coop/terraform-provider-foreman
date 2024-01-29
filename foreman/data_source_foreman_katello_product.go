@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -38,12 +38,12 @@ func dataSourceForemanKatelloProduct() *schema.Resource {
 }
 
 func dataSourceForemanKatelloProductRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_katello_product.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	product := buildForemanKatelloProduct(d)
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	queryResponse, queryErr := client.QueryKatelloProduct(ctx, product)
 	if queryErr != nil {
@@ -67,7 +67,7 @@ func dataSourceForemanKatelloProductRead(ctx context.Context, d *schema.Resource
 	}
 	product = &queryKatelloProduct
 
-	log.Debugf("ForemanKatelloProduct: [%+v]", product)
+	utils.Debugf("ForemanKatelloProduct: [%+v]", product)
 
 	setResourceDataFromForemanKatelloProduct(d, product)
 

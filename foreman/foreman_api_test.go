@@ -3,7 +3,7 @@ package foreman
 import (
 	"context"
 	"encoding/json"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"io"
 	"math/rand"
 	"net/http"
@@ -94,7 +94,7 @@ func CompareResourceDataAttributes(t *testing.T, m map[string]schema.ValueType, 
 
 		// If the OK return values DIFFER, print error
 		if (!okGet1 || !okGet2) && (okGet1 != okGet2) {
-			log.Warningf("Error in CompareResourceDataAttributes. "+
+			utils.Warningf("Error in CompareResourceDataAttributes. "+
 				"Parameter %s failed in .Get: okGet1 is %t, okGet2 is %t",
 				key, okGet1, okGet2)
 		}

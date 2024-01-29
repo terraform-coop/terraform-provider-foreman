@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
@@ -135,12 +134,12 @@ func buildForemanJobTemplate(d *schema.ResourceData) *api.ForemanJobTemplate {
 		tiList := attr.([]interface{})
 		inputs := make([]api.ForemanTemplateInput, len(tiList))
 
-		// utils.Debug("attr: %#v | %+v", attr, attr)
-		// utils.Debug("tiList: %#v | %+v", tiList, tiList)
+		// utils.Debugf("attr: %#v | %+v", attr, attr)
+		// utils.Debugf("tiList: %#v | %+v", tiList, tiList)
 
 		for idx, tiMap := range tiList {
 			if tiMap == nil {
-				log.Fatalf("tiMap is nil: %#v", tiMap)
+				utils.Fatalf("tiMap is nil: %#v", tiMap)
 			}
 
 			tiInterface := tiMap.(map[string]interface{})
@@ -161,7 +160,7 @@ func buildForemanJobTemplate(d *schema.ResourceData) *api.ForemanJobTemplate {
 		jt.TemplateInputs = inputs
 	}
 
-	utils.Debug("jt: %+v", jt)
+	utils.Debugf("jt: %+v", jt)
 
 	return &jt
 }
@@ -179,7 +178,7 @@ func setResourceDataFromForemanJobTemplate(resdata *schema.ResourceData, jt *api
 	resdata.Set("provider_type", jt.ProviderType)
 	resdata.Set("snippet", jt.Snippet)
 
-	utils.Debug("TemplateInputs: %+v", jt.TemplateInputs)
+	utils.Debugf("TemplateInputs: %+v", jt.TemplateInputs)
 
 	// At this point the nested TemplateInputs need to be handled.
 	// It would be more natively to use `tiList := []schema.ResourceData{}` as the data type and
@@ -190,20 +189,20 @@ func setResourceDataFromForemanJobTemplate(resdata *schema.ResourceData, jt *api
 
 	for _, inputItem := range jt.TemplateInputs {
 		mapData := inputItem.ToResourceDataMap(true)
-		utils.Debug("mapData: %#v", mapData)
+		utils.Debugf("mapData: %#v", mapData)
 		tiList = append(tiList, mapData)
 	}
 
-	utils.Debug("tiList: %+v", tiList)
+	utils.Debugf("tiList: %+v", tiList)
 
 	err := resdata.Set("template_inputs", tiList)
 	if err != nil {
-		log.Fatalf("Error in setting resdata template_input: %s", err)
+		utils.Fatalf("Error in setting resdata template_input: %s", err)
 	}
 
-	utils.Debug("resdata setResourceDataFromForemanJobTemplate: %+v", resdata)
+	utils.Debugf("resdata setResourceDataFromForemanJobTemplate: %+v", resdata)
 
-	utils.Debug("resdata template_inputs: %+v", resdata.Get("template_inputs"))
+	utils.Debugf("resdata template_inputs: %+v", resdata.Get("template_inputs"))
 }
 
 // Resource CRUD Operations
@@ -230,14 +229,14 @@ func resourceForemanJobTemplateRead(ctx context.Context, resdata *schema.Resourc
 	client := meta.(*api.Client)
 	jt := buildForemanJobTemplate(resdata)
 
-	log.Debugf("ForemanJobTemplate: [%+v]", jt)
+	utils.Debugf("ForemanJobTemplate: [%+v]", jt)
 
 	readJT, readErr := client.ReadJobTemplate(ctx, jt.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(resdata, readErr))
 	}
 
-	log.Debugf("Read ForemanJobTemplate: [%+v]", readJT)
+	utils.Debugf("Read ForemanJobTemplate: [%+v]", readJT)
 
 	setResourceDataFromForemanJobTemplate(resdata, readJT)
 

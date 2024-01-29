@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -91,7 +90,7 @@ type foremanProvisioningTemplateJSON struct {
 // expects all parameters to be enclosed in double quotes, with the exception
 // of boolean and slice values.
 func (ft ForemanProvisioningTemplate) MarshalJSON() ([]byte, error) {
-	log.Tracef("Provisioning template marshal")
+	utils.TraceFunctionCall()
 
 	// map structure representation of the passed ForemanProvisioningTemplate
 	// for ease of marshalling - essentially convert over to a map then call
@@ -120,7 +119,7 @@ func (ft ForemanProvisioningTemplate) MarshalJSON() ([]byte, error) {
 		ftMap["template_combinations_attributes"] = ft.TemplateCombinationsAttributes
 	}
 
-	log.Debugf("ftMap: [%v]", ftMap)
+	utils.Debugf("ftMap: [%v]", ftMap)
 
 	return json.Marshal(ftMap)
 }
@@ -128,6 +127,8 @@ func (ft ForemanProvisioningTemplate) MarshalJSON() ([]byte, error) {
 // Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
 // and then convert over to a ForemanProvisioningTemplate struct.
 func (ft *ForemanProvisioningTemplate) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -188,7 +189,7 @@ func (ft *ForemanProvisioningTemplate) UnmarshalJSON(b []byte) error {
 // reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateProvisioningTemplate(ctx context.Context, t *ForemanProvisioningTemplate) (*ForemanProvisioningTemplate, error) {
-	log.Tracef("foreman/api/provisioningtemplate.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", ProvisioningTemplateEndpointPrefix)
 
@@ -197,7 +198,7 @@ func (c *Client) CreateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("templateJSONBytes: [%s]", tJSONBytes)
+	utils.Debugf("templateJSONBytes: [%s]", tJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -215,7 +216,7 @@ func (c *Client) CreateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, sendErr
 	}
 
-	log.Debugf("createdTemplate: [%+v]", createdTemplate)
+	utils.Debugf("createdTemplate: [%+v]", createdTemplate)
 
 	return &createdTemplate, nil
 }
@@ -224,7 +225,7 @@ func (c *Client) CreateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 // ForemanProvisioningTemplate identified by the supplied ID and returns a
 // ForemanProvisioningTemplate reference.
 func (c *Client) ReadProvisioningTemplate(ctx context.Context, id int) (*ForemanProvisioningTemplate, error) {
-	log.Tracef("foreman/api/provisioningtemplate.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ProvisioningTemplateEndpointPrefix, id)
 
@@ -244,7 +245,7 @@ func (c *Client) ReadProvisioningTemplate(ctx context.Context, id int) (*Foreman
 		return nil, sendErr
 	}
 
-	log.Debugf("readTemplate: [%+v]", readTemplate)
+	utils.Debugf("readTemplate: [%+v]", readTemplate)
 
 	return &readTemplate, nil
 }
@@ -255,7 +256,7 @@ func (c *Client) ReadProvisioningTemplate(ctx context.Context, id int) (*Foreman
 // ForemanProvisioningTemplate reference is returned with the attributes from
 // the result of the update operation.
 func (c *Client) UpdateProvisioningTemplate(ctx context.Context, t *ForemanProvisioningTemplate) (*ForemanProvisioningTemplate, error) {
-	log.Tracef("foreman/api/provisioningtemplate.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ProvisioningTemplateEndpointPrefix, t.Id)
 	tJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy("provisioning_template", t)
@@ -263,7 +264,7 @@ func (c *Client) UpdateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("templateJSONBytes: [%s]", tJSONBytes)
+	utils.Debugf("templateJSONBytes: [%s]", tJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -281,7 +282,7 @@ func (c *Client) UpdateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedTemplate: [%+v]", updatedTemplate)
+	utils.Debugf("updatedTemplate: [%+v]", updatedTemplate)
 
 	return &updatedTemplate, nil
 }
@@ -289,7 +290,7 @@ func (c *Client) UpdateProvisioningTemplate(ctx context.Context, t *ForemanProvi
 // DeleteProvisioningTemplate deletes the ForemanProvisioningTemplate
 // identified by the supplied ID
 func (c *Client) DeleteProvisioningTemplate(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/provisioningtemplate.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ProvisioningTemplateEndpointPrefix, id)
 
@@ -315,7 +316,7 @@ func (c *Client) DeleteProvisioningTemplate(ctx context.Context, id int) error {
 // returns a QueryResponse struct containing query/response metadata and the
 // matching templates.
 func (c *Client) QueryProvisioningTemplate(ctx context.Context, t *ForemanProvisioningTemplate) (QueryResponse, error) {
-	log.Tracef("foreman/api/provisioningtemplate.go#Query")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -341,7 +342,7 @@ func (c *Client) QueryProvisioningTemplate(ctx context.Context, t *ForemanProvis
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

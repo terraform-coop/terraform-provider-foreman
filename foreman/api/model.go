@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -40,7 +39,7 @@ type ForemanModel struct {
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanModel, error) {
-	log.Tracef("foreman/api/model.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", ModelEndpointPrefix)
 
@@ -49,7 +48,7 @@ func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("modelJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("modelJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -67,7 +66,7 @@ func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, sendErr
 	}
 
-	log.Debugf("createdModel: [%+v]", createdModel)
+	utils.Debugf("createdModel: [%+v]", createdModel)
 
 	return &createdModel, nil
 }
@@ -75,7 +74,7 @@ func (c *Client) CreateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 // ReadModel reads the attributes of a ForemanModel identified by the supplied
 // ID and returns a ForemanModel reference.
 func (c *Client) ReadModel(ctx context.Context, id int) (*ForemanModel, error) {
-	log.Tracef("foreman/api/model.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, id)
 
@@ -95,7 +94,7 @@ func (c *Client) ReadModel(ctx context.Context, id int) (*ForemanModel, error) {
 		return nil, sendErr
 	}
 
-	log.Debugf("readModel: [%+v]", readModel)
+	utils.Debugf("readModel: [%+v]", readModel)
 
 	return &readModel, nil
 }
@@ -104,7 +103,7 @@ func (c *Client) ReadModel(ctx context.Context, id int) (*ForemanModel, error) {
 // the supplied ForemanModel will be updated. A new ForemanModel reference is
 // returned with the attributes from the result of the update operation.
 func (c *Client) UpdateModel(ctx context.Context, m *ForemanModel) (*ForemanModel, error) {
-	log.Tracef("foreman/api/model.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, m.Id)
 
@@ -113,7 +112,7 @@ func (c *Client) UpdateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("modelJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("modelJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -131,14 +130,14 @@ func (c *Client) UpdateModel(ctx context.Context, m *ForemanModel) (*ForemanMode
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedModel: [%+v]", updatedModel)
+	utils.Debugf("updatedModel: [%+v]", updatedModel)
 
 	return &updatedModel, nil
 }
 
 // DeleteModel deletes the ForemanModel identified by the supplied ID
 func (c *Client) DeleteModel(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/model.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ModelEndpointPrefix, id)
 
@@ -163,7 +162,7 @@ func (c *Client) DeleteModel(ctx context.Context, id int) error {
 // supplied ForemanModel reference and returns a QueryResponse struct
 // containing query/response metadata and the matching model.
 func (c *Client) QueryModel(ctx context.Context, m *ForemanModel) (QueryResponse, error) {
-	log.Tracef("foreman/api/model.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -189,7 +188,7 @@ func (c *Client) QueryModel(ctx context.Context, m *ForemanModel) (QueryResponse
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

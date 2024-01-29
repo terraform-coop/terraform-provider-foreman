@@ -2,6 +2,7 @@ package foreman
 
 import (
 	"context"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"log"
 	"net/url"
 	"os"
@@ -251,6 +252,7 @@ ResourcesMap: map[string]*schema.Resource{
 // configure the provider.  Returns an authenticated REST client for
 // communication with Foreman.
 func providerConfigure(context context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+	utils.TraceFunctionCall()
 
 	var ok bool
 

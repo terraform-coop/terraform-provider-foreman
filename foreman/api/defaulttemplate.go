@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -38,7 +37,7 @@ type ForemanDefaultTemplate struct {
 // The returned reference will have its ID and other API default values set by
 // this function.
 func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate) (*ForemanDefaultTemplate, error) {
-	log.Tracef("foreman/api/parameter.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix, d.OperatingSystemId)
 
@@ -50,7 +49,7 @@ func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -66,7 +65,7 @@ func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 	if sendErr != nil {
 		return nil, sendErr
 	}
-	log.Debugf("createdDefaultTemplate: [%+v]", createdDefaultTemplate)
+	utils.Debugf("createdDefaultTemplate: [%+v]", createdDefaultTemplate)
 
 	return &createdDefaultTemplate, nil
 }
@@ -74,7 +73,7 @@ func (c *Client) CreateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 // ReadDefaultTemplate reads the attributes of a ForemanDefaultTemplate identified by the
 // supplied ID and returns a ForemanDefaultTemplate reference.
 func (c *Client) ReadDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate, id int) (*ForemanDefaultTemplate, error) {
-	log.Tracef("foreman/api/parameter.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
 
@@ -94,7 +93,7 @@ func (c *Client) ReadDefaultTemplate(ctx context.Context, d *ForemanDefaultTempl
 		return nil, sendErr
 	}
 
-	log.Debugf("readDefaultTemplate: [%+v]", readDefaultTemplate)
+	utils.Debugf("readDefaultTemplate: [%+v]", readDefaultTemplate)
 
 	return &readDefaultTemplate, nil
 }
@@ -102,7 +101,7 @@ func (c *Client) ReadDefaultTemplate(ctx context.Context, d *ForemanDefaultTempl
 // UpdateDefaultTemplate deletes all parameters for the subject resource and re-creates them
 // as we look at them differently on either side this is the safest way to reach sync
 func (c *Client) UpdateDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate, id int) (*ForemanDefaultTemplate, error) {
-	log.Tracef("foreman/api/parameter.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
 	wrapped, _ := c.wrapParameters("os_default_template", d)
@@ -112,7 +111,7 @@ func (c *Client) UpdateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -130,14 +129,14 @@ func (c *Client) UpdateDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedDefaultTemplate: [%+v]", updatedDefaultTemplate)
+	utils.Debugf("updatedDefaultTemplate: [%+v]", updatedDefaultTemplate)
 
 	return &updatedDefaultTemplate, nil
 }
 
 // DeleteDefaultTemplate deletes the ForemanDefaultTemplates for the given resource
 func (c *Client) DeleteDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate, id int) error {
-	log.Tracef("foreman/api/parameter.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(DefaultTemplateEndpointPrefix+"/%d", d.OperatingSystemId, id)
 
@@ -162,7 +161,7 @@ func (c *Client) DeleteDefaultTemplate(ctx context.Context, d *ForemanDefaultTem
 // supplied ForemanDefaultTemplate reference and returns a QueryResponse struct
 // containing query/response metadata and the matching parameters.
 func (c *Client) QueryDefaultTemplate(ctx context.Context, d *ForemanDefaultTemplate) (QueryResponse, error) {
-	log.Tracef("foreman/api/parameter.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -188,7 +187,7 @@ func (c *Client) QueryDefaultTemplate(ctx context.Context, d *ForemanDefaultTemp
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

@@ -5,10 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strconv"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -44,7 +43,7 @@ type ForemanKatelloProduct struct {
 // ForemanKatelloProduct reference. The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProduct) (*ForemanKatelloProduct, error) {
-	log.Tracef("foreman/api/product.go#Create")
+	utils.TraceFunctionCall()
 
 	// Add organization and location IDs, no name wrapper
 	sJSONBytes, jsonEncErr := c.WrapJSONWithTaxonomy(nil, p)
@@ -52,7 +51,7 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -76,7 +75,7 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, sendErr
 	}
 
-	log.Debugf("createdKatelloProduct: [%+v]", createdKatelloProduct)
+	utils.Debugf("createdKatelloProduct: [%+v]", createdKatelloProduct)
 
 	return &createdKatelloProduct, nil
 }
@@ -84,7 +83,7 @@ func (c *Client) CreateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 // ReadKatelloProduct reads the attributes of a ForemanKatelloProduct identified by the
 // supplied ID and returns a ForemanKatelloProduct reference.
 func (c *Client) ReadKatelloProduct(ctx context.Context, id int) (*ForemanKatelloProduct, error) {
-	log.Tracef("foreman/api/product.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, id)
 
@@ -104,7 +103,7 @@ func (c *Client) ReadKatelloProduct(ctx context.Context, id int) (*ForemanKatell
 		return nil, sendErr
 	}
 
-	log.Debugf("readKatelloProduct: [%+v]", readKatelloProduct)
+	utils.Debugf("readKatelloProduct: [%+v]", readKatelloProduct)
 
 	return &readKatelloProduct, nil
 }
@@ -114,7 +113,7 @@ func (c *Client) ReadKatelloProduct(ctx context.Context, id int) (*ForemanKatell
 // ForemanKatelloProduct reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateKatelloProduct(ctx context.Context, p *ForemanKatelloProduct) (*ForemanKatelloProduct, error) {
-	log.Tracef("foreman/api/product.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, p.Id)
 
@@ -123,7 +122,7 @@ func (c *Client) UpdateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("KatelloProductJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -141,14 +140,14 @@ func (c *Client) UpdateKatelloProduct(ctx context.Context, p *ForemanKatelloProd
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedKatelloProduct: [%+v]", updatedKatelloProduct)
+	utils.Debugf("updatedKatelloProduct: [%+v]", updatedKatelloProduct)
 
 	return &updatedKatelloProduct, nil
 }
 
 // DeleteKatelloProduct deletes the ForemanKatelloProduct identified by the supplied ID
 func (c *Client) DeleteKatelloProduct(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/product.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("%s/%d", KatelloProductEndpointPrefix, id)
 
@@ -173,7 +172,7 @@ func (c *Client) DeleteKatelloProduct(ctx context.Context, id int) error {
 // the supplied ForemanKatelloProduct reference and returns a QueryResponse struct
 // containing query/response metadata and the matching sync plan.
 func (c *Client) QueryKatelloProduct(ctx context.Context, p *ForemanKatelloProduct) (QueryResponse, error) {
-	log.Tracef("foreman/api/product.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 

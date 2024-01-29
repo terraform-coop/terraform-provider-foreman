@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -60,12 +60,12 @@ func setResourceDataFromForemanTemplateKind(d *schema.ResourceData, fk *api.Fore
 // -----------------------------------------------------------------------------
 
 func dataSourceForemanTemplateKindRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_architecture.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	t := buildForemanTemplateKind(d)
 
-	log.Debugf("ForemanTemplateKind: [%+v]", t)
+	utils.Debugf("ForemanTemplateKind: [%+v]", t)
 
 	queryResponse, queryErr := client.QueryTemplateKind(ctx, t)
 	if queryErr != nil {
@@ -89,7 +89,7 @@ func dataSourceForemanTemplateKindRead(ctx context.Context, d *schema.ResourceDa
 	}
 	t = &queryTemplateKind
 
-	log.Debugf("ForemanTemplateKind: [%+v]", t)
+	utils.Debugf("ForemanTemplateKind: [%+v]", t)
 
 	setResourceDataFromForemanTemplateKind(d, t)
 

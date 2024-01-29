@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -67,6 +66,8 @@ type foremanOsRespJSON struct {
 
 // Implement the Unmarshaler interface
 func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -92,7 +93,7 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
-	log.Debugf("foMap: [%v]", foMap)
+	utils.Debugf("foMap: [%v]", foMap)
 
 	var ok bool
 	if o.Title, ok = foMap["title"].(string); !ok {
@@ -132,7 +133,7 @@ func (o *ForemanOperatingSystem) UnmarshalJSON(b []byte) error {
 // created ForemanOperatingSystem reference.  The returned reference will have
 // its ID and other API default values set by this function.
 func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingSystem) (*ForemanOperatingSystem, error) {
-	log.Tracef("foreman/api/operatingsystem.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", OperatingSystemEndpointPrefix)
 
@@ -141,7 +142,7 @@ func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("osJSONBytes: [%s]", osJSONBytes)
+	utils.Debugf("osJSONBytes: [%s]", osJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -159,7 +160,7 @@ func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, sendErr
 	}
 
-	log.Debugf("createdOperatingSystem: [%+v]", createdOperatingSystem)
+	utils.Debugf("createdOperatingSystem: [%+v]", createdOperatingSystem)
 
 	return &createdOperatingSystem, nil
 }
@@ -168,7 +169,7 @@ func (c *Client) CreateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 // identified by the supplied ID and returns a ForemanOperatingSystem
 // reference.
 func (c *Client) ReadOperatingSystem(ctx context.Context, id int) (*ForemanOperatingSystem, error) {
-	log.Tracef("foreman/api/operatingsystem.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, id)
 
@@ -188,7 +189,7 @@ func (c *Client) ReadOperatingSystem(ctx context.Context, id int) (*ForemanOpera
 		return nil, sendErr
 	}
 
-	log.Debugf("readOperatingSystem: [%+v]", readOperatingSystem)
+	utils.Debugf("readOperatingSystem: [%+v]", readOperatingSystem)
 
 	return &readOperatingSystem, nil
 }
@@ -198,7 +199,7 @@ func (c *Client) ReadOperatingSystem(ctx context.Context, id int) (*ForemanOpera
 // updated. A new ForemanOperatingSystem reference is returned with the
 // attributes from the result of the update operation.
 func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingSystem) (*ForemanOperatingSystem, error) {
-	log.Tracef("foreman/api/operatingsystem.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, o.Id)
 
@@ -207,7 +208,7 @@ func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("osJSONBytes: [%s]", osJSONBytes)
+	utils.Debugf("osJSONBytes: [%s]", osJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -225,7 +226,7 @@ func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedOperatingSystem: [%+v]", updatedOperatingSystem)
+	utils.Debugf("updatedOperatingSystem: [%+v]", updatedOperatingSystem)
 
 	return &updatedOperatingSystem, nil
 }
@@ -233,7 +234,7 @@ func (c *Client) UpdateOperatingSystem(ctx context.Context, o *ForemanOperatingS
 // DeleteOperatingSystem deletes the ForemanOperatingSystem identified by the
 // supplied ID
 func (c *Client) DeleteOperatingSystem(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/operatingsystem.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", OperatingSystemEndpointPrefix, id)
 
@@ -259,7 +260,7 @@ func (c *Client) DeleteOperatingSystem(ctx context.Context, id int) error {
 // QueryResponse struct containing query/response metadata and the matching
 // operating systems.
 func (c *Client) QueryOperatingSystem(ctx context.Context, o *ForemanOperatingSystem) (QueryResponse, error) {
-	log.Tracef("foreman/api/operatingsystem.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -286,7 +287,7 @@ func (c *Client) QueryOperatingSystem(ctx context.Context, o *ForemanOperatingSy
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

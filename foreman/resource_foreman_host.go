@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/imdario/mergo"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
@@ -785,7 +785,7 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
-	log.Tracef("resource_foreman_host.go#buildForemanHost")
+	utils.TraceFunctionCall()
 
 	host := api.ForemanHost{}
 
@@ -802,11 +802,11 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 	if host.Name == "" {
 		if host.DomainName != "" {
 			// Construct full FQDN
-			log.Infof("Host %s name was set to FQDN", host.Shortname)
+			utils.Infof("Host %s name was set to FQDN", host.Shortname)
 			host.Name = host.Shortname + "." + host.DomainName
 		} else {
 			// Fall back to short name, omitting the domain part
-			log.Infof("Host %s name was set to shortname, because domainname was missing", host.Shortname)
+			utils.Infof("Host %s name was set to shortname, because domainname was missing", host.Shortname)
 			host.Name = host.Shortname
 		}
 	}
@@ -909,7 +909,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 // struct's members are populated with the data populated in the resource data.
 // Missing members will be left to the zero value for that member's type.
 func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInterfacesAttribute {
-	log.Tracef("resource_foreman_host.go#buildForemanInterfacesAttributes")
+	utils.TraceFunctionCall()
 
 	tempIntAttr := []api.ForemanInterfacesAttribute{}
 	var attr interface{}
@@ -961,7 +961,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 //   _destroy (bool)
 
 func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterfacesAttribute {
-	log.Tracef("mapToForemanInterfacesAttribute")
+	utils.TraceFunctionCall()
 
 	tempIntAttr := api.ForemanInterfacesAttribute{}
 	var ok bool
@@ -1038,18 +1038,18 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 		tempIntAttr.Destroy = false
 	}
 
-	log.Debugf("m: [%v], tempIntAttr: [%+v]", m, tempIntAttr)
+	utils.Debugf("m: [%v], tempIntAttr: [%+v]", m, tempIntAttr)
 	return tempIntAttr
 }
 
 // setResourceDataFromForemanHost sets a ResourceData's attributes from the
 // attributes of the supplied ForemanHost struct
 func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost) {
-	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanHost")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fh.Id))
 
-	log.Debugf("ForemanHost: %+v", fh)
+	utils.Debugf("ForemanHost: %+v", fh)
 
 	d.Set("name", fh.Name) // internal name from Foreman meta struct
 
@@ -1072,7 +1072,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("parameters", api.FromKV(fh.HostParameters))
 
 	if err := d.Set("compute_attributes", flattenComputeAttributes(fh.ComputeAttributes)); err != nil {
-		log.Printf("[WARN] error setting compute attributes: %s", err)
+		utils.Warningf("Error setting compute attributes: %s", err)
 	}
 
 	// See issue #115 for "Build" attribute
@@ -1105,7 +1105,7 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
 func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
-	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanInterfacesAttributes")
+	utils.TraceFunctionCall()
 
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
 	// supply a hash function so the set can differentiate for uniqueness of
@@ -1172,7 +1172,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 // -----------------------------------------------------------------------------
 
 func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#resourceForemanHostCreate")
+	utils.TraceFunctionCall()
 	var diags diag.Diagnostics
 
 	client := meta.(*api.Client)
@@ -1188,7 +1188,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	// the "append_domain_name_for_hosts" setting. In case of true, a shortname will be expanded to
 	// a FQDN, resulting in inconsistent plans. Maybe this issue will arise again, then handle it here.
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
 	// See commit ad2b5890f09645513b520f12291546f26b812c96 for an experimental implementation
@@ -1201,7 +1201,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanHost: [%+v]", createdHost)
+	utils.Debugf("Created ForemanHost: [%+v]", createdHost)
 
 	// Enables partial state mode in the event of failure of one of API calls required for host creation
 	// This requires you to call the SetPartial function for each changed key.
@@ -1218,7 +1218,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 		// If enable_bmc is true, perform required power off, pxe boot and power on BMC functions
 		// Don't modify power state at all if we're not managing the build
 		if h.EnableBMC {
-			log.Debugf("Calling BMC Reboot/PXE Functions")
+			utils.Debugf("Calling BMC Reboot/PXE Functions")
 			// List of BMC Actions to perform
 			powerCmds = []interface{}{
 				api.BMCBoot{
@@ -1229,7 +1229,7 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 				},
 			}
 		} else if h.Managed {
-			log.Debugf("Using default Foreman behaviour for startup")
+			utils.Debugf("Using default Foreman behaviour for startup")
 			powerCmds = []interface{}{
 				api.Power{
 					PowerAction: api.PowerOn,
@@ -1257,19 +1257,19 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#resourceForemanHostRead")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 
 	readHost, readErr := client.ReadHost(ctx, h.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanHost: [%+v]", readHost)
+	utils.Debugf("Read ForemanHost: [%+v]", readHost)
 
 	setResourceDataFromForemanHost(d, readHost)
 
@@ -1281,12 +1281,12 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#resourceForemanHostUpdate")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 
 	// Enable partial mode in the event of failure of one of API calls required for host update
 	d.Partial(true)
@@ -1340,14 +1340,14 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.HasChange("config_group_ids") ||
 		d.Get("managed") == false {
 
-		log.Debugf("host: [%+v]", h)
+		utils.Debugf("host: [%+v]", h)
 
 		updatedHost, updateErr := client.UpdateHost(ctx, h, hostRetryCount)
 		if updateErr != nil {
 			return diag.FromErr(updateErr)
 		}
 
-		log.Debugf("Updated FormanHost: [%+v]", updatedHost)
+		utils.Debugf("Updated FormanHost: [%+v]", updatedHost)
 
 		setResourceDataFromForemanHost(d, updatedHost)
 	} // end HasChange("name")
@@ -1359,12 +1359,12 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_host.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHost(d)
 
-	log.Debugf("ForemanHost: [%+v]", h)
+	utils.Debugf("ForemanHost: [%+v]", h)
 	hostRetryCount := d.Get("retry_count").(int)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
@@ -1375,7 +1375,7 @@ func resourceForemanHostDelete(ctx context.Context, d *schema.ResourceData, meta
 	}
 	retry := 0
 	for retry < hostRetryCount {
-		log.Debugf("ForemanHostDelete: Waiting for deletion #[%d]", retry)
+		utils.Debugf("ForemanHostDelete: Waiting for deletion #[%d]", retry)
 		_, deleting := client.ReadHost(ctx, h.Id)
 		if deleting == nil {
 			retry++
@@ -1396,7 +1396,7 @@ func expandComputeAttributes(v string) map[string]interface{} {
 	}
 
 	if err := json.Unmarshal([]byte(v), &attrs); err != nil {
-		log.Printf("[ERROR] Could not unmarshal compute attributes %s: %v", v, err)
+		utils.Errorf("Could not unmarshal compute attributes %s: %v", v, err)
 		return nil
 	}
 
@@ -1409,7 +1409,7 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 	}
 	json, err := json.Marshal(attrs)
 	if err != nil {
-		log.Printf("[ERROR] Could not marshal compute attributes %v: %v", attrs, err)
+		utils.Errorf("Could not marshal compute attributes %v: %v", attrs, err)
 		return ""
 	}
 	return string(json)
@@ -1424,7 +1424,7 @@ func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *s
 	err := mergo.Merge(&oldMap, newMap, mergo.WithOverride)
 
 	if err != nil {
-		log.Printf("[ERROR]: Could not merge defined and existing compute attributes, [%v]", err)
+		utils.Errorf("Could not merge defined and existing compute attributes, [%v]", err)
 	}
 
 	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))

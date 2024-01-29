@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -100,7 +99,7 @@ type foremanHostGroupDecode struct {
 // reference.  The returned reference will have its ID and other API default
 // values set by this function.
 func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*ForemanHostgroup, error) {
-	log.Tracef("foreman/api/hostgroup.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", HostgroupEndpointPrefix)
 
@@ -109,7 +108,7 @@ func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -127,7 +126,7 @@ func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, sendErr
 	}
 
-	log.Debugf("createdHostgroup: [%+v]", createdHostgroup)
+	utils.Debugf("createdHostgroup: [%+v]", createdHostgroup)
 
 	return &createdHostgroup, nil
 }
@@ -135,7 +134,7 @@ func (c *Client) CreateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 // ReadHostgroup reads the attributes of a ForemanHostgroup identified by the
 // supplied ID and returns a ForemanHostgroup reference.
 func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, error) {
-	log.Tracef("foreman/api/hostgroup.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, id)
 
@@ -159,7 +158,7 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 	readHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(readHostgroup.ConfigGroupsDecode)
 	readHostgroup.HostGroupParameters = readHostgroup.HostGroupParametersDecode
 
-	log.Debugf("readHostgroup: [%+v]", readHostgroup)
+	utils.Debugf("readHostgroup: [%+v]", readHostgroup)
 
 	return &readHostgroup.ForemanHostgroup, nil
 }
@@ -169,7 +168,7 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 // ForemanHostgroup reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*ForemanHostgroup, error) {
-	log.Tracef("foreman/api/hostgroup.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, h.Id)
 
@@ -178,7 +177,7 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hostgroupJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -200,14 +199,14 @@ func (c *Client) UpdateHostgroup(ctx context.Context, h *ForemanHostgroup) (*For
 	updatedHostgroup.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHostgroup.ConfigGroupsDecode)
 	updatedHostgroup.HostGroupParameters = updatedHostgroup.HostGroupParametersDecode
 
-	log.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)
+	utils.Debugf("updatedHostgroup: [%+v]", updatedHostgroup)
 
 	return &updatedHostgroup.ForemanHostgroup, nil
 }
 
 // DeleteHostgroup deletes the ForemanHostgroup identified by the supplied ID
 func (c *Client) DeleteHostgroup(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/hostgroup.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostgroupEndpointPrefix, id)
 
@@ -232,7 +231,7 @@ func (c *Client) DeleteHostgroup(ctx context.Context, id int) error {
 // supplied ForemanHostgroup reference and returns a QueryResponse struct
 // containing query/response metadata and the matching hostgroups.
 func (c *Client) QueryHostgroup(ctx context.Context, h *ForemanHostgroup) (QueryResponse, error) {
-	log.Tracef("foreman/api/hostgroup.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -258,7 +257,7 @@ func (c *Client) QueryHostgroup(ctx context.Context, h *ForemanHostgroup) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//
