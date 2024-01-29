@@ -22,10 +22,16 @@ const (
 	// of the URL.  The client hepler functions utilize this to automatically
 	// create endpoint URLs.
 	FOREMAN_API_URL_PREFIX = "/api"
+
 	// FOREMAN_KATELLO_API_URL_PREFIX is the Foreman Katello API endpoint
 	FOREMAN_KATELLO_API_URL_PREFIX = "/katello/api"
+
+	// FOREMAN_TASKS_API_URL_PREFIX is the prefix for async tasks
+	FOREMAN_TASKS_API_URL_PREFIX = "/foreman_tasks/api"
+
 	// API Prefix for Puppet plugin
 	FOREMAN_PUPPET_API_URL_PREFIX = "/foreman_puppet/api"
+
 	// The Foreman API allows you to request a specific API version in the
 	// Accept header of the HTTP request.  The two supported versions (at
 	// the time of writing) are 1 and 2, which version 1 planning on being
@@ -216,11 +222,16 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 
 	// Build the URL for the request
 	reqURL := client.server.URL
+
 	// Check for katello endpoint
 	if strings.HasPrefix(endpoint, "katello") {
 		reqURL.Path = FOREMAN_KATELLO_API_URL_PREFIX + strings.TrimPrefix(endpoint, "katello")
+	} else if strings.HasPrefix(endpoint, "/katello/api") {
+		reqURL.Path = endpoint
 	} else if strings.HasPrefix(endpoint, "puppet") {
 		reqURL.Path = FOREMAN_PUPPET_API_URL_PREFIX + strings.TrimPrefix(endpoint, "puppet")
+	} else if strings.HasPrefix(endpoint, "foreman_tasks") || strings.HasPrefix(endpoint, "/foreman_tasks") {
+		reqURL.Path = endpoint
 	} else {
 		if strings.HasPrefix(endpoint, "/") {
 			reqURL.Path = FOREMAN_API_URL_PREFIX + endpoint
@@ -363,6 +374,27 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 		statusCode,
 		respBody,
 	)
+
+	// Handle Katello async responses.
+	// Be aware, that waitForKatelloAsyncTask also lands here. We just need to trust that the
+	// foreman_tasks API endpoint does not omit 202 as well.
+	// Officially, 202 is the code for "accepted, but not processed yet".
+	if statusCode == 202 {
+		var asyncTask ForemanTask
+		err := json.Unmarshal(respBody, &asyncTask)
+		if err != nil {
+			return err
+		}
+		log.Debugf("foremanAsyncTask asyncTask: %+v", asyncTask)
+
+		if asyncTask.Pending {
+			log.Debugf("KatelloResponse is pending")
+			err = client.waitForKatelloAsyncTask(asyncTask.Id)
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	if statusCode < 200 || statusCode > 299 {
 		return HTTPError{req.URL.String(), statusCode, string(respBody[:])}
