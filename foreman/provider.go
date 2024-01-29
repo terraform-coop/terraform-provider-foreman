@@ -175,7 +175,7 @@ func Provider() *schema.Provider {
 			},
 		},
 
-		ResourcesMap: map[string]*schema.Resource{
+ResourcesMap: map[string]*schema.Resource{
 			"foreman_architecture":                  resourceForemanArchitecture(),
 			"foreman_host":                          resourceForemanHost(),
 			"foreman_hostgroup":                     resourceForemanHostgroup(),
@@ -198,6 +198,7 @@ func Provider() *schema.Provider {
 			"foreman_katello_lifecycle_environment": resourceForemanKatelloLifecycleEnvironment(),
 			"foreman_katello_product":               resourceForemanKatelloProduct(),
 			"foreman_katello_repository":            resourceForemanKatelloRepository(),
+			"foreman_katello_content_view":          resourceForemanKatelloContentView(),
 			"foreman_katello_sync_plan":             resourceForemanKatelloSyncPlan(),
 			"foreman_user":                          resourceForemanUser(),
 			"foreman_usergroup":                     resourceForemanUsergroup(),
@@ -233,6 +234,7 @@ func Provider() *schema.Provider {
 			"foreman_katello_lifecycle_environment": dataSourceForemanKatelloLifecycleEnvironment(),
 			"foreman_katello_product":               dataSourceForemanKatelloProduct(),
 			"foreman_katello_repository":            dataSourceForemanKatelloRepository(),
+			"foreman_katello_content_view":          dataSourceForemanKatelloContentView(),
 			"foreman_katello_sync_plan":             dataSourceForemanKatelloSyncPlan(),
 			"foreman_user":                          dataSourceForemanUser(),
 			"foreman_usergroup":                     dataSourceForemanUsergroup(),
