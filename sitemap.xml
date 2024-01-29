@@ -61,6 +61,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://github.com/terraform-coop/terraform-provider-foreman/data-sources/foreman_katello_content_view/</loc>
+         <lastmod>2024-01-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://github.com/terraform-coop/terraform-provider-foreman/data-sources/foreman_katello_lifecycle_environment/</loc>
          <lastmod>2024-01-29</lastmod>
          <changefreq>daily</changefreq>
@@ -202,6 +207,11 @@
     </url>
     <url>
          <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_katello_content_credential/</loc>
+         <lastmod>2024-01-29</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_katello_content_view/</loc>
          <lastmod>2024-01-29</lastmod>
          <changefreq>daily</changefreq>
     </url>

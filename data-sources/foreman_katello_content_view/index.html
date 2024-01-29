@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="HanseMerkur Cloud Platform" /><link rel="canonical" href="https://github.com/terraform-coop/terraform-provider-foreman/data-sources/foreman_katello_content_view/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>foreman_katello_content_view - Terraform Provider Foreman</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "foreman_katello_content_view";
+        var mkdocs_page_input_path = "data-sources/foreman_katello_content_view.md";
+        var mkdocs_page_url = "/terraform-coop/terraform-provider-foreman/data-sources/foreman_katello_content_view/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Terraform Provider Foreman
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Data Sources</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_architecture/">foreman_architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_computeprofile/">foreman_computeprofile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_computeresource/">foreman_computeresource</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_defaulttemplate/">foreman_defaulttemplate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_domain/">foreman_domain</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_environment/">foreman_environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_global_parameter/">foreman_global_parameter</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_hostgroup/">foreman_hostgroup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_httpproxy/">foreman_httpproxy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_image/">foreman_image</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_product/">foreman_katello_product</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_repository/">foreman_katello_repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_sync_plan/">foreman_katello_sync_plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_media/">foreman_media</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_model/">foreman_model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_operatingsystem/">foreman_operatingsystem</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_parameter/">foreman_parameter</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_partitiontable/">foreman_partitiontable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_puppetclass/">foreman_puppetclass</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="../foreman_setting.md">foreman_setting</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_smartclassparameter/">foreman_smartclassparameter</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_smartproxy/">foreman_smartproxy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_templatekind/">foreman_templatekind</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_user/">foreman_user</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_usergroup/">foreman_usergroup</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Resources</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_architecture/">foreman_architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_computeprofile/">foreman_computeprofile</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_computeresource/">foreman_computeresource</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_defaulttemplate/">foreman_defaulttemplate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_domain/">foreman_domain</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_environment/">foreman_environment</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_global_parameter/">foreman_global_parameter</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_host/">foreman_host</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_hostgroup/">foreman_hostgroup</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_httpproxy/">foreman_httpproxy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_image/">foreman_image</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_katello_product/">foreman_katello_product</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_katello_repository/">foreman_katello_repository</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_katello_sync_plan/">foreman_katello_sync_plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_media/">foreman_media</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_model/">foreman_model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_operatingsystem/">foreman_operatingsystem</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_override_value/">foreman_override_value</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_parameter/">foreman_parameter</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_partitiontable/">foreman_partitiontable</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_smartproxy/">foreman_smartproxy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_user/">foreman_user</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../resources/foreman_usergroup/">foreman_usergroup</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Terraform Provider Foreman</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">foreman_katello_content_view</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/terraform-coop/terraform-provider-foreman/edit/master/docs/data-sources/foreman_katello_content_view.md">Edit on terraform-provider-foreman</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="foreman_katello_content_view">foreman_katello_content_view<a class="headerlink" href="#foreman_katello_content_view" title="Permanent link">&para;</a></h1>
+<p>(Composite) Content Views create an abstract view on a collection of repositories and allow versioning of these views. Additional fine tuning can be done with package filters.</p>
+<h2 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h2>
+<pre class="codehilite"><code># Autogenerated example with required keys
+data &quot;foreman_katello_content_view&quot; &quot;example&quot; {
+  name = &quot;my content view&quot;
+}
+</code></pre>
+
+<h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) Name of the content view.</li>
+</ul>
+<h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>auto_publish</code> - Relevant for Composite Content Views: 'Automatically publish a new version of the composite content view whenever one of its content views is published. Autopublish will only happen for component views that use the 'Always use latest version' option.'</li>
+<li><code>component_ids</code> - Relevant for CCVs: list of CV IDs.</li>
+<li><code>composite</code> - Is this Content View a Composite CV?</li>
+<li><code>description</code> - Description for the (composite) content view</li>
+<li><code>filter</code> - Content view filters and their rules. Currently read-only, to be used as data source</li>
+<li><code>label</code> - Label for the (composite) content view. Cannot be changed after creation. By default set to the name, with underscores as spaces replacement.</li>
+<li><code>name</code> - Name of the content view.</li>
+<li><code>organization_id</code> - </li>
+<li><code>repository_ids</code> - List of repository IDs.</li>
+<li><code>solve_dependencies</code> - Relevant for Content Views: 'This will solve RPM and module stream dependencies on every publish of this content view. Dependency solving significantly increases publish time (publishes can take over three times as long) and filters will be ignored when adding packages to solve dependencies. Also, certain scenarios involving errata may still cause dependency errors.'</li>
+</ul>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
