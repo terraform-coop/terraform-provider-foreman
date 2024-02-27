@@ -47,17 +47,17 @@ jobs:
 
   buildtest:
     runs-on: ubuntu-latest
-      steps:
-      - name: Run GoReleaser Test
-        uses: goreleaser/goreleaser-action@v5
-        with:
-          version: latest
-          args: release --rm-dist --snapshot
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - name: Run GoReleaser Test
+      uses: goreleaser/goreleaser-action@v5
+      with:
+        version: latest
+        args: release --rm-dist --snapshot
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload assets
-        uses: actions/upload-artifact@v3
-        with:
-          name: myapp
-          path: myfolder/dist/*
+    - name: Upload assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: myapp
+        path: myfolder/dist/*
