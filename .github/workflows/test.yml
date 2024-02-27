@@ -61,6 +61,8 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ github.run_id }}
-        path: dist/
+        path: |
+          dist/terraform-provider-foreman*
+          !dist/*.zip
         retention-days: 3
         overwrite: true
