@@ -17,12 +17,11 @@ jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.20.x,1.21.x,1.22.x]
+        go-version: ['>=1.21','>=1.22']
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
     - name: Install Go
-      if: success()
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
@@ -48,6 +47,12 @@ jobs:
   buildtest:
     runs-on: ubuntu-latest
     steps:
+    - name: Install Go
+      if: success()
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.22'
+
     - name: Run GoReleaser Test
       uses: goreleaser/goreleaser-action@v5
       with:
@@ -59,5 +64,5 @@ jobs:
     - name: Upload assets
       uses: actions/upload-artifact@v3
       with:
-        name: myapp
-        path: myfolder/dist/*
+        name: test-run
+        path: terraform-provider-foreman
