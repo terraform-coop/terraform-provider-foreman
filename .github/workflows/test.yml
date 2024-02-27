@@ -12,6 +12,7 @@ on:
     paths:
       - '**.go'
       - '.github/workflows/*.yml'
+  workflow_dispatch:
 jobs:
   test:
     strategy:
