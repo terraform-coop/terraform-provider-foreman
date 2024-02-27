@@ -60,6 +60,7 @@ jobs:
     - name: Upload assets
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ github.head_ref }}
+        name: ${{ github.run_id }}
         path: dist/
-        retention-days: 7
+        retention-days: 3
+        overwrite: true
