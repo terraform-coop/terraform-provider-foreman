@@ -1,48 +1,68 @@
 name: Test
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - '**.go'
   pull_request:
     branches:
       - master
     paths:
       - '**.go'
+      - '.github/workflows/*.yml'
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Install Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19.x
-    - name: Checkout code
-      uses: actions/checkout@v3
-
   test:
     strategy:
       matrix:
-        go-version: [1.18.x,1.19.x]
+        go-version: ['>=1.21','>=1.22']
         platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     steps:
     - name: Install Go
-      if: success()
       uses: actions/setup-go@v3
       with:
         go-version: ${{ matrix.go-version }}
+
     - name: Checkout code
       uses: actions/checkout@v3
+
     - name: Run go code tests
       run: go test ./... -v -covermode=count
+
     - name: Compile terraform provider binary
       run: go build
+
     - name: Install terraform
-      uses: hashicorp/setup-terraform@v2
+      uses: hashicorp/setup-terraform@v3
+
     - name: Test provider integrity
       run: terraform plan -input=false -no-color
       working-directory: ./examples/verify_provider
       env:
         TF_CLI_CONFIG_FILE: tfoverriderc
+
+  buildtest:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Go
+      if: success()
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.22'
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run GoReleaser Test
+      uses: goreleaser/goreleaser-action@v5
+      with:
+        version: latest
+        args: release --clean --snapshot --skip sign
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.run_id }}
+        path: |
+          dist/terraform-provider-foreman*
+          !dist/*.zip
+        retention-days: 3
+        overwrite: true
