@@ -1,5 +1,6 @@
 # Visit https://goreleaser.com for documentation on how to customize this
 # behavior.
+project_name: terraform-provider-foreman
 before:
   hooks:
     # this is just an example and not a requirement for provider building/publishing
@@ -16,9 +17,9 @@ builds:
   ldflags:
     - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
   goos:
-    - freebsd
     - windows
     - linux
+    - darwin
   goarch:
     - amd64
     - '386'
