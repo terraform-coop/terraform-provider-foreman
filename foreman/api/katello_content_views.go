@@ -265,30 +265,57 @@ func (c *Client) CreateKatelloContentView(ctx context.Context, cv *ContentView) 
 	return &createdCv, nil
 }
 
-func (c *Client) CreateKatelloContentViewFilters(ctx context.Context, cvId int, cvf *[]ContentViewFilter) (*[]ContentViewFilter, error) {
+func (c *Client) CreateKatelloContentViewFilters(ctx context.Context, cvId int, cvfs *[]ContentViewFilter) (*[]ContentViewFilter, error) {
 	utils.TraceFunctionCall()
 
 	endpoint := fmt.Sprintf(ContentViewFilters, cvId)
 
-	jsonBytes, err := c.WrapJSONWithTaxonomy(nil, cvf)
-	if err != nil {
-		return nil, err
+	var createdCvfs []ContentViewFilter
+
+	for _, cvf := range *cvfs {
+		jsonBytes, err := c.WrapJSONWithTaxonomy(nil, cvf)
+		if err != nil {
+			return nil, err
+		}
+
+		req, err := c.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(jsonBytes))
+		if err != nil {
+			return nil, err
+		}
+
+		var createdCvf ContentViewFilter
+
+		err = c.SendAndParse(req, &createdCvf)
+		if err != nil {
+			return nil, err
+		}
+
+		utils.Debugf("createdCvf: %+v", createdCvf)
+
+		// TODO: add call to  put /katello/api/content_views/:content_view_id/filters/:id/add_filter_rules here
+		createdRules, err := c.CreateKatelloContentViewFilterRules(ctx, createdCvf.Id, &cvf.Rules)
+		if err != nil {
+			utils.Fatalf("%+v", err)
+		}
+		createdCvf.Rules = *createdRules
+
+		createdCvfs = append(createdCvfs, createdCvf)
 	}
+	return &createdCvfs, nil
 
-	req, err := c.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(jsonBytes))
-	if err != nil {
-		return nil, err
-	}
+}
 
-	var createdCvf []ContentViewFilter
-	err = c.SendAndParse(req, &createdCvf)
-	if err != nil {
-		return nil, err
-	}
+func (c *Client) CreateKatelloContentViewFilterRules(ctx context.Context, cvfId int, cvfrs *[]ContentViewFilterRule) (*[]ContentViewFilterRule, error) {
+	utils.TraceFunctionCall()
+	_ = fmt.Sprintf(ContentViewFilterRules, cvfId)
 
-	utils.Debugf("createdCvf: %+v", createdCvf)
+	//rules_params[name]
+	//rules_params[uuid]
+	//rules_params[version]
+	//rules_params[architecture]
 
-	return &createdCvf, nil
+	var placeholderreturnvalue []ContentViewFilterRule
+	return &placeholderreturnvalue, nil
 }
 
 func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*ContentView, error) {

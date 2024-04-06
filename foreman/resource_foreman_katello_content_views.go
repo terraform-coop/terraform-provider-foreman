@@ -113,7 +113,7 @@ func resourceForemanKatelloContentView() *schema.Resource {
 			"filter": {
 				Type:        schema.TypeSet,
 				Required:    false,
-				Optional:    false,
+				Optional:    true,
 				Computed:    true,
 				Description: "Content view filters and their rules. Currently read-only, to be used as data source",
 				Elem: &schema.Resource{
@@ -154,6 +154,7 @@ func resourceForemanKatelloContentView() *schema.Resource {
 
 						"rule": {
 							Type:     schema.TypeSet,
+							Optional: true,
 							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -223,33 +224,36 @@ func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
 	// Handle list of ContentViewFilters
 	if filters, ok := d.GetOk("filter"); ok {
 		var cvfs []api.ContentViewFilter
+		filters := filters.(*schema.Set)
 
-		for _, cvfsResData := range filters.([]schema.ResourceData) {
+		for _, cvfsResData := range filters.List() {
 			var cvf api.ContentViewFilter
+			utils.Debugf("cvfsResData: %+v", cvfsResData)
 
-			cvf.Name = cvfsResData.Get("name").(string)
-			cvf.Type = cvfsResData.Get("type").(string)
-			cvf.Inclusion = cvfsResData.Get("inclusion").(bool)
-			cvf.Description = cvfsResData.Get("description").(string)
+			cvfsResData := cvfsResData.(map[string]interface{})
 
-			if rules, ok := cvfsResData.GetOk("rule"); ok {
+			cvf.Name = cvfsResData["name"].(string)
+			cvf.Type = cvfsResData["type"].(string)
+			cvf.Description = cvfsResData["description"].(string)
+			cvf.Inclusion = cvfsResData["inclusion"].(bool)
+
+			if rules, ok := cvfsResData["rule"]; ok {
 				var cvfrs []api.ContentViewFilterRule
+				rules := rules.(*schema.Set)
 
-				for _, rulesResData := range rules.([]schema.ResourceData) {
+				for _, rulesResData := range rules.List() {
 					var cvfr api.ContentViewFilterRule
+					rulesResData := rulesResData.(map[string]interface{})
 
-					cvfr.Name = rulesResData.Get("name").(string)
-					cvfr.Architecture = rulesResData.Get("architecture").(string)
+					cvfr.Name = rulesResData["name"].(string)
+					cvfr.Architecture = rulesResData["architecture"].(string)
 
 					cvfrs = append(cvfrs, cvfr)
 				}
-
 				cvf.Rules = cvfrs
 			}
-
 			cvfs = append(cvfs, cvf)
 		}
-
 		cv.Filters = cvfs
 	}
 
