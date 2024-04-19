@@ -10,11 +10,13 @@ import (
 )
 
 const (
-	ContentViewEndpointPrefix = "/katello/api/content_views"
-	ContentViewById           = ContentViewEndpointPrefix + "/%d"             // :id
-	ContentViewsByOrg         = "/katello/api/organizations/%d/content_views" // :organization_id
-	ContentViewFilters        = "/katello/api/content_views/%d/filters"       // :content_view_id
-	ContentViewFilterRules    = "/katello/api/content_view_filters/%d/rules"  // :content_view_filter_id
+	ContentViewEndpointPrefix    = "/katello/api/content_views"
+	ContentViewById              = ContentViewEndpointPrefix + "/%d"               // :id
+	ContentViewsByOrg            = "/katello/api/organizations/%d/content_views"   // :organization_id
+	ContentViewFilters           = "/katello/api/content_views/%d/filters"         // :content_view_id
+	ContentViewFiltersUpdate     = "/katello/api/content_views/%d/filters/%d"      // :content_view_id, :id
+	ContentViewFilterRules       = "/katello/api/content_view_filters/%d/rules"    // :content_view_filter_id
+	ContentViewFilterRulesUpdate = "/katello/api/content_view_filters/%d/rules/%d" // :content_view_filter_id, :id
 )
 
 // A ContentView contains repositories, filters etc. to manage specific views on the Katello contents.
@@ -292,7 +294,6 @@ func (c *Client) CreateKatelloContentViewFilters(ctx context.Context, cvId int, 
 
 		utils.Debugf("createdCvf: %+v", createdCvf)
 
-		// TODO: add call to  put /katello/api/content_views/:content_view_id/filters/:id/add_filter_rules here
 		createdRules, err := c.CreateKatelloContentViewFilterRules(ctx, createdCvf.Id, &cvf.Rules)
 		if err != nil {
 			utils.Fatalf("%+v", err)
@@ -307,15 +308,35 @@ func (c *Client) CreateKatelloContentViewFilters(ctx context.Context, cvId int, 
 
 func (c *Client) CreateKatelloContentViewFilterRules(ctx context.Context, cvfId int, cvfrs *[]ContentViewFilterRule) (*[]ContentViewFilterRule, error) {
 	utils.TraceFunctionCall()
-	_ = fmt.Sprintf(ContentViewFilterRules, cvfId)
+	endpoint := fmt.Sprintf(ContentViewFilterRules, cvfId)
 
-	//rules_params[name]
-	//rules_params[uuid]
-	//rules_params[version]
-	//rules_params[architecture]
+	// https://apidocs.theforeman.org/katello/latest/apidoc/v2/content_view_filter_rules/create.html
 
-	var placeholderreturnvalue []ContentViewFilterRule
-	return &placeholderreturnvalue, nil
+	var createdRules []ContentViewFilterRule
+	for _, rule := range *cvfrs {
+		jsonBytes, err := c.WrapJSONWithTaxonomy(nil, rule)
+		if err != nil {
+			return nil, err
+		}
+
+		req, err := c.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(jsonBytes))
+		if err != nil {
+			return nil, err
+		}
+
+		var createdRule ContentViewFilterRule
+
+		err = c.SendAndParse(req, &createdRule)
+		if err != nil {
+			return nil, err
+		}
+
+		utils.Debugf("createdRule: %+v", createdRule)
+
+		createdRules = append(createdRules, createdRule)
+	}
+
+	return &createdRules, nil
 }
 
 func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*ContentView, error) {
@@ -334,7 +355,7 @@ func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*C
 		return nil, err
 	}
 
-	cvfs, err := c.ReadContentViewFilters(ctx, cv.Id)
+	cvfs, err := c.ReadKatelloContentViewFilters(ctx, cv.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -345,25 +366,25 @@ func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*C
 	return &cv, nil
 }
 
-func (c *Client) ReadContentViewFilters(ctx context.Context, cvId int) (*[]ContentViewFilter, error) {
+func (c *Client) ReadKatelloContentViewFilters(ctx context.Context, cvId int) (*[]ContentViewFilter, error) {
 	utils.TraceFunctionCall()
 
-	reqEndpoint := fmt.Sprintf(ContentViewFilters, cvId)
-	var cvf []ContentViewFilter
-
-	req, err := c.NewRequestWithContext(ctx, http.MethodGet, reqEndpoint, nil)
+	qr, err := c.QueryContentViewFilters(ctx, cvId)
 	if err != nil {
 		return nil, err
 	}
 
-	err = c.SendAndParse(req, &cvf)
-	if err != nil {
-		return nil, err
+	utils.Debugf("qr: %+v", qr)
+	var cvfs []ContentViewFilter
+
+	// TODO: this is redundant if queryResponse.Results already did the conversion
+	for _, item := range qr.Results {
+		cvfs = append(cvfs, item.(ContentViewFilter))
 	}
 
-	utils.Debugf("read content_view filter: %+v", cvf)
+	utils.Debugf("read content_view filters: %+v", cvfs)
 
-	return &cvf, nil
+	return &cvfs, nil
 }
 
 func (c *Client) UpdateKatelloContentView(ctx context.Context, cv *ContentView) (*ContentView, error) {
@@ -400,32 +421,73 @@ func (c *Client) UpdateKatelloContentView(ctx context.Context, cv *ContentView) 
 	return &updatedCv, nil
 }
 
-func (c *Client) UpdateKatelloContentViewFilters(ctx context.Context, cvId int, cvf *[]ContentViewFilter) (*[]ContentViewFilter, error) {
+func (c *Client) UpdateKatelloContentViewFilters(ctx context.Context, cvId int, cvfs *[]ContentViewFilter) (*[]ContentViewFilter, error) {
 	utils.TraceFunctionCall()
 
-	endpoint := fmt.Sprintf(ContentViewFilters, cvId)
+	var updatedCvfs []ContentViewFilter
 
-	jsonBytes, err := c.WrapJSONWithTaxonomy(nil, cvf)
-	if err != nil {
-		return nil, err
+	for _, item := range *cvfs {
+		endpoint := fmt.Sprintf(ContentViewFiltersUpdate, cvId, item.Id)
+
+		jsonBytes, err := c.WrapJSONWithTaxonomy(nil, item)
+		if err != nil {
+			return nil, err
+		}
+
+		utils.Debugf("jsonBytes: %s", jsonBytes)
+
+		req, err := c.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewBuffer(jsonBytes))
+		if err != nil {
+			return nil, err
+		}
+
+		var updatedCvf ContentViewFilter
+		err = c.SendAndParse(req, &updatedCvf)
+		if err != nil {
+			return nil, err
+		}
+
+		cvfrs, err := c.UpdateKatelloContentViewFilterRules(ctx, updatedCvf.Id, &item.Rules)
+		if err != nil {
+			return nil, err
+		}
+		updatedCvf.Rules = *cvfrs
+
+		utils.Debugf("updatedCvf: %+v", updatedCvf)
+
+		updatedCvfs = append(updatedCvfs, updatedCvf)
 	}
 
-	utils.Debugf("jsonBytes: %s", jsonBytes)
+	return &updatedCvfs, nil
+}
 
-	req, err := c.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewBuffer(jsonBytes))
-	if err != nil {
-		return nil, err
+func (c *Client) UpdateKatelloContentViewFilterRules(ctx context.Context, cvId int, cvfrs *[]ContentViewFilterRule) (*[]ContentViewFilterRule, error) {
+	utils.TraceFunctionCall()
+
+	var updatedRules []ContentViewFilterRule
+	for _, item := range *cvfrs {
+		endpoint := fmt.Sprintf(ContentViewFilterRulesUpdate, cvId, item.Id)
+		jsonBytes, err := c.WrapJSONWithTaxonomy(nil, item)
+		if err != nil {
+			return nil, err
+		}
+
+		utils.Debugf("jsonBytes: %s", jsonBytes)
+		req, err := c.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewBuffer(jsonBytes))
+		if err != nil {
+			return nil, err
+		}
+
+		var updatedCvfr ContentViewFilterRule
+		err = c.SendAndParse(req, &updatedCvfr)
+		if err != nil {
+			return nil, err
+		}
+
+		utils.Debugf("updatedCvfr: %+v", updatedCvfr)
+		updatedRules = append(updatedRules, updatedCvfr)
 	}
-
-	var updatedCvf []ContentViewFilter
-	err = c.SendAndParse(req, &updatedCvf)
-	if err != nil {
-		return nil, err
-	}
-
-	utils.Debugf("updatedCvf: %+v", updatedCvf)
-
-	return &updatedCvf, nil
+	return &updatedRules, nil
 }
 
 // DeleteKatelloContentView also deletes all Filters and Rules

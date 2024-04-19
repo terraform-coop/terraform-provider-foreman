@@ -453,7 +453,10 @@ func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, erro
 func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) ([]byte, error) {
 	utils.TraceFunctionCall()
 
-	wrapped, _ := client.wrapParameters(name, item)
+	wrapped, err := client.wrapParameters(name, item)
+	if err != nil {
+		return nil, err
+	}
 
 	// Workaround for Foreman versions < 1.21 in case no default location/organization was defined for resources
 	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {

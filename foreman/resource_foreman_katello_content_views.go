@@ -111,73 +111,94 @@ func resourceForemanKatelloContentView() *schema.Resource {
 			},
 
 			"filter": {
-				Type:        schema.TypeSet,
-				Required:    false,
+				Type:        schema.TypeList,
 				Optional:    true,
-				Computed:    true,
-				Description: "Content view filters and their rules. Currently read-only, to be used as data source",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
+				Description: "Content view filters and their rules.",
+				Elem:        resourceForemanKatelloContentViewFilter(),
+			},
 
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"deb",
-								"rpm",
-								"package_group",
-								"erratum",
-								"erratum_id",
-								"erratum_date",
-								"docker",
-								"modulemd",
-							}, false),
-							Description: "Type of this filter, e.g. DEB or RPM",
-						},
+			"filtered": {
+				Type:     schema.TypeBool,
+				Required: false,
+				Computed: true,
+			},
+		},
+	}
+}
 
-						"inclusion": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-							Description: "specifies if content should be included or excluded, " +
-								"default: inclusion=false",
-						},
+func resourceForemanKatelloContentViewFilter() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
 
-						"rule": {
-							Type:     schema.TypeSet,
-							Optional: true,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"architecture": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"deb",
+					"rpm",
+					"package_group",
+					"erratum",
+					"erratum_id",
+					"erratum_date",
+					"docker",
+					"modulemd",
+				}, false),
+				Description: "Type of this filter, e.g. DEB or RPM",
+			},
 
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: fmt.Sprintf("Filter pattern of this filter %s apt*",
-											autodoc.MetaExample),
-									},
-								},
-							},
-						},
+			"inclusion": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: "specifies if content should be included or excluded, " +
+					"default: inclusion=false",
+			},
 
-						//original_packages bool
-						//original_module_streams bool
-						//repository_ids []interface
-					},
-				},
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"rule": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     resourceForemanKatelloContentViewFilterRule(),
+			},
+
+			//original_packages bool
+			//original_module_streams bool
+			//repository_ids []interface
+		},
+	}
+}
+
+func resourceForemanKatelloContentViewFilterRule() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"architecture": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: fmt.Sprintf("Filter pattern of this filter %s apt*",
+					autodoc.MetaExample),
 			},
 		},
 	}
@@ -224,14 +245,15 @@ func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
 	// Handle list of ContentViewFilters
 	if filters, ok := d.GetOk("filter"); ok {
 		var cvfs []api.ContentViewFilter
-		filters := filters.(*schema.Set)
+		filters := filters.([]interface{})
 
-		for _, cvfsResData := range filters.List() {
+		for _, cvfsResData := range filters {
 			var cvf api.ContentViewFilter
 			utils.Debugf("cvfsResData: %+v", cvfsResData)
 
 			cvfsResData := cvfsResData.(map[string]interface{})
 
+			cvf.Id = cvfsResData["id"].(int)
 			cvf.Name = cvfsResData["name"].(string)
 			cvf.Type = cvfsResData["type"].(string)
 			cvf.Description = cvfsResData["description"].(string)
@@ -239,12 +261,13 @@ func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
 
 			if rules, ok := cvfsResData["rule"]; ok {
 				var cvfrs []api.ContentViewFilterRule
-				rules := rules.(*schema.Set)
+				rules := rules.([]interface{})
 
-				for _, rulesResData := range rules.List() {
+				for _, rulesResData := range rules {
 					var cvfr api.ContentViewFilterRule
 					rulesResData := rulesResData.(map[string]interface{})
 
+					cvfr.Id = rulesResData["id"].(int)
 					cvfr.Name = rulesResData["name"].(string)
 					cvfr.Architecture = rulesResData["architecture"].(string)
 
@@ -276,9 +299,14 @@ func setResourceDataFromForemanKatelloContentView(d *schema.ResourceData, cv *ap
 	d.Set("component_ids", cv.ComponentIds)
 
 	// Handle ContentViewFilters and their ContentViewFilterRules
-	var filterSet []map[string]interface{}
-	for _, item := range cv.Filters {
+
+	//hashSetFuncFilters := schema.HashResource(resourceForemanKatelloContentViewFilter())
+	//hashSetFuncFilterRules := schema.HashResource(resourceForemanKatelloContentViewFilterRule())
+
+	filterSet := make([]interface{}, len(cv.Filters))
+	for idx, item := range cv.Filters {
 		newFilter := map[string]interface{}{
+			"id":          item.Id,
 			"name":        item.Name,
 			"type":        item.Type,
 			"inclusion":   item.Inclusion,
@@ -286,20 +314,28 @@ func setResourceDataFromForemanKatelloContentView(d *schema.ResourceData, cv *ap
 			"rule":        nil,
 		}
 
-		var ruleSet []map[string]interface{}
-		for _, item2 := range item.Rules {
+		ruleSet := make([]interface{}, len(item.Rules))
+		for idx2, item2 := range item.Rules {
 			newRule := map[string]interface{}{
+				"id":           item2.Id,
 				"name":         item2.Name,
 				"architecture": item2.Architecture,
 			}
-			ruleSet = append(ruleSet, newRule)
+			ruleSet[idx2] = newRule
 		}
+		//srs := schema.NewSet(hashSetFuncFilterRules, ruleSet)
 
 		newFilter["rule"] = ruleSet
 
-		filterSet = append(filterSet, newFilter)
+		filterSet[idx] = newFilter
 	}
-	d.Set("filter", filterSet)
+
+	//sfs := schema.NewSet(hashSetFuncFilters, filterSet)
+
+	err := d.Set("filter", filterSet)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func resourceForemanKatelloContentViewCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
