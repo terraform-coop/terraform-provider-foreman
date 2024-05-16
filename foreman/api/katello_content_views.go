@@ -14,6 +14,7 @@ const (
 	ContentViewById              = ContentViewEndpointPrefix + "/%d"               // :id
 	ContentViewsByOrg            = "/katello/api/organizations/%d/content_views"   // :organization_id
 	ContentViewFilters           = "/katello/api/content_views/%d/filters"         // :content_view_id
+	ContentViewPublish           = "/katello/api/content_views/%d/publish"         // :id
 	ContentViewFiltersUpdate     = "/katello/api/content_views/%d/filters/%d"      // :content_view_id, :id
 	ContentViewFilterRules       = "/katello/api/content_view_filters/%d/rules"    // :content_view_filter_id
 	ContentViewFilterRulesUpdate = "/katello/api/content_view_filters/%d/rules/%d" // :content_view_filter_id, :id
@@ -264,7 +265,30 @@ func (c *Client) CreateKatelloContentView(ctx context.Context, cv *ContentView) 
 
 	utils.Debugf("createdCv: %+v", createdCv)
 
-	return &createdCv, nil
+	// Publish an initial version
+	publishedCv, err := publishNewContentView(c, ctx, createdCv)
+	if err != nil {
+		return nil, err
+	}
+
+	return publishedCv, nil
+}
+
+func publishNewContentView(c *Client, ctx context.Context, createdCv ContentView) (*ContentView, error) {
+	publishEndpoint := fmt.Sprintf(ContentViewPublish, createdCv.Id)
+	req, err := c.NewRequestWithContext(ctx, http.MethodPost, publishEndpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var publishedCv ContentView
+	err = c.SendAndParse(req, &publishedCv)
+	if err != nil {
+		return nil, err
+	}
+
+	utils.Debugf("publishdCv: %+v", publishedCv)
+	return &publishedCv, nil
 }
 
 func (c *Client) CreateKatelloContentViewFilters(ctx context.Context, cvId int, cvfs *[]ContentViewFilter) (*[]ContentViewFilter, error) {

@@ -175,7 +175,7 @@ func Provider() *schema.Provider {
 			},
 		},
 
-ResourcesMap: map[string]*schema.Resource{
+		ResourcesMap: map[string]*schema.Resource{
 			"foreman_architecture":                  resourceForemanArchitecture(),
 			"foreman_host":                          resourceForemanHost(),
 			"foreman_hostgroup":                     resourceForemanHostgroup(),

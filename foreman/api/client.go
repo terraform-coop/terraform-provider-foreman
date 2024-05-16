@@ -388,9 +388,28 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 
 		if asyncTask.Pending {
 			log.Debugf("KatelloResponse is pending")
-			err = client.waitForKatelloAsyncTask(asyncTask.Id)
+			finishedTask, err := client.waitForKatelloAsyncTask(asyncTask.Id)
 			if err != nil {
 				return err
+			}
+
+			switch finishedTask.Label {
+			case "Actions::Katello::ContentView::Publish":
+				output := finishedTask.Output.(map[string]interface{})
+				cvToRead := ContentView{
+					ForemanObject: ForemanObject{Id: int(output["content_view_id"].(float64))},
+				}
+
+				ctx := context.TODO()
+				updatedCv, err := client.ReadKatelloContentView(ctx, &cvToRead)
+				if err != nil {
+					return err
+				}
+
+				respBody, err = json.Marshal(updatedCv)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

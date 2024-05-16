@@ -66,10 +66,11 @@ func resourceForemanKatelloContentView() *schema.Resource {
 			},
 
 			"composite": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: fmt.Sprintf("Is this Content View a Composite CV? %s false", autodoc.MetaExample),
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"repository_ids"},
+				Description:   fmt.Sprintf("Is this Content View a Composite CV? %s false", autodoc.MetaExample),
 			},
 
 			"solve_dependencies": {
@@ -97,8 +98,9 @@ func resourceForemanKatelloContentView() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
-				Optional:    true,
-				Description: fmt.Sprintf("List of repository IDs. %s [1, 4, 5]", autodoc.MetaExample),
+				Optional:      true,
+				ConflictsWith: []string{"composite"},
+				Description:   fmt.Sprintf("List of repository IDs. %s [1, 4, 5]", autodoc.MetaExample),
 			},
 
 			"component_ids": {
@@ -107,7 +109,7 @@ func resourceForemanKatelloContentView() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 				Optional:    true,
-				Description: fmt.Sprintf("Relevant for CCVs: list of CV IDs. %s [1, 4]", autodoc.MetaExample),
+				Description: fmt.Sprintf("Relevant for CCVs: list of CV version IDs. %s [1, 4]", autodoc.MetaExample),
 			},
 
 			"filter": {
