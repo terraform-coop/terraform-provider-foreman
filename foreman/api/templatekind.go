@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -35,7 +34,7 @@ type ForemanTemplateKind struct {
 // ReadTemplateKind reads the attributes of a ForemanTemplateKind identified by
 // the supplied ID and returns a ForemanTemplateKind reference.
 func (c *Client) ReadTemplateKind(ctx context.Context, id int) (*ForemanTemplateKind, error) {
-	log.Tracef("foreman/api/templatekind.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", TemplateKindEndpointPrefix, id)
 
@@ -55,7 +54,7 @@ func (c *Client) ReadTemplateKind(ctx context.Context, id int) (*ForemanTemplate
 		return nil, sendErr
 	}
 
-	log.Debugf("readTemplateKind: [%+v]", readTemplateKind)
+	utils.Debugf("readTemplateKind: [%+v]", readTemplateKind)
 
 	return &readTemplateKind, nil
 }
@@ -68,7 +67,7 @@ func (c *Client) ReadTemplateKind(ctx context.Context, id int) (*ForemanTemplate
 // of the supplied ForemanTemplateKind reference and returns a QueryResponse
 // struct containing query/response metadata and the matching template kinds
 func (c *Client) QueryTemplateKind(ctx context.Context, t *ForemanTemplateKind) (QueryResponse, error) {
-	log.Tracef("foreman/api/templatekind.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -94,7 +93,7 @@ func (c *Client) QueryTemplateKind(ctx context.Context, t *ForemanTemplateKind) 
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

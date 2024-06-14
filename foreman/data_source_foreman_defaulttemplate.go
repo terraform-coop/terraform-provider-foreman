@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -39,12 +39,12 @@ func dataSourceForemanDefaultTemplate() *schema.Resource {
 }
 
 func dataSourceForemanDefaultTemplateRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_defaultTemplate.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	defaultTemplate := buildForemanDefaultTemplate(d)
 
-	log.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
+	utils.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
 
 	queryResponse, queryErr := client.QueryDefaultTemplate(ctx, defaultTemplate)
 	if queryErr != nil {
@@ -68,7 +68,7 @@ func dataSourceForemanDefaultTemplateRead(ctx context.Context, d *schema.Resourc
 	}
 	defaultTemplate = &queryDefaultTemplate
 
-	log.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
+	utils.Debugf("ForemanDefaultTemplate: [%+v]", defaultTemplate)
 
 	setResourceDataFromForemanDefaultTemplate(d, defaultTemplate)
 

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -34,7 +33,7 @@ func dataSourceForemanTemplateInputRead(ctx context.Context, d *schema.ResourceD
 
 	built.Name = readResponse.Name
 
-	log.Debugf("ForemanTemplateInput: [%+v]", built)
+	utils.Debugf("ForemanTemplateInput: [%+v]", built)
 
 	setResourceDataFromForemanTemplateInput(d, built)
 

@@ -3,11 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 	"strings"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -84,7 +84,7 @@ func resourceForemanImage() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanImage(d *schema.ResourceData) *api.ForemanImage {
-	log.Tracef("resource_foreman_image.go#buildForemanImage")
+	utils.TraceFunctionCall()
 
 	image := api.ForemanImage{}
 
@@ -122,7 +122,7 @@ func buildForemanImage(d *schema.ResourceData) *api.ForemanImage {
 // setResourceDataFromForemanImage sets a ResourceData's attributes from the
 // attributes of the supplied ForemanImage reference
 func setResourceDataFromForemanImage(d *schema.ResourceData, fd *api.ForemanImage) {
-	log.Tracef("resource_foreman_image.go#setResourceDataFromForemanImage")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -139,16 +139,16 @@ func setResourceDataFromForemanImage(d *schema.ResourceData, fd *api.ForemanImag
 // -----------------------------------------------------------------------------
 
 func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	img := buildForemanImage(d)
 
-	log.Debugf("img: [%+v]", img)
+	utils.Debugf("img: [%+v]", img)
 
 	createdImage, createErr := client.CreateImage(ctx, img, img.ComputeResourceID)
 	if createErr != nil {
-		log.Debugf("%+v", createErr)
+		utils.Debugf("%+v", createErr)
 
 		isUuidError := strings.Contains(createErr.(api.HTTPError).RespBody, "UUID has already been taken")
 		if createErr.(api.HTTPError).StatusCode == 422 && isUuidError {
@@ -164,19 +164,19 @@ func resourceForemanImageCreate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	image := buildForemanImage(d)
 
-	log.Debugf("ForemanImage: [%+v]", image)
+	utils.Debugf("ForemanImage: [%+v]", image)
 
 	readImage, readErr := client.ReadImage(ctx, image)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanImage: [%+v]", readImage)
+	utils.Debugf("Read ForemanImage: [%+v]", readImage)
 
 	setResourceDataFromForemanImage(d, readImage)
 
@@ -184,7 +184,7 @@ func resourceForemanImageRead(ctx context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	img := buildForemanImage(d)
@@ -205,7 +205,7 @@ func resourceForemanImageUpdate(ctx context.Context, d *schema.ResourceData, met
 }
 
 func resourceForemanImageDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_image.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	image := buildForemanImage(d)

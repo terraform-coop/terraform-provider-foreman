@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -39,12 +39,12 @@ func dataSourceForemanMedia() *schema.Resource {
 }
 
 func dataSourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_media.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	m := buildForemanMedia(d)
 
-	log.Debugf("ForemanMedia: [%+v]", m)
+	utils.Debugf("ForemanMedia: [%+v]", m)
 
 	queryResponse, queryErr := client.QueryMedia(ctx, m)
 	if queryErr != nil {
@@ -68,7 +68,7 @@ func dataSourceForemanMediaRead(ctx context.Context, d *schema.ResourceData, met
 	}
 	m = &queryMedia
 
-	log.Debugf("ForemanMedia: [%+v]", m)
+	utils.Debugf("ForemanMedia: [%+v]", m)
 
 	setResourceDataFromForemanMedia(d, m)
 

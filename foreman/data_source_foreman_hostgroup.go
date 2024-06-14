@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -43,12 +43,12 @@ func dataSourceForemanHostgroup() *schema.Resource {
 }
 
 func dataSourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_hostgroup.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	queryResponse, queryErr := client.QueryHostgroup(ctx, h)
 	if queryErr != nil {
@@ -72,7 +72,7 @@ func dataSourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData,
 	}
 	h = &queryHostgroup
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	setResourceDataFromForemanHostgroup(d, h)
 

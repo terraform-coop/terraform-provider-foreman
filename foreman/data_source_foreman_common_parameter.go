@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -39,12 +39,12 @@ func dataSourceForemanCommonParameter() *schema.Resource {
 }
 
 func dataSourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_common_parameter.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	commonParameter := buildForemanCommonParameter(d)
 
-	log.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
+	utils.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
 
 	queryResponse, queryErr := client.QueryCommonParameter(ctx, commonParameter)
 	if queryErr != nil {
@@ -68,7 +68,7 @@ func dataSourceForemanCommonParameterRead(ctx context.Context, d *schema.Resourc
 	}
 	commonParameter = &queryCommonParameter
 
-	log.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
+	utils.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
 
 	setResourceDataFromForemanCommonParameter(d, commonParameter)
 

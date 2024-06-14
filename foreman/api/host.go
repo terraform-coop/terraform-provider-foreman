@@ -5,10 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strings"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -199,6 +198,8 @@ type BMCBoot struct {
 //
 // Example: https://<foreman>/api/hosts/<hostname>/boot
 func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd interface{}, retryCount int) error {
+	utils.TraceFunctionCall()
+
 	// Initialize suffix variable,
 	suffix := ""
 
@@ -219,7 +220,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 	if jsonEncErr != nil {
 		return jsonEncErr
 	}
-	log.Debugf("JSONBytes: [%s]", JSONBytes)
+	utils.Debugf("JSONBytes: [%s]", JSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(ctx, http.MethodPut, reqHost, bytes.NewBuffer(JSONBytes))
 	if reqErr != nil {
@@ -231,7 +232,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 	// retry until the successful Operation
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("SendPower: Retry #[%d]", retry)
+		utils.Debugf("SendPower: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &cmd)
 		if sendErr != nil {
 			retry++
@@ -248,7 +249,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 	powerMap, _ := cmd.(map[string]interface{})
 	bootMap, _ := cmd.(map[string]map[string]interface{})
 
-	log.Debugf("Power Response: [%+v]", cmd)
+	utils.Debugf("Power Response: [%+v]", cmd)
 
 	// Test operation and return an error if result is false
 	if powerMap[PowerSuffix] == false || bootMap[BootSuffix]["result"] == false {
@@ -266,7 +267,7 @@ func (c *Client) SendPowerCommand(ctx context.Context, h *ForemanHost, cmd inter
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#CreateHost")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", HostEndpointPrefix)
 
@@ -275,7 +276,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -294,7 +295,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	// retry until successful Host creation
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("CreatedHost: Retry #[%d]", retry)
+		utils.Debugf("CreatedHost: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &createdHost)
 		if sendErr != nil {
 			retry++
@@ -321,7 +322,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		createdHost.ComputeAttributes = computeAttributes
 	}
 
-	log.Debugf("createdHost: [%+v]", createdHost)
+	utils.Debugf("createdHost: [%+v]", createdHost)
 
 	return &createdHost.ForemanHost, nil
 }
@@ -329,7 +330,7 @@ func (c *Client) CreateHost(ctx context.Context, h *ForemanHost, retryCount int)
 // ReadHost reads the attributes of a ForemanHost identified by the supplied ID
 // and returns a ForemanHost reference.
 func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#ReadHost")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
@@ -369,7 +370,7 @@ func (c *Client) ReadHost(ctx context.Context, id int) (*ForemanHost, error) {
 // supplied ForemanHost will be updated. A new ForemanHost reference is
 // returned with the attributes from the result of the update operation.
 func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int) (*ForemanHost, error) {
-	log.Tracef("foreman/api/host.go#UpdateHost")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, h.Id)
 
@@ -378,7 +379,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("hostJSONBytes: [%s]", hJSONBytes)
+	utils.Debugf("hostJSONBytes: [%s]", hJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -396,7 +397,7 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	// retry until the successful Host Update
 	// or until # of allowed retries is reached
 	for retry < retryCount {
-		log.Debugf("UpdateHost: Retry #[%d]", retry)
+		utils.Debugf("UpdateHost: Retry #[%d]", retry)
 		sendErr = c.SendAndParse(req, &updatedHost)
 		if sendErr != nil {
 			retry++
@@ -421,14 +422,14 @@ func (c *Client) UpdateHost(ctx context.Context, h *ForemanHost, retryCount int)
 	updatedHost.PuppetClassIds = foremanObjectArrayToIdIntArray(updatedHost.PuppetClassesDecode)
 	updatedHost.ConfigGroupIds = foremanObjectArrayToIdIntArray(updatedHost.ConfigGroupsDecode)
 	updatedHost.HostParameters = updatedHost.HostParametersDecode
-	log.Debugf("updatedHost: [%+v]", updatedHost)
+	utils.Debugf("updatedHost: [%+v]", updatedHost)
 
 	return &updatedHost.ForemanHost, nil
 }
 
 // DeleteHost deletes the ForemanHost identified by the supplied ID
 func (c *Client) DeleteHost(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/host.go#DeleteHost")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", HostEndpointPrefix, id)
 
@@ -447,7 +448,7 @@ func (c *Client) DeleteHost(ctx context.Context, id int) error {
 
 // Compute Attributes are only available via dedicated API endpoint. readComputeAttributes gets this endpoint.
 func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]interface{}, error) {
-	log.Tracef("foreman/api/host.go#readComputeAttributes")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d/%s", HostEndpointPrefix, id, ComputeAttributesSuffix)
 
@@ -476,7 +477,7 @@ func (c *Client) readComputeAttributes(ctx context.Context, id int) (map[string]
 }
 
 func constructShortname(host *foremanHostDecode) error {
-	log.Tracef("foreman/api/host.go#constructShortname")
+	utils.TraceFunctionCall()
 
 	// Construct shortname from 'name'
 	if host.Shortname == "" {
@@ -490,14 +491,14 @@ func constructShortname(host *foremanHostDecode) error {
 
 		// Sanity check
 		if host.DomainName != "" && host.DomainName != after {
-			log.Errorf("After Cut of host.Name to find the shortname, the domain part did not match the rest of the 'name' string")
+			utils.Errorf("After Cut of host.Name to find the shortname, the domain part did not match the rest of the 'name' string")
 		}
 
 		// If all went well, set the shortname to the first string from FQDN ('name' in Foreman)
-		log.Debugf("constructShortname: Shortname will be set to first element from FQDN: %s", before)
+		utils.Debugf("constructShortname: Shortname will be set to first element from FQDN: %s", before)
 		host.Shortname = before
 	} else {
-		log.Debugf("constructShortname: host.Shortname is not empty (is %s), so nothing is done", host.Shortname)
+		utils.Debugf("constructShortname: host.Shortname is not empty (is %s), so nothing is done", host.Shortname)
 	}
 	return nil
 }

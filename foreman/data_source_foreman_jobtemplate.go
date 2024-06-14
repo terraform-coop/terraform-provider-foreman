@@ -6,7 +6,6 @@ import (
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -60,7 +59,7 @@ func dataSourceForemanJobTemplateRead(ctx context.Context, d *schema.ResourceDat
 		)
 	}
 
-	log.Debugf("ForemanJobTemplate: [%+v]", queryJt)
+	utils.Debugf("ForemanJobTemplate: [%+v]", queryJt)
 
 	setResourceDataFromForemanJobTemplate(d, &queryJt)
 

@@ -3,10 +3,9 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strings"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -30,7 +29,7 @@ type ForemanPuppetClass struct {
 // ReadPuppetClass reads the attributes of a ForemanPuppetClass identified by
 // the supplied ID and returns a ForemanPuppetClass reference.
 func (c *Client) ReadPuppetClass(ctx context.Context, id int) (*ForemanPuppetClass, error) {
-	log.Tracef("foreman/api/puppetclass.go#Read")
+	utils.TraceFunctionCall()
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -48,7 +47,7 @@ func (c *Client) ReadPuppetClass(ctx context.Context, id int) (*ForemanPuppetCla
 		return nil, sendErr
 	}
 
-	log.Debugf("readCPuppetClass: [%+v]", readPuppetClass)
+	utils.Debugf("readCPuppetClass: [%+v]", readPuppetClass)
 
 	return &readPuppetClass, nil
 }
@@ -65,7 +64,7 @@ func (c *Client) ReadPuppetClass(ctx context.Context, id int) (*ForemanPuppetCla
 // To work around this the results field is unmarshalled and then remarshalled
 // into an array to normalise it
 func (c *Client) QueryPuppetClass(ctx context.Context, t *ForemanPuppetClass) (QueryResponse, error) {
-	log.Tracef("foreman/api/puppetclass.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponsePuppet{}
 	realQueryResponse := QueryResponse{}
@@ -91,7 +90,7 @@ func (c *Client) QueryPuppetClass(ctx context.Context, t *ForemanPuppetClass) (Q
 		return QueryResponse{}, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	nestedIndex := strings.Index(t.Name, ":")
 	var indexName string

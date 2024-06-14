@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
@@ -121,7 +120,7 @@ func resourceForemanTemplateInput() *schema.Resource {
 					"resource",
 				}, false),
 				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
-					log.Debugf("DiffSuppressFunc for template_input value_type: '%s' '%s' '%s'", k, oldValue, newValue)
+					utils.Debugf("DiffSuppressFunc for template_input value_type: '%s' '%s' '%s'", k, oldValue, newValue)
 
 					// Using only `d.IsNewResource` as check does not work, so we check the Id value as well
 					isNew := d.IsNewResource() || d.Id() == ""
@@ -147,7 +146,7 @@ func resourceForemanTemplateInput() *schema.Resource {
 func buildForemanTemplateInput(d *schema.ResourceData) *api.ForemanTemplateInput {
 	utils.TraceFunctionCall()
 
-	utils.Debug("buildForemanTemplateInput schema: %+v", d)
+	utils.Debugf("buildForemanTemplateInput schema: %+v", d)
 
 	newObj := api.ForemanTemplateInput{}
 
@@ -197,7 +196,7 @@ func buildForemanTemplateInput(d *schema.ResourceData) *api.ForemanTemplateInput
 		newObj.ResourceType = attr.(string)
 	}
 
-	log.Debugf("newObj: %+v", newObj)
+	utils.Debugf("newObj: %+v", newObj)
 
 	return &newObj
 }
@@ -222,7 +221,7 @@ func setResourceDataFromForemanTemplateInput(resdata *schema.ResourceData, ti *a
 	resdata.Set("value_type", ti.ValueType)
 	resdata.Set("resource_type", ti.ResourceType)
 
-	utils.Debug("resdata after setResourceDataFromForemanTemplateInput: %+v", resdata)
+	utils.Debugf("resdata after setResourceDataFromForemanTemplateInput: %+v", resdata)
 }
 
 // Resource CRUD Operations
@@ -249,14 +248,14 @@ func resourceForemanTemplateInputRead(ctx context.Context, resdata *schema.Resou
 	client := meta.(*api.Client)
 	built := buildForemanTemplateInput(resdata)
 
-	log.Debugf("ForemanTemplateInput: [%+v]", built)
+	utils.Debugf("ForemanTemplateInput: [%+v]", built)
 
 	read, err := client.ReadTemplateInput(ctx, built)
 	if err != nil {
 		return diag.FromErr(api.CheckDeleted(resdata, err))
 	}
 
-	log.Debugf("Read ForemanTemplateInput: [%+v]", read)
+	utils.Debugf("Read ForemanTemplateInput: [%+v]", read)
 
 	setResourceDataFromForemanTemplateInput(resdata, read)
 

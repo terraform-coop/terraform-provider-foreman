@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -45,7 +44,7 @@ type ForemanSmartProxy struct {
 // ForemanSmartProxy reference.  The returned reference will have its ID and
 // other API default values set by this function.
 func (c *Client) CreateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*ForemanSmartProxy, error) {
-	log.Tracef("foreman/api/smartproxy.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", SmartProxyEndpointPrefix)
 
@@ -54,7 +53,7 @@ func (c *Client) CreateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -72,7 +71,7 @@ func (c *Client) CreateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, sendErr
 	}
 
-	log.Debugf("createdSmartProxy: [%+v]", createdSmartProxy)
+	utils.Debugf("createdSmartProxy: [%+v]", createdSmartProxy)
 
 	return &createdSmartProxy, nil
 }
@@ -80,7 +79,7 @@ func (c *Client) CreateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 // ReadSmartProxy reads the attributes of a ForemanSmartProxy identified by the
 // supplied ID and returns a ForemanSmartProxy reference.
 func (c *Client) ReadSmartProxy(ctx context.Context, id int) (*ForemanSmartProxy, error) {
-	log.Tracef("foreman/api/smartproxy.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SmartProxyEndpointPrefix, id)
 
@@ -100,7 +99,7 @@ func (c *Client) ReadSmartProxy(ctx context.Context, id int) (*ForemanSmartProxy
 		return nil, sendErr
 	}
 
-	log.Debugf("readSmartProxy: [%+v]", readSmartProxy)
+	utils.Debugf("readSmartProxy: [%+v]", readSmartProxy)
 
 	return &readSmartProxy, nil
 }
@@ -110,7 +109,7 @@ func (c *Client) ReadSmartProxy(ctx context.Context, id int) (*ForemanSmartProxy
 // ForemanSmartProxy reference is returned with the attributes from the result
 // of the update operation.
 func (c *Client) UpdateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*ForemanSmartProxy, error) {
-	log.Tracef("foreman/api/smartproxy.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SmartProxyEndpointPrefix, s.Id)
 
@@ -119,7 +118,7 @@ func (c *Client) UpdateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
+	utils.Debugf("smartproxyJSONBytes: [%s]", sJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -137,14 +136,14 @@ func (c *Client) UpdateSmartProxy(ctx context.Context, s *ForemanSmartProxy) (*F
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedSmartProxy: [%+v]", updatedSmartProxy)
+	utils.Debugf("updatedSmartProxy: [%+v]", updatedSmartProxy)
 
 	return &updatedSmartProxy, nil
 }
 
 // DeleteSmartProxy deletes the ForemanSmartProxy identified by the supplied ID
 func (c *Client) DeleteSmartProxy(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/smartproxy.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", SmartProxyEndpointPrefix, id)
 
@@ -169,7 +168,7 @@ func (c *Client) DeleteSmartProxy(ctx context.Context, id int) error {
 // the supplied ForemanSmartProxy reference and returns a QueryResponse struct
 // containing query/response metadata and the matching smart proxy.
 func (c *Client) QuerySmartProxy(ctx context.Context, s *ForemanSmartProxy) (QueryResponse, error) {
-	log.Tracef("foreman/api/smartproxy.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -195,7 +194,7 @@ func (c *Client) QuerySmartProxy(ctx context.Context, s *ForemanSmartProxy) (Que
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

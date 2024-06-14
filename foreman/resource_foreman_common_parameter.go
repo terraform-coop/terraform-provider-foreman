@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -58,7 +58,7 @@ func resourceForemanCommonParameter() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanCommonParameter(d *schema.ResourceData) *api.ForemanCommonParameter {
-	log.Tracef("resource_foreman_common_parameter.go#buildForemanCommonParameter")
+	utils.TraceFunctionCall()
 
 	commonParameter := api.ForemanCommonParameter{}
 
@@ -80,7 +80,7 @@ func buildForemanCommonParameter(d *schema.ResourceData) *api.ForemanCommonParam
 // setResourceDataFromForemanCommonParameter sets a ResourceData's attributes from the
 // attributes of the supplied ForemanCommonParameter reference
 func setResourceDataFromForemanCommonParameter(d *schema.ResourceData, fd *api.ForemanCommonParameter) {
-	log.Tracef("resource_foreman_common_parameter.go#setResourceDataFromForemanCommonParameter")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fd.Id))
 	d.Set("name", fd.Name)
@@ -92,19 +92,19 @@ func setResourceDataFromForemanCommonParameter(d *schema.ResourceData, fd *api.F
 // -----------------------------------------------------------------------------
 
 func resourceForemanCommonParameterCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanCommonParameter(d)
 
-	log.Debugf("ForemanCommonParameter: [%+v]", d)
+	utils.Debugf("ForemanCommonParameter: [%+v]", d)
 
 	createdParam, createErr := client.CreateCommonParameter(ctx, p)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanCommonParameter: [%+v]", createdParam)
+	utils.Debugf("Created ForemanCommonParameter: [%+v]", createdParam)
 
 	setResourceDataFromForemanCommonParameter(d, createdParam)
 
@@ -112,19 +112,19 @@ func resourceForemanCommonParameterCreate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	commonParameter := buildForemanCommonParameter(d)
 
-	log.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
+	utils.Debugf("ForemanCommonParameter: [%+v]", commonParameter)
 
 	readCommonParameter, readErr := client.ReadCommonParameter(ctx, commonParameter, commonParameter.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanCommonParameter: [%+v]", readCommonParameter)
+	utils.Debugf("Read ForemanCommonParameter: [%+v]", readCommonParameter)
 
 	setResourceDataFromForemanCommonParameter(d, readCommonParameter)
 
@@ -132,19 +132,19 @@ func resourceForemanCommonParameterRead(ctx context.Context, d *schema.ResourceD
 }
 
 func resourceForemanCommonParameterUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanCommonParameter(d)
 
-	log.Debugf("ForemanCommonParameter: [%+v]", p)
+	utils.Debugf("ForemanCommonParameter: [%+v]", p)
 
 	updatedParam, updateErr := client.UpdateCommonParameter(ctx, p, p.Id)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanCommonParameter: [%+v]", updatedParam)
+	utils.Debugf("Updated ForemanCommonParameter: [%+v]", updatedParam)
 
 	setResourceDataFromForemanCommonParameter(d, updatedParam)
 
@@ -152,12 +152,12 @@ func resourceForemanCommonParameterUpdate(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanCommonParameterDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_common_parameter.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanCommonParameter(d)
 
-	log.Debugf("ForemanCommonParameter: [%+v]", p)
+	utils.Debugf("ForemanCommonParameter: [%+v]", p)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteCommonParameter(ctx, p, p.Id)))
 }

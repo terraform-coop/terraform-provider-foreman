@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -51,6 +50,8 @@ func (fp *ForemanParameter) apiEndpoint() (string, int) {
 }
 
 func (fp *ForemanParameter) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -87,7 +88,7 @@ func (fp *ForemanParameter) UnmarshalJSON(b []byte) error {
 // The returned reference will have its ID and other API default values set by
 // this function.
 func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*ForemanParameter, error) {
-	log.Tracef("foreman/api/parameter.go#Create")
+	utils.TraceFunctionCall()
 
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix, selEndA, selEndB)
@@ -99,7 +100,7 @@ func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*For
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -115,7 +116,7 @@ func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*For
 	if sendErr != nil {
 		return nil, sendErr
 	}
-	log.Debugf("createdParameter: [%+v]", createdParameter)
+	utils.Debugf("createdParameter: [%+v]", createdParameter)
 
 	d.Id = createdParameter.Id
 	d.Parameter = createdParameter.Parameter
@@ -125,7 +126,7 @@ func (c *Client) CreateParameter(ctx context.Context, d *ForemanParameter) (*For
 // ReadParameter reads the attributes of a ForemanParameter identified by the
 // supplied ID and returns a ForemanParameter reference.
 func (c *Client) ReadParameter(ctx context.Context, d *ForemanParameter, id int) (*ForemanParameter, error) {
-	log.Tracef("foreman/api/parameter.go#Read")
+	utils.TraceFunctionCall()
 
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
@@ -146,7 +147,7 @@ func (c *Client) ReadParameter(ctx context.Context, d *ForemanParameter, id int)
 		return nil, sendErr
 	}
 
-	log.Debugf("readParameter: [%+v]", readParameter)
+	utils.Debugf("readParameter: [%+v]", readParameter)
 
 	d.Id = readParameter.Id
 	d.Parameter = readParameter.Parameter
@@ -156,7 +157,7 @@ func (c *Client) ReadParameter(ctx context.Context, d *ForemanParameter, id int)
 // UpdateParameter deletes all parameters for the subject resource and re-creates them
 // as we look at them differently on either side this is the safest way to reach sync
 func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id int) (*ForemanParameter, error) {
-	log.Tracef("foreman/api/parameter.go#Update")
+	utils.TraceFunctionCall()
 
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
@@ -166,7 +167,7 @@ func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id in
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
+	utils.Debugf("parameterJSONBytes: [%s]", parameterJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -184,7 +185,7 @@ func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id in
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedParameter: [%+v]", updatedParameter)
+	utils.Debugf("updatedParameter: [%+v]", updatedParameter)
 
 	d.Id = updatedParameter.Id
 	d.Parameter = updatedParameter.Parameter
@@ -193,7 +194,7 @@ func (c *Client) UpdateParameter(ctx context.Context, d *ForemanParameter, id in
 
 // DeleteParameter deletes the ForemanParameters for the given resource
 func (c *Client) DeleteParameter(ctx context.Context, d *ForemanParameter, id int) error {
-	log.Tracef("foreman/api/parameter.go#Delete")
+	utils.TraceFunctionCall()
 
 	selEndA, selEndB := d.apiEndpoint()
 	reqEndpoint := fmt.Sprintf(ParameterEndpointPrefix+"/%d", selEndA, selEndB, id)
@@ -219,7 +220,7 @@ func (c *Client) DeleteParameter(ctx context.Context, d *ForemanParameter, id in
 // supplied ForemanParameter reference and returns a QueryResponse struct
 // containing query/response metadata and the matching parameters.
 func (c *Client) QueryParameter(ctx context.Context, d *ForemanParameter) (QueryResponse, error) {
-	log.Tracef("foreman/api/parameter.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -245,7 +246,7 @@ func (c *Client) QueryParameter(ctx context.Context, d *ForemanParameter) (Query
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

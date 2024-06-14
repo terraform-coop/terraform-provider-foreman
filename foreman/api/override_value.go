@@ -5,11 +5,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -39,7 +38,7 @@ type ForemanOverrideValue struct {
 
 // Implement the Marshaler interface
 func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
-	log.Tracef("foreman/api/override_value.go#MarshalJSON")
+	utils.TraceFunctionCall()
 
 	ovMap := map[string]interface{}{}
 	ovMap["omit"] = ov.Omit
@@ -57,10 +56,10 @@ func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
 	}
 	if err != nil {
 		ovMap["value"] = ov.Value
-		log.Tracef("foreman/api/override_value.go#MarshalJSON/passraw")
+		utils.Debugf("override_value.go #MarshalJSON/passraw")
 	}
 
-	log.Debugf("ovMap: [%+v]", ovMap)
+	utils.Debugf("ovMap: [%+v]", ovMap)
 
 	return json.Marshal(ovMap)
 }
@@ -68,6 +67,8 @@ func (ov ForemanOverrideValue) MarshalJSON() ([]byte, error) {
 // Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
 // and then convert over to a ForemanHost struct.
 func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -83,7 +84,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
-	log.Debugf("tmpMap: [%v]", tmpMap)
+	utils.Debugf("tmpMap: [%v]", tmpMap)
 
 	var ok bool
 	var match string
@@ -108,7 +109,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 		ov.MatchValue = strings.TrimPrefix(match, "os=")
 	}
 
-	log.Tracef("foreman/api/override_value.go#UnarshalJSON/postMatch")
+	utils.Debugf("override_value.go #UnmarshalJSON/postMatch")
 
 	if ov.Omit, ok = tmpMap["omit"].(bool); !ok {
 		ov.Omit = false
@@ -119,7 +120,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 		ov.Value = string(vb)
 	}
 
-	log.Tracef("foreman/api/override_value.go#UnarshalJSON/postValue")
+	utils.Debugf("override_value.go #UnmarshalJSON/postValue")
 
 	return nil
 }
@@ -133,7 +134,7 @@ func (ov *ForemanOverrideValue) UnmarshalJSON(b []byte) error {
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
-	log.Tracef("foreman/api/override_value.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix, ov.SmartClassParameterId)
 
@@ -142,7 +143,7 @@ func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("overrideJSONBytes: [%s]", oJSONBytes)
+	utils.Debugf("overrideJSONBytes: [%s]", oJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -163,7 +164,7 @@ func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 	// Smart class param id is not returned in the respoonse so it must be manually added
 	createdOverrideValue.SmartClassParameterId = ov.SmartClassParameterId
 
-	log.Debugf("createdOverrideValue: [%+v]", createdOverrideValue)
+	utils.Debugf("createdOverrideValue: [%+v]", createdOverrideValue)
 	return &createdOverrideValue, nil
 
 }
@@ -173,7 +174,7 @@ func (c *Client) CreateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 // NOTE - although override value ids appear to be unique the API requires the smart
 // class parameter id as well.
 func (c *Client) ReadOverrideValue(ctx context.Context, id int, scp_id int) (*ForemanOverrideValue, error) {
-	log.Tracef("foreman/api/override_value.go#Read")
+	utils.TraceFunctionCall()
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", scp_id, id)
@@ -195,14 +196,14 @@ func (c *Client) ReadOverrideValue(ctx context.Context, id int, scp_id int) (*Fo
 	}
 
 	readOverrideValue.SmartClassParameterId = scp_id
-	log.Debugf("readOverrideValue: [%+v]", readOverrideValue)
+	utils.Debugf("readOverrideValue: [%+v]", readOverrideValue)
 
 	return &readOverrideValue, nil
 }
 
 // UpdateOverrideValue updates a ForemanOverrideValue's attributes.
 func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideValue) (*ForemanOverrideValue, error) {
-	log.Tracef("foreman/api/override_value.go#Update")
+	utils.TraceFunctionCall()
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", ov.SmartClassParameterId, ov.Id)
@@ -212,7 +213,7 @@ func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("OverrideValueJSONBytes: [%s]", ovJSONBytes)
+	utils.Debugf("OverrideValueJSONBytes: [%s]", ovJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -233,14 +234,14 @@ func (c *Client) UpdateOverrideValue(ctx context.Context, ov *ForemanOverrideVal
 	// Smart class param id is not returned in the respoonse so it must be manually added
 	updatedOverrideValue.SmartClassParameterId = ov.SmartClassParameterId
 
-	log.Debugf("updatedOverrideValue: [%+v]", updatedOverrideValue)
+	utils.Debugf("updatedOverrideValue: [%+v]", updatedOverrideValue)
 
 	return &updatedOverrideValue, nil
 }
 
 // DeleteOverideValue deletes the ForemanOverrideValue identified by the supplied ID and smarts class param ID
 func (c *Client) DeleteOverrideValue(ctx context.Context, id int, scp_id int) error {
-	log.Tracef("foreman/api/override_value.go#Delete")
+	utils.TraceFunctionCall()
 
 	// Build the API endpoint
 	reqEndpoint := fmt.Sprintf(OverrideValueEndpointPrefix+"/%d", scp_id, id)
@@ -262,6 +263,6 @@ func (c *Client) DeleteOverrideValue(ctx context.Context, id int, scp_id int) er
 // Query Implementation
 // -----------------------------------------------------------------------------
 
-// Doesn't lool like this is possible in the API
+// Doesn't look like this is possible in the API
 // The only field it makes sense to search on is match, but this is not supported
 // So we cannot have a data object, only resource

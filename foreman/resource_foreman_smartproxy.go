@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -73,7 +73,7 @@ func resourceForemanSmartProxy() *schema.Resource {
 // in the resource data.  Missing members will be left to the zero value for
 // that member's type.
 func buildForemanSmartProxy(d *schema.ResourceData) *api.ForemanSmartProxy {
-	log.Tracef("resource_foreman_smartproxy.go#buildForemanSmartProxy")
+	utils.TraceFunctionCall()
 
 	proxy := api.ForemanSmartProxy{}
 
@@ -88,7 +88,7 @@ func buildForemanSmartProxy(d *schema.ResourceData) *api.ForemanSmartProxy {
 // setResourceDataFromForemanSmartProxy sets a ResourceData's attributes from
 // the attributes of the supplied ForemanSmartProxy struct
 func setResourceDataFromForemanSmartProxy(d *schema.ResourceData, fp *api.ForemanSmartProxy) {
-	log.Tracef("resource_foreman_smartproxy.go#setResourceDataFromForemanSmartProxy")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fp.Id))
 	d.Set("name", fp.Name)
@@ -100,19 +100,19 @@ func setResourceDataFromForemanSmartProxy(d *schema.ResourceData, fp *api.Forema
 // -----------------------------------------------------------------------------
 
 func resourceForemanSmartProxyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_smartproxy.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSmartProxy(d)
 
-	log.Debugf("ForemanSmartProxy: [%+v]", s)
+	utils.Debugf("ForemanSmartProxy: [%+v]", s)
 
 	createdSmartProxy, createErr := client.CreateSmartProxy(ctx, s)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanSmartProxy: [%+v]", createdSmartProxy)
+	utils.Debugf("Created ForemanSmartProxy: [%+v]", createdSmartProxy)
 
 	setResourceDataFromForemanSmartProxy(d, createdSmartProxy)
 
@@ -120,19 +120,19 @@ func resourceForemanSmartProxyCreate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceForemanSmartProxyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_smartproxy.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSmartProxy(d)
 
-	log.Debugf("ForemanSmartProxy: [%+v]", s)
+	utils.Debugf("ForemanSmartProxy: [%+v]", s)
 
 	readSmartProxy, readErr := client.ReadSmartProxy(ctx, s.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanSmartProxy: [%+v]", readSmartProxy)
+	utils.Debugf("Read ForemanSmartProxy: [%+v]", readSmartProxy)
 
 	setResourceDataFromForemanSmartProxy(d, readSmartProxy)
 
@@ -140,19 +140,19 @@ func resourceForemanSmartProxyRead(ctx context.Context, d *schema.ResourceData, 
 }
 
 func resourceForemanSmartProxyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_smartproxy.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSmartProxy(d)
 
-	log.Debugf("ForemanSmartProxy: [%+v]", s)
+	utils.Debugf("ForemanSmartProxy: [%+v]", s)
 
 	updatedSmartProxy, updateErr := client.UpdateSmartProxy(ctx, s)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanSmartProxy: [%+v]", updatedSmartProxy)
+	utils.Debugf("ForemanSmartProxy: [%+v]", updatedSmartProxy)
 
 	setResourceDataFromForemanSmartProxy(d, updatedSmartProxy)
 
@@ -160,12 +160,12 @@ func resourceForemanSmartProxyUpdate(ctx context.Context, d *schema.ResourceData
 }
 
 func resourceForemanSmartProxyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_smartproxy.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSmartProxy(d)
 
-	log.Debugf("ForemanSmartProxy: [%+v]", s)
+	utils.Debugf("ForemanSmartProxy: [%+v]", s)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

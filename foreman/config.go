@@ -1,9 +1,9 @@
 package foreman
 
 import (
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 )
 
 // Config struct defines the necessary information needed to configure the
@@ -34,7 +34,7 @@ type Config struct {
 // client is then authenticated with the credentials supplied to the provider
 // configuration.
 func (c *Config) Client() (*api.Client, diag.Diagnostics) {
-	log.Tracef("config.go#Client")
+	utils.TraceFunctionCall()
 
 	client := api.NewClient(
 		c.Server,
@@ -47,7 +47,7 @@ func (c *Config) Client() (*api.Client, diag.Diagnostics) {
 		},
 	)
 
-	log.Debugf("Rest Client configured")
+	utils.Debugf("Rest Client configured")
 
 	return client, diag.Diagnostics{}
 }

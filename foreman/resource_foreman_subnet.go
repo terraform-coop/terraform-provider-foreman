@@ -3,11 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -199,7 +199,7 @@ func resourceForemanSubnet() *schema.Resource {
 // the resource data.  Missing members will be left to the zero value for that
 // member's type.
 func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
-	log.Tracef("resource_foreman_subnet.go#buildForemanSubnet")
+	utils.TraceFunctionCall()
 
 	s := api.ForemanSubnet{}
 
@@ -275,7 +275,7 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 // setResourceDataFromForemanSubnet sets a ResourceData's attributes from the
 // attributes of the supplied ForemanSubnet reference
 func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSubnet) {
-	log.Tracef("resource_foreman_subnet.go#setResourceDataFromForemanSubnet")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fs.Id))
 	d.Set("name", fs.Name)
@@ -305,19 +305,19 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 // -----------------------------------------------------------------------------
 
 func resourceForemanSubnetCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	createdSubnet, createErr := client.CreateSubnet(ctx, s)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
+	utils.Debugf("Created ForemanSubnet: [%+v]", createdSubnet)
 
 	setResourceDataFromForemanSubnet(d, createdSubnet)
 
@@ -325,19 +325,19 @@ func resourceForemanSubnetCreate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	readSubnet, readErr := client.ReadSubnet(ctx, s.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanSubnet: [%+v]", readSubnet)
+	utils.Debugf("Read ForemanSubnet: [%+v]", readSubnet)
 
 	setResourceDataFromForemanSubnet(d, readSubnet)
 
@@ -345,18 +345,18 @@ func resourceForemanSubnetRead(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanSubnetUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Update")
+	utils.TraceFunctionCall()
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	updatedSubnet, updateErr := client.UpdateSubnet(ctx, s)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
+	utils.Debugf("Updated ForemanSubnet: [%+v]", updatedSubnet)
 
 	setResourceDataFromForemanSubnet(d, updatedSubnet)
 
@@ -364,12 +364,12 @@ func resourceForemanSubnetUpdate(ctx context.Context, d *schema.ResourceData, me
 }
 
 func resourceForemanSubnetDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_subnet.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	s := buildForemanSubnet(d)
 
-	log.Debugf("ForemanSubnet: [%+v]", s)
+	utils.Debugf("ForemanSubnet: [%+v]", s)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteSubnet(ctx, s.Id)))
 }

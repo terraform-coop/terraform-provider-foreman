@@ -3,11 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -136,7 +136,7 @@ func resourceForemanUser() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanUser(d *schema.ResourceData) *api.ForemanUser {
-	log.Tracef("resource_foreman_user.go#buildForemanUser")
+	utils.TraceFunctionCall()
 
 	u := api.ForemanUser{}
 
@@ -193,7 +193,7 @@ func buildForemanUser(d *schema.ResourceData) *api.ForemanUser {
 // setResourceDataFromForemanUser sets a ResourceData's attributes from
 // the attributes of the supplied ForemanUser struct
 func setResourceDataFromForemanUser(d *schema.ResourceData, fu *api.ForemanUser) {
-	log.Tracef("resource_foreman_user.go#setResourceDataFromForemanUsergroup")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fu.Id))
 	d.Set("login", fu.Login)
@@ -216,19 +216,19 @@ func setResourceDataFromForemanUser(d *schema.ResourceData, fu *api.ForemanUser)
 // -----------------------------------------------------------------------------
 
 func resourceForemanUserCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_user.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	createdUser, createErr := client.CreateUser(ctx, u)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanUser: [%+v]", createdUser)
+	utils.Debugf("Created ForemanUser: [%+v]", createdUser)
 
 	setResourceDataFromForemanUser(d, createdUser)
 
@@ -236,19 +236,19 @@ func resourceForemanUserCreate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_user.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	readUser, readErr := client.ReadUser(ctx, u.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanUser: [%+v]", readUser)
+	utils.Debugf("Read ForemanUser: [%+v]", readUser)
 
 	setResourceDataFromForemanUser(d, readUser)
 
@@ -256,19 +256,19 @@ func resourceForemanUserRead(ctx context.Context, d *schema.ResourceData, meta i
 }
 
 func resourceForemanUserUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_user.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	updatedUser, updateErr := client.UpdateUser(ctx, u)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanUser: [%+v]", updatedUser)
+	utils.Debugf("Updated ForemanUser: [%+v]", updatedUser)
 
 	setResourceDataFromForemanUser(d, updatedUser)
 
@@ -276,12 +276,12 @@ func resourceForemanUserUpdate(ctx context.Context, d *schema.ResourceData, meta
 }
 
 func resourceForemanUserDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_user.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	u := buildForemanUser(d)
 
-	log.Debugf("ForemanUser: [%+v]", u)
+	utils.Debugf("ForemanUser: [%+v]", u)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

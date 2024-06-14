@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -172,7 +172,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					// would be reset to 0 every time an "apply" is executed.
 					newAsInt, err := strconv.Atoi(newValue)
 					if err != nil {
-						log.Fatalf("download_concurrency value was not an int!")
+						utils.Fatal("download_concurrency value was not an int!")
 					}
 
 					if oldValue == "0" && newAsInt > 0 {
@@ -318,7 +318,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRepository {
-	log.Tracef("resource_foreman_katello_repository.go#buildForemanKatelloRepository")
+	utils.TraceFunctionCall()
 
 	repo := api.ForemanKatelloRepository{}
 
@@ -357,7 +357,7 @@ func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRe
 // setResourceDataFromForemanKatelloRepository sets a ResourceData's attributes from
 // the attributes of the supplied ForemanKatelloRepository struct
 func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *api.ForemanKatelloRepository) {
-	log.Tracef("resource_foreman_katello_repository.go#setResourceDataFromForemanKatelloRepository")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(repo.Id))
 	d.Set("name", repo.Name)
@@ -393,19 +393,19 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *a
 // -----------------------------------------------------------------------------
 
 func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	createdKatelloRepository, createErr := client.CreateKatelloRepository(ctx, repository)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanKatelloRepository: [%+v]", createdKatelloRepository)
+	utils.Debugf("Created ForemanKatelloRepository: [%+v]", createdKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, createdKatelloRepository)
 
@@ -413,19 +413,19 @@ func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.Resou
 }
 
 func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	readKatelloRepository, readErr := client.ReadKatelloRepository(ctx, repository.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
+	utils.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, readKatelloRepository)
 
@@ -433,19 +433,19 @@ func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.Resourc
 }
 
 func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Update")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	updatedKatelloRepository, updateErr := client.UpdateKatelloRepository(ctx, repository)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", updatedKatelloRepository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", updatedKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, updatedKatelloRepository)
 
@@ -453,12 +453,12 @@ func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.Resou
 }
 
 func resourceForemanKatelloRepositoryDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_katello_repository.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	return diag.FromErr(api.CheckDeleted(d, client.DeleteKatelloRepository(ctx, repository.Id)))
 }

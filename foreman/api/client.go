@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/dpotapov/go-spnego"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
@@ -136,7 +135,8 @@ func ToKV(m map[string]interface{}) (ret []ForemanKVParameter) {
 // the API gateway.
 func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 	utils.TraceFunctionCall()
-	log.Debugf(
+
+	utils.Debugf(
 		"Server: [%+v], "+
 			"ClientConfig: [%+v]",
 		s,
@@ -206,14 +206,15 @@ func NewClient(s Server, c ClientCredentials, cfg ClientConfig) *Client {
 //	Functions exactly like net/http/NewRequestWithContext()
 func (client *Client) NewRequestWithContext(ctx context.Context, method string, endpoint string, body io.Reader) (*http.Request, error) {
 	utils.TraceFunctionCall()
-	log.Debugf(
+
+	utils.Debugf(
 		"method: [%s], endpoint: [%s]",
 		method,
 		endpoint,
 	)
 
 	if !isValidRequestMethod(method) {
-		log.Errorf("Invalid HTTP request method: [%s]\n", method)
+		utils.Errorf("Invalid HTTP request method: [%s]\n", method)
 		return nil, fmt.Errorf("Invalid HTTP request method: [%s]", method)
 	}
 
@@ -240,7 +241,7 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 		version_append = "version=" + FOREMAN_API_VERSION
 	}
 
-	log.Debugf(
+	utils.Debugf(
 		"reqURL: [%s]\n",
 		reqURL.String(),
 	)
@@ -253,7 +254,7 @@ func (client *Client) NewRequestWithContext(ctx context.Context, method string, 
 		body,
 	)
 	if reqErr != nil {
-		log.Errorf(
+		utils.Errorf(
 			"Failed to construct a new HTTP request\n"+
 				"  Error: %s",
 			reqErr.Error(),
@@ -315,14 +316,14 @@ func (client *Client) Send(request *http.Request) (int, []byte, error) {
 	emptySlice := []byte{}
 
 	if request == nil {
-		log.Errorf("Client trying to send a nil request")
+		utils.Errorf("Client trying to send a nil request")
 		return -1, emptySlice, fmt.Errorf("Client trying to send a nil request")
 	}
 
 	// Send the request to the server
 	resp, respErr := client.httpClient.Do(request)
 	if respErr != nil {
-		log.Errorf(
+		utils.Errorf(
 			"Error encountered when sending HTTP request to server\n"+
 				"  Error: %s",
 			respErr.Error(),
@@ -337,7 +338,7 @@ func (client *Client) Send(request *http.Request) (int, []byte, error) {
 	// Read the server's response
 	respBody, readErr := ioutil.ReadAll(resp.Body)
 	if readErr != nil {
-		log.Errorf(
+		utils.Errorf(
 			"Error encountered when reading HTTP response from server\n"+
 				"  Error: %s",
 			readErr.Error(),
@@ -361,7 +362,7 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 		return sendErr
 	}
 
-	log.Debugf(
+	utils.Debugf(
 		"server response:{\n"+
 			"  endpoint:   [%s]\n"+
 			"  method:     [%s]\n"+
@@ -419,7 +420,6 @@ func CheckDeleted(d *schema.ResourceData, err error) error {
 
 // wrapParameter wraps the given parameters as an object of its own name
 func (client *Client) wrapParameters(name interface{}, item interface{}) (map[string]interface{}, error) {
-
 	var wrapped map[string]interface{}
 
 	if name != nil {
@@ -442,9 +442,7 @@ func (client *Client) wrapParameters(name interface{}, item interface{}) (map[st
 
 // WrapJSON wraps the given parameters as an object of its own name and marshals it to JSON
 func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, error) {
-
 	wrapped, _ := client.wrapParameters(name, item)
-
 	return json.Marshal(wrapped)
 }
 
@@ -459,7 +457,7 @@ func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) (
 	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {
 		wrapped["location_id"] = client.clientConfig.LocationID
 		wrapped["organization_id"] = client.clientConfig.OrganizationID
-		log.Debugf("client.go#WrapJSONWithTaxonomy: item %+v", wrapped)
+		utils.Debugf("client.go#WrapJSONWithTaxonomy: item %+v", wrapped)
 	}
 
 	return json.Marshal(wrapped)

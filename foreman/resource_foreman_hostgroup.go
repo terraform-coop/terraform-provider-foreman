@@ -3,11 +3,11 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/conv"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -244,7 +244,7 @@ func resourceForemanHostgroup() *schema.Resource {
 // in the resource data. Missing members will be left to the zero value for
 // that member's type.
 func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
-	log.Tracef("resource_foreman_hostgroup.go#buildForemanHostgroup")
+	utils.TraceFunctionCall()
 
 	hostgroup := api.ForemanHostgroup{}
 
@@ -347,7 +347,7 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 // setResourceDataFromForemanHostgroup sets a ResourceData's attributes from
 // the attributes of the supplied ForemanHostgroup struct
 func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.ForemanHostgroup) {
-	log.Tracef("resource_foreman_hostgroup.go#setResourceDataFromForemanHostgroup")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fh.Id))
 	d.Set("title", fh.Title)
@@ -378,19 +378,19 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 // -----------------------------------------------------------------------------
 
 func resourceForemanHostgroupCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Create")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	createdHostgroup, createErr := client.CreateHostgroup(ctx, h)
 	if createErr != nil {
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanHostgroup: [%+v]", createdHostgroup)
+	utils.Debugf("Created ForemanHostgroup: [%+v]", createdHostgroup)
 
 	setResourceDataFromForemanHostgroup(d, createdHostgroup)
 
@@ -398,19 +398,19 @@ func resourceForemanHostgroupCreate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	readHostgroup, readErr := client.ReadHostgroup(ctx, h.Id)
 	if readErr != nil {
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
-	log.Debugf("Read ForemanHostgroup: [%+v]", readHostgroup)
+	utils.Debugf("Read ForemanHostgroup: [%+v]", readHostgroup)
 
 	setResourceDataFromForemanHostgroup(d, readHostgroup)
 
@@ -418,7 +418,7 @@ func resourceForemanHostgroupRead(ctx context.Context, d *schema.ResourceData, m
 }
 
 func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Update")
+	utils.TraceFunctionCall()
 
 	// TODO(ALL): 404 errors here (for v.1.11.4 ) - i think we need to
 	//   concatentate the id with the title, replacing forward slash with a dash?
@@ -428,14 +428,14 @@ func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData,
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	updatedHostgroup, updateErr := client.UpdateHostgroup(ctx, h)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
 	}
 
-	log.Debugf("Updated ForemanHostgroup: [%+v]", updatedHostgroup)
+	utils.Debugf("Updated ForemanHostgroup: [%+v]", updatedHostgroup)
 
 	setResourceDataFromForemanHostgroup(d, updatedHostgroup)
 
@@ -443,12 +443,12 @@ func resourceForemanHostgroupUpdate(ctx context.Context, d *schema.ResourceData,
 }
 
 func resourceForemanHostgroupDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("resource_foreman_hostgroup.go#Delete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	h := buildForemanHostgroup(d)
 
-	log.Debugf("ForemanHostgroup: [%+v]", h)
+	utils.Debugf("ForemanHostgroup: [%+v]", h)
 
 	// NOTE(ALL): d.SetId("") is automatically called by terraform assuming delete
 	//   returns no errors

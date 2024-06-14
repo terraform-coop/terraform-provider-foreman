@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -39,12 +39,12 @@ func dataSourceForemanDomain() *schema.Resource {
 }
 
 func dataSourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_domain.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	domain := buildForemanDomain(d)
 
-	log.Debugf("ForemanDomain: [%+v]", domain)
+	utils.Debugf("ForemanDomain: [%+v]", domain)
 
 	queryResponse, queryErr := client.QueryDomain(ctx, domain)
 	if queryErr != nil {
@@ -68,7 +68,7 @@ func dataSourceForemanDomainRead(ctx context.Context, d *schema.ResourceData, me
 	}
 	domain = &queryDomain
 
-	log.Debugf("ForemanDomain: [%+v]", domain)
+	utils.Debugf("ForemanDomain: [%+v]", domain)
 
 	setResourceDataFromForemanDomain(d, domain)
 

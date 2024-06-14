@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"strconv"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -83,7 +83,7 @@ func resourceForemanComputeAttribute() *schema.Resource {
 // populated in the resource data.  Missing members will be left to the zero
 // value for that member's type.
 func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfile {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#buildForemanComputeProfile")
+	utils.TraceFunctionCall()
 
 	t := api.ForemanComputeProfile{}
 	obj := buildForemanObject(d)
@@ -103,11 +103,11 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 
 		err = json.Unmarshal(data, &caObj)
 		if err != nil {
-			log.Warningf("Error during json.Unmarshal: %s", err)
+			utils.Warningf("Error during json.Unmarshal: %s", err)
 			return nil
 		}
 
-		log.Debugf("buildForemanComputeProfile caObj: [%+v]", caObj)
+		utils.Debugf("buildForemanComputeProfile caObj: [%+v]", caObj)
 
 		compattrObjList = append(compattrObjList, &caObj)
 	}
@@ -119,44 +119,44 @@ func buildForemanComputeProfile(d *schema.ResourceData) *api.ForemanComputeProfi
 // setResourceDataFromForemanComputeProfile sets a ResourceData's attributes from
 // the attributes of the supplied ForemanComputeProfile reference
 func setResourceDataFromForemanComputeProfile(d *schema.ResourceData, fk *api.ForemanComputeProfile) {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#setResourceDataFromForemanComputeProfile")
+	utils.TraceFunctionCall()
 
 	d.SetId(strconv.Itoa(fk.Id))
 
 	err := d.Set("name", fk.Name)
 	if err != nil {
-		log.Errorf("Error in d.Set: %s", err)
+		utils.Errorf("Error in d.Set: %s", err)
 	}
 
 	var caList []map[string]interface{}
 
 	for i := 0; i < len(fk.ComputeAttributes); i++ {
 		elem := fk.ComputeAttributes[i]
-		log.Debugf("elem: %+v", elem)
+		utils.Debugf("elem: %+v", elem)
 
 		data, err := json.Marshal(&elem)
 		if err != nil {
-			log.Errorf("Error in json.Marshal: %s", err)
+			utils.Errorf("Error in json.Marshal: %s", err)
 		}
 
 		var unmarshElem map[string]interface{}
 		err = json.Unmarshal(data, &unmarshElem)
 		if err != nil {
-			log.Errorf("Error in json.Unmarshal: %s", err)
+			utils.Errorf("Error in json.Unmarshal: %s", err)
 		}
 
-		log.Debugf("unmarshElem: %+v", unmarshElem)
+		utils.Debugf("unmarshElem: %+v", unmarshElem)
 		caList = append(caList, unmarshElem)
 	}
 
 	err = d.Set("compute_attributes", caList)
 	if err != nil {
-		log.Errorf("Error in setting compute_attributes: %s", err)
+		utils.Errorf("Error in setting compute_attributes: %s", err)
 	}
 }
 
 func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileCreate")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)
@@ -166,7 +166,7 @@ func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(createErr)
 	}
 
-	log.Debugf("Created ForemanComputeprofile [%+v]", createdComputeprofile)
+	utils.Debugf("Created ForemanComputeprofile [%+v]", createdComputeprofile)
 
 	setResourceDataFromForemanComputeProfile(d, createdComputeprofile)
 
@@ -174,7 +174,7 @@ func resourceForemanComputeprofileCreate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileRead")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)
@@ -184,7 +184,7 @@ func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(err)
 	}
 
-	log.Debugf("Read compute_profile: %+v", cp)
+	utils.Debugf("Read compute_profile: %+v", cp)
 
 	setResourceDataFromForemanComputeProfile(d, cp)
 
@@ -192,7 +192,7 @@ func resourceForemanComputeprofileRead(ctx context.Context, d *schema.ResourceDa
 }
 
 func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileUpdate")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)
@@ -202,7 +202,7 @@ func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.Resource
 		return diag.FromErr(err)
 	}
 
-	log.Debugf("Update compute_profile: %+v", cp)
+	utils.Debugf("Update compute_profile: %+v", cp)
 
 	setResourceDataFromForemanComputeProfile(d, cp)
 
@@ -210,7 +210,7 @@ func resourceForemanComputeprofileUpdate(ctx context.Context, d *schema.Resource
 }
 
 func resourceForemanComputeprofileDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("foreman/resource_foreman_computeprofile.go#resourceForemanComputeprofileDelete")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	p := buildForemanComputeProfile(d)

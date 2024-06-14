@@ -3,10 +3,10 @@ package foreman
 import (
 	"context"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 
 	"github.com/HanseMerkur/terraform-provider-utils/autodoc"
 	"github.com/HanseMerkur/terraform-provider-utils/helper"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -38,12 +38,12 @@ func dataSourceForemanKatelloRepository() *schema.Resource {
 }
 
 func dataSourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	log.Tracef("data_source_foreman_katello_repository.go#Read")
+	utils.TraceFunctionCall()
 
 	client := meta.(*api.Client)
 	repository := buildForemanKatelloRepository(d)
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	queryResponse, queryErr := client.QueryKatelloRepository(ctx, repository)
 	if queryErr != nil {
@@ -67,7 +67,7 @@ func dataSourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.Resou
 	}
 	repository = &queryKatelloRepository
 
-	log.Debugf("ForemanKatelloRepository: [%+v]", repository)
+	utils.Debugf("ForemanKatelloRepository: [%+v]", repository)
 
 	setResourceDataFromForemanKatelloRepository(d, repository)
 

@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -44,6 +43,8 @@ type ForemanComputeResource struct {
 // Custom JSON unmarshal function. Unmarshal to the unexported JSON struct
 // and then convert over to a ForemanComputeResource struct.
 func (fcr *ForemanComputeResource) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -62,7 +63,7 @@ func (fcr *ForemanComputeResource) UnmarshalJSON(b []byte) error {
 	if jsonDecErr != nil {
 		return jsonDecErr
 	}
-	log.Debugf("fcrMap: [%v]", fcrMap)
+	utils.Debugf("fcrMap: [%v]", fcrMap)
 	var ok bool
 	if fcr.Description, ok = fcrMap["description"].(string); !ok {
 		fcr.Description = ""
@@ -110,7 +111,7 @@ func (fcr *ForemanComputeResource) UnmarshalJSON(b []byte) error {
 // The returned reference will have its ID and other API default values set by
 // this function.
 func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeResource) (*ForemanComputeResource, error) {
-	log.Tracef("foreman/api/computeresource.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", ComputeResourceEndpointPrefix)
 
@@ -119,7 +120,7 @@ func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
+	utils.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -137,7 +138,7 @@ func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, sendErr
 	}
 
-	log.Debugf("createdComputeResource: [%+v]", createdComputeResource)
+	utils.Debugf("createdComputeResource: [%+v]", createdComputeResource)
 
 	return &createdComputeResource, nil
 }
@@ -145,7 +146,7 @@ func (c *Client) CreateComputeResource(ctx context.Context, d *ForemanComputeRes
 // ReadComputeResource reads the attributes of a ForemanComputeResource identified by the
 // supplied ID and returns a ForemanComputeResource reference.
 func (c *Client) ReadComputeResource(ctx context.Context, id int) (*ForemanComputeResource, error) {
-	log.Tracef("foreman/api/computeresource.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, id)
 
@@ -165,7 +166,7 @@ func (c *Client) ReadComputeResource(ctx context.Context, id int) (*ForemanCompu
 		return nil, sendErr
 	}
 
-	log.Debugf("readComputeResource: [%+v]", readComputeResource)
+	utils.Debugf("readComputeResource: [%+v]", readComputeResource)
 
 	return &readComputeResource, nil
 }
@@ -174,7 +175,7 @@ func (c *Client) ReadComputeResource(ctx context.Context, id int) (*ForemanCompu
 // of the supplied ForemanComputeResource will be updated. A new ForemanComputeResource reference
 // is returned with the attributes from the result of the update operation.
 func (c *Client) UpdateComputeResource(ctx context.Context, d *ForemanComputeResource) (*ForemanComputeResource, error) {
-	log.Tracef("foreman/api/computeresource.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, d.Id)
 
@@ -183,7 +184,7 @@ func (c *Client) UpdateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
+	utils.Debugf("computeresourceJSONBytes: [%s]", computeresourceJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -201,14 +202,14 @@ func (c *Client) UpdateComputeResource(ctx context.Context, d *ForemanComputeRes
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedComputeResource: [%+v]", updatedComputeResource)
+	utils.Debugf("updatedComputeResource: [%+v]", updatedComputeResource)
 
 	return &updatedComputeResource, nil
 }
 
 // DeleteComputeResource deletes the ForemanComputeResource identified by the supplied ID
 func (c *Client) DeleteComputeResource(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/computeresource.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", ComputeResourceEndpointPrefix, id)
 
@@ -233,7 +234,7 @@ func (c *Client) DeleteComputeResource(ctx context.Context, id int) error {
 // supplied ForemanComputeResource reference and returns a QueryResponse struct
 // containing query/response metadata and the matching computeresources.
 func (c *Client) QueryComputeResource(ctx context.Context, d *ForemanComputeResource) (QueryResponse, error) {
-	log.Tracef("foreman/api/computeresource.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -259,7 +260,7 @@ func (c *Client) QueryComputeResource(ctx context.Context, d *ForemanComputeReso
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//

@@ -5,9 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
-
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 )
 
 const (
@@ -52,6 +51,8 @@ type foremanMediaJSON struct {
 
 // Implement the Unmarshaler interface
 func (fm *ForemanMedia) UnmarshalJSON(b []byte) error {
+	utils.TraceFunctionCall()
+
 	var jsonDecErr error
 
 	// Unmarshal the common Foreman object properties
@@ -97,7 +98,7 @@ func (fm *ForemanMedia) UnmarshalJSON(b []byte) error {
 // returned reference will have its ID and other API default values set by this
 // function.
 func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedia, error) {
-	log.Tracef("foreman/api/media.go#Create")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s", MediaEndpointPrefix)
 
@@ -106,7 +107,7 @@ func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -124,7 +125,7 @@ func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, sendErr
 	}
 
-	log.Debugf("createdMedia: [%+v]", createdMedia)
+	utils.Debugf("createdMedia: [%+v]", createdMedia)
 
 	return &createdMedia, nil
 }
@@ -132,7 +133,7 @@ func (c *Client) CreateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 // ReadMedia reads the attributes of a ForemanMedia identified by the supplied
 // ID and returns a ForemanMedia reference.
 func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
-	log.Tracef("foreman/api/media.go#Read")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, id)
 
@@ -152,7 +153,7 @@ func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
 		return nil, sendErr
 	}
 
-	log.Debugf("readMedia: [%+v]", readMedia)
+	utils.Debugf("readMedia: [%+v]", readMedia)
 
 	return &readMedia, nil
 }
@@ -161,7 +162,7 @@ func (c *Client) ReadMedia(ctx context.Context, id int) (*ForemanMedia, error) {
 // the supplied ForemanMedia will be updated. A new ForemanMedia reference is
 // returned with the attributes from the result of the update operation.
 func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedia, error) {
-	log.Tracef("foreman/api/media.go#Update")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, m.Id)
 
@@ -170,7 +171,7 @@ func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, jsonEncErr
 	}
 
-	log.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
+	utils.Debugf("mediaJSONBytes: [%s]", mJSONBytes)
 
 	req, reqErr := c.NewRequestWithContext(
 		ctx,
@@ -188,14 +189,14 @@ func (c *Client) UpdateMedia(ctx context.Context, m *ForemanMedia) (*ForemanMedi
 		return nil, sendErr
 	}
 
-	log.Debugf("updatedMedia: [%+v]", updatedMedia)
+	utils.Debugf("updatedMedia: [%+v]", updatedMedia)
 
 	return &updatedMedia, nil
 }
 
 // DeleteMedia deletes the ForemanMedia identified by the supplied ID
 func (c *Client) DeleteMedia(ctx context.Context, id int) error {
-	log.Tracef("foreman/api/media.go#Delete")
+	utils.TraceFunctionCall()
 
 	reqEndpoint := fmt.Sprintf("/%s/%d", MediaEndpointPrefix, id)
 
@@ -220,7 +221,7 @@ func (c *Client) DeleteMedia(ctx context.Context, id int) error {
 // supplied ForemanMedia reference and returns a QueryResponse struct
 // containing query/response metadata and the matching media.
 func (c *Client) QueryMedia(ctx context.Context, m *ForemanMedia) (QueryResponse, error) {
-	log.Tracef("foreman/api/media.go#Search")
+	utils.TraceFunctionCall()
 
 	queryResponse := QueryResponse{}
 
@@ -246,7 +247,7 @@ func (c *Client) QueryMedia(ctx context.Context, m *ForemanMedia) (QueryResponse
 		return queryResponse, sendErr
 	}
 
-	log.Debugf("queryResponse: [%+v]", queryResponse)
+	utils.Debugf("queryResponse: [%+v]", queryResponse)
 
 	// Results will be Unmarshaled into a []map[string]interface{}
 	//
