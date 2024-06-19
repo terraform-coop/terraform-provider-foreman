@@ -40,9 +40,9 @@ type ForemanKatelloRepository struct {
 	Unprotected         bool    `json:"unprotected"`
 	ChecksumType        string  `json:"checksum_type"`
 	IgnoreGlobalProxy   bool    `json:"ignore_global_proxy"`
-	IgnorableContent    string  `json:"ignorable_content"`
+	IgnorableContent    []string`json:"ignorable_content",omitempty`
 	DownloadPolicy      string  `json:"download_policy"`
-	DownloadConcurrency int     `json:"download_concurrency"`
+	DownloadConcurrency int     `json:"download_concurrency",omitempty`
 
 	// MirrorOnSync is deprecated
 	MirrorOnSync bool `json:"mirror_on_sync"`
