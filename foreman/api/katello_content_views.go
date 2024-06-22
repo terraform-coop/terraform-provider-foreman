@@ -106,17 +106,22 @@ type ContentView struct {
 
 func (cv *ContentView) MarshalJSON() ([]byte, error) {
 	jsonMap := map[string]interface{}{
-		"id":                 cv.Id,
-		"name":               cv.Name,
-		"description":        cv.Description,
-		"organization_id":    cv.OrganizationId,
-		"label":              cv.Label,
-		"composite":          cv.Composite,
+		"id":              cv.Id,
+		"name":            cv.Name,
+		"description":     cv.Description,
+		"organization_id": cv.OrganizationId,
+		"label":           cv.Label,
+		"composite":       cv.Composite,
+
 		"auto_publish":       cv.AutoPublish,       // for CCV
 		"solve_dependencies": cv.SolveDependencies, // for CV
 		"filtered":           cv.Filtered,
 		"repository_ids":     cv.RepositoryIds,
 		"component_ids":      cv.ComponentIds,
+
+		"versions":          cv.Versions,
+		"latest_version":    cv.LatestVersion,
+		"latest_version_id": cv.LatestVersionId,
 	}
 
 	return json.Marshal(jsonMap)
@@ -257,11 +262,14 @@ func (c *Client) CreateKatelloContentView(ctx context.Context, cv *ContentView) 
 		return nil, err
 	}
 
-	cvfs, err := c.CreateKatelloContentViewFilters(ctx, createdCv.Id, &cv.Filters)
-	if err != nil {
-		return nil, err
+	// Create Filters if given
+	if cv.Filters != nil {
+		cvfs, err := c.CreateKatelloContentViewFilters(ctx, createdCv.Id, &cv.Filters)
+		if err != nil {
+			return nil, err
+		}
+		createdCv.Filters = *cvfs
 	}
-	createdCv.Filters = *cvfs
 
 	utils.Debugf("createdCv: %+v", createdCv)
 

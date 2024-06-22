@@ -66,8 +66,8 @@ func (c *Client) waitForKatelloAsyncTask(taskID string) (*ForemanTask, error) {
 			return &task, nil
 		}
 
-		log.Infof("Task %s is still pending, sleeping for 500ms and then retrying…", task.Id)
-		time.Sleep(time.Duration(time.Millisecond * 500))
+		log.Infof("Task %s is still pending, sleeping for %d seconds and then retrying…", task.Id, counter)
+		time.Sleep(time.Duration(counter) * time.Second)
 	}
 
 	// The retries should produce a success. If not, fail with error

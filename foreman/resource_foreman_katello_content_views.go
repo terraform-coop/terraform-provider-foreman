@@ -112,6 +112,15 @@ func resourceForemanKatelloContentView() *schema.Resource {
 				Description: fmt.Sprintf("Relevant for CCVs: list of CV version IDs. %s [1, 4]", autodoc.MetaExample),
 			},
 
+			"latest_version_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Required: false,
+				Optional: false,
+				Description: "Holds the ID of the latest published version of a Content View " +
+					"to be used as reference in CCVs",
+			},
+
 			"filter": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -337,6 +346,29 @@ func setResourceDataFromForemanKatelloContentView(d *schema.ResourceData, cv *ap
 	err := d.Set("filter", filterSet)
 	if err != nil {
 		panic(err)
+	}
+
+	// Latest published version
+	latest_published_version := 0
+
+	if cv.LatestVersionId != 0 {
+		// Try using the dedicated field for LatestVersionId first
+		latest_published_version = cv.LatestVersionId
+	} else {
+		// If that fails, try finding the highest ID of a version from the CV's versions
+		for _, version := range cv.Versions {
+			if version.Id > latest_published_version {
+				latest_published_version = version.Id
+			}
+		}
+	}
+
+	// If a latest version ID was defined, put it into the Terraform state field
+	if latest_published_version > 0 {
+		err = d.Set("latest_version_id", latest_published_version)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
