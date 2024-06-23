@@ -41,35 +41,35 @@ type ForemanTask struct {
 }
 
 // waitForKatelloAsyncTask provides a method to wait for a Katello asynchronous task to finish.
-func (c *Client) waitForKatelloAsyncTask(taskID string) error {
+func (c *Client) waitForKatelloAsyncTask(taskID string) (*ForemanTask, error) {
 	log.Tracef("waitForKatelloAsyncTask")
 
 	ctx := context.TODO()
 	const endpoint = "/foreman_tasks/api/tasks/%s"
 	req, err := c.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf(endpoint, taskID), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	// This works as a retry counter, currently set to 3 tries, e.g. 2 retries
-	for counter := 0; counter < 3; counter++ {
+	// This works as a retry counter, currently set to 5 tries, e.g. 4 retries
+	for counter := 0; counter < 5; counter++ {
 		log.Tracef("waitForKatelloAsyncTask retry loop with counter %d", counter)
 
 		var task ForemanTask
 		err = c.SendAndParse(req, &task)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		log.Debugf("task: %+v", task)
 		if !task.Pending {
-			return nil
+			return &task, nil
 		}
 
-		log.Infof("Task %s is still pending, sleeping for 500ms and then retrying…", task.Id)
-		time.Sleep(time.Duration(time.Millisecond * 500))
+		log.Infof("Task %s is still pending, sleeping for %d seconds and then retrying…", task.Id, counter)
+		time.Sleep(time.Duration(counter) * time.Second)
 	}
 
 	// The retries should produce a success. If not, fail with error
-	return errors.New("Error in retrying to wait for task " + taskID)
+	return nil, errors.New("Error in retrying to wait for task " + taskID)
 }
