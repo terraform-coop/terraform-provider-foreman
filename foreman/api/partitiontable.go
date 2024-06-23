@@ -37,7 +37,7 @@ type ForemanPartitionTable struct {
 	AuditComment string `json:"audit_comment"`
 	// Whether or not this partition table is locked for editing
 	Locked bool `json:"locked"`
-	// Operating sysem family. Available values: AIX, Altlinux, Archlinux,
+	// Operating system family. Available values: AIX, Altlinux, Archlinux,
 	// Coreos, Debian, Freebsd, Gentoo, Junos, NXOS, Redhat, Solaris, Suse,
 	// Windows.
 	OSFamily string `json:"os_family"`
@@ -48,6 +48,8 @@ type ForemanPartitionTable struct {
 	HostgroupIds []int `json:"hostgroup_ids"`
 	// IDs of the hosts this partition table applies
 	HostIds []int `json:"host_ids"`
+	// Description of the partition table
+	Description string `json:"description" description:"Description of the partition table"`
 }
 
 // Intermediary JSON struct - used for unmarshalling JSON data from the
@@ -98,6 +100,9 @@ func (ft *ForemanPartitionTable) UnmarshalJSON(b []byte) error {
 	}
 	if ft.OSFamily, ok = ftMap["os_family"].(string); !ok {
 		ft.OSFamily = ""
+	}
+	if ft.Description, ok = ftMap["description"].(string); !ok {
+		ft.Description = ""
 	}
 
 	return nil

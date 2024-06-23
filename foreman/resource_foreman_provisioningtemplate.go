@@ -118,6 +118,11 @@ func resourceForemanProvisioningTemplate() *schema.Resource {
 					"and environment ID combinations so they can be used in the " +
 					"provisioning template selection described above.",
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "A description of the provisioning template.",
+			},
 		},
 	}
 }
@@ -191,6 +196,9 @@ func buildForemanProvisioningTemplate(d *schema.ResourceData) *api.ForemanProvis
 	if attr, ok = d.GetOk("operatingsystem_ids"); ok {
 		attrSet := attr.(*schema.Set)
 		template.OperatingSystemIds = conv.InterfaceSliceToIntSlice(attrSet.List())
+	}
+	if attr, ok = d.GetOk("description"); ok {
+		template.Description = attr.(string)
 	}
 
 	template.TemplateCombinationsAttributes = buildForemanTemplateCombinationsAttributes(d)
@@ -281,9 +289,9 @@ func setResourceDataFromForemanProvisioningTemplate(d *schema.ResourceData, ft *
 	d.Set("snippet", ft.Snippet)
 	d.Set("audit_comment", ft.AuditComment)
 	d.Set("locked", ft.Locked)
-
 	d.Set("template_kind_id", ft.TemplateKindId)
 	d.Set("operatingsystem_ids", ft.OperatingSystemIds)
+	d.Set("description", ft.Description)
 
 	setResourceDataFromForemanTemplateCombinationsAttributes(d, ft.TemplateCombinationsAttributes)
 

@@ -134,6 +134,7 @@ func DataSourceForemanPartitionTableMockResponseTestCases(t *testing.T) []TestCa
 	expectedObj.AuditComment = obj.AuditComment
 	expectedObj.HostgroupIds = obj.HostgroupIds
 	expectedObj.HostIds = obj.HostIds
+	expectedObj.Description = obj.Description
 	expectedState = ForemanPartitionTableToInstanceState(expectedObj)
 	expectedData = MockForemanPartitionTableResourceData(expectedState)
 	// If the server responds with exactly one search result for the data source

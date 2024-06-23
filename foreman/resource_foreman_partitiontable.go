@@ -141,6 +141,11 @@ func resourceForemanPartitionTable() *schema.Resource {
 				},
 				Description: "IDs of the hosts associated with this partition table.",
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of the partition table",
+			},
 		},
 	}
 }
@@ -197,6 +202,10 @@ func buildForemanPartitionTable(d *schema.ResourceData) *api.ForemanPartitionTab
 		table.HostIds = conv.InterfaceSliceToIntSlice(attrSet.List())
 	}
 
+	if attr, ok = d.GetOk("description"); ok {
+		table.Description = attr.(string)
+	}
+
 	return &table
 }
 
@@ -242,6 +251,9 @@ func setResourceDataFromForemanPartitionTable(d *schema.ResourceData, ft *api.Fo
 	}
 	if attr, ok = d.GetOk("host_ids"); ok {
 		d.Set("host_ids", attr.(*schema.Set))
+	}
+	if attr, ok = d.GetOk("description"); ok {
+		d.Set("description", attr.(string))
 	}
 }
 

@@ -40,6 +40,7 @@ func ForemanSubnetToInstanceState(obj api.ForemanSubnet) *terraform.InstanceStat
 	attr["vlanid"] = strconv.Itoa(obj.VlanID)
 	attr["to"] = obj.To
 	attr["boot_mode"] = obj.BootMode
+	attr["description"] = obj.Description
 	state.Attributes = attr
 	return &state
 }
@@ -76,6 +77,7 @@ func RandForemanSubnet() api.ForemanSubnet {
 	obj.From = tfrand.IPv4Str(tfrand.IPv4PrivateClassCStart, tfrand.IPv4PrivateClassCMask)
 	obj.To = tfrand.IPv4Str(tfrand.IPv4PrivateClassCStart, tfrand.IPv4PrivateClassCMask)
 	obj.BootMode = tfrand.String(5, tfrand.Lower)
+	obj.Description = tfrand.String(10, tfrand.Lower+". ")
 
 	return obj
 }
