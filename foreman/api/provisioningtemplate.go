@@ -39,6 +39,9 @@ type ForemanProvisioningTemplate struct {
 	TemplateKindId int
 	// IDs of operating systems associated with this provisioning template
 	OperatingSystemIds []int
+	// Description of the provisioning template
+	Description string
+
 	// How templates are determined:
 	//
 	// When editing a template, you must assign a list of operating systems
@@ -104,6 +107,7 @@ func (ft ForemanProvisioningTemplate) MarshalJSON() ([]byte, error) {
 	ftMap["audit_comment"] = ft.AuditComment
 	ftMap["locked"] = ft.Locked
 	ftMap["template_kind_id"] = intIdToJSONString(ft.TemplateKindId)
+	ftMap["description"] = ft.Description
 
 	// always marshal the OS array - otherwise, when the array is updated
 	// from [1,2,3] to [], we would skip the marshalling and the OS id array
@@ -173,6 +177,9 @@ func (ft *ForemanProvisioningTemplate) UnmarshalJSON(b []byte) error {
 		ft.TemplateKindId = 0
 	} else {
 		ft.TemplateKindId = int(ftMap["template_kind_id"].(float64))
+	}
+	if ft.Description, ok = ftMap["description"].(string); !ok {
+		ft.Description = ""
 	}
 
 	return nil

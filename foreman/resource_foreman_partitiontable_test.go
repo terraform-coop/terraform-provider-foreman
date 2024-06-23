@@ -53,6 +53,7 @@ func ForemanPartitionTableToInstanceState(obj api.ForemanPartitionTable) *terraf
 		key := fmt.Sprintf("host_ids.%d", idx)
 		attr[key] = strconv.Itoa(val)
 	}
+	attr["description"] = obj.Description
 
 	state.Attributes = attr
 	return &state
@@ -90,11 +91,12 @@ func RandForemanPartitionTable() api.ForemanPartitionTable {
 	obj.OperatingSystemIds = tfrand.IntArrayUnique(rand.Intn(5))
 	obj.HostgroupIds = tfrand.IntArrayUnique(rand.Intn(5))
 	obj.HostIds = tfrand.IntArrayUnique(rand.Intn(5))
+	obj.Description = tfrand.String(10, tfrand.Lower+". ")
 
 	return obj
 }
 
-// Compares two ResourceData references for a ForemanPartitionTable resoure.
+// Compares two ResourceData references for a ForemanPartitionTable resource.
 // If the two references differ in their attributes, the test will raise
 // a fatal.
 func ForemanPartitionTableResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *schema.ResourceData) {
@@ -261,6 +263,7 @@ func TestSetResourceDataFromForemanPartitionTable_Value(t *testing.T) {
 	actualObj.AuditComment = expectedObj.AuditComment
 	actualObj.HostgroupIds = expectedObj.HostgroupIds
 	actualObj.HostIds = expectedObj.HostIds
+	actualObj.Description = expectedObj.Description
 
 	actualState := ForemanPartitionTableToInstanceState(actualObj)
 	actualResourceData := MockForemanPartitionTableResourceData(actualState)
@@ -470,6 +473,7 @@ func ResourceForemanPartitionTableMockResponseTestCases(t *testing.T) []TestCase
 	expectedObj.AuditComment = obj.AuditComment
 	expectedObj.HostgroupIds = obj.HostgroupIds
 	expectedObj.HostIds = obj.HostIds
+	expectedObj.Description = obj.Description
 	expectedState = ForemanPartitionTableToInstanceState(expectedObj)
 	expectedData = MockForemanPartitionTableResourceData(expectedState)
 	// If the server responds with a proper create response, the operation
@@ -497,6 +501,7 @@ func ResourceForemanPartitionTableMockResponseTestCases(t *testing.T) []TestCase
 	expectedObj.AuditComment = obj.AuditComment
 	expectedObj.HostgroupIds = obj.HostgroupIds
 	expectedObj.HostIds = obj.HostIds
+	expectedObj.Description = obj.Description
 	expectedState = ForemanPartitionTableToInstanceState(expectedObj)
 	expectedData = MockForemanPartitionTableResourceData(expectedState)
 	// If the server responds with a proper create response, the operation
@@ -524,6 +529,7 @@ func ResourceForemanPartitionTableMockResponseTestCases(t *testing.T) []TestCase
 	expectedObj.AuditComment = obj.AuditComment
 	expectedObj.HostgroupIds = obj.HostgroupIds
 	expectedObj.HostIds = obj.HostIds
+	expectedObj.Description = obj.Description
 	expectedState = ForemanPartitionTableToInstanceState(expectedObj)
 	expectedData = MockForemanPartitionTableResourceData(expectedState)
 	// If the server responds with a proper create response, the operation
