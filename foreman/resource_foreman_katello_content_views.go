@@ -99,8 +99,32 @@ func resourceForemanKatelloContentView() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 				Optional:      true,
+				Computed:      true, // See DiffSuppressFunc below for more info
 				ConflictsWith: []string{"composite"},
 				Description:   fmt.Sprintf("List of repository IDs. %s [1, 4, 5]", autodoc.MetaExample),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					// The following checks determine if Terraform tries to remove a list of repository IDs from
+					// a composite content view. This happens, because the Katello API fills this field when a
+					// CCV is created, the repo IDs from the contained CVs are inserted here.
+
+					// Since using "composite = true" conflicts with "repository_ids", this becomes a read-only
+					// field that can not be updated in the CCV itself. Yet, Terraform will think the value
+					// was removed from the resource. This is partly solved by using "Computed: true" above, but
+					// does not always work. Therefore, both "computed" and this diff suppression are enabled for now.
+
+					// First check: is the diff trying to remove all repository_ids from this resource?
+					if k == "repository_ids.#" && oldValue != "0" && newValue == "0" {
+						// Second check: is it a composite content view?
+						if composite, ok := d.GetOk("composite"); ok {
+							if composite.(bool) == true {
+								// If it is trying to remove all repository IDs and it is a
+								// composite, suppress the diff.
+								return true
+							}
+						}
+					}
+					return false
+				},
 			},
 
 			"component_ids": {
