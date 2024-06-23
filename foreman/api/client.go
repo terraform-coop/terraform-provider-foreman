@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -394,7 +395,9 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 			}
 
 			switch finishedTask.Label {
+
 			case "Actions::Katello::ContentView::Publish":
+				// Used by endpoint POST /katello/api/content_views/:id/publish
 				output := finishedTask.Output.(map[string]interface{})
 				cvToRead := ContentView{
 					ForemanObject: ForemanObject{Id: int(output["content_view_id"].(float64))},
@@ -409,6 +412,14 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 				respBody, err = json.Marshal(updatedCv)
 				if err != nil {
 					return err
+				}
+
+			case "Actions::Katello::ContentView::Remove":
+				// Used by endpoint PUT /katello/api/content_views/:id/remove
+				success := finishedTask.Result == "success"
+				if !success {
+					errorMsg := fmt.Sprintf("error in removing content_view: %v", finishedTask.Humanized.Errors)
+					return errors.New(errorMsg)
 				}
 			}
 		}

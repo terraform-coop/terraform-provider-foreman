@@ -288,9 +288,23 @@ func (c *Client) UpdateKatelloContentView(ctx context.Context, cv *ContentView) 
 func (c *Client) DeleteKatelloContentView(ctx context.Context, id int) error {
 	utils.TraceFunctionCall()
 
-	endpoint := fmt.Sprintf(ContentViewById, id)
+	// Using the PUT /remove endpoint also deletes associated filters, filter rules and
+	// resolves any associated environments. This allows using only one call to Katello.
+	// Otherwise, we would need to fetch all environments for this (composite) content view
+	// and delete them first, then finally DELETEing the (C)CV.
+	endpoint := fmt.Sprintf(ContentViewById+"/remove", id)
 
-	req, err := c.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)
+	type contentViewDestroyBody struct {
+		DestroyContentView bool `json:"destroy_content_view"`
+	}
+
+	body := contentViewDestroyBody{DestroyContentView: true}
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	req, err := c.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewBuffer(bodyJson))
 	if err != nil {
 		return err
 	}
