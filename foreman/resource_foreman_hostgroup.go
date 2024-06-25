@@ -108,7 +108,13 @@ func resourceForemanHostgroup() *schema.Resource {
 				ValidateFunc: validation.IntAtLeast(0),
 				Description:  "ID of the compute profile associated with this hostgroup.",
 			},
-
+			"compute_resource_id": {
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ValidateFunc: validation.IntAtLeast(0),
+			},
 			"config_group_ids": {
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -273,7 +279,9 @@ func buildForemanHostgroup(d *schema.ResourceData) *api.ForemanHostgroup {
 	if attr, ok = d.GetOk("compute_profile_id"); ok {
 		hostgroup.ComputeProfileId = attr.(int)
 	}
-
+	if attr, ok = d.GetOk("compute_resource_id"); ok {
+		hostgroup.ComputeResourceId = attr.(int)
+	}
 	if attr, ok = d.GetOk("config_group_ids"); ok {
 		attrSet := attr.(*schema.Set)
 		hostgroup.ConfigGroupIds = conv.InterfaceSliceToIntSlice(attrSet.List())
@@ -356,6 +364,7 @@ func setResourceDataFromForemanHostgroup(d *schema.ResourceData, fh *api.Foreman
 	d.Set("parameters", api.FromKV(fh.HostGroupParameters))
 	d.Set("architecture_id", fh.ArchitectureId)
 	d.Set("compute_profile_id", fh.ComputeProfileId)
+	d.Set("compute_resource_id", fh.ComputeResourceId)
 	d.Set("config_group_ids", fh.ConfigGroupIds)
 	d.Set("content_source_id", fh.ContentSourceId)
 	d.Set("content_view_id", fh.ContentViewId)
