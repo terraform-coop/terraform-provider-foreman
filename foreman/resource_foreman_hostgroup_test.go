@@ -32,6 +32,7 @@ func ForemanHostgroupToInstanceState(obj api.ForemanHostgroup) *terraform.Instan
 	attr["title"] = obj.Title
 	attr["architecture_id"] = strconv.Itoa(obj.ArchitectureId)
 	attr["compute_profile_id"] = strconv.Itoa(obj.ComputeProfileId)
+	attr["compute_resource_id"] = strconv.Itoa(obj.ComputeResourceId)
 	attr["domain_id"] = strconv.Itoa(obj.DomainId)
 	attr["environment_id"] = strconv.Itoa(obj.EnvironmentId)
 	attr["medium_id"] = strconv.Itoa(obj.MediumId)
@@ -72,6 +73,7 @@ func RandForemanHostgroup() api.ForemanHostgroup {
 	obj.Title = tfrand.String(15, tfrand.Lower+"/")
 	obj.ArchitectureId = rand.Intn(100)
 	obj.ComputeProfileId = rand.Intn(100)
+	obj.ComputeResourceId = rand.Intn(100)
 	obj.DomainId = rand.Intn(100)
 	obj.EnvironmentId = rand.Intn(100)
 	obj.MediumId = rand.Intn(100)
