@@ -112,8 +112,8 @@ func resourceForemanHostgroup() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
-				ForceNew:     true,
 				ValidateFunc: validation.IntAtLeast(0),
+				Description:  "ID of the compute resource associated with this hostgroup.",
 			},
 			"config_group_ids": {
 				Type:     schema.TypeSet,
