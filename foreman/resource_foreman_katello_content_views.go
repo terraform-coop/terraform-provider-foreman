@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
+	"slices"
 	"strconv"
 )
 
@@ -123,6 +124,19 @@ func resourceForemanKatelloContentView() *schema.Resource {
 							}
 						}
 					}
+
+					// Another check: Suppression of diffs if the order is just a mismatch between TF and Katello API..
+					if k != "repository_ids.#" {
+						oldList, newList := d.GetChange("repository_ids")
+						oldInts := getIdsFromTerraformList(oldList)
+						slices.Sort(oldInts)
+						newInts := getIdsFromTerraformList(newList)
+						slices.Sort(newInts)
+						if slices.Equal(oldInts, newInts) {
+							return true
+						}
+					}
+
 					return false
 				},
 			},
@@ -239,6 +253,25 @@ func resourceForemanKatelloContentViewFilterRule() *schema.Resource {
 	}
 }
 
+// Converts a list of integers (= ids) from Terraform TypeList into a Go int slice
+func getIdsFromTerraformList(inputList interface{}) []int {
+	castedList, ok := inputList.([]interface{})
+	if !ok {
+		panic("Cannot cast inputList to []interface{} in buildForemanKatelloContentView")
+	}
+
+	var ids []int
+	for _, item := range castedList {
+		castedId, ok := item.(int)
+		if !ok {
+			panic("Cannot cast item from castedList to int in buildForemanKatelloContentView")
+		}
+		ids = append(ids, castedId)
+	}
+
+	return ids
+}
+
 func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
 	utils.TraceFunctionCall()
 
@@ -259,22 +292,23 @@ func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
 	// repository_ids and component_ids are defined as "TypeList" which can
 	// be any type according to Terraform docs. So we need to cast to interface and then to int.
 
+	// Sort function for IDs from TypeList
+	sortIdsFromList := func(inputList interface{}) []int {
+		ids := getIdsFromTerraformList(inputList)
+
+		// Sort the ids to ensure a consistent order (else, Terraform trys to "update").
+		// This is necessary, because the Katello CV version publish API endpoint returns
+		// a different order of arguments than originally created
+		slices.Sort(ids)
+		return ids
+	}
+
 	if repoIds, ok := d.GetOk("repository_ids"); ok {
-		casted := repoIds.([]interface{})
-		var ids []int
-		for _, item := range casted {
-			ids = append(ids, item.(int))
-		}
-		cv.RepositoryIds = ids
+		cv.RepositoryIds = sortIdsFromList(repoIds)
 	}
 
 	if componentIds, ok := d.GetOk("component_ids"); ok {
-		casted := componentIds.([]interface{})
-		var ids []int
-		for _, item := range casted {
-			ids = append(ids, item.(int))
-		}
-		cv.ComponentIds = ids
+		cv.ComponentIds = sortIdsFromList(componentIds)
 	}
 
 	// Handle list of ContentViewFilters
