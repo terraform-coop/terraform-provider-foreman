@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
 	"net/http"
@@ -248,6 +249,36 @@ func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*C
 	utils.Debugf("read content_view: %+v", cv)
 
 	return &cv, nil
+}
+
+func (c *Client) ReadContentViewFilters(ctx context.Context, cvId int) (*[]ContentViewFilter, error) {
+	utils.TraceFunctionCall()
+
+	reqEndpoint := fmt.Sprintf(ContentViewFilters, cvId)
+	var cvfs []ContentViewFilter
+	var queryResponse QueryResponse
+
+	req, err := c.NewRequestWithContext(ctx, http.MethodGet, reqEndpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.SendAndParse(req, &queryResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range queryResponse.Results {
+		cvf, ok := item.(ContentViewFilter)
+		if !ok {
+			return nil, errors.New("failed to cast content view filter from results[]")
+		}
+		cvfs = append(cvfs, cvf)
+	}
+
+	utils.Debugf("read content_view filter: %+v", cvfs)
+
+	return &cvfs, nil
 }
 
 func (c *Client) UpdateKatelloContentView(ctx context.Context, cv *ContentView) (*ContentView, error) {
