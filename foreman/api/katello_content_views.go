@@ -11,10 +11,8 @@ import (
 
 const (
 	ContentViewEndpointPrefix = "/katello/api/content_views"
-	ContentViewById           = ContentViewEndpointPrefix + "/%d"             // :id
-	ContentViewsByOrg         = "/katello/api/organizations/%d/content_views" // :organization_id
-	ContentViewFilters        = "/katello/api/content_views/%d/filters"       // :content_view_id
-	ContentViewFilterRules    = "/katello/api/content_view_filters/%d/rules"  // :content_view_filter_id
+	ContentViewById           = ContentViewEndpointPrefix + "/%d"       // :id
+	ContentViewPublish        = "/katello/api/content_views/%d/publish" // :id
 )
 
 // A ContentView contains repositories, filters etc. to manage specific views on the Katello contents.
@@ -103,50 +101,22 @@ type ContentView struct {
 
 func (cv *ContentView) MarshalJSON() ([]byte, error) {
 	jsonMap := map[string]interface{}{
-		"id":                 cv.Id,
-		"name":               cv.Name,
-		"description":        cv.Description,
-		"organization_id":    cv.OrganizationId,
-		"label":              cv.Label,
-		"composite":          cv.Composite,
+		"id":              cv.Id,
+		"name":            cv.Name,
+		"description":     cv.Description,
+		"organization_id": cv.OrganizationId,
+		"label":           cv.Label,
+		"composite":       cv.Composite,
+
 		"auto_publish":       cv.AutoPublish,       // for CCV
 		"solve_dependencies": cv.SolveDependencies, // for CV
 		"filtered":           cv.Filtered,
 		"repository_ids":     cv.RepositoryIds,
 		"component_ids":      cv.ComponentIds,
-	}
 
-	return json.Marshal(jsonMap)
-}
-
-// ContentViewFilter is part of a ContentView and filters the presented content according to its rules.
-type ContentViewFilter struct {
-	ForemanObject
-
-	Inclusion   bool   `json:"inclusion"`
-	Description string `json:"description"`
-
-	ContentView  interface{}             `json:"content_view"`
-	Repositories []interface{}           `json:"repositories"`
-	Type         string                  `json:"type"`
-	Rules        []ContentViewFilterRule `json:"rules"`
-}
-
-type ContentViewFilterRule struct {
-	ForemanObject
-
-	ContentViewFilterId int    `json:"content_view_filter_id"`
-	Architecture        string `json:"architecture"`
-}
-
-func (cvf *ContentViewFilter) MarshalJSON() ([]byte, error) {
-	jsonMap := map[string]interface{}{
-		"id":          cvf.Id,
-		"name":        cvf.Name,
-		"type":        cvf.Type,
-		"inclusion":   cvf.Inclusion,
-		"description": cvf.Description,
-		"rules":       cvf.Rules,
+		"versions":          cv.Versions,
+		"latest_version":    cv.LatestVersion,
+		"latest_version_id": cv.LatestVersionId,
 	}
 
 	return json.Marshal(jsonMap)
@@ -195,44 +165,6 @@ func (c *Client) QueryContentView(ctx context.Context, d *ContentView) (QueryRes
 	return queryResponse, nil
 }
 
-// QueryContentViewFilters returns the filters including their rules
-func (c *Client) QueryContentViewFilters(ctx context.Context, cvId int) (QueryResponse, error) {
-	utils.TraceFunctionCall()
-	queryResponse := QueryResponse{}
-
-	endpoint := fmt.Sprintf(ContentViewFilters, cvId)
-	req, err := c.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
-	if err != nil {
-		return queryResponse, err
-	}
-
-	err = c.SendAndParse(req, &queryResponse)
-	if err != nil {
-		return queryResponse, err
-	}
-
-	utils.Debugf("queryResponse: %+v", queryResponse)
-
-	var results []ContentViewFilter
-	resultsBytes, err := json.Marshal(queryResponse.Results)
-	if err != nil {
-		return queryResponse, err
-	}
-
-	err = json.Unmarshal(resultsBytes, &results)
-	if err != nil {
-		return queryResponse, err
-	}
-
-	iArr := make([]interface{}, len(results))
-	for idx, val := range results {
-		iArr[idx] = val
-	}
-	queryResponse.Results = iArr
-
-	return queryResponse, nil
-}
-
 func (c *Client) CreateKatelloContentView(ctx context.Context, cv *ContentView) (*ContentView, error) {
 	utils.TraceFunctionCall()
 
@@ -254,41 +186,41 @@ func (c *Client) CreateKatelloContentView(ctx context.Context, cv *ContentView) 
 		return nil, err
 	}
 
-	cvfs, err := c.CreateKatelloContentViewFilters(ctx, createdCv.Id, &cv.Filters)
-	if err != nil {
-		return nil, err
+	// Create Filters if given
+	if cv.Filters != nil {
+		cvfs, err := c.CreateKatelloContentViewFilters(ctx, createdCv.Id, &cv.Filters)
+		if err != nil {
+			return nil, err
+		}
+		createdCv.Filters = *cvfs
 	}
-	createdCv.Filters = *cvfs
 
 	utils.Debugf("createdCv: %+v", createdCv)
 
-	return &createdCv, nil
+	// Publish an initial version
+	publishedCv, err := publishNewContentView(c, ctx, createdCv)
+	if err != nil {
+		return nil, err
+	}
+
+	return publishedCv, nil
 }
 
-func (c *Client) CreateKatelloContentViewFilters(ctx context.Context, cvId int, cvf *[]ContentViewFilter) (*[]ContentViewFilter, error) {
-	utils.TraceFunctionCall()
-
-	endpoint := fmt.Sprintf(ContentViewFilters, cvId)
-
-	jsonBytes, err := c.WrapJSONWithTaxonomy(nil, cvf)
+func publishNewContentView(c *Client, ctx context.Context, createdCv ContentView) (*ContentView, error) {
+	publishEndpoint := fmt.Sprintf(ContentViewPublish, createdCv.Id)
+	req, err := c.NewRequestWithContext(ctx, http.MethodPost, publishEndpoint, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := c.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewBuffer(jsonBytes))
+	var publishedCv ContentView
+	err = c.SendAndParse(req, &publishedCv)
 	if err != nil {
 		return nil, err
 	}
 
-	var createdCvf []ContentViewFilter
-	err = c.SendAndParse(req, &createdCvf)
-	if err != nil {
-		return nil, err
-	}
-
-	utils.Debugf("createdCvf: %+v", createdCvf)
-
-	return &createdCvf, nil
+	utils.Debugf("publishdCv: %+v", publishedCv)
+	return &publishedCv, nil
 }
 
 func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*ContentView, error) {
@@ -307,7 +239,7 @@ func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*C
 		return nil, err
 	}
 
-	cvfs, err := c.ReadContentViewFilters(ctx, cv.Id)
+	cvfs, err := c.ReadKatelloContentViewFilters(ctx, cv.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -316,27 +248,6 @@ func (c *Client) ReadKatelloContentView(ctx context.Context, d *ContentView) (*C
 	utils.Debugf("read content_view: %+v", cv)
 
 	return &cv, nil
-}
-
-func (c *Client) ReadContentViewFilters(ctx context.Context, cvId int) (*[]ContentViewFilter, error) {
-	utils.TraceFunctionCall()
-
-	reqEndpoint := fmt.Sprintf(ContentViewFilters, cvId)
-	var cvf []ContentViewFilter
-
-	req, err := c.NewRequestWithContext(ctx, http.MethodGet, reqEndpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	err = c.SendAndParse(req, &cvf)
-	if err != nil {
-		return nil, err
-	}
-
-	utils.Debugf("read content_view filter: %+v", cvf)
-
-	return &cvf, nil
 }
 
 func (c *Client) UpdateKatelloContentView(ctx context.Context, cv *ContentView) (*ContentView, error) {
@@ -373,41 +284,27 @@ func (c *Client) UpdateKatelloContentView(ctx context.Context, cv *ContentView) 
 	return &updatedCv, nil
 }
 
-func (c *Client) UpdateKatelloContentViewFilters(ctx context.Context, cvId int, cvf *[]ContentViewFilter) (*[]ContentViewFilter, error) {
-	utils.TraceFunctionCall()
-
-	endpoint := fmt.Sprintf(ContentViewFilters, cvId)
-
-	jsonBytes, err := c.WrapJSONWithTaxonomy(nil, cvf)
-	if err != nil {
-		return nil, err
-	}
-
-	utils.Debugf("jsonBytes: %s", jsonBytes)
-
-	req, err := c.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewBuffer(jsonBytes))
-	if err != nil {
-		return nil, err
-	}
-
-	var updatedCvf []ContentViewFilter
-	err = c.SendAndParse(req, &updatedCvf)
-	if err != nil {
-		return nil, err
-	}
-
-	utils.Debugf("updatedCvf: %+v", updatedCvf)
-
-	return &updatedCvf, nil
-}
-
 // DeleteKatelloContentView also deletes all Filters and Rules
 func (c *Client) DeleteKatelloContentView(ctx context.Context, id int) error {
 	utils.TraceFunctionCall()
 
-	endpoint := fmt.Sprintf(ContentViewById, id)
+	// Using the PUT /remove endpoint also deletes associated filters, filter rules and
+	// resolves any associated environments. This allows using only one call to Katello.
+	// Otherwise, we would need to fetch all environments for this (composite) content view
+	// and delete them first, then finally DELETEing the (C)CV.
+	endpoint := fmt.Sprintf(ContentViewById+"/remove", id)
 
-	req, err := c.NewRequestWithContext(ctx, http.MethodDelete, endpoint, nil)
+	type contentViewDestroyBody struct {
+		DestroyContentView bool `json:"destroy_content_view"`
+	}
+
+	body := contentViewDestroyBody{DestroyContentView: true}
+	bodyJson, err := json.Marshal(body)
+	if err != nil {
+		return err
+	}
+
+	req, err := c.NewRequestWithContext(ctx, http.MethodPut, endpoint, bytes.NewBuffer(bodyJson))
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -388,9 +389,38 @@ func (client *Client) SendAndParse(req *http.Request, obj interface{}) error {
 
 		if asyncTask.Pending {
 			log.Debugf("KatelloResponse is pending")
-			err = client.waitForKatelloAsyncTask(asyncTask.Id)
+			finishedTask, err := client.waitForKatelloAsyncTask(asyncTask.Id)
 			if err != nil {
 				return err
+			}
+
+			switch finishedTask.Label {
+
+			case "Actions::Katello::ContentView::Publish":
+				// Used by endpoint POST /katello/api/content_views/:id/publish
+				output := finishedTask.Output.(map[string]interface{})
+				cvToRead := ContentView{
+					ForemanObject: ForemanObject{Id: int(output["content_view_id"].(float64))},
+				}
+
+				ctx := context.TODO()
+				updatedCv, err := client.ReadKatelloContentView(ctx, &cvToRead)
+				if err != nil {
+					return err
+				}
+
+				respBody, err = json.Marshal(updatedCv)
+				if err != nil {
+					return err
+				}
+
+			case "Actions::Katello::ContentView::Remove":
+				// Used by endpoint PUT /katello/api/content_views/:id/remove
+				success := finishedTask.Result == "success"
+				if !success {
+					errorMsg := fmt.Sprintf("error in removing content_view: %v", finishedTask.Humanized.Errors)
+					return errors.New(errorMsg)
+				}
 			}
 		}
 	}
@@ -453,7 +483,10 @@ func (client *Client) WrapJSON(name interface{}, item interface{}) ([]byte, erro
 func (client *Client) WrapJSONWithTaxonomy(name interface{}, item interface{}) ([]byte, error) {
 	utils.TraceFunctionCall()
 
-	wrapped, _ := client.wrapParameters(name, item)
+	wrapped, err := client.wrapParameters(name, item)
+	if err != nil {
+		return nil, err
+	}
 
 	// Workaround for Foreman versions < 1.21 in case no default location/organization was defined for resources
 	if client.clientConfig.LocationID >= 0 && client.clientConfig.OrganizationID >= 0 {

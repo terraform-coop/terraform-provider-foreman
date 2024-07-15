@@ -25,3 +25,31 @@ resource "foreman_katello_content_view" "test_cv_write" {
     }
   }
 }
+
+
+//// Content view example (repos are not defined in this example)
+// Content view with repo for Ceph Pacific
+resource "foreman_katello_content_view" "ubuntu_ceph_v16" {
+  name = "Ubuntu Ceph Pacific"
+  repository_ids = [
+    data.foreman_katello_repository.debian_ceph_pacific.id
+  ]
+}
+// Content view with repo for Ceph Quincy
+resource "foreman_katello_content_view" "ubuntu_ceph_v17" {
+  name = "Ubuntu Ceph Quincy"
+  repository_ids = [
+    data.foreman_katello_repository.debian_ceph_quincy.id
+  ]
+}
+// Composite content view consuming both CVs above
+resource "foreman_katello_content_view" "ubuntu_ceph_ccv" {
+  name = "Ubuntu Ceph composite content view Pacific+Quincy"
+  composite = true
+  auto_publish = true
+
+  component_ids = [
+    foreman_katello_content_view.ubuntu_ceph_v16.latest_version_id,
+    foreman_katello_content_view.ubuntu_ceph_v17.latest_version_id
+  ]
+}
