@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/utils"
+	"slices"
 	"strconv"
 )
 
@@ -66,10 +67,11 @@ func resourceForemanKatelloContentView() *schema.Resource {
 			},
 
 			"composite": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Default:     false,
-				Description: fmt.Sprintf("Is this Content View a Composite CV? %s false", autodoc.MetaExample),
+				Type:          schema.TypeBool,
+				Optional:      true,
+				Default:       false,
+				ConflictsWith: []string{"repository_ids"},
+				Description:   fmt.Sprintf("Is this Content View a Composite CV? %s false", autodoc.MetaExample),
 			},
 
 			"solve_dependencies": {
@@ -97,8 +99,46 @@ func resourceForemanKatelloContentView() *schema.Resource {
 				Elem: &schema.Schema{
 					Type: schema.TypeInt,
 				},
-				Optional:    true,
-				Description: fmt.Sprintf("List of repository IDs. %s [1, 4, 5]", autodoc.MetaExample),
+				Optional:      true,
+				Computed:      true, // See DiffSuppressFunc below for more info
+				ConflictsWith: []string{"composite"},
+				Description:   fmt.Sprintf("List of repository IDs. %s [1, 4, 5]", autodoc.MetaExample),
+				DiffSuppressFunc: func(k, oldValue, newValue string, d *schema.ResourceData) bool {
+					// The following checks determine if Terraform tries to remove a list of repository IDs from
+					// a composite content view. This happens, because the Katello API fills this field when a
+					// CCV is created, the repo IDs from the contained CVs are inserted here.
+
+					// Since using "composite = true" conflicts with "repository_ids", this becomes a read-only
+					// field that can not be updated in the CCV itself. Yet, Terraform will think the value
+					// was removed from the resource. This is partly solved by using "Computed: true" above, but
+					// does not always work. Therefore, both "computed" and this diff suppression are enabled for now.
+
+					// First check: is the diff trying to remove all repository_ids from this resource?
+					if k == "repository_ids.#" && oldValue != "0" && newValue == "0" {
+						// Second check: is it a composite content view?
+						if composite, ok := d.GetOk("composite"); ok {
+							if composite.(bool) == true {
+								// If it is trying to remove all repository IDs and it is a
+								// composite, suppress the diff.
+								return true
+							}
+						}
+					}
+
+					// Another check: Suppression of diffs if the order is just a mismatch between TF and Katello API..
+					if k != "repository_ids.#" {
+						oldList, newList := d.GetChange("repository_ids")
+						oldInts := getIdsFromTerraformList(oldList)
+						slices.Sort(oldInts)
+						newInts := getIdsFromTerraformList(newList)
+						slices.Sort(newInts)
+						if slices.Equal(oldInts, newInts) {
+							return true
+						}
+					}
+
+					return false
+				},
 			},
 
 			"component_ids": {
@@ -107,79 +147,129 @@ func resourceForemanKatelloContentView() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 				Optional:    true,
-				Description: fmt.Sprintf("Relevant for CCVs: list of CV IDs. %s [1, 4]", autodoc.MetaExample),
+				Description: fmt.Sprintf("Relevant for CCVs: list of CV version IDs. %s [1, 4]", autodoc.MetaExample),
+			},
+
+			"latest_version_id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+				Required: false,
+				Optional: false,
+				Description: "Holds the ID of the latest published version of a Content View " +
+					"to be used as reference in CCVs",
 			},
 
 			"filter": {
-				Type:        schema.TypeSet,
-				Required:    false,
-				Optional:    false,
-				Computed:    true,
-				Description: "Content view filters and their rules. Currently read-only, to be used as data source",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"name": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: "Content view filters and their rules.",
+				Elem:        resourceForemanKatelloContentViewFilter(),
+			},
 
-						"type": {
-							Type:     schema.TypeString,
-							Required: true,
-							ValidateFunc: validation.StringInSlice([]string{
-								"deb",
-								"rpm",
-								"package_group",
-								"erratum",
-								"erratum_id",
-								"erratum_date",
-								"docker",
-								"modulemd",
-							}, false),
-							Description: "Type of this filter, e.g. DEB or RPM",
-						},
-
-						"inclusion": {
-							Type:     schema.TypeBool,
-							Optional: true,
-							Default:  false,
-							Description: "specifies if content should be included or excluded, " +
-								"default: inclusion=false",
-						},
-
-						"description": {
-							Type:     schema.TypeString,
-							Optional: true,
-						},
-
-						"rule": {
-							Type:     schema.TypeSet,
-							Computed: true,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"architecture": {
-										Type:     schema.TypeString,
-										Optional: true,
-									},
-
-									"name": {
-										Type:     schema.TypeString,
-										Required: true,
-										Description: fmt.Sprintf("Filter pattern of this filter %s apt*",
-											autodoc.MetaExample),
-									},
-								},
-							},
-						},
-
-						//original_packages bool
-						//original_module_streams bool
-						//repository_ids []interface
-					},
-				},
+			"filtered": {
+				Type:     schema.TypeBool,
+				Required: false,
+				Computed: true,
 			},
 		},
 	}
+}
+
+func resourceForemanKatelloContentViewFilter() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			"type": {
+				Type:     schema.TypeString,
+				Required: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"deb",
+					"rpm",
+					"package_group",
+					"erratum",
+					"erratum_id",
+					"erratum_date",
+					"docker",
+					"modulemd",
+				}, false),
+				Description: "Type of this filter, e.g. DEB or RPM",
+			},
+
+			"inclusion": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+				Description: "specifies if content should be included or excluded, " +
+					"default: inclusion=false",
+			},
+
+			"description": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"rule": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     resourceForemanKatelloContentViewFilterRule(),
+			},
+
+			//original_packages bool
+			//original_module_streams bool
+			//repository_ids []interface
+		},
+	}
+}
+
+func resourceForemanKatelloContentViewFilterRule() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"id": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+
+			"architecture": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+
+			"name": {
+				Type:     schema.TypeString,
+				Required: true,
+				Description: fmt.Sprintf("Filter pattern of this filter %s apt*",
+					autodoc.MetaExample),
+			},
+		},
+	}
+}
+
+// Converts a list of integers (= ids) from Terraform TypeList into a Go int slice
+func getIdsFromTerraformList(inputList interface{}) []int {
+	castedList, ok := inputList.([]interface{})
+	if !ok {
+		panic("Cannot cast inputList to []interface{} in buildForemanKatelloContentView")
+	}
+
+	var ids []int
+	for _, item := range castedList {
+		castedId, ok := item.(int)
+		if !ok {
+			panic("Cannot cast item from castedList to int in buildForemanKatelloContentView")
+		}
+		ids = append(ids, castedId)
+	}
+
+	return ids
 }
 
 func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
@@ -202,54 +292,60 @@ func buildForemanKatelloContentView(d *schema.ResourceData) *api.ContentView {
 	// repository_ids and component_ids are defined as "TypeList" which can
 	// be any type according to Terraform docs. So we need to cast to interface and then to int.
 
+	// Sort function for IDs from TypeList
+	sortIdsFromList := func(inputList interface{}) []int {
+		ids := getIdsFromTerraformList(inputList)
+
+		// Sort the ids to ensure a consistent order (else, Terraform trys to "update").
+		// This is necessary, because the Katello CV version publish API endpoint returns
+		// a different order of arguments than originally created
+		slices.Sort(ids)
+		return ids
+	}
+
 	if repoIds, ok := d.GetOk("repository_ids"); ok {
-		casted := repoIds.([]interface{})
-		var ids []int
-		for _, item := range casted {
-			ids = append(ids, item.(int))
-		}
-		cv.RepositoryIds = ids
+		cv.RepositoryIds = sortIdsFromList(repoIds)
 	}
 
 	if componentIds, ok := d.GetOk("component_ids"); ok {
-		casted := componentIds.([]interface{})
-		var ids []int
-		for _, item := range casted {
-			ids = append(ids, item.(int))
-		}
-		cv.ComponentIds = ids
+		cv.ComponentIds = sortIdsFromList(componentIds)
 	}
 
 	// Handle list of ContentViewFilters
 	if filters, ok := d.GetOk("filter"); ok {
 		var cvfs []api.ContentViewFilter
+		filters := filters.([]interface{})
 
-		for _, cvfsResData := range filters.([]schema.ResourceData) {
+		for _, cvfsResData := range filters {
 			var cvf api.ContentViewFilter
+			utils.Debugf("cvfsResData: %+v", cvfsResData)
 
-			cvf.Name = cvfsResData.Get("name").(string)
-			cvf.Type = cvfsResData.Get("type").(string)
-			cvf.Inclusion = cvfsResData.Get("inclusion").(bool)
-			cvf.Description = cvfsResData.Get("description").(string)
+			cvfsResData := cvfsResData.(map[string]interface{})
 
-			if rules, ok := cvfsResData.GetOk("rule"); ok {
+			cvf.Id = cvfsResData["id"].(int)
+			cvf.Name = cvfsResData["name"].(string)
+			cvf.Type = cvfsResData["type"].(string)
+			cvf.Description = cvfsResData["description"].(string)
+			cvf.Inclusion = cvfsResData["inclusion"].(bool)
+
+			if rules, ok := cvfsResData["rule"]; ok {
 				var cvfrs []api.ContentViewFilterRule
+				rules := rules.([]interface{})
 
-				for _, rulesResData := range rules.([]schema.ResourceData) {
+				for _, rulesResData := range rules {
 					var cvfr api.ContentViewFilterRule
+					rulesResData := rulesResData.(map[string]interface{})
 
-					cvfr.Name = rulesResData.Get("name").(string)
-					cvfr.Architecture = rulesResData.Get("architecture").(string)
+					cvfr.Id = rulesResData["id"].(int)
+					cvfr.Name = rulesResData["name"].(string)
+					cvfr.Architecture = rulesResData["architecture"].(string)
 
 					cvfrs = append(cvfrs, cvfr)
 				}
-
 				cvf.Rules = cvfrs
 			}
-
 			cvfs = append(cvfs, cvf)
 		}
-
 		cv.Filters = cvfs
 	}
 
@@ -272,9 +368,14 @@ func setResourceDataFromForemanKatelloContentView(d *schema.ResourceData, cv *ap
 	d.Set("component_ids", cv.ComponentIds)
 
 	// Handle ContentViewFilters and their ContentViewFilterRules
-	var filterSet []map[string]interface{}
-	for _, item := range cv.Filters {
+
+	//hashSetFuncFilters := schema.HashResource(resourceForemanKatelloContentViewFilter())
+	//hashSetFuncFilterRules := schema.HashResource(resourceForemanKatelloContentViewFilterRule())
+
+	filterSet := make([]interface{}, len(cv.Filters))
+	for idx, item := range cv.Filters {
 		newFilter := map[string]interface{}{
+			"id":          item.Id,
 			"name":        item.Name,
 			"type":        item.Type,
 			"inclusion":   item.Inclusion,
@@ -282,20 +383,51 @@ func setResourceDataFromForemanKatelloContentView(d *schema.ResourceData, cv *ap
 			"rule":        nil,
 		}
 
-		var ruleSet []map[string]interface{}
-		for _, item2 := range item.Rules {
+		ruleSet := make([]interface{}, len(item.Rules))
+		for idx2, item2 := range item.Rules {
 			newRule := map[string]interface{}{
+				"id":           item2.Id,
 				"name":         item2.Name,
 				"architecture": item2.Architecture,
 			}
-			ruleSet = append(ruleSet, newRule)
+			ruleSet[idx2] = newRule
 		}
+		//srs := schema.NewSet(hashSetFuncFilterRules, ruleSet)
 
 		newFilter["rule"] = ruleSet
 
-		filterSet = append(filterSet, newFilter)
+		filterSet[idx] = newFilter
 	}
-	d.Set("filter", filterSet)
+
+	//sfs := schema.NewSet(hashSetFuncFilters, filterSet)
+
+	err := d.Set("filter", filterSet)
+	if err != nil {
+		panic(err)
+	}
+
+	// Latest published version
+	latest_published_version := 0
+
+	if cv.LatestVersionId != 0 {
+		// Try using the dedicated field for LatestVersionId first
+		latest_published_version = cv.LatestVersionId
+	} else {
+		// If that fails, try finding the highest ID of a version from the CV's versions
+		for _, version := range cv.Versions {
+			if version.Id > latest_published_version {
+				latest_published_version = version.Id
+			}
+		}
+	}
+
+	// If a latest version ID was defined, put it into the Terraform state field
+	if latest_published_version > 0 {
+		err = d.Set("latest_version_id", latest_published_version)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func resourceForemanKatelloContentViewCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
