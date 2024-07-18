@@ -58,6 +58,10 @@ func dataSourceForemanKatelloContentViewRead(ctx context.Context, d *schema.Reso
 	}
 
 	filtersResult, err := client.QueryContentViewFilters(ctx, cv.Id)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	for _, item := range filtersResult.Results {
 		asserted := item.(api.ContentViewFilter)
 		cv.Filters = append(cv.Filters, asserted)

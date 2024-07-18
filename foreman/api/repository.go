@@ -69,23 +69,32 @@ type ForemanKatelloRepository struct {
 
 func (r *ForemanKatelloRepository) MarshalJSON() ([]byte, error) {
 	m := map[string]interface{}{
-		"id":                   r.Id,
-		"name":                 r.Name,
-		"description":          r.Description,
-		"label":                r.Label,
-		"product_id":           r.ProductId,
-		"url":                  r.Url,
-		"unprotected":          r.Unprotected,
-		"checksum_type":        r.ChecksumType,
-		"ignore_global_proxy":  r.IgnoreGlobalProxy,
-		"ignorable_content":    r.IgnorableContent,
-		"download_policy":      r.DownloadPolicy,
-		"download_concurrency": r.DownloadConcurrency,
-		"mirroring_policy":     r.MirroringPolicy,
-		"mirror_on_sync":       r.MirrorOnSync, // deprecated
-		"verify_ssl_on_sync":   r.VerifySslOnSync,
-		"upstream_username":    r.UpstreamUsername,
-		"upstream_password":    r.UpstreamPassword,
+		"id":                  r.Id,
+		"name":                r.Name,
+		"description":         r.Description,
+		"label":               r.Label,
+		"product_id":          r.ProductId,
+		"url":                 r.Url,
+		"unprotected":         r.Unprotected,
+		"checksum_type":       r.ChecksumType,
+		"ignore_global_proxy": r.IgnoreGlobalProxy,
+		"ignorable_content":   r.IgnorableContent,
+		"download_policy":     r.DownloadPolicy,
+		"mirroring_policy":    r.MirroringPolicy,
+		"mirror_on_sync":      r.MirrorOnSync, // deprecated
+		"verify_ssl_on_sync":  r.VerifySslOnSync,
+		"upstream_username":   r.UpstreamUsername,
+		"upstream_password":   r.UpstreamPassword,
+	}
+
+	// Creating a repository with download_concurrency > 0 works, but the Katello API
+	// does not return this value. Therefore Terraform stores the resource with
+	// download_concurrency=0 in the state, passing 0 in on resource updates. But
+	// this does not work, since the API expects download_concurrency>0, therefore we
+	// skip this field entirely if we run into this case in the JSON marshalling
+	// step.
+	if r.DownloadConcurrency != 0 {
+		m["download_concurrency"] = r.DownloadConcurrency
 	}
 
 	m["content_type"] = r.ContentType
