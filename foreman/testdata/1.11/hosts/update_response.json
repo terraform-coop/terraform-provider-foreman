@@ -60,7 +60,22 @@
   "build_status_label": "Pending installation",
   "name": "foremanterraformtest.dev.company.com",
   "id": 34068,
-  "parameters": [],
+  "parameters": [
+    {
+      "name": "param1",
+      "value": "value1"
+    },
+    {
+      "name": "param2",
+      "value": true
+    },
+    {
+      "name": "param3",
+      "value": {
+        "key": "value"
+      }
+    }
+  ],
   "interfaces": [
     {
       "id": 46531,
