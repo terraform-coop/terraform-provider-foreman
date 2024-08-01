@@ -37,7 +37,6 @@ func resourceForemanComputeResource() *schema.Resource {
 					autodoc.MetaSummary,
 				),
 			},
-
 			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
@@ -90,6 +89,11 @@ func resourceForemanComputeResource() *schema.Resource {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "For VMware only",
+			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of the compute resource",
 			},
 		},
 	}
@@ -144,6 +148,9 @@ func buildForemanComputeResource(d *schema.ResourceData) *api.ForemanComputeReso
 	if attr, ok = d.GetOk("cachingenabled"); ok {
 		computeresource.CachingEnabled = attr.(bool)
 	}
+	if attr, ok = d.GetOk("description"); ok {
+		computeresource.Description = attr.(string)
+	}
 
 	return &computeresource
 }
@@ -164,6 +171,7 @@ func setResourceDataFromForemanComputeResource(d *schema.ResourceData, fd *api.F
 	d.Set("server", fd.Server)
 	d.Set("setconsolepassword", fd.SetConsolePassword)
 	d.Set("cachingenabled", fd.CachingEnabled)
+	d.Set("description", fd.Description)
 }
 
 // -----------------------------------------------------------------------------
