@@ -198,6 +198,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 					"or \"additive\". %s \"mirror_content_only\"", autodoc.MetaExample),
 				ValidateFunc: validation.StringInSlice([]string{
 					"additive",
+					"mirror_complete",
 					"mirror_content_only",
 				}, false),
 			},
