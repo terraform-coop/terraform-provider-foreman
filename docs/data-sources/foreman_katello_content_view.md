@@ -27,11 +27,13 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `auto_publish` - Relevant for Composite Content Views: 'Automatically publish a new version of the composite content view whenever one of its content views is published. Autopublish will only happen for component views that use the 'Always use latest version' option.'
-- `component_ids` - Relevant for CCVs: list of CV IDs.
+- `component_ids` - Relevant for CCVs: list of CV version IDs.
 - `composite` - Is this Content View a Composite CV?
 - `description` - Description for the (composite) content view
-- `filter` - Content view filters and their rules. Currently read-only, to be used as data source
+- `filter` - Content view filters and their rules.
+- `filtered` - 
 - `label` - Label for the (composite) content view. Cannot be changed after creation. By default set to the name, with underscores as spaces replacement.
+- `latest_version_id` - Holds the ID of the latest published version of a Content View to be used as reference in CCVs
 - `name` - Name of the content view.
 - `organization_id` - 
 - `repository_ids` - List of repository IDs.

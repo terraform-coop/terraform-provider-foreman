@@ -28,7 +28,10 @@ The following attributes are exported:
 
 - `description` - Product description.
 - `gpg_key_id` - Identifier of the GPG key.
-- `label` - 
+- `label` - Label for the product. Cannot be changed after creation. By default set to the name, with underscores as spaces replacement.
 - `name` - Product name.
+- `ssl_ca_cert_id` - Idenifier of the SSL CA Cert.
+- `ssl_client_cert_id` - Identifier of the SSL Client Cert.
+- `ssl_client_key_id` - Identifier of the SSL Client Key.
 - `sync_plan_id` - Plan numeric identifier.
 

@@ -28,27 +28,28 @@ The following attributes are exported:
 
 - `ansible_collection_requirements` - Contents of requirement yaml file to sync from URL.
 - `checksum_type` - Checksum of the repository, currently 'sha1' & 'sha256' are supported
-- `content_type` - Product the repository belongs to. Valid values include:`"deb"`, "docker"`, "file"`, "puppet"`, "yum"`.
+- `content_type` - Content type of the repository. Valid values include:`"deb"`, "docker"`, "file"`, "puppet"`, "yum"`, `"ansible_collection"`.
 - `deb_architectures` - Comma separated list of architectures to be synched from deb-archive.
 - `deb_components` - Comma separated list of repo components to be synched from deb-archive.
 - `deb_releases` - Comma separated list of releases to be synched from deb-archive.
 - `description` - Repository description.
 - `docker_tags_whitelist` - Comma separated list of tags to sync for Container Image repository.
 - `docker_upstream_name` - Name of the upstream docker repository
-- `download_concurrency` - Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10
+- `download_concurrency` - Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10. Warning: the value is not returned from the API and is therefore handled by a DiffSuppressFunc.
 - `download_policy` - Product the repository belongs to. Valid values include:`"immediate"`, "on_demand"`, "background"`.
 - `gpg_key_id` - Identifier of the GPG key.
 - `http_proxy_id` - ID of a HTTP Proxy.
 - `http_proxy_policy` - Policies for HTTP proxy for content sync. Valid values include:`"global_default_http_proxy"`, "none"`, "use_selected_http_proxy"`.
 - `ignorable_content` - List of content units to ignore while syncing a yum repository. Must be subset of rpm,drpm,srpm,distribution,erratum
 - `ignore_global_proxy` - If true, will ignore the globally configured proxy when syncing.
-- `label` - 
-- `mirror_on_sync` - true if this repository when synced has to be mirrored from the source and stale rpms removed.
+- `label` - Label of the repository. Cannot be changed after creation. Is auto generated from name if not specified.
+- `mirror_on_sync` - 'True' if this repository when synced has to be mirrored from the source and stale rpms removed.
+- `mirroring_policy` - Mirroring policy for this repo. Values: "mirror_content_only" or "additive".
 - `name` - Repository name.
 - `product_id` - Product the repository belongs to.
 - `unprotected` - true if this repository can be published via HTTP.
 - `upstream_password` - Password of the upstream repository user used for authentication.
 - `upstream_username` - Username of the upstream repository user used for authentication.
-- `url` - Repository source url.
+- `url` - Repository source URL or Docker registry URL
 - `verify_ssl_on_sync` - If true, Katello will verify the upstream url's SSL certifcates are signed by a trusted CA.
 
