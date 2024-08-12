@@ -18,22 +18,24 @@ resource "foreman_image" "example" {
 
 The following arguments are supported:
 
-- `architecture_id` - (Optional) 
-- `compute_resource_id` - (Optional) 
-- `name` - (Required) 
-- `operating_system_id` - (Optional) 
-- `username` - (Required) 
-- `uuid` - (Required) 
+- `architecture_id` - (Required) ID of the architecture in Foreman
+- `compute_resource_id` - (Required) ID of the compute resource in Foreman
+- `name` - (Required) Name of the image to be used in Foreman
+- `operatingsystem_id` - (Required) ID of the operating system in Foreman
+- `user_data` - (Optional) Does the image support user data (cloud-init etc.)?
+- `username` - (Required) Username used to log into the newly created machine that is based on this image
+- `uuid` - (Required) UUID of the image from the compute resource
 
 
 ## Attributes Reference
 
 The following attributes are exported:
 
-- `architecture_id` - 
-- `compute_resource_id` - 
-- `name` - 
-- `operating_system_id` - 
-- `username` - 
-- `uuid` - 
+- `architecture_id` - ID of the architecture in Foreman
+- `compute_resource_id` - ID of the compute resource in Foreman
+- `name` - Name of the image to be used in Foreman
+- `operatingsystem_id` - ID of the operating system in Foreman
+- `user_data` - Does the image support user data (cloud-init etc.)?
+- `username` - Username used to log into the newly created machine that is based on this image
+- `uuid` - UUID of the image from the compute resource
 
