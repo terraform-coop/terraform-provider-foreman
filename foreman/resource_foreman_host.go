@@ -3,6 +3,7 @@ package foreman
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -1044,7 +1045,7 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 
 // setResourceDataFromForemanHost sets a ResourceData's attributes from the
 // attributes of the supplied ForemanHost struct
-func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost) {
+func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost) error {
 	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanHost")
 
 	d.SetId(strconv.Itoa(fh.Id))
@@ -1098,13 +1099,13 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 	d.Set("config_group_ids", fh.ConfigGroupIds)
 	d.Set("token", fh.Token)
 
-	setResourceDataFromForemanInterfacesAttributes(d, fh)
+	return setResourceDataFromForemanInterfacesAttributes(d, fh)
 }
 
 // setResourceDataFromInterfacesAttributes sets a ResourceData's
 // "interfaces_attributes" attribute to the value of the supplied array of
 // ForemanInterfacesAttribute structs
-func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) {
+func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) error {
 	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanInterfacesAttributes")
 
 	// this attribute is a *schema.Set.  In order to construct a set, we need to
@@ -1121,9 +1122,31 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 		var ifs interface{}
 		var ok bool
 		if ifs, ok = fh.ComputeAttributes["interfaces_attributes"]; ok {
-			for _, attrs := range ifs.(map[string]interface{}) {
-				a := attrs.(map[string]interface{})
-				interfaces_compute_attributes[a["mac"].(string)] = a["compute_attributes"]
+			ifs_, ok := ifs.(map[string]interface{})
+			if !ok {
+				return errors.New(
+					fmt.Sprintf("could not convert interface attributes to map[string]interface{}. Host: %s."+
+						"Original value %+v is of type %T", fh.Name, ifs, ifs),
+				)
+			}
+
+			for _, attrs := range ifs_ {
+				attrs_, ok := attrs.(map[string]interface{})
+				if !ok {
+					return errors.New(fmt.Sprintf("could not convert attribute to map[string]interface{}. "+
+						"Original value %+v is of type %T", attrs, attrs))
+				}
+
+				// Error handling to catch https://github.com/terraform-coop/terraform-provider-foreman/issues/160.
+				// Check if "mac" exists as key
+				if _, ok := attrs_["mac"]; ok {
+					// If yes, be extra careful with conversion errors
+					mac, ok := attrs_["mac"].(string)
+					if !ok {
+						return errors.New(fmt.Sprintf("could not convert attribute 'mac' to map[string]interface{}. "))
+					}
+					interfaces_compute_attributes[mac] = attrs_["compute_attributes"]
+				}
 			}
 		}
 	}
@@ -1165,6 +1188,8 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 	// with the array set up, create the *schema.Set and set the ResourceData's
 	// "interfaces_attributes" property
 	d.Set("interfaces_attributes", ifaceArr)
+
+	return nil
 }
 
 // -----------------------------------------------------------------------------
@@ -1208,7 +1233,10 @@ func resourceForemanHostCreate(ctx context.Context, d *schema.ResourceData, meta
 	// Only changes enabled with SetPartial are merged in.
 	d.Partial(true)
 
-	setResourceDataFromForemanHost(d, createdHost)
+	err := setResourceDataFromForemanHost(d, createdHost)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	ManagePowerOperations := d.Get("manage_power_operations").(bool)
 
@@ -1271,7 +1299,10 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 
 	log.Debugf("Read ForemanHost: [%+v]", readHost)
 
-	setResourceDataFromForemanHost(d, readHost)
+	err := setResourceDataFromForemanHost(d, readHost)
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if d.Get("retry_count").(int) == 0 {
 		d.Set("retry_count", DEFAULT_RETRY_COUNT)
@@ -1349,7 +1380,10 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 
 		log.Debugf("Updated FormanHost: [%+v]", updatedHost)
 
-		setResourceDataFromForemanHost(d, updatedHost)
+		err := setResourceDataFromForemanHost(d, updatedHost)
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	} // end HasChange("name")
 
 	// Use partial state mode in the event of failure of one of API calls required for host creation
