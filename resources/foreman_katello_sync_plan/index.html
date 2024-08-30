@@ -65,7 +65,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_product/">foreman_katello_product</a>
                   </li>
@@ -87,13 +93,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_puppetclass/">foreman_puppetclass</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../data-sources/foreman_setting.md">foreman_setting</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_setting/">foreman_setting</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templatekind/">foreman_templatekind</a>
                   </li>
@@ -126,13 +134,19 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_product/">foreman_katello_product</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_repository/">foreman_katello_repository</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">foreman_katello_sync_plan</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">foreman_katello_sync_plan</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a>
     </li>
@@ -159,6 +173,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_user/">foreman_user</a>
                   </li>
@@ -200,7 +216,7 @@ resource &quot;foreman_katello_sync_plan&quot; &quot;example&quot; {
   enabled = true
   interval = &quot;daily&quot;
   name = &quot;daily&quot;
-  sync_date = &quot;1970-01-01 00:00:00 UTC&quot;
+  sync_date = &quot;1970-01-01 00:00:00 +0000&quot;
 }
 </code></pre>
 
@@ -212,7 +228,7 @@ resource &quot;foreman_katello_sync_plan&quot; &quot;example&quot; {
 <li><code>enabled</code> - (Required) Enables or disables synchronization.</li>
 <li><code>interval</code> - (Required) How often synchronization should run. Valid values include: <code>"hourly"</code>, <code>"daily"</code>, <code>"weekly"</code>,<code>"custom cron"</code>.</li>
 <li><code>name</code> - (Required) Sync plan name.</li>
-<li><code>sync_date</code> - (Required) Start datetime of synchronization.</li>
+<li><code>sync_date</code> - (Required) Start datetime of synchronization. Use the specified format: YYYY-MM-DD HH:MM:SS +0000, where '+0000' is the timezone difference. A value of '+0000' means UTC.</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
 <p>The following attributes are exported:</p>
@@ -222,7 +238,7 @@ resource &quot;foreman_katello_sync_plan&quot; &quot;example&quot; {
 <li><code>enabled</code> - Enables or disables synchronization.</li>
 <li><code>interval</code> - How often synchronization should run. Valid values include: <code>"hourly"</code>, <code>"daily"</code>, <code>"weekly"</code>,<code>"custom cron"</code>.</li>
 <li><code>name</code> - Sync plan name.</li>
-<li><code>sync_date</code> - Start datetime of synchronization.</li>
+<li><code>sync_date</code> - Start datetime of synchronization. Use the specified format: YYYY-MM-DD HH:MM:SS +0000, where '+0000' is the timezone difference. A value of '+0000' means UTC.</li>
 </ul>
               
             </div>
@@ -250,6 +266,10 @@ resource &quot;foreman_katello_sync_plan&quot; &quot;example&quot; {
 
   <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/terraform-coop/terraform-provider-foreman" class="fa fa-code-fork" style="color: #fcfcfc"> terraform-provider-foreman</a>
+        </span>
     
     
       <span><a href="../foreman_katello_repository/" style="color: #fcfcfc">&laquo; Previous</a></span>

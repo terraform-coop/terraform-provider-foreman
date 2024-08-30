@@ -65,7 +65,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_product/">foreman_katello_product</a>
                   </li>
@@ -87,13 +93,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_puppetclass/">foreman_puppetclass</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../data-sources/foreman_setting.md">foreman_setting</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_setting/">foreman_setting</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templatekind/">foreman_templatekind</a>
                   </li>
@@ -126,11 +134,17 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_product/">foreman_katello_product</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="./">foreman_katello_repository</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">foreman_katello_repository</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a>
     </li>
@@ -159,6 +173,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_user/">foreman_user</a>
                   </li>
@@ -201,7 +217,7 @@ resource &quot;foreman_katello_repository&quot; &quot;example&quot; {
   download_policy = &quot;immediate&quot;
   http_proxy_policy = &quot;global_default_http_proxy&quot;
   ignore_global_proxy = true
-  mirror_on_sync = true
+  mirroring_policy = &quot;mirror_content_only&quot;
   name = &quot;My Repository&quot;
   unprotected = true
   upstream_password = &quot;S3cr3t123!&quot;
@@ -216,28 +232,29 @@ resource &quot;foreman_katello_repository&quot; &quot;example&quot; {
 <ul>
 <li><code>ansible_collection_requirements</code> - (Optional) Contents of requirement yaml file to sync from URL.</li>
 <li><code>checksum_type</code> - (Optional) Checksum of the repository, currently 'sha1' &amp; 'sha256' are supported</li>
-<li><code>content_type</code> - (Required) Product the repository belongs to. Valid values include:<code>"deb"</code>, "docker"<code>, "file"</code>, "puppet"<code>, "yum"</code>.</li>
+<li><code>content_type</code> - (Required) Content type of the repository. Valid values include:<code>"deb"</code>, "docker"<code>, "file"</code>, "puppet"<code>, "yum"</code>, <code>"ansible_collection"</code>.</li>
 <li><code>deb_architectures</code> - (Optional) Comma separated list of architectures to be synched from deb-archive.</li>
 <li><code>deb_components</code> - (Optional) Comma separated list of repo components to be synched from deb-archive.</li>
 <li><code>deb_releases</code> - (Optional) Comma separated list of releases to be synched from deb-archive.</li>
 <li><code>description</code> - (Optional) Repository description.</li>
 <li><code>docker_tags_whitelist</code> - (Optional) Comma separated list of tags to sync for Container Image repository.</li>
 <li><code>docker_upstream_name</code> - (Optional) Name of the upstream docker repository</li>
-<li><code>download_concurrency</code> - (Optional) Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10</li>
+<li><code>download_concurrency</code> - (Optional) Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10. Warning: the value is not returned from the API and is therefore handled by a DiffSuppressFunc.</li>
 <li><code>download_policy</code> - (Optional) Product the repository belongs to. Valid values include:<code>"immediate"</code>, "on_demand"<code>, "background"</code>.</li>
 <li><code>gpg_key_id</code> - (Optional) Identifier of the GPG key.</li>
 <li><code>http_proxy_id</code> - (Optional) ID of a HTTP Proxy.</li>
 <li><code>http_proxy_policy</code> - (Optional) Policies for HTTP proxy for content sync. Valid values include:<code>"global_default_http_proxy"</code>, "none"<code>, "use_selected_http_proxy"</code>.</li>
 <li><code>ignorable_content</code> - (Optional) List of content units to ignore while syncing a yum repository. Must be subset of rpm,drpm,srpm,distribution,erratum</li>
 <li><code>ignore_global_proxy</code> - (Optional) If true, will ignore the globally configured proxy when syncing.</li>
-<li><code>label</code> - (Optional) </li>
-<li><code>mirror_on_sync</code> - (Optional) true if this repository when synced has to be mirrored from the source and stale rpms removed.</li>
+<li><code>label</code> - (Optional) Label of the repository. Cannot be changed after creation. Is auto generated from name if not specified.</li>
+<li><code>mirror_on_sync</code> - (Optional) 'True' if this repository when synced has to be mirrored from the source and stale rpms removed.</li>
+<li><code>mirroring_policy</code> - (Optional) Mirroring policy for this repo. Values: "mirror_content_only" or "additive".</li>
 <li><code>name</code> - (Required) Repository name.</li>
 <li><code>product_id</code> - (Required) Product the repository belongs to.</li>
 <li><code>unprotected</code> - (Optional) true if this repository can be published via HTTP.</li>
 <li><code>upstream_password</code> - (Optional) Password of the upstream repository user used for authentication.</li>
 <li><code>upstream_username</code> - (Optional) Username of the upstream repository user used for authentication.</li>
-<li><code>url</code> - (Optional) Repository source url.</li>
+<li><code>url</code> - (Optional) Repository source URL or Docker registry URL</li>
 <li><code>verify_ssl_on_sync</code> - (Optional) If true, Katello will verify the upstream url's SSL certifcates are signed by a trusted CA.</li>
 </ul>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
@@ -245,28 +262,29 @@ resource &quot;foreman_katello_repository&quot; &quot;example&quot; {
 <ul>
 <li><code>ansible_collection_requirements</code> - Contents of requirement yaml file to sync from URL.</li>
 <li><code>checksum_type</code> - Checksum of the repository, currently 'sha1' &amp; 'sha256' are supported</li>
-<li><code>content_type</code> - Product the repository belongs to. Valid values include:<code>"deb"</code>, "docker"<code>, "file"</code>, "puppet"<code>, "yum"</code>.</li>
+<li><code>content_type</code> - Content type of the repository. Valid values include:<code>"deb"</code>, "docker"<code>, "file"</code>, "puppet"<code>, "yum"</code>, <code>"ansible_collection"</code>.</li>
 <li><code>deb_architectures</code> - Comma separated list of architectures to be synched from deb-archive.</li>
 <li><code>deb_components</code> - Comma separated list of repo components to be synched from deb-archive.</li>
 <li><code>deb_releases</code> - Comma separated list of releases to be synched from deb-archive.</li>
 <li><code>description</code> - Repository description.</li>
 <li><code>docker_tags_whitelist</code> - Comma separated list of tags to sync for Container Image repository.</li>
 <li><code>docker_upstream_name</code> - Name of the upstream docker repository</li>
-<li><code>download_concurrency</code> - Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10</li>
+<li><code>download_concurrency</code> - Used to determine download concurrency of the repository in pulp3. Use value less than 20. Defaults to 10. Warning: the value is not returned from the API and is therefore handled by a DiffSuppressFunc.</li>
 <li><code>download_policy</code> - Product the repository belongs to. Valid values include:<code>"immediate"</code>, "on_demand"<code>, "background"</code>.</li>
 <li><code>gpg_key_id</code> - Identifier of the GPG key.</li>
 <li><code>http_proxy_id</code> - ID of a HTTP Proxy.</li>
 <li><code>http_proxy_policy</code> - Policies for HTTP proxy for content sync. Valid values include:<code>"global_default_http_proxy"</code>, "none"<code>, "use_selected_http_proxy"</code>.</li>
 <li><code>ignorable_content</code> - List of content units to ignore while syncing a yum repository. Must be subset of rpm,drpm,srpm,distribution,erratum</li>
 <li><code>ignore_global_proxy</code> - If true, will ignore the globally configured proxy when syncing.</li>
-<li><code>label</code> - </li>
-<li><code>mirror_on_sync</code> - true if this repository when synced has to be mirrored from the source and stale rpms removed.</li>
+<li><code>label</code> - Label of the repository. Cannot be changed after creation. Is auto generated from name if not specified.</li>
+<li><code>mirror_on_sync</code> - 'True' if this repository when synced has to be mirrored from the source and stale rpms removed.</li>
+<li><code>mirroring_policy</code> - Mirroring policy for this repo. Values: "mirror_content_only" or "additive".</li>
 <li><code>name</code> - Repository name.</li>
 <li><code>product_id</code> - Product the repository belongs to.</li>
 <li><code>unprotected</code> - true if this repository can be published via HTTP.</li>
 <li><code>upstream_password</code> - Password of the upstream repository user used for authentication.</li>
 <li><code>upstream_username</code> - Username of the upstream repository user used for authentication.</li>
-<li><code>url</code> - Repository source url.</li>
+<li><code>url</code> - Repository source URL or Docker registry URL</li>
 <li><code>verify_ssl_on_sync</code> - If true, Katello will verify the upstream url's SSL certifcates are signed by a trusted CA.</li>
 </ul>
               
@@ -295,6 +313,10 @@ resource &quot;foreman_katello_repository&quot; &quot;example&quot; {
 
   <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/terraform-coop/terraform-provider-foreman" class="fa fa-code-fork" style="color: #fcfcfc"> terraform-provider-foreman</a>
+        </span>
     
     
       <span><a href="../foreman_katello_product/" style="color: #fcfcfc">&laquo; Previous</a></span>

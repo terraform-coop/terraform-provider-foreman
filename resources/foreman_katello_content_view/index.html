@@ -65,7 +65,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_katello_product/">foreman_katello_product</a>
                   </li>
@@ -87,13 +93,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_puppetclass/">foreman_puppetclass</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="../../data-sources/foreman_setting.md">foreman_setting</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_setting/">foreman_setting</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../data-sources/foreman_templatekind/">foreman_templatekind</a>
                   </li>
@@ -103,7 +111,7 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Resources</span></p>
-              <ul>
+              <ul class="current">
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_architecture/">foreman_architecture</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_computeprofile/">foreman_computeprofile</a>
@@ -126,7 +134,21 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">foreman_katello_content_view</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#argument-reference">Argument Reference</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#attributes-reference">Attributes Reference</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_katello_product/">foreman_katello_product</a>
                   </li>
@@ -152,6 +174,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_subnet/">foreman_subnet</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_templateinput/">foreman_templateinput</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_user/">foreman_user</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_usergroup/">foreman_usergroup</a>
@@ -171,6 +195,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Resources</li>
       <li class="breadcrumb-item active">foreman_katello_content_view</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/terraform-coop/terraform-provider-foreman/edit/master/docs/resources/foreman_katello_content_view.md">Edit on terraform-provider-foreman</a>
@@ -197,9 +222,10 @@ resource &quot;foreman_katello_content_view&quot; &quot;example&quot; {
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>auto_publish</code> - (Optional) Relevant for Composite Content Views: 'Automatically publish a new version of the composite content view whenever one of its content views is published. Autopublish will only happen for component views that use the 'Always use latest version' option.'</li>
-<li><code>component_ids</code> - (Optional) Relevant for CCVs: list of CV IDs.</li>
+<li><code>component_ids</code> - (Optional) Relevant for CCVs: list of CV version IDs.</li>
 <li><code>composite</code> - (Optional) Is this Content View a Composite CV?</li>
 <li><code>description</code> - (Optional) Description for the (composite) content view</li>
+<li><code>filter</code> - (Optional) Content view filters and their rules.</li>
 <li><code>label</code> - (Optional, Force New) Label for the (composite) content view. Cannot be changed after creation. By default set to the name, with underscores as spaces replacement.</li>
 <li><code>name</code> - (Required) Name of the (composite) content view.</li>
 <li><code>organization_id</code> - (Optional) </li>
@@ -210,11 +236,13 @@ resource &quot;foreman_katello_content_view&quot; &quot;example&quot; {
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>auto_publish</code> - Relevant for Composite Content Views: 'Automatically publish a new version of the composite content view whenever one of its content views is published. Autopublish will only happen for component views that use the 'Always use latest version' option.'</li>
-<li><code>component_ids</code> - Relevant for CCVs: list of CV IDs.</li>
+<li><code>component_ids</code> - Relevant for CCVs: list of CV version IDs.</li>
 <li><code>composite</code> - Is this Content View a Composite CV?</li>
 <li><code>description</code> - Description for the (composite) content view</li>
-<li><code>filter</code> - Content view filters and their rules. Currently read-only, to be used as data source</li>
+<li><code>filter</code> - Content view filters and their rules.</li>
+<li><code>filtered</code> - </li>
 <li><code>label</code> - Label for the (composite) content view. Cannot be changed after creation. By default set to the name, with underscores as spaces replacement.</li>
+<li><code>latest_version_id</code> - Holds the ID of the latest published version of a Content View to be used as reference in CCVs</li>
 <li><code>name</code> - Name of the (composite) content view.</li>
 <li><code>organization_id</code> - </li>
 <li><code>repository_ids</code> - List of repository IDs.</li>
@@ -223,6 +251,10 @@ resource &quot;foreman_katello_content_view&quot; &quot;example&quot; {
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../foreman_katello_content_credential/" class="btn btn-neutral float-left" title="foreman_katello_content_credential"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../foreman_katello_lifecycle_environment/" class="btn btn-neutral float-right" title="foreman_katello_lifecycle_environment">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
 
   <hr/>
 
@@ -243,7 +275,15 @@ resource &quot;foreman_katello_content_view&quot; &quot;example&quot; {
   <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
     
+        <span>
+          <a href="https://github.com/terraform-coop/terraform-provider-foreman" class="fa fa-code-fork" style="color: #fcfcfc"> terraform-provider-foreman</a>
+        </span>
     
+    
+      <span><a href="../foreman_katello_content_credential/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../foreman_katello_lifecycle_environment/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

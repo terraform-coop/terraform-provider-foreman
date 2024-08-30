@@ -40,7 +40,7 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href=".">Home</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#what-is-foreman">What is Foreman?</a>
     </li>
@@ -75,7 +75,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_katello_product/">foreman_katello_product</a>
                   </li>
@@ -97,13 +103,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_puppetclass/">foreman_puppetclass</a>
                   </li>
-                  <li class="toctree-l1"><a class="" href="data-sources/foreman_setting.md">foreman_setting</a>
+                  <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_setting/">foreman_setting</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_smartclassparameter/">foreman_smartclassparameter</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="data-sources/foreman_templatekind/">foreman_templatekind</a>
                   </li>
@@ -136,7 +144,13 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="resources/foreman_image/">foreman_image</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="resources/foreman_jobtemplate/">foreman_jobtemplate</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="resources/foreman_katello_content_credential/">foreman_katello_content_credential</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="resources/foreman_katello_content_view/">foreman_katello_content_view</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="resources/foreman_katello_lifecycle_environment/">foreman_katello_lifecycle_environment</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="resources/foreman_katello_product/">foreman_katello_product</a>
                   </li>
@@ -161,6 +175,8 @@
                   <li class="toctree-l1"><a class="reference internal" href="resources/foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="resources/foreman_subnet/">foreman_subnet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="resources/foreman_templateinput/">foreman_templateinput</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="resources/foreman_user/">foreman_user</a>
                   </li>
@@ -246,8 +262,8 @@ $&gt; terraform init &amp;&amp; terraform plan
 <li><code>client_tls_insecure</code> - (Optional) Whether or not to verify the server's certificate. Defaults to <code>false</code>.</li>
 <li><code>client_username</code> - (Optional) The username to authenticate against Foreman. This can also be set through the environment variable <code>FOREMAN_CLIENT_USERNAME</code>. Defaults to <code>""</code>.</li>
 <li><code>location_id</code> - (Optional) The location for all resources requested and created by the providerDefaults to "0". Set organization_id and location_id to a value &lt; 0 if you need to disable Locations and Organizations on Foreman older than 1.21</li>
-<li><code>organization_id</code> - (Optional) The organization for all resource requsted and created by the Provier Defaults to "0". Set organization_id and location_id to a value &lt; 0 if you need to disable Locations and Organizations on Foreman older than 1.21</li>
-<li><code>provider_logfile</code> - (Optional) Where to deirect provider-specific log output. A value of '-' preserves the default behavior of the log package from Golang stdlib and will be combined with the main terraform.log file produced by terraform. If the desired output file does not exist, it will be created. If the file already exists, logs will be appended to the file. This can also be set through the enviornment variable <code>FOREMAN_PROVIDER_LOGFILE</code>. Defaults to <code>'terraform-provider-foreman.log'</code>.</li>
+<li><code>organization_id</code> - (Optional) The organization for all resource requested and created by the Provider Defaults to "0". Set organization_id and location_id to a value &lt; 0 if you need to disable Locations and Organizations on Foreman older than 1.21</li>
+<li><code>provider_logfile</code> - (Optional) Where to direct provider-specific log output. A value of '-' preserves the default behavior of the log package from Golang stdlib and will be combined with the main terraform.log file produced by terraform. If the desired output file does not exist, it will be created. If the file already exists, logs will be appended to the file. This can also be set through the environment variable <code>FOREMAN_PROVIDER_LOGFILE</code>. Defaults to <code>'terraform-provider-foreman.log'</code>.</li>
 <li><code>provider_loglevel</code> - (Optional) The level of verbosity for the provider's log file. This setting determines which types of log messages are written and which are ignored. Possible values (from most verbose to least verbose) include 'DEBUG', 'TRACE', 'INFO', 'WARNING', 'ERROR', and 'NONE'.  The provider's logs will be written to the location specified by <code>provider_logfile</code>. This can also be set through the environment variable <code>FOREMAN_PROVIDER_LOGLEVEL</code>. Defaults to <code>'INFO'</code>.</li>
 <li><code>server_hostname</code> - (Required) The hostname / IP address of the Foreman REST API server</li>
 <li><code>server_protocol</code> - (Optional) The protocol the Foreman REST API server is using for communication. Defaults to <code>"https"</code>.</li>
@@ -278,6 +294,10 @@ $&gt; terraform init &amp;&amp; terraform plan
   <div class="rst-versions" role="note" aria-label="Versions">
   <span class="rst-current-version" data-toggle="rst-current-version">
     
+        <span>
+          <a href="https://github.com/terraform-coop/terraform-provider-foreman" class="fa fa-code-fork" style="color: #fcfcfc"> terraform-provider-foreman</a>
+        </span>
+    
     
     
       <span><a href="data-sources/foreman_architecture/" style="color: #fcfcfc">Next &raquo;</a></span>
@@ -299,6 +319,6 @@ $&gt; terraform init &amp;&amp; terraform plan
 </html>
 
 <!--
-MkDocs version : 1.5.3
-Build Date UTC : 2024-01-29 19:09:12.620237+00:00
+MkDocs version : 1.6.0
+Build Date UTC : 2024-08-30 09:03:47.070921+00:00
 -->
