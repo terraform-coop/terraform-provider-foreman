@@ -92,7 +92,7 @@ func resourceForemanSubnet() *schema.Resource {
 
 			"ipam": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"DHCP",
 					"Internal DB",
@@ -100,10 +100,13 @@ func resourceForemanSubnet() *schema.Resource {
 					"None",
 					// NOTE(ALL): false - do not ignore case when comparing values
 				}, false),
-				Description: "IP address auto-suggestion for this subnet. Valid " +
-					"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"Random DB\"`,`\"None\"`.",
+				Description: fmt.Sprintf(
+					"IP address auto-suggestion for this subnet. Valid "+
+						"values include: `\"DHCP\"`, `\"Internal DB\"`, `\"Random DB\"`,`\"None\"`."+
+						"%s \"DHCP\"",
+					autodoc.MetaExample,
+				),
 			},
-
 			"from": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -120,14 +123,18 @@ func resourceForemanSubnet() *schema.Resource {
 
 			"boot_mode": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"Static",
 					"DHCP",
 					// NOTE(ALL): false - do not ignore case when comparing values
 				}, false),
-				Description: "Default boot mode for instances assigned to this subnet. " +
-					"Values include: `\"Static\"`, `\"DHCP\"`.",
+				Description: fmt.Sprintf(
+					"Default boot mode for instances assigned to this subnet. "+
+						"Values include: `\"Static\"`, `\"DHCP\"`."+
+						"%s \"DHCP\"",
+					autodoc.MetaExample,
+				),
 			},
 			"network_address": {
 				Type:        schema.TypeString,
@@ -140,9 +147,13 @@ func resourceForemanSubnet() *schema.Resource {
 				Description: "VLAN id that is in use in the subnet",
 			},
 			"mtu": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "MTU value for the subnet",
+				Type:     schema.TypeInt,
+				Required: true,
+				Description: fmt.Sprintf(
+					"MTU value for the subnet. "+
+						"%s \"1500\"",
+					autodoc.MetaExample,
+				),
 			},
 			"template_id": {
 				Type:        schema.TypeInt,
@@ -179,12 +190,16 @@ func resourceForemanSubnet() *schema.Resource {
 			},
 			"network_type": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"IPv4",
 					"IPv6",
 				}, false),
-				Description: "Type or protocol, IPv4 or IPv6, defaults to IPv4.",
+				Description: fmt.Sprintf(
+					"Type or protocol, IPv4 or IPv6. "+
+						"%s \"IPv4\"",
+					autodoc.MetaExample,
+				),
 			},
 			"description": {
 				Type:        schema.TypeString,
