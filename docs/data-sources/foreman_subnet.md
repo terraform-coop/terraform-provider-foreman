@@ -40,11 +40,11 @@ The following attributes are exported:
 - `httpboot_id` - HTTPBoot Proxy ID to use within this subnet
 - `ipam` - IP address auto-suggestion for this subnet. Valid values include: `"DHCP"`, `"Internal DB"`, `"Random DB"`,`"None"`.
 - `mask` - Netmask for this subnet.
-- `mtu` - MTU value for the subnet
+- `mtu` - MTU value for the subnet.
 - `name` - Name of a subnetwork.
 - `network` - Subnet network.
 - `network_address` - The Subnets CIDR in the format 169.254.0.0/16
-- `network_type` - Type or protocol, IPv4 or IPv6, defaults to IPv4.
+- `network_type` - Type or protocol, IPv4 or IPv6.
 - `template_id` - Template HTTP(S) Proxy ID to use within this subnet
 - `tftp_id` - TFTP Proxy ID to use within this subnet
 - `to` - Ending IP address for IP auto suggestion.
