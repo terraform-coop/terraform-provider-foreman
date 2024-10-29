@@ -27,6 +27,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `audit_comment` - Notes and comments for auditing purposes.
+- `description` - A description of the provisioning template.
 - `locked` - Whether or not the template is locked for editing.
 - `name` - The name of the provisioning template.
 - `operatingsystem_ids` - IDs of the operating systems associated with this provisioning template.

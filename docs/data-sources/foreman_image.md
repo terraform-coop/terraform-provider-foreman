@@ -26,10 +26,11 @@ The following arguments are supported:
 
 The following attributes are exported:
 
-- `architecture_id` - 
+- `architecture_id` - ID of the architecture in Foreman
 - `compute_resource_id` - The id of the Compute Resource the image is associated with
 - `name` - The name of the compute resource.
-- `operating_system_id` - 
-- `username` - 
-- `uuid` - 
+- `operatingsystem_id` - ID of the operating system in Foreman
+- `user_data` - Does the image support user data (cloud-init etc.)?
+- `username` - Username used to log into the newly created machine that is based on this image
+- `uuid` - UUID of the image from the compute resource
 

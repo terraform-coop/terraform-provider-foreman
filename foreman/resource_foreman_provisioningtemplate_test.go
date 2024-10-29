@@ -51,6 +51,7 @@ func ForemanProvisioningTemplateToInstanceState(obj api.ForemanProvisioningTempl
 		key = fmt.Sprintf("template_combinations_attributes.%d.environment_id", idx)
 		attr[key] = strconv.Itoa(val.EnvironmentId)
 	}
+	attr["description"] = obj.Description
 
 	state.Attributes = attr
 	return &state
@@ -95,6 +96,7 @@ func RandForemanProvisioningTemplate() api.ForemanProvisioningTemplate {
 			EnvironmentId: rand.Intn(100),
 		}
 	}
+	obj.Description = tfrand.String(10, tfrand.Lower+". ")
 
 	return obj
 }

@@ -27,6 +27,7 @@ The following attributes are exported:
 
 - `cachingenabled` - For VMware only
 - `datacenter` - For oVirt, VMware Datacenter
+- `description` - Description of the compute resource
 - `displaytype` - For Libvirt: "VNC" or "SPICE". For VMWare: "VNC" or "VMRC"
 - `hypervisor` - The HyperVisor/Cloud Provider for this Compute Resource:supported providers include "Libvirt", "Ovirt", "EC2","Vmware", "Openstack", "Rackspace", "GCE"
 - `name` - The name of the compute resource.

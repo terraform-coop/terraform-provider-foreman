@@ -2,6 +2,7 @@ package foreman
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -165,6 +166,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 						"Use value less than 20. Defaults to 10. Warning: the value is not returned from the API and " +
 						"is therefore handled by a DiffSuppressFunc.",
 				),
+				ValidateFunc: validation.IntBetween(1, 20),
 				DiffSuppressFunc: func(key, oldValue, newValue string, d *schema.ResourceData) bool {
 					// "download_concurrency" is not returned from the Katello API, but still exists in the
 					// source code at https://github.com/Katello/katello/blob/6d8d3ca36e1469d1f7c2c8e180e42467176ac1a4/app/controllers/katello/api/v2/repositories_controller.rb#L56.
@@ -284,6 +286,7 @@ func resourceForemanKatelloRepository() *schema.Resource {
 			"http_proxy_policy": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "global_default_http_proxy",
 				ValidateFunc: validation.StringInSlice([]string{
 					"global_default_http_proxy",
 					"none",
@@ -372,7 +375,12 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *a
 	d.Set("docker_upstream_name", repo.DockerUpstreamName)
 	d.Set("docker_tags_whitelist", repo.DockerTagsWhitelist)
 	d.Set("download_policy", repo.DownloadPolicy)
-	d.Set("download_concurrency", repo.DownloadConcurrency)
+
+	if repo.DownloadConcurrency > 0 {
+		// In case it is 0 and unset, the value will default
+		d.Set("download_concurrency", repo.DownloadConcurrency)
+	}
+
 	d.Set("mirror_on_sync", repo.MirrorOnSync)
 	d.Set("mirroring_policy", repo.MirroringPolicy)
 	d.Set("verify_ssl_on_sync", repo.VerifySslOnSync)
@@ -392,6 +400,27 @@ func setResourceDataFromForemanKatelloRepository(d *schema.ResourceData, repo *a
 // Resource CRUD Operations
 // -----------------------------------------------------------------------------
 
+func handleDownloadConcurrencyBetweenTerraformAndKatello(resData *schema.ResourceData, repo *api.ForemanKatelloRepository) error {
+	log.Tracef("handleDownloadConcurrencyBetweenTerraformAndKatello")
+
+	// Handle missing download_concurrency attribute in API response
+	originalDLC, ok := resData.GetOk("download_concurrency")
+	if ok {
+		originalDLCint, ok := originalDLC.(int)
+
+		if !ok {
+			return errors.New("unable to convert 'download_concurrency' state value to int")
+		}
+
+		if originalDLCint > 0 && repo.DownloadConcurrency == 0 {
+			// We passed in a value > 0, but the Katello API did not return this value and therefore the default 0 was applied to the struct
+			log.Debugf("State has download_concurrency of %d, but repo has 0. Setting repo object parameter to state", originalDLCint)
+			repo.DownloadConcurrency = originalDLCint
+		}
+	}
+	return nil
+}
+
 func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	log.Tracef("resource_foreman_katello_repository.go#Create")
 
@@ -403,6 +432,11 @@ func resourceForemanKatelloRepositoryCreate(ctx context.Context, d *schema.Resou
 	createdKatelloRepository, createErr := client.CreateKatelloRepository(ctx, repository)
 	if createErr != nil {
 		return diag.FromErr(createErr)
+	}
+
+	err := handleDownloadConcurrencyBetweenTerraformAndKatello(d, createdKatelloRepository)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	log.Debugf("Created ForemanKatelloRepository: [%+v]", createdKatelloRepository)
@@ -425,6 +459,11 @@ func resourceForemanKatelloRepositoryRead(ctx context.Context, d *schema.Resourc
 		return diag.FromErr(api.CheckDeleted(d, readErr))
 	}
 
+	err := handleDownloadConcurrencyBetweenTerraformAndKatello(d, readKatelloRepository)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	log.Debugf("Read ForemanKatelloRepository: [%+v]", readKatelloRepository)
 
 	setResourceDataFromForemanKatelloRepository(d, readKatelloRepository)
@@ -443,6 +482,11 @@ func resourceForemanKatelloRepositoryUpdate(ctx context.Context, d *schema.Resou
 	updatedKatelloRepository, updateErr := client.UpdateKatelloRepository(ctx, repository)
 	if updateErr != nil {
 		return diag.FromErr(updateErr)
+	}
+
+	err := handleDownloadConcurrencyBetweenTerraformAndKatello(d, updatedKatelloRepository)
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	log.Debugf("ForemanKatelloRepository: [%+v]", updatedKatelloRepository)

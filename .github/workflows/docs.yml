@@ -6,6 +6,7 @@ on:
     paths:
       - '**.go'
       - 'docs'
+  workflow_dispatch:
 jobs:
   docs:
     runs-on: ubuntu-latest
@@ -15,9 +16,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.11
 
       - name: Install dependencies
         run: |
@@ -26,8 +27,8 @@ jobs:
       - run: mkdocs build
 
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: ./html
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./html

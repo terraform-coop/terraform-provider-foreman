@@ -21,6 +21,7 @@ resource "foreman_provisioningtemplate" "example" {
 The following arguments are supported:
 
 - `audit_comment` - (Optional) Notes and comments for auditing purposes.
+- `description` - (Optional) A description of the provisioning template.
 - `locked` - (Optional) Whether or not the template is locked for editing.
 - `name` - (Required) Name of the provisioning template.
 - `operatingsystem_ids` - (Optional) IDs of the operating systems associated with this provisioning template.
@@ -46,6 +47,7 @@ Template combinations attributes contains an array of hostgroup IDs and environm
 The following attributes are exported:
 
 - `audit_comment` - Notes and comments for auditing purposes.
+- `description` - A description of the provisioning template.
 - `locked` - Whether or not the template is locked for editing.
 - `name` - Name of the provisioning template.
 - `operatingsystem_ids` - IDs of the operating systems associated with this provisioning template.

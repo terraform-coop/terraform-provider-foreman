@@ -38,6 +38,7 @@ func ForemanComputeResourceToInstanceState(obj api.ForemanComputeResource) *terr
 		"server":             obj.Server,
 		"setconsolepassword": strconv.FormatBool(obj.SetConsolePassword),
 		"cachingenabled":     strconv.FormatBool(obj.CachingEnabled),
+		"description":        obj.Description,
 	}
 	return &state
 }
@@ -73,6 +74,7 @@ func RandForemanComputeResource() api.ForemanComputeResource {
 		Server:             tfrand.String(10, tfrand.Lower),
 		SetConsolePassword: rand.Intn(2) > 0,
 		CachingEnabled:     rand.Intn(2) > 0,
+		Description:        tfrand.String(100, tfrand.Lower),
 	}
 }
 

@@ -27,6 +27,7 @@ The following arguments are supported:
 The following attributes are exported:
 
 - `audit_comment` - Any audit comments to associate with the partition table. The audit comment field is saved with the template auditing to document the template changes.
+- `description` - Description of the partition table
 - `host_ids` - IDs of the hosts associated with this partition table.
 - `hostgroup_ids` - IDs of the hostgroups associated with this partition table.
 - `layout` - The script that defines the partition table layout.

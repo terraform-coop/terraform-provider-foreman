@@ -15,7 +15,7 @@ resource "foreman_katello_sync_plan" "example" {
   enabled = true
   interval = "daily"
   name = "daily"
-  sync_date = "1970-01-01 00:00:00 UTC"
+  sync_date = "1970-01-01 00:00:00 +0000"
 }
 ```
 
@@ -29,7 +29,7 @@ The following arguments are supported:
 - `enabled` - (Required) Enables or disables synchronization.
 - `interval` - (Required) How often synchronization should run. Valid values include: `"hourly"`, `"daily"`, `"weekly"`,`"custom cron"`.
 - `name` - (Required) Sync plan name.
-- `sync_date` - (Required) Start datetime of synchronization.
+- `sync_date` - (Required) Start datetime of synchronization. Use the specified format: YYYY-MM-DD HH:MM:SS +0000, where '+0000' is the timezone difference. A value of '+0000' means UTC.
 
 
 ## Attributes Reference
@@ -41,5 +41,5 @@ The following attributes are exported:
 - `enabled` - Enables or disables synchronization.
 - `interval` - How often synchronization should run. Valid values include: `"hourly"`, `"daily"`, `"weekly"`,`"custom cron"`.
 - `name` - Sync plan name.
-- `sync_date` - Start datetime of synchronization.
+- `sync_date` - Start datetime of synchronization. Use the specified format: YYYY-MM-DD HH:MM:SS +0000, where '+0000' is the timezone difference. A value of '+0000' means UTC.
 

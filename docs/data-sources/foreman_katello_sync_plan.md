@@ -31,5 +31,5 @@ The following attributes are exported:
 - `enabled` - Enables or disables synchronization.
 - `interval` - How often synchronization should run. Valid values include: `"hourly"`, `"daily"`, `"weekly"`,`"custom cron"`.
 - `name` - sync plan name.
-- `sync_date` - Start datetime of synchronization.
+- `sync_date` - Start datetime of synchronization. Use the specified format: YYYY-MM-DD HH:MM:SS +0000, where '+0000' is the timezone difference. A value of '+0000' means UTC.
 

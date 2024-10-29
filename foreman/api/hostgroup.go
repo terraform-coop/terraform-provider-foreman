@@ -41,6 +41,8 @@ type ForemanHostgroup struct {
 	ArchitectureId int `json:"architecture_id,omitempty"`
 	// ID of the compute profile associated with this hostgroup
 	ComputeProfileId int `json:"compute_profile_id,omitempty"`
+	// ID of the compute resource associated with this hostgroup
+	ComputeResourceId int `json:"compute_resource_id,omitempty"`
 	// List of config groups to apply to the hostgroup
 	ConfigGroupIds []int `json:"config_group_ids"`
 	// ID of the domain associated with this hostgroup
@@ -81,7 +83,7 @@ type ForemanHostgroup struct {
 	PuppetAttributes PuppetAttribute `json:"puppet_attributes"`
 }
 
-// ForemanHostgroup struct used for JSON decode.  Foreman API returns the ids
+// Foreman Hostgroup struct used for JSON decode.  Foreman API returns the ids
 // back as a list of ForemanObjects with some of the attributes of the data
 // types. However, we are only interested in the IDs returned.
 type foremanHostGroupDecode struct {

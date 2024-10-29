@@ -88,12 +88,12 @@ func Provider() *schema.Provider {
 					ProviderLogFileEnv,
 					DefaultProviderLogFile,
 				),
-				Description: "Where to deirect provider-specific log output. " +
+				Description: "Where to direct provider-specific log output. " +
 					"A value of '-' preserves the default behavior of the log package " +
 					"from Golang stdlib and will be combined with the main terraform.log " +
 					"file produced by terraform. If the desired output file does not " +
 					"exist, it will be created. If the file already exists, logs will be " +
-					"appended to the file. This can also be set through the enviornment " +
+					"appended to the file. This can also be set through the environment " +
 					"variable `FOREMAN_PROVIDER_LOGFILE`. Defaults to " +
 					"`'terraform-provider-foreman.log'`.",
 			},
@@ -161,7 +161,7 @@ func Provider() *schema.Provider {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  0,
-				Description: "The organization for all resource requsted and created by the Provier " +
+				Description: "The organization for all resource requested and created by the Provider " +
 					"Defaults to \"0\". Set organization_id and location_id to a value < 0 if you need " +
 					"to disable Locations and Organizations on Foreman older than 1.21",
 			},
@@ -175,7 +175,7 @@ func Provider() *schema.Provider {
 			},
 		},
 
-ResourcesMap: map[string]*schema.Resource{
+		ResourcesMap: map[string]*schema.Resource{
 			"foreman_architecture":                  resourceForemanArchitecture(),
 			"foreman_host":                          resourceForemanHost(),
 			"foreman_hostgroup":                     resourceForemanHostgroup(),

@@ -201,6 +201,11 @@ func resourceForemanSubnet() *schema.Resource {
 					autodoc.MetaExample,
 				),
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Description of the subnet",
+			},
 		},
 	}
 }
@@ -284,6 +289,9 @@ func buildForemanSubnet(d *schema.ResourceData) *api.ForemanSubnet {
 	if attr, ok = d.GetOk("network_type"); ok {
 		s.NetworkType = attr.(string)
 	}
+	if attr, ok = d.GetOk("description"); ok {
+		s.Description = attr.(string)
+	}
 	return &s
 }
 
@@ -313,6 +321,7 @@ func setResourceDataFromForemanSubnet(d *schema.ResourceData, fs *api.ForemanSub
 	d.Set("httpboot_id", fs.HTTPBootID)
 	d.Set("domain_ids", fs.DomainIDs)
 	d.Set("network_type", fs.NetworkType)
+	d.Set("description", fs.Description)
 }
 
 // -----------------------------------------------------------------------------

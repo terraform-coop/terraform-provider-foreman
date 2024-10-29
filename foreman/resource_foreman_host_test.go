@@ -311,7 +311,10 @@ func TestSetResourceDataFromForemanHost_Value(t *testing.T) {
 	actualState := ForemanHostToInstanceState(actualObj)
 	actualResourceData := MockForemanHostResourceData(actualState)
 
-	setResourceDataFromForemanHost(actualResourceData, &expectedObj)
+	err := setResourceDataFromForemanHost(actualResourceData, &expectedObj)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	ForemanHostResourceDataCompare(t, actualResourceData, expectedResourceData)
 

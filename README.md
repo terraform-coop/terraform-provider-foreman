@@ -127,7 +127,7 @@ To generate and view the entire repository and in-depth provider documentation:
 
 ```
 $> go build -v -o autodoc $(go list ./cmd/autodoc)
-$> mkdir -p docs/{datasources,resources}
+$> mkdir -p docs/{data-sources,resources}
 $> ./autodoc
 $> mkdocs serve
 INFO    -  Building documentation...
