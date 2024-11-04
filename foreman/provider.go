@@ -179,6 +179,7 @@ func Provider() *schema.Provider {
 			"foreman_architecture":                  resourceForemanArchitecture(),
 			"foreman_host":                          resourceForemanHost(),
 			"foreman_hostgroup":                     resourceForemanHostgroup(),
+			"foreman_discovery_rule":                resourceForemanDiscoveryRule(),
 			"foreman_media":                         resourceForemanMedia(),
 			"foreman_model":                         resourceForemanModel(),
 			"foreman_operatingsystem":               resourceForemanOperatingSystem(),

@@ -3,7 +3,6 @@ package foreman
 import (
 	"context"
 	"encoding/json"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"io"
 	"math/rand"
 	"net/http"
@@ -13,6 +12,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -256,6 +257,8 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 
 	testCases = append(testCases, DataSourceForemanTemplateKindCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanDiscoveryRuleCorrectURLAndMethodTestCases(t)...)
+
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
 
@@ -351,6 +354,8 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 	testCases = append(testCases, DataSourceForemanJobTemplateRequestDataEmptyTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanDiscoveryRuleRequestDataEmptyTestCases(t)...)
 
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
@@ -503,6 +508,8 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 
 	testCases = append(testCases, DataSourceForemanTemplateKindStatusCodeTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanDiscoveryRuleStatusCodeTestCases(t)...)
+
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
 
@@ -586,6 +593,8 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	testCases = append(testCases, DataSourceForemanJobTemplateEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanDiscoveryRuleEmptyResponseTestCases(t)...)
 
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
@@ -707,6 +716,8 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	testCases = append(testCases, DataSourceForemanJobTemplateMockResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindMockResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanDiscoveryRuleMockResponseTestCases(t)...)
 
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
