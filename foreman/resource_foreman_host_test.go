@@ -597,3 +597,20 @@ func TestResourceHostStateUpgradeV0(t *testing.T) {
 		t.Fatalf("\n\nexpected:\n\n%#v\n\ngot:\n\n%#v\n\n", expected, actual)
 	}
 }
+
+func TestResourceHostUpdate_SetBuildFlag(t *testing.T) {
+	resourceData := schema.TestResourceDataRaw(t, resourceForemanHost().Schema, map[string]interface{}{})
+	resourceData.SetId("123")
+	resourceData.Set("set_build_flag", true)
+
+	meta := &api.Client{}
+	err := resourceForemanHostUpdate(context.Background(), resourceData, meta)
+
+	if err.HasError() {
+		t.Fatalf("Update returned an error: %v", err)
+	}
+
+	if v, ok := resourceData.Get("set_build_flag").(bool); !ok || !v {
+		t.Errorf("Expected set_build_flag to be true after update, got %v", v)
+	}
+}
