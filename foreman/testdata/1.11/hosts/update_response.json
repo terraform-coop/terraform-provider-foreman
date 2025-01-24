@@ -61,18 +61,21 @@
   "name": "foremanterraformtest.dev.company.com",
   "id": 34068,
   "parameters": [],
-  "interfaces": [
-    {
-      "id": 46531,
-      "name": "foremanterraformtest.dev.company.com",
-      "ip": "10.228.170.38",
-      "mac": "c0:ff:ee:ba:be:00",
-      "identifier": null,
-      "primary": true,
-      "provision": true,
-      "type": "interface"
+  "compute_attributes": {
+    "interfaces_attributes": {
+      "c0:ff:ee:ba:be:00": {
+        "id": 46531,
+        "identifier": null,
+        "ip": "10.228.170.38",
+        "mac": "c0:ff:ee:ba:be:00",
+        "name": "foremanterraformtest.dev.company.com",
+        "primary": true,
+        "provision": true,
+        "type": "interface",
+        "compute_attributes": {}
+      }
     }
-  ],
+  },
   "puppetclasses": [],
   "config_groups": [],
   "all_parameters": [

@@ -31,16 +31,7 @@
     "id": 39,
     "url": "https://dns.dev.dc1.company.com:8443"
   },
-  "domains": [
-    {
-      "id": 1,
-      "name": "company.com"
-    },
-    {
-      "id": 35,
-      "name": "dev.dc1.company.com"
-    }
-  ],
+  "domains": [],
   "interfaces": [
     {
       "id": 32650,
