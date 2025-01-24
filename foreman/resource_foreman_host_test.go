@@ -182,7 +182,13 @@ func RandForemanHost() api.ForemanHost {
 // a fatal.
 func ForemanHostResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *schema.ResourceData) {
 
-	// compare IDs
+	// Print each attribute key-value pair for deeper inspection
+	for key := range r1.State().Attributes {
+		v1 := r1.Get(key)
+		v2 := r2.Get(key)
+		t.Logf("Key: %s | Expected: %v | Actual: %v\n", key, v2, v1)
+	}
+
 	if r1.Id() != r2.Id() {
 		t.Fatalf(
 			"ResourceData references differ in Id. [%s], [%s]",
@@ -225,7 +231,7 @@ func ForemanHostResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *s
 	attr2, ok2 = r2.Get("interfaces_attributes").(*schema.Set)
 	if ok1 && ok2 {
 		attr1Set := attr1.(*schema.Set)
-		attr2Set := attr1.(*schema.Set)
+		attr2Set := attr2.(*schema.Set)
 		if !attr1Set.Equal(attr2Set) {
 			t.Fatalf(
 				"ResourceData reference differ in interfaces_attributes. "+
