@@ -119,3 +119,11 @@ type QueryResponsePuppet struct {
 	// Foreman API objects that matched the search criteria for the query.
 	Results map[string]interface{} `json:"results"`
 }
+
+// Organizations and Locations response
+type EntityResponse struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Title       string `json:"title"`
+	Description any    `json:"description"`
+}

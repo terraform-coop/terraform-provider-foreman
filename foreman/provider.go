@@ -207,6 +207,8 @@ func Provider() *schema.Provider {
 			"foreman_computeprofile":                resourceForemanComputeProfile(),
 			"foreman_jobtemplate":                   resourceForemanJobTemplate(),
 			"foreman_templateinput":                 resourceForemanTemplateInput(),
+			"foreman_webhook":                       resourceForemanWebhook(),
+			"foreman_webhooktemplate":               resourceForemanWebhookTemplate(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
