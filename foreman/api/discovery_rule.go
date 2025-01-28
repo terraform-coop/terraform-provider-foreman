@@ -44,13 +44,6 @@ type ForemanDiscoveryRuleResponse struct {
 	Organizations      []EntityResponse `json:"organizations,omitempty"`
 }
 
-type EntityResponse struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Title       string `json:"title"`
-	Description any    `json:"description"`
-}
-
 // CreateDiscoveryRule creates a new ForemanDiscoveryRule
 func (c *Client) CreateDiscoveryRule(ctx context.Context, d *ForemanDiscoveryRule) (*ForemanDiscoveryRule, error) {
 	log.Tracef("foreman/api/discovery_rule.go#Create")
