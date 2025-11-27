@@ -773,6 +773,11 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 				Optional:    true,
 				Description: "Hypervisor specific interface options",
 			},
+			"domain_id": {
+				Type:        schema.TypeInt,
+				Optional:    true,
+				Description: "Foreman domain ID of interface.",
+			},
 		},
 	}
 }
@@ -960,6 +965,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 //   type (string)
 //   bmc_provider (string)
 //   _destroy (bool)
+//   domain_id (string)
 
 func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterfacesAttribute {
 	log.Tracef("mapToForemanInterfacesAttribute")
@@ -1037,6 +1043,10 @@ func mapToForemanInterfacesAttribute(m map[string]interface{}) api.ForemanInterf
 
 	if tempIntAttr.Destroy, ok = m["_destroy"].(bool); !ok {
 		tempIntAttr.Destroy = false
+	}
+
+	if tempIntAttr.DomainId, ok = m["domain_id"].(int); !ok {
+		tempIntAttr.DomainId = 0
 	}
 
 	log.Debugf("m: [%v], tempIntAttr: [%+v]", m, tempIntAttr)
@@ -1172,6 +1182,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 			"bmc_provider": val.Provider,
 			"username":     val.Username,
 			"password":     val.Password,
+			"domain_id":    val.DomainId,
 
 			"attached_devices": val.AttachedDevices,
 			"attached_to":      val.AttachedTo,
