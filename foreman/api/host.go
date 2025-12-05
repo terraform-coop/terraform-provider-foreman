@@ -145,6 +145,7 @@ type ForemanInterfacesAttribute struct {
 	MAC        string `json:"mac"`
 	Type       string `json:"type"`
 	Provider   string `json:"provider"`
+	DomainId   int    `json:"domain_id,omitempty"`
 
 	AttachedDevices string `json:"attached_devices,omitempty"`
 	AttachedTo      string `json:"attached_to,omitempty"`
