@@ -87,6 +87,11 @@ func RandForemanSubnet() api.ForemanSubnet {
 // a fatal.
 func ForemanSubnetResourceDataCompare(t *testing.T, r1 *schema.ResourceData, r2 *schema.ResourceData) {
 
+	for key := range r1.State().Attributes {
+		v1 := r1.Get(key)
+		v2 := r2.Get(key)
+		t.Logf("Key: %s | Expected: %v | Actual: %v\n", key, v2, v1)
+	}
 	// compare IDs
 	if r1.Id() != r2.Id() {
 		t.Fatalf(
