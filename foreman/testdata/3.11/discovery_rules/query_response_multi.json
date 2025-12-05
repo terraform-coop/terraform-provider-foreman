@@ -1,0 +1,61 @@
+{
+  "total": 2,
+  "subtotal": 2,
+  "page": 1,
+  "per_page": 20,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "name": "hpe-noble",
+      "enabled": true,
+      "hostgroup_id": 14,
+      "hostgroup_name": "HPE GreenLake/Noble",
+      "hostname": "<%= @host.facts['nmprimary_dhcp4_option_host_name'] %>",
+      "priority": 100,
+      "search": "facts.cmdline::fdi_os = noble and facts.bios_vendor = HPE",
+      "hosts_limit": 0,
+      "id": 1,
+      "hosts": [],
+      "organizations": [
+        {
+          "id": 1,
+          "name": "Default Organization"
+        }
+      ],
+      "locations": [
+        {
+          "id": 2,
+          "name": "Default Location"
+        }
+      ]
+    },
+    {
+      "name": "hpe-jammy",
+      "enabled": false,
+      "hostgroup_id": 12,
+      "hostgroup_name": "HPE GreenLake/Jammy",
+      "hostname": "<%= @host.facts['nmprimary_dhcp4_option_host_name'] %>",
+      "priority": 200,
+      "search": "facts.cmdline::fdi_os = jammy and facts.bios_vendor = HPE",
+      "hosts_limit": 0,
+      "id": 2,
+      "hosts": [],
+      "organizations": [
+        {
+          "id": 1,
+          "name": "Default Organization"
+        }
+      ],
+      "locations": [
+        {
+          "id": 2,
+          "name": "Default Location"
+        }
+      ]
+    }
+  ]
+}

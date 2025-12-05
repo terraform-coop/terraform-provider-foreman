@@ -1,0 +1,28 @@
+{
+  "name": "test-discovery-rule-create-01 (create_response.json)",
+  "enabled": false,
+  "hostgroup_id": 1,
+  "hostgroup_name": "Example HPE Servers",
+  "hostname": "<%= @host.facts[nmprimary_dhcp4_option_host_name] %>",
+  "priority": 111,
+  "search": "name ~ create_example",
+  "hosts_limit": 0,
+  "id": 35,
+  "hosts": [],
+  "organizations": [
+    {
+      "id": 1,
+      "name": "Default Organization",
+      "title": "Default Organization",
+      "description": null
+    }
+  ],
+  "locations": [
+    {
+      "id": 2,
+      "name": "Default Location",
+      "title": "Default Location",
+      "description": null
+    }
+  ]
+}

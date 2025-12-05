@@ -1,0 +1,27 @@
+{
+  "total": 20,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 20,
+  "search": "name=hpe-noble",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "name": "hpe-noble",
+      "enabled": true,
+      "hostgroup_id": 14,
+      "hostgroup_name": "HPE GreenLake/Noble",
+      "hostname": "<%= @host.facts['nmprimary_dhcp4_option_host_name'] %>",
+      "priority": 500,
+      "search": "facts.bios_vendor = HPE",
+      "hosts_limit": 0,
+      "id": 100,
+      "hosts": [],
+      "organizations": [{ "id": 1, "name": "Default Organization" }],
+      "locations": [{ "id": 2, "name": "Default Location" }]
+    }
+  ]
+}

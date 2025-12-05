@@ -1,0 +1,20 @@
+{
+    "total": 10,
+    "subtotal": 1,
+    "page": 1,
+    "per_page": 20,
+    "search": "name=test",
+    "sort": {
+        "by": null,
+        "order": null
+    },
+    "results": [
+        {
+            "description": "",
+            "created_at": "2024-12-19 21:02:17 UTC",
+            "updated_at": "2025-01-03 14:51:48 UTC",
+            "name": "test",
+            "id": 211
+        }
+    ]
+}
