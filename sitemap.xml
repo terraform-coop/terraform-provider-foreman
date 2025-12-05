@@ -149,6 +149,10 @@
          <lastmod>2025-12-05</lastmod>
     </url>
     <url>
+         <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_discovery_rule/</loc>
+         <lastmod>2025-12-05</lastmod>
+    </url>
+    <url>
          <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_domain/</loc>
          <lastmod>2025-12-05</lastmod>
     </url>
@@ -250,6 +254,14 @@
     </url>
     <url>
          <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_usergroup/</loc>
+         <lastmod>2025-12-05</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_webhook/</loc>
+         <lastmod>2025-12-05</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_webhooktemplate/</loc>
          <lastmod>2025-12-05</lastmod>
     </url>
 </urlset>

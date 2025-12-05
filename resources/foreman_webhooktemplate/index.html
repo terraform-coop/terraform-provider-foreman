@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="HanseMerkur Cloud Platform" /><link rel="canonical" href="https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_provisioningtemplate/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="HanseMerkur Cloud Platform" /><link rel="canonical" href="https://github.com/terraform-coop/terraform-provider-foreman/resources/foreman_webhooktemplate/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>foreman_provisioningtemplate - Terraform Provider Foreman</title>
+    <title>foreman_webhooktemplate - Terraform Provider Foreman</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "foreman_provisioningtemplate";
-        var mkdocs_page_input_path = "resources/foreman_provisioningtemplate.md";
-        var mkdocs_page_url = "/terraform-coop/terraform-provider-foreman/resources/foreman_provisioningtemplate/";
+        var mkdocs_page_name = "foreman_webhooktemplate";
+        var mkdocs_page_input_path = "resources/foreman_webhooktemplate.md";
+        var mkdocs_page_url = "/terraform-coop/terraform-provider-foreman/resources/foreman_webhooktemplate/";
       </script>
     
     <!--[if lt IE 9]>
@@ -162,15 +162,7 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_partitiontable/">foreman_partitiontable</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">foreman_provisioningtemplate</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#argument-reference">Argument Reference</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#attributes-reference">Attributes Reference</a>
-    </li>
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../foreman_provisioningtemplate/">foreman_provisioningtemplate</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_smartproxy/">foreman_smartproxy</a>
                   </li>
@@ -184,7 +176,15 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../foreman_webhook/">foreman_webhook</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../foreman_webhooktemplate/">foreman_webhooktemplate</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">foreman_webhooktemplate</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#argument-reference">Argument Reference</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#attributes-reference">Attributes Reference</a>
+    </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -202,9 +202,9 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Resources</li>
-      <li class="breadcrumb-item active">foreman_provisioningtemplate</li>
+      <li class="breadcrumb-item active">foreman_webhooktemplate</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/terraform-coop/terraform-provider-foreman/edit/master/docs/resources/foreman_provisioningtemplate.md">Edit on terraform-provider-foreman</a>
+          <a href="https://github.com/terraform-coop/terraform-provider-foreman/edit/master/docs/resources/foreman_webhooktemplate.md">Edit on terraform-provider-foreman</a>
     </li>
   </ul>
   <hr/>
@@ -212,66 +212,53 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="foreman_provisioningtemplate">foreman_provisioningtemplate<a class="headerlink" href="#foreman_provisioningtemplate" title="Permanent link">&para;</a></h1>
-<p>Provisioning templates are scripts used to describe how to bootstrap and install the operating system on the host.</p>
+                <h1 id="foreman_webhooktemplate">foreman_webhooktemplate<a class="headerlink" href="#foreman_webhooktemplate" title="Permanent link">&para;</a></h1>
+<p>Webhook templates allow to configure a payload to send via webhook.</p>
 <h2 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">&para;</a></h2>
-<pre class="codehilite"><code># Autogenerated example with required keys
-resource &quot;foreman_provisioningtemplate&quot; &quot;example&quot; {
-  name = &quot;AutoYaST default&quot;
-  template = &quot;void&quot;
+<pre class="codehilite"><code class="language-terraform">resource &quot;foreman_webhooktemplate&quot; &quot;example_webhooktemplate_01&quot; {
+  name             = &quot;Example Webhook Template&quot;
+  template         = &quot;&lt;%=\npayload({\n  id: @object.id\n})\n-%&gt;\n&quot;
+  snippet          = false
+  audit_comment    = &quot;&quot;
+  locked           = true
+  default          = true
+  description      = &quot;This template is used to define default content of payload for a webhook.&quot;
+  location_ids     = [2]
+  organization_ids = [1]
 }
 </code></pre>
 
 <h2 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">&para;</a></h2>
 <p>The following arguments are supported:</p>
 <ul>
-<li><code>audit_comment</code> - (Optional) Notes and comments for auditing purposes.</li>
-<li><code>description</code> - (Optional) A description of the provisioning template.</li>
-<li><code>locked</code> - (Optional) Whether or not the template is locked for editing.</li>
-<li><code>name</code> - (Required) Name of the provisioning template.</li>
-<li><code>operatingsystem_ids</code> - (Optional) IDs of the operating systems associated with this provisioning template.</li>
-<li><code>snippet</code> - (Optional) Whether or not the provisioning template is a snippet be used by other templates.</li>
-<li><code>template</code> - (Required) The markup and code of the provisioning template.</li>
-<li><code>template_combinations_attributes</code> - (Optional) How templates are determined:</li>
+<li><code>name</code> - (Required) The name of the webhook template.</li>
+<li><code>template</code> - (Required) The content of the webhook template.</li>
+<li><code>snippet</code> - (Optional) Specifies if webhook template is a snippet.</li>
+<li><code>audit_comment</code> - (Optional) Comment for audits.</li>
+<li><code>locked</code> - (Optional) Whether the template is locked for editing.</li>
+<li><code>default</code> - (Optional) Whether the template is automatically added to new organizations and locations.</li>
+<li><code>description</code> - (Optional) Webhook Template description.</li>
+<li><code>location_ids</code> - (Optional) A list of location IDs where the discovered hosts will be assigned.</li>
+<li><code>organization_ids</code> - (Optional) A list of organization IDs where the discovered hosts will be assigned.</li>
 </ul>
-<p>When editing a template, you must assign a list of operating systems which this template can be used with.  Optionally, you can restrict a template to a list of host groups and/or environments.</p>
-<p>When a host requests a template, Foreman will select the best match from the available templates of that type in the following order:</p>
-<ol>
-<li>host group and environment</li>
-<li>host group only</li>
-<li>environment only</li>
-<li>operating system default</li>
-</ol>
-<p>Template combinations attributes contains an array of hostgroup IDs and environment ID combinations so they can be used in the provisioning template selection described above.
-- <code>template_kind_id</code> - (Optional) ID of the template kind which categorizes the provisioning template. Optional for snippets, otherwise required.</p>
 <h2 id="attributes-reference">Attributes Reference<a class="headerlink" href="#attributes-reference" title="Permanent link">&para;</a></h2>
 <p>The following attributes are exported:</p>
 <ul>
-<li><code>audit_comment</code> - Notes and comments for auditing purposes.</li>
-<li><code>description</code> - A description of the provisioning template.</li>
-<li><code>locked</code> - Whether or not the template is locked for editing.</li>
-<li><code>name</code> - Name of the provisioning template.</li>
-<li><code>operatingsystem_ids</code> - IDs of the operating systems associated with this provisioning template.</li>
-<li><code>snippet</code> - Whether or not the provisioning template is a snippet be used by other templates.</li>
-<li><code>template</code> - The markup and code of the provisioning template.</li>
-<li><code>template_combinations_attributes</code> - How templates are determined:</li>
+<li><code>name</code> - The name of the webhook template.</li>
+<li><code>template</code> - The content of the webhook template.</li>
+<li><code>snippet</code> - Specifies if webhook template is a snippet.</li>
+<li><code>audit_comment</code> - Comment for audits.</li>
+<li><code>locked</code> - Whether the template is locked for editing.</li>
+<li><code>default</code> - Whether the template is automatically added to new organizations and locations.</li>
+<li><code>description</code> - Webhook Template description.</li>
+<li><code>locations</code> - A list of locations where the discovered hosts will be assigned.</li>
+<li><code>organizations</code> - A list of organizations where the discovered hosts will be assigned.</li>
 </ul>
-<p>When editing a template, you must assign a list of operating systems which this template can be used with.  Optionally, you can restrict a template to a list of host groups and/or environments.</p>
-<p>When a host requests a template, Foreman will select the best match from the available templates of that type in the following order:</p>
-<ol>
-<li>host group and environment</li>
-<li>host group only</li>
-<li>environment only</li>
-<li>operating system default</li>
-</ol>
-<p>Template combinations attributes contains an array of hostgroup IDs and environment ID combinations so they can be used in the provisioning template selection described above.
-- <code>template_kind_id</code> - ID of the template kind which categorizes the provisioning template. Optional for snippets, otherwise required.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../foreman_partitiontable/" class="btn btn-neutral float-left" title="foreman_partitiontable"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../foreman_smartproxy/" class="btn btn-neutral float-right" title="foreman_smartproxy">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../foreman_webhook/" class="btn btn-neutral float-left" title="foreman_webhook"><span class="icon icon-circle-arrow-left"></span> Previous</a>
     </div>
 
   <hr/>
@@ -298,10 +285,8 @@ resource &quot;foreman_provisioningtemplate&quot; &quot;example&quot; {
         </span>
     
     
-      <span><a href="../foreman_partitiontable/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../foreman_webhook/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../foreman_smartproxy/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
