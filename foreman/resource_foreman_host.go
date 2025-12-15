@@ -776,6 +776,8 @@ func resourceForemanInterfacesAttributes() *schema.Resource {
 			"domain_id": {
 				Type:        schema.TypeInt,
 				Optional:    true,
+				Required:    false,
+				Computed:    true,
 				Description: "Foreman domain ID of interface.",
 			},
 		},
