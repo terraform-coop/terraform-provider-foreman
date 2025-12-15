@@ -3,7 +3,6 @@ package foreman
 import (
 	"context"
 	"encoding/json"
-	"github.com/HanseMerkur/terraform-provider-utils/log"
 	"io"
 	"math/rand"
 	"net/http"
@@ -13,6 +12,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/HanseMerkur/terraform-provider-utils/log"
 
 	tfrand "github.com/HanseMerkur/terraform-provider-utils/rand"
 	"github.com/terraform-coop/terraform-provider-foreman/foreman/api"
@@ -256,6 +257,12 @@ func TestCRUDFunction_CorrectURLAndMethod(t *testing.T) {
 
 	testCases = append(testCases, DataSourceForemanTemplateKindCorrectURLAndMethodTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanDiscoveryRuleCorrectURLAndMethodTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookCorrectURLAndMethodTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookTemplateCorrectURLAndMethodTestCases(t)...)
+
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
 
@@ -351,6 +358,12 @@ func TestCRUDFunction_RequestDataEmpty(t *testing.T) {
 	testCases = append(testCases, DataSourceForemanJobTemplateRequestDataEmptyTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanDiscoveryRuleRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookRequestDataEmptyTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookTemplateRequestDataEmptyTestCases(t)...)
 
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
@@ -503,6 +516,12 @@ func TestCRUDFunction_StatusCodeError(t *testing.T) {
 
 	testCases = append(testCases, DataSourceForemanTemplateKindStatusCodeTestCases(t)...)
 
+	testCases = append(testCases, ResourceForemanDiscoveryRuleStatusCodeTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookStatusCodeTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookTemplateStatusCodeTestCases(t)...)
+
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
 
@@ -586,6 +605,12 @@ func TestCRUDFunction_EmptyResponseError(t *testing.T) {
 	testCases = append(testCases, DataSourceForemanJobTemplateEmptyResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanDiscoveryRuleEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookEmptyResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookTemplateEmptyResponseTestCases(t)...)
 
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}
@@ -707,6 +732,12 @@ func TestCRUDFunction_MockResponse(t *testing.T) {
 	testCases = append(testCases, DataSourceForemanJobTemplateMockResponseTestCases(t)...)
 
 	testCases = append(testCases, DataSourceForemanTemplateKindMockResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanDiscoveryRuleMockResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookMockResponseTestCases(t)...)
+
+	testCases = append(testCases, ResourceForemanWebhookTemplateMockResponseTestCases(t)...)
 
 	cred := api.ClientCredentials{}
 	conf := api.ClientConfig{}

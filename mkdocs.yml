@@ -60,6 +60,7 @@ nav:
     - 'foreman_computeprofile': 'resources/foreman_computeprofile.md'
     - 'foreman_computeresource': 'resources/foreman_computeresource.md'
     - 'foreman_defaulttemplate': 'resources/foreman_defaulttemplate.md'
+    - 'foreman_discovery_rule': 'resources/foreman_discovery_rule.md'
     - 'foreman_domain': 'resources/foreman_domain.md'
     - 'foreman_environment': 'resources/foreman_environment.md'
     - 'foreman_global_parameter': 'resources/foreman_global_parameter.md'
@@ -86,6 +87,10 @@ nav:
     - 'foreman_templateinput': 'resources/foreman_templateinput.md'
     - 'foreman_user': 'resources/foreman_user.md'
     - 'foreman_usergroup': 'resources/foreman_usergroup.md'
+    - 'foreman_webhook': 'resources/foreman_webhook.md'
+    - 'foreman_webhooktemplate': 'resources/foreman_webhooktemplate.md'
+
+
 
 # ------------------------------------------------------------------------------
 # Build Directories

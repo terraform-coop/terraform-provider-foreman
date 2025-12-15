@@ -22,7 +22,7 @@
   "ptable_name": "Default CentOS",
   "medium_id": 29,
   "medium_name": "Centosmirror01.bo1.company.com",
-  "build": true,
+  "build": false,
   "comment": null,
   "disk": null,
   "installed_at": null,
@@ -60,7 +60,37 @@
   "build_status_label": "Pending installation",
   "name": "foremanterraformtest.dev.company.com",
   "id": 34068,
-  "parameters": [],
+  "parameters": [
+    {
+      "name": "param1",
+      "value": "value1"
+    },
+    {
+      "name": "param2",
+      "value": true
+    },
+    {
+      "name": "param3",
+      "value": {
+        "key": "value"
+      }
+    }
+  ],
+  "compute_attributes": {
+    "interfaces_attributes": {
+      "c0:ff:ee:ba:be:00": {
+        "id": 46531,
+        "identifier": null,
+        "ip": "10.228.170.38",
+        "mac": "c0:ff:ee:ba:be:00",
+        "name": "foremanterraformtest.dev.company.com",
+        "primary": true,
+        "provision": true,
+        "type": "interface",
+        "compute_attributes": {}
+      }
+    }
+  },
   "interfaces": [
     {
       "id": 46531,
@@ -72,7 +102,7 @@
       "provision": true,
       "type": "interface"
     }
-  ],
+  },
   "puppetclasses": [],
   "config_groups": [],
   "all_parameters": [

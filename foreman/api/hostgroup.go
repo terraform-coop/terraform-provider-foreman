@@ -166,6 +166,36 @@ func (c *Client) ReadHostgroup(ctx context.Context, id int) (*ForemanHostgroup, 
 	return &readHostgroup.ForemanHostgroup, nil
 }
 
+func (h *foremanHostGroupDecode) UnmarshalJSON(data []byte) error {
+	type Alias foremanHostGroupDecode
+	aux := &struct {
+		Parameters json.RawMessage `json:"parameters,omitempty"`
+		*Alias
+	}{
+		Alias: (*Alias)(h),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	// Handle both slice and map format for parameters
+	var params []ForemanKVParameter
+	if err := json.Unmarshal(aux.Parameters, &params); err == nil {
+		h.HostGroupParametersDecode = params
+	} else {
+		var paramsMap map[string]interface{}
+		if err := json.Unmarshal(aux.Parameters, &paramsMap); err != nil {
+			return fmt.Errorf("unable to unmarshal parameters: %v", err)
+		}
+		for k, v := range paramsMap {
+			h.HostGroupParametersDecode = append(h.HostGroupParametersDecode, ForemanKVParameter{Name: k, Value: fmt.Sprintf("%v", v)})
+		}
+	}
+
+	return nil
+}
+
 // UpdateHostgroup updates a ForemanHostgroup's attributes.  The hostgroup with
 // the ID of the supplied ForemanHostgroup will be updated. A new
 // ForemanHostgroup reference is returned with the attributes from the result

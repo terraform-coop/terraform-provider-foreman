@@ -11,12 +11,7 @@
   "name": "windows",
   "title": "windows 5.2",
   "parameters": [],
-  "media": [
-    {
-      "id": 37,
-      "name": "Terraform Test Mirror"
-    }
-  ],
+  "media": [],
   "architectures": [],
   "ptables": [],
   "config_templates": [],

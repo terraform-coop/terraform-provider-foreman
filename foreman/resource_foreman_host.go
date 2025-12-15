@@ -446,7 +446,7 @@ func resourceForemanHost() *schema.Resource {
 			"set_build_flag": {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
+				Computed:    true,
 				Description: "Sets the Foreman-internal 'build' flag on this host - even if it is already built completely.",
 			},
 
@@ -1315,6 +1315,11 @@ func resourceForemanHostRead(ctx context.Context, d *schema.ResourceData, meta i
 		return diag.FromErr(err)
 	}
 
+	// Ensure the 'set_build_flag' state is set correctly
+	if err := d.Set("set_build_flag", readHost.Build); err != nil {
+		return diag.FromErr(err)
+	}
+
 	if d.Get("retry_count").(int) == 0 {
 		d.Set("retry_count", DEFAULT_RETRY_COUNT)
 	}
@@ -1358,6 +1363,15 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 		}
 
 	} // end HasChange("interfaces_attributes")
+	if d.HasChange("set_build_flag") {
+		desiredBuildFlag := d.Get("set_build_flag").(bool)
+		log.Debugf("Updating build flag for host: %s, desired: %v", h.Name, desiredBuildFlag)
+		if desiredBuildFlag {
+			h.Build = true
+		} else {
+			h.Build = false
+		}
+	}
 
 	hostRetryCount := d.Get("retry_count").(int)
 
@@ -1380,6 +1394,7 @@ func resourceForemanHostUpdate(ctx context.Context, d *schema.ResourceData, meta
 		d.HasChange("build") ||
 		d.HasChange("puppet_class_ids") ||
 		d.HasChange("config_group_ids") ||
+		d.HasChange("set_build_flag") ||
 		d.Get("managed") == false {
 
 		log.Debugf("host: [%+v]", h)
@@ -1461,8 +1476,14 @@ func flattenComputeAttributes(attrs map[string]interface{}) string {
 }
 
 func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *schema.ResourceDiff, i interface{}) error {
-	oldVal, newVal := d.GetChange("compute_attributes")
+	if d.HasChange("set_build_flag") {
+		desiredBuildFlag := d.Get("set_build_flag").(bool)
+		if desiredBuildFlag {
+			d.SetNew("set_build_flag", desiredBuildFlag)
+		}
+	}
 
+	oldVal, newVal := d.GetChange("compute_attributes")
 	oldMap := expandComputeAttributes(oldVal.(string))
 	newMap := expandComputeAttributes(newVal.(string))
 

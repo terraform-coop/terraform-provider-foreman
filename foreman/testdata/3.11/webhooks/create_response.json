@@ -1,0 +1,19 @@
+{
+  "target_url": "http://127.0.0.1:8080",
+  "event": "build_entered.event.foreman",
+  "http_method": "POST",
+  "http_content_type": "application/json",
+  "enabled": true,
+  "verify_ssl": false,
+  "proxy_authorization": false,
+  "http_headers": "",
+  "ssl_ca_certs": "",
+  "user": "bla",
+  "id": 3,
+  "name": "createtest",
+  "webhook_template": {
+    "name": "test",
+    "id": 211
+  },
+  "password_set": true
+}
