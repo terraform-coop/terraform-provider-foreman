@@ -640,7 +640,23 @@ func resourceForemanHost() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Elem:        resourceForemanInterfacesAttributes(),
-				Description: "Host interface information.",
+				Description: "Host interface information (ususally set by Foreman or the hypervisor). One 'interfaces_attributes' block for each interface. It's a map[string] representation with the following subfields supported:\n"+
+                     "\t- `primary` Whether or not this is the primary interface\n"+
+                     "\t- `ip` IP address associated with the interface\n"+
+                     "\t- `name` Name of the interface\n"+
+                     "\t- `mac` MAC address associated with the interface\n"+
+                     "\t- `subnet_id` ID of the subnet to associate with this interface\n"+
+                     "\t- `identifier` Identifier of this interface local to the host\n"+
+                     "\t- `managed` Whether or not this interface is managed by Foreman\n"+
+                     "\t- `provision` Whether or not this interface is used to provision the host\n"+
+                     "\t- `virtual` Whether or not this is a virtual interface\n"+
+                     "\t- `attached_to` Identifier of the interface to which this interface belongs\n"+
+                     "\t- `attached_devices` Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list\n"+
+                     "\t- `username` Username used for BMC/IPMI functionality\n"+
+                     "\t- `password` Associated password used for BMC/IPMI functionality\n"+
+                     "\t- `type` The type of interface. Values include: `\"interface\"`, `\"bmc\"`, `\"bond\"`, `\"bridge\"`\n"+
+                     "\t- `bmc_provider` Provider used for BMC/IMPI functionality. Values include: `\"IPMI\"`\n"+
+                     "\t- `domain_id` Foreman domain ID of interface",
 			},
 		},
 	}
