@@ -89,6 +89,8 @@
         "type": "interface",
         "compute_attributes": {}
       }
+    }
+  },
   "interfaces": [
     {
       "id": 46531,
@@ -100,7 +102,7 @@
       "provision": true,
       "type": "interface"
     }
-  },
+  ],
   "puppetclasses": [],
   "config_groups": [],
   "all_parameters": [
