@@ -38,6 +38,14 @@ This directory contains comprehensive documentation for the modernization initia
    - CI/CD integration
    - 5-week timeline
 
+### Implementation Guides
+
+6. **[Downloading API Specs from GitHub Actions](guides/downloading-api-specs.md)**
+   - Step-by-step guide for obtaining Foreman API specifications
+   - GitHub Actions artifact download instructions
+   - Version mapping and organization
+   - Alternative methods (running instance)
+
 ## 🎯 Quick Start Guide
 
 ### For Project Managers
@@ -56,7 +64,8 @@ Start here to begin implementation:
    - Framework work: [Phase 2 Tasks](tasks/phase2-framework-migration-tasks.md)
    - Testing work: [Phase 3 Tasks](tasks/phase3-e2e-testing-tasks.md)
 2. Check prerequisites in each document
-3. Follow the task breakdown step-by-step
+3. **For Phase 1**: Start with [Downloading API Specs Guide](guides/downloading-api-specs.md)
+4. Follow the task breakdown step-by-step
 
 ### For Contributors
 
@@ -76,7 +85,9 @@ Start here to begin implementation:
 - Type-safe API interactions
 - Foundation for future improvements
 
-**Start with**: [Phase 1 Tasks](tasks/phase1-api-client-tasks.md)
+**Start with**: 
+1. [Downloading API Specs Guide](guides/downloading-api-specs.md)
+2. [Phase 1 Tasks](tasks/phase1-api-client-tasks.md)
 
 ---
 

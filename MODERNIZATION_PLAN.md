@@ -54,19 +54,27 @@ This document outlines a comprehensive modernization strategy for the terraform-
 - Rich tooling ecosystem
 
 **Implementation Steps**:
-1. Create Apipie-to-OpenAPI converter
-2. Extract OpenAPI spec from Foreman instance
+1. Download Apipie specs from Foreman's GitHub Actions artifacts
+2. Create Apipie-to-OpenAPI converter
 3. Generate Go client using oapi-codegen
 4. Create adapter layer for Terraform provider
 5. Gradually migrate resources to use generated client
 
 **Tools & Technologies**:
 - `oapi-codegen` - Go client generator from OpenAPI specs
-- Foreman's `/apidoc/api.json` endpoint
+- Foreman's GitHub Actions artifacts (apidoc-* from workflow runs)
 - Custom conversion scripts for Apipie → OpenAPI
+- Alternative: Foreman's `/apidoc/api.json` endpoint (requires running instance)
+
+**API Specification Sources**:
+- **Preferred**: GitHub Actions artifacts from https://github.com/theforeman/foreman/actions/workflows/foreman.yml
+  - No running instance needed
+  - Version-specific and guaranteed accurate
+  - Example for 3.18-stable: https://github.com/theforeman/foreman/actions/workflows/foreman.yml?query=branch%3A3.18-stable
+- **Alternative**: Extract from running Foreman instance via `/apidoc/api.json`
 
 **Estimated Effort**: 3-4 weeks
-- Week 1: Spec extraction and conversion tooling
+- Week 1: Spec extraction (from GitHub) and conversion tooling
 - Week 2: Client generation and adapter layer
 - Week 3-4: Resource migration and testing
 

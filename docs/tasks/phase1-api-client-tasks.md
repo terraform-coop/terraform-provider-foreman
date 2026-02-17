@@ -15,38 +15,96 @@ Transform the custom HTTP API client into an automatically generated, type-safe 
 
 **Goal**: Extract Foreman's API specification in Apipie format
 
-#### Subtasks:
-1. [ ] Set up local Foreman instance or use test instance
-   - Deploy using Docker: `docker run -d --name foreman theforeman/foreman:latest`
-   - Or use existing test/staging environment
-   - Verify access to `/apidoc` endpoint
+#### Recommended Approach: GitHub Actions Artifacts
 
-2. [ ] Extract API documentation
+The easiest and most reliable way to get Foreman's API documentation is from GitHub Actions artifacts:
+
+#### Subtasks:
+
+1. [ ] Download Foreman API specs from GitHub Actions
+   
+   **For Foreman Core:**
+   - Go to https://github.com/theforeman/foreman/actions/workflows/foreman.yml
+   - Filter by branch (e.g., `branch:3.18-stable` for version 3.18)
+     - Example: https://github.com/theforeman/foreman/actions/workflows/foreman.yml?query=branch%3A3.18-stable
+   - Click on the latest successful workflow run
+   - Download the `apidoc-*` artifact (there may be multiple, pick any)
+   - Extract the artifact to get the JSON file
+   
    ```bash
-   # Download Apipie JSON specification
-   curl -u admin:password \
-     http://foreman.example.com/apidoc/api.json \
-     -o foreman-api-apipie.json
+   # After downloading and extracting the artifact
+   mv apidoc-*.json api-specs/foreman-core-3.18-apipie.json
    ```
+
+2. [ ] Download Katello API specs from GitHub Actions
+   
+   **For Katello Plugin:**
+   - Go to https://github.com/Katello/katello/actions
+   - Find the workflow that generates API docs
+   - Download the apidoc artifact for the matching version
+   - Extract: `mv katello-apidoc-*.json api-specs/katello-3.18-apipie.json`
 
 3. [ ] Analyze Apipie structure
    - [ ] Document resource types
    - [ ] Identify authentication patterns
    - [ ] Map API versions
    - [ ] List all endpoints (expect 300-500+)
+   - [ ] Compare across versions if needed
 
-4. [ ] Extract Katello plugin API
-5. [ ] Extract Foreman Tasks API
+4. [ ] Organize downloaded specs
+   ```bash
+   mkdir -p api-specs
+   # Organize by version
+   api-specs/
+   ├── foreman-core-3.18-apipie.json
+   ├── katello-3.18-apipie.json
+   ├── foreman-tasks-3.18-apipie.json
+   └── foreman-puppet-3.18-apipie.json
+   ```
+
+#### Alternative: Extract from Running Instance (if needed)
+
+If GitHub Actions artifacts are not available for a specific version:
+
+1. [ ] Set up local Foreman instance
+   - Deploy using Docker: `docker run -d --name foreman theforeman/foreman:3.18`
+   - Or use existing test/staging environment
+   - Verify access to `/apidoc` endpoint
+
+2. [ ] Extract API documentation via HTTP
+   ```bash
+   # Download Apipie JSON specification
+   curl -u admin:password \
+     http://foreman.example.com/apidoc/api.json \
+     -o api-specs/foreman-core-apipie.json
+   
+   # Download Katello API (if Katello is installed)
+   curl -u admin:password \
+     http://foreman.example.com/katello/apidoc/api.json \
+     -o api-specs/katello-apipie.json
+   
+   # Download Foreman Tasks API
+   curl -u admin:password \
+     http://foreman.example.com/foreman_tasks/apidoc/api.json \
+     -o api-specs/foreman-tasks-apipie.json
+   ```
 
 **Deliverables**:
 - Apipie JSON files for Foreman core, Katello, and plugins
 - Documentation of API structure
 - List of endpoints by resource type
+- Version-specific specs organized by directory
 
 **Success Criteria**:
-- Complete API specification extracted
+- Complete API specification extracted for target version(s)
 - All plugins included
 - Documentation reviewed
+- Files organized in `api-specs/` directory
+
+**Notes**:
+- GitHub Actions approach is preferred as it doesn't require a running instance
+- Specs from GitHub Actions are guaranteed to match the released version
+- Can easily download specs for multiple versions for compatibility testing
 
 ---
 

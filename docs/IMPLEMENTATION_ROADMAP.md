@@ -105,30 +105,50 @@ Create comprehensive end-to-end testing infrastructure using containerized Forem
 ### Issue 1.1: Extract Foreman API Specifications
 
 ```markdown
-**Title**: Extract Foreman API Specifications from Apipie
+**Title**: Download Foreman API Specifications from GitHub Actions
 
-**Labels**: api-client, phase1, enhancement
+**Labels**: api-client, phase1, enhancement, documentation
 
 **Description**:
-Extract API documentation from Foreman's Apipie endpoints in JSON format for conversion to OpenAPI.
+Download API documentation from Foreman's GitHub Actions artifacts in Apipie JSON format for conversion to OpenAPI.
+
+**Recommended Approach**: GitHub Actions Artifacts (no Foreman instance needed)
 
 **Tasks**:
-- [ ] Set up Foreman test instance (Docker or existing)
-- [ ] Extract Foreman core API spec from `/apidoc/api.json`
-- [ ] Extract Katello API spec from `/katello/apidoc/api.json`
-- [ ] Extract Foreman Tasks API spec from `/foreman_tasks/apidoc/api.json`
-- [ ] Extract Puppet Plugin API spec (if available)
+- [ ] Download Foreman core API spec from GitHub Actions
+  - Visit: https://github.com/theforeman/foreman/actions/workflows/foreman.yml
+  - Filter by target branch (e.g., `branch:3.18-stable`)
+  - Download apidoc-* artifact from latest successful run
+- [ ] Download Katello API spec from GitHub Actions
+  - Visit: https://github.com/Katello/katello/actions
+  - Download apidoc artifact for matching version
+- [ ] Download other plugin specs as needed (Foreman Tasks, Puppet, etc.)
+- [ ] Extract and organize specs in `api-specs/` directory
 - [ ] Document API structure and endpoint coverage
-- [ ] Store specs in `api-specs/` directory
+- [ ] Version control the downloaded specifications
+
+**Alternative (if needed)**:
+- [ ] Set up Foreman test instance (Docker)
+- [ ] Extract specs via `/apidoc/api.json` endpoint
+
+**Helper Resources**:
+- [ ] Use `scripts/download-api-specs.sh` for guided process
+- [ ] See `docs/guides/downloading-api-specs.md` for detailed instructions
 
 **Acceptance Criteria**:
-- [ ] All API specs extracted successfully
+- [ ] API specs for target Foreman version(s) downloaded successfully
+- [ ] All relevant plugins included (Katello, Tasks, etc.)
 - [ ] Documentation includes endpoint count and resource types
+- [ ] Specs organized in `api-specs/` directory
 - [ ] Specs checked into version control
 
-**Estimated Effort**: 2 days
+**Estimated Effort**: 1-2 days (reduced from 2 days due to GitHub Actions approach)
 
 **Related to**: Epic #TBD (API Client Modernization)
+
+**References**:
+- Foreman Actions: https://github.com/theforeman/foreman/actions/workflows/foreman.yml
+- Documentation: docs/guides/downloading-api-specs.md
 ```
 
 ---
