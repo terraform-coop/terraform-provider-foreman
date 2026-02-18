@@ -102,7 +102,7 @@
       "provision": true,
       "type": "interface"
     }
-  },
+  ],
   "puppetclasses": [],
   "config_groups": [],
   "all_parameters": [
