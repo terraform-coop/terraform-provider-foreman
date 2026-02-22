@@ -235,7 +235,25 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>environment_id</code> - (Optional) ID of the environment to assign to the host.</li>
 <li><code>hostgroup_id</code> - (Optional, Force New) ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - (Optional, Force New) ID of an image to be used as base for this host when cloning</li>
-<li><code>interfaces_attributes</code> - (Optional) Host interface information.</li>
+<li><code>interfaces_attributes</code> - (Optional) Host interface information (ususally set by Foreman or the hypervisor). One 'interfaces_attributes' block for each interface. It's a map[string] representation with the following subfields supported:<ul>
+<li><code>primary</code> Whether or not this is the primary interface</li>
+<li><code>ip</code> IP address associated with the interface</li>
+<li><code>name</code> Name of the interface</li>
+<li><code>mac</code> MAC address associated with the interface</li>
+<li><code>subnet_id</code> ID of the subnet to associate with this interface</li>
+<li><code>identifier</code> Identifier of this interface local to the host</li>
+<li><code>managed</code> Whether or not this interface is managed by Foreman</li>
+<li><code>provision</code> Whether or not this interface is used to provision the host</li>
+<li><code>virtual</code> Whether or not this is a virtual interface</li>
+<li><code>attached_to</code> Identifier of the interface to which this interface belongs</li>
+<li><code>attached_devices</code> Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list</li>
+<li><code>username</code> Username used for BMC/IPMI functionality</li>
+<li><code>password</code> Associated password used for BMC/IPMI functionality</li>
+<li><code>type</code> The type of interface. Values include: <code>"interface"</code>, <code>"bmc"</code>, <code>"bond"</code>, <code>"bridge"</code></li>
+<li><code>bmc_provider</code> Provider used for BMC/IMPI functionality. Values include: <code>"IPMI"</code></li>
+<li><code>domain_id</code> Foreman domain ID of interface</li>
+</ul>
+</li>
 <li><code>manage_power_operations</code> - (Optional) Manage power operations, e.g. power on, if host's build flag will be enabled.</li>
 <li><code>managed</code> - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - (Optional, Force New) ID of the medium mounted on the host.</li>
@@ -270,7 +288,25 @@ resource &quot;foreman_host&quot; &quot;example&quot; {
 <li><code>fqdn</code> - Host fully qualified domain name. Read-only value to be used in variables.</li>
 <li><code>hostgroup_id</code> - ID of the hostgroup to assign to the host.</li>
 <li><code>image_id</code> - ID of an image to be used as base for this host when cloning</li>
-<li><code>interfaces_attributes</code> - Host interface information.</li>
+<li><code>interfaces_attributes</code> - Host interface information (ususally set by Foreman or the hypervisor). One 'interfaces_attributes' block for each interface. It's a map[string] representation with the following subfields supported:<ul>
+<li><code>primary</code> Whether or not this is the primary interface</li>
+<li><code>ip</code> IP address associated with the interface</li>
+<li><code>name</code> Name of the interface</li>
+<li><code>mac</code> MAC address associated with the interface</li>
+<li><code>subnet_id</code> ID of the subnet to associate with this interface</li>
+<li><code>identifier</code> Identifier of this interface local to the host</li>
+<li><code>managed</code> Whether or not this interface is managed by Foreman</li>
+<li><code>provision</code> Whether or not this interface is used to provision the host</li>
+<li><code>virtual</code> Whether or not this is a virtual interface</li>
+<li><code>attached_to</code> Identifier of the interface to which this interface belongs</li>
+<li><code>attached_devices</code> Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list</li>
+<li><code>username</code> Username used for BMC/IPMI functionality</li>
+<li><code>password</code> Associated password used for BMC/IPMI functionality</li>
+<li><code>type</code> The type of interface. Values include: <code>"interface"</code>, <code>"bmc"</code>, <code>"bond"</code>, <code>"bridge"</code></li>
+<li><code>bmc_provider</code> Provider used for BMC/IMPI functionality. Values include: <code>"IPMI"</code></li>
+<li><code>domain_id</code> Foreman domain ID of interface</li>
+</ul>
+</li>
 <li><code>manage_power_operations</code> - Manage power operations, e.g. power on, if host's build flag will be enabled.</li>
 <li><code>managed</code> - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.</li>
 <li><code>medium_id</code> - ID of the medium mounted on the host.</li>
