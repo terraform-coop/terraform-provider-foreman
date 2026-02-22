@@ -30,7 +30,23 @@ The following arguments are supported:
 - `environment_id` - (Optional) ID of the environment to assign to the host.
 - `hostgroup_id` - (Optional, Force New) ID of the hostgroup to assign to the host.
 - `image_id` - (Optional, Force New) ID of an image to be used as base for this host when cloning
-- `interfaces_attributes` - (Optional) Host interface information.
+- `interfaces_attributes` - (Optional) Host interface information (ususally set by Foreman or the hypervisor). One 'interfaces_attributes' block for each interface. It's a map[string] representation with the following subfields supported:
+	- `primary` Whether or not this is the primary interface
+	- `ip` IP address associated with the interface
+	- `name` Name of the interface
+	- `mac` MAC address associated with the interface
+	- `subnet_id` ID of the subnet to associate with this interface
+	- `identifier` Identifier of this interface local to the host
+	- `managed` Whether or not this interface is managed by Foreman
+	- `provision` Whether or not this interface is used to provision the host
+	- `virtual` Whether or not this is a virtual interface
+	- `attached_to` Identifier of the interface to which this interface belongs
+	- `attached_devices` Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list
+	- `username` Username used for BMC/IPMI functionality
+	- `password` Associated password used for BMC/IPMI functionality
+	- `type` The type of interface. Values include: `"interface"`, `"bmc"`, `"bond"`, `"bridge"`
+	- `bmc_provider` Provider used for BMC/IMPI functionality. Values include: `"IPMI"`
+	- `domain_id` Foreman domain ID of interface
 - `manage_power_operations` - (Optional) Manage power operations, e.g. power on, if host's build flag will be enabled.
 - `managed` - (Optional) Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - (Optional, Force New) ID of the medium mounted on the host.
@@ -67,7 +83,23 @@ The following attributes are exported:
 - `fqdn` - Host fully qualified domain name. Read-only value to be used in variables.
 - `hostgroup_id` - ID of the hostgroup to assign to the host.
 - `image_id` - ID of an image to be used as base for this host when cloning
-- `interfaces_attributes` - Host interface information.
+- `interfaces_attributes` - Host interface information (ususally set by Foreman or the hypervisor). One 'interfaces_attributes' block for each interface. It's a map[string] representation with the following subfields supported:
+	- `primary` Whether or not this is the primary interface
+	- `ip` IP address associated with the interface
+	- `name` Name of the interface
+	- `mac` MAC address associated with the interface
+	- `subnet_id` ID of the subnet to associate with this interface
+	- `identifier` Identifier of this interface local to the host
+	- `managed` Whether or not this interface is managed by Foreman
+	- `provision` Whether or not this interface is used to provision the host
+	- `virtual` Whether or not this is a virtual interface
+	- `attached_to` Identifier of the interface to which this interface belongs
+	- `attached_devices` Identifiers of attached interfaces, e.g. 'eth1', 'eth2' as comma-separated list
+	- `username` Username used for BMC/IPMI functionality
+	- `password` Associated password used for BMC/IPMI functionality
+	- `type` The type of interface. Values include: `"interface"`, `"bmc"`, `"bond"`, `"bridge"`
+	- `bmc_provider` Provider used for BMC/IMPI functionality. Values include: `"IPMI"`
+	- `domain_id` Foreman domain ID of interface
 - `manage_power_operations` - Manage power operations, e.g. power on, if host's build flag will be enabled.
 - `managed` - Whether or not this host is managed by Foreman. Create host only, don't set build status or manage power states.
 - `medium_id` - ID of the medium mounted on the host.
