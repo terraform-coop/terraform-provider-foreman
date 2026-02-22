@@ -16,6 +16,21 @@ repository.
 **Example use-cases** of this provider are included in this repository under `./examples`.
 See the examples for more information.
 
+## 🚀 Modernization Initiative
+
+This provider is undergoing a comprehensive modernization effort to improve maintainability, reliability, and developer experience. The initiative includes:
+
+1. **API Client Modernization**: Transitioning from custom HTTP client to auto-generated code based on Foreman's OpenAPI specifications
+2. **Terraform Framework Migration**: Upgrading from Plugin SDK v2 to the modern Plugin Framework
+3. **E2E Testing Infrastructure**: Implementing comprehensive testing against real Foreman instances
+
+For details, see:
+- [Modernization Plan](MODERNIZATION_PLAN.md) - Executive summary and strategy
+- [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md) - GitHub-ready issue templates
+- [Documentation Index](docs/README.md) - Complete documentation overview
+
+**Want to contribute?** Check the [Implementation Roadmap](docs/IMPLEMENTATION_ROADMAP.md) for available tasks!
+
 ## Changes in 0.6.x
 Starting with `v0.6.0` some (breaking) changes require an update of Terraform manifests.
 
