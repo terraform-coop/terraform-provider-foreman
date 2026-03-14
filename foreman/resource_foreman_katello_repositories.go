@@ -265,7 +265,10 @@ func resourceForemanKatelloRepository() *schema.Resource {
 				),
 			},
 			"ignorable_content": { //array
-				Type:     schema.TypeString,
+                Type:     schema.TypeList,
+                Elem: &schema.Schema{
+                    Type: schema.TypeString,
+				},
 				Optional: true,
 				Description: fmt.Sprintf(
 					"List of content units to ignore while syncing a yum repository. "+
@@ -349,7 +352,14 @@ func buildForemanKatelloRepository(d *schema.ResourceData) *api.ForemanKatelloRe
 	repo.DebComponents = d.Get("deb_components").(string)
 	repo.DebArchitectures = d.Get("deb_architectures").(string)
 	repo.IgnoreGlobalProxy = d.Get("ignore_global_proxy").(bool)
-	repo.IgnorableContent = d.Get("ignorable_content").(string)
+    if ignorableContent, ok := d.GetOk("ignorable_content"); ok {
+        casted := ignorableContent.([]interface{})
+        var ignorableContentList []string
+        for _, item := range casted {
+            ignorableContentList = append(ignorableContentList, item.(string))
+        }
+	    repo.IgnorableContent = ignorableContentList
+    }
 	repo.AnsibleCollectionRequirements = d.Get("ansible_collection_requirements").(string)
 	repo.HttpProxyPolicy = d.Get("http_proxy_policy").(string)
 	repo.HttpProxyId = d.Get("http_proxy_id").(int)
