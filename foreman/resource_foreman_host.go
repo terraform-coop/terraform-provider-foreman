@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -304,6 +305,7 @@ func resourceForemanHost() *schema.Resource {
 
 		CustomizeDiff: customdiff.All(
 			resourceForemanHostCustomizeDiffComputeAttributes,
+			resourceForemanHostCustomizeDiffInterfaceAttributes,
 		),
 
 		Importer: &schema.ResourceImporter{
@@ -934,7 +936,7 @@ func buildForemanHost(d *schema.ResourceData) *api.ForemanHost {
 // Missing members will be left to the zero value for that member's type.
 func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInterfacesAttribute {
 	log.Tracef("resource_foreman_host.go#buildForemanInterfacesAttributes")
-
+ 
 	tempIntAttr := []api.ForemanInterfacesAttribute{}
 	var attr interface{}
 	var ok bool
@@ -943,7 +945,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 		return tempIntAttr
 	}
 
-	// type assert the underlying *schema.Set and convert to a list
+	// Convert to a list
 	attrList := attr.([]interface{})
 	attrListLen := len(attrList)
 
@@ -961,9 +963,7 @@ func buildForemanInterfacesAttributes(d *schema.ResourceData) []api.ForemanInter
 }
 
 // mapToForemanInterfacesAttribute converts a map[string]interface{} to a
-// ForemanInterfacesAttribute struct.  The supplied map comes from an entry in
-// the *schema.Set for the "interfaces_attributes" property of the resource,
-// since *schema.Set stores its entries as this map structure.
+// ForemanInterfacesAttribute struct.
 //
 // The map should have the following keys. Omitted or invalid map values will
 // result in the struct receiving the zero value for that property.
@@ -1136,11 +1136,6 @@ func setResourceDataFromForemanHost(d *schema.ResourceData, fh *api.ForemanHost)
 func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *api.ForemanHost) error {
 	log.Tracef("resource_foreman_host.go#setResourceDataFromForemanInterfacesAttributes")
 
-	// this attribute is a *schema.Set.  In order to construct a set, we need to
-	// supply a hash function so the set can differentiate for uniqueness of
-	// entries.  The hash function will be based on the resource definition
-	// hashFunc := schema.HashResource(resourceForemanInterfacesAttributes())
-	// underneath, a *schema.Set stores an array of map[string]interface{} entries.
 	// convert each ForemanInterfaces struct in the supplied array to a
 	// mapstructure and then add it to the set
 	fhia := fh.InterfacesAttributes
@@ -1214,8 +1209,7 @@ func setResourceDataFromForemanInterfacesAttributes(d *schema.ResourceData, fh *
 
 		ifaceArr[idx] = ifaceMap
 	}
-	// with the array set up, create the *schema.Set and set the ResourceData's
-	// "interfaces_attributes" property
+	// Finally set "interfaces_attributes" with the array just generated
 	d.Set("interfaces_attributes", ifaceArr)
 
 	return nil
@@ -1512,6 +1506,159 @@ func resourceForemanHostCustomizeDiffComputeAttributes(ctx context.Context, d *s
 	}
 
 	d.SetNew("compute_attributes", flattenComputeAttributes(oldMap))
+	return nil
+}
+
+/*##############################################################################
+###  
+###  Check if certain requirements regarding multiple network interfaces are
+###  met if the host is to be provisioned in a hypervisor environment.
+###  Network interfaces and their configurations are specified through blocks
+###  "interfaces_attributes". Each of these blocks are implemented as elements
+###  of an array. Its order is set by the HCL code.
+###  The provider sends them in the exact order to the hypervisor but internally
+###  stores them in alphabetical order of the field "identifier".
+###  Providers "Vmware" and "libvirt" being tested always(!) take the first
+###  element of this array for PXE booting the host.
+###  
+###  That said order does matter and the following requirements have to be met:
+###  1. If Field "identfifier" is used its values have to be in alphabetical
+###     order.
+###     * correct:
+###       interfaces_attributes {
+###         identifier = "ens32"
+###         .
+###         .
+###         .
+###       }
+###       interfaces_attributes {
+###         identifier = "ens33"
+###         .
+###         .
+###         .
+###       }
+###     * wrong:
+###       interfaces_attributes {
+###         identifier = "ens33"
+###         .
+###         .
+###         .
+###       }
+###       interfaces_attributes {
+###         identifier = "ens32"
+###         .
+###         .
+###         .
+###       }
+###  2. If Field "identifier" is not used and(!) fields "primary" or "provision"
+###     is not used or explicitly set to "false", everything works well.
+###  3. If fields "provision" and/or "primary" are used they must be set to
+###     "true" for the first interface only.
+###  4. The first interface has to be configured in a way that DHCP and TFTP
+###     endpoints are reachable.
+###  Only points 1.-3. can be checked here. If they are not met set the error
+###  object appropriately (thus resulting in an abort) or generate a logging
+###  message respectively.
+###  
+##############################################################################*/
+func resourceForemanHostCustomizeDiffInterfaceAttributes(ctx context.Context, d *schema.ResourceDiff, i interface{}) error {
+	var attr             interface{}
+	var ok, isVM         bool
+	var ifId, ifOrig     []string
+	var ifPrim, ifProv   []bool
+	var idxPrim, idxProv int = -1,-1
+	errMsg := map[string]string{
+		"wrongOrder":     "Field 'identifier' of specified interfaces have to be in alphabetical order",
+		"provNotOn1stIf": "Field 'provision' must not be set on a non first interface", 
+		"primNotOn1stIf": "Field 'primary' must not be set on a non first interface",
+	}
+
+	//
+	// Non empty field 'compute_resource_id' => host is a VM
+	//
+	if attr, ok = d.GetOk("compute_resource_id"); !ok {
+		log.Errorf("Cannot get 'compute_resource_id'")
+		return nil
+	} else {
+		if attr != "" {
+			isVM = true
+		} 
+	}
+	//
+	// Get new settings and check if we're dealing with more than one interface
+	//
+	if attr, ok = d.GetOk("interfaces_attributes"); !ok {
+		log.Errorf("Cannot get 'interfaces_attributes'")
+		return nil
+	}
+	_, new := d.GetChange("interfaces_attributes")
+	log.Debugf("new: %v",new)
+	ifaceList := new.([]interface{})
+	noOfIfaces := len(ifaceList)
+	//
+	// Check requirements for VMs with more than one interface
+	//
+	if isVM && noOfIfaces > 1 {
+		log.Debugf("This is a VM with more than one interface specified.")
+		ifId   = make([]string, noOfIfaces)
+		ifOrig = make([]string, noOfIfaces)
+		ifPrim = make([]bool, noOfIfaces)
+		ifProv = make([]bool, noOfIfaces)
+		for idx, ifaceAttrMap := range ifaceList {
+			tempIntAttrMap := ifaceAttrMap.(map[string]interface{})
+			ifId[idx]   = tempIntAttrMap["identifier"].(string)
+			ifPrim[idx] = tempIntAttrMap["primary"].(bool)
+			ifProv[idx] = tempIntAttrMap["provision"].(bool)
+			log.Debugf("%d. interface: identifier=%s",idx,ifId[idx])
+		}
+		//
+		// Slices cannot be simply copied by assignment because they are just pointers
+		// to an underlying array. Same holds for comparison. So we have to do it for
+		// ourselves.
+		// Copy...
+		for i := range ifId {
+			ifOrig[i] = ifId[i]
+		}
+		sort.Strings(ifId)
+		// Compare...
+		// Differences indicate non alphabetical order
+		for i := range ifId {
+			if ifId[i] != ifOrig[i] {
+				log.Errorf(errMsg["wrongOrder"])
+				return errors.New(errMsg["wrongOrder"])
+			}
+		}
+		for i := range ifPrim {
+			if ifPrim[i] {
+				idxPrim = i
+			}
+			if ifProv[i] {
+				idxProv = i
+			}
+		}
+		// Field "primary" set on non first Interface?
+		if idxPrim != -1 && idxPrim != 0 {
+			log.Errorf(errMsg["primNotOn1stIf"])
+			return errors.New(errMsg["primNotOn1stIf"])
+		}
+		// Field "provision" set on non first Interface?
+		if idxProv != -1 && idxProv != 0 {
+			log.Errorf(errMsg["provNotOn1stIf"])
+			return errors.New(errMsg["provNotOn1stIf"])
+		}
+		if idxProv == -1 && idxPrim == -1 {
+			log.Warningf("Field 'provision' and 'primary' are unset or set to 'false' for all interfaces.")
+			log.Warningf("Ensure that TFTP and DNS servers are reachable through the first interface.")
+		}
+		if idxProv == -1 {
+			log.Warningf("Field 'provision' is unset or set to 'false' for all interfaces.")
+			log.Warningf("Ensure that TFTP and DNS servers are reachable through the first interface.")
+		}
+		if idxPrim == -1 {
+			log.Warningf("Field 'primary' is unset or set to 'false' for all interfaces.")
+			log.Warningf("Ensure that TFTP and DNS servers are reachable through the first interface.")
+		}
+	}
 	return nil
 }
 
