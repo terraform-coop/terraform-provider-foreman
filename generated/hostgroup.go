@@ -9,40 +9,80 @@ import (
 	"net/url"
 )
 
+// UnmarshalJSON handles the Foreman API's inconsistent parameter format.
+// Parameters can be returned as [{name, value}] array or {"key": "value"} map.
+func (h *ForemanHostgroup) UnmarshalJSON(data []byte) error {
+	type Alias ForemanHostgroup
+	aux := &struct {
+		Parameters json.RawMessage `json:"parameters,omitempty"`
+		*Alias
+	}{Alias: (*Alias)(h)}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	if len(aux.Parameters) > 0 {
+		// Try array format first: [{"name": "key", "value": "val"}, ...]
+		var params []struct {
+			Name  string `json:"name"`
+			Value string `json:"value"`
+		}
+		if err := json.Unmarshal(aux.Parameters, &params); err == nil {
+			h.Parameters = make(map[string]string)
+			for _, p := range params {
+				h.Parameters[p.Name] = p.Value
+			}
+		} else {
+			// Try map format: {"key": "val", ...}
+			var paramsMap map[string]interface{}
+			if err := json.Unmarshal(aux.Parameters, &paramsMap); err == nil {
+				h.Parameters = make(map[string]string)
+				for k, v := range paramsMap {
+					h.Parameters[k] = fmt.Sprintf("%v", v)
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 // ForemanHostgroupRequest is the request payload.
 type ForemanHostgroupRequest struct {
-	Name                      string  `json:"name,omitempty"`
-	ArchitectureID            int64   `json:"architecture_id,omitempty"`
-	ComputeProfileID          int64   `json:"compute_profile_id,omitempty"`
-	Description               string  `json:"description,omitempty"`
-	DomainID                  int64   `json:"domain_id,omitempty"`
-	GroupParametersAttributes []int64 `json:"group_parameters_attributes,omitempty"`
-	MediumID                  int64   `json:"medium_id,omitempty"`
-	OperatingsystemID         int64   `json:"operatingsystem_id,omitempty"`
-	ParentID                  int64   `json:"parent_id,omitempty"`
-	PtableID                  int64   `json:"ptable_id,omitempty"`
-	PXELoader                 string  `json:"pxe_loader,omitempty"`
-	RealmID                   int64   `json:"realm_id,omitempty"`
-	RootPass                  string  `json:"root_pass,omitempty"`
-	Subnet6ID                 int64   `json:"subnet6_id,omitempty"`
-	SubnetID                  int64   `json:"subnet_id,omitempty"`
+	Name              string            `json:"name,omitempty"`
+	ArchitectureID    int64             `json:"architecture_id,omitempty"`
+	ComputeProfileID  int64             `json:"compute_profile_id,omitempty"`
+	Description       string            `json:"description,omitempty"`
+	DomainID          int64             `json:"domain_id,omitempty"`
+	MediumID          int64             `json:"medium_id,omitempty"`
+	OperatingsystemID int64             `json:"operatingsystem_id,omitempty"`
+	ParentID          int64             `json:"parent_id,omitempty"`
+	PtableID          int64             `json:"ptable_id,omitempty"`
+	PXELoader         string            `json:"pxe_loader,omitempty"`
+	RealmID           int64             `json:"realm_id,omitempty"`
+	RootPass          string            `json:"root_pass,omitempty"`
+	Subnet6ID         int64             `json:"subnet6_id,omitempty"`
+	SubnetID          int64             `json:"subnet_id,omitempty"`
+	Parameters        map[string]string `json:"group_parameters_attributes,omitempty"`
 }
 
 // ForemanHostgroup is the entity type.
 type ForemanHostgroup struct {
 	ForemanObject
-	ArchitectureID    int64  `json:"architecture_id"`
-	ComputeProfileID  int64  `json:"compute_profile_id"`
-	Description       string `json:"description"`
-	DomainID          int64  `json:"domain_id"`
-	MediumID          int64  `json:"medium_id"`
-	OperatingsystemID int64  `json:"operatingsystem_id"`
-	ParentID          string `json:"parent_id"`
-	PtableID          int64  `json:"ptable_id"`
-	PXELoader         string `json:"pxe_loader"`
-	RealmID           string `json:"realm_id"`
-	Subnet6ID         int64  `json:"subnet6_id"`
-	SubnetID          int64  `json:"subnet_id"`
+	ArchitectureID    int64             `json:"architecture_id"`
+	ComputeProfileID  int64             `json:"compute_profile_id"`
+	Description       string            `json:"description"`
+	DomainID          int64             `json:"domain_id"`
+	MediumID          int64             `json:"medium_id"`
+	OperatingsystemID int64             `json:"operatingsystem_id"`
+	ParentID          string            `json:"parent_id"`
+	PtableID          int64             `json:"ptable_id"`
+	PXELoader         string            `json:"pxe_loader"`
+	RealmID           string            `json:"realm_id"`
+	Subnet6ID         int64             `json:"subnet6_id"`
+	SubnetID          int64             `json:"subnet_id"`
+	Parameters        map[string]string `json:"parameters"`
 }
 
 // CreateForemanHostgroup creates a new ForemanHostgroup.

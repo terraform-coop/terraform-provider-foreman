@@ -9,6 +9,7 @@ import (
 
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -45,6 +46,7 @@ type hostgroupResourceModel struct {
 	RealmID           types.String `tfsdk:"realm_id"`
 	Subnet6ID         types.Int64  `tfsdk:"subnet6_id"`
 	SubnetID          types.Int64  `tfsdk:"subnet_id"`
+	Parameters        types.Map    `tfsdk:"parameters"`
 }
 
 func (r *hostgroupResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -108,6 +110,12 @@ func (r *hostgroupResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 				Required: false,
 				Optional: true,
 			},
+			"parameters": schema.MapAttribute{
+				Optional:    true,
+				Computed:    true,
+				ElementType: types.StringType,
+				Description: "Host group parameters as key-value pairs.",
+			},
 		},
 	}
 }
@@ -145,6 +153,15 @@ func (r *hostgroupResource) Create(ctx context.Context, req resource.CreateReque
 		SubnetID:          plan.SubnetID.ValueInt64(),
 	}
 
+	if !plan.Parameters.IsNull() && !plan.Parameters.IsUnknown() {
+		params := make(map[string]string)
+		resp.Diagnostics.Append(plan.Parameters.ElementsAs(ctx, &params, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		body.Parameters = params
+	}
+
 	result, err := r.client.CreateForemanHostgroup(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create hostgroup, got error: %s", err))
@@ -164,6 +181,16 @@ func (r *hostgroupResource) Create(ctx context.Context, req resource.CreateReque
 	plan.RealmID = types.StringValue(result.RealmID)
 	plan.Subnet6ID = types.Int64Value(int64(result.Subnet6ID))
 	plan.SubnetID = types.Int64Value(int64(result.SubnetID))
+
+	if result.Parameters != nil {
+		paramsMap := make(map[string]attr.Value)
+		for k, v := range result.Parameters {
+			paramsMap[k] = types.StringValue(v)
+		}
+		plan.Parameters = types.MapValueMust(types.StringType, paramsMap)
+	} else {
+		plan.Parameters = types.MapNull(types.StringType)
+	}
 
 	tflog.Trace(ctx, "created hostgroup", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -204,6 +231,16 @@ func (r *hostgroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 	state.Subnet6ID = types.Int64Value(result.Subnet6ID)
 	state.SubnetID = types.Int64Value(result.SubnetID)
 
+	if result.Parameters != nil {
+		paramsMap := make(map[string]attr.Value)
+		for k, v := range result.Parameters {
+			paramsMap[k] = types.StringValue(v)
+		}
+		state.Parameters = types.MapValueMust(types.StringType, paramsMap)
+	} else {
+		state.Parameters = types.MapNull(types.StringType)
+	}
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
@@ -235,6 +272,15 @@ func (r *hostgroupResource) Update(ctx context.Context, req resource.UpdateReque
 		SubnetID:          plan.SubnetID.ValueInt64(),
 	}
 
+	if !plan.Parameters.IsNull() && !plan.Parameters.IsUnknown() {
+		params := make(map[string]string)
+		resp.Diagnostics.Append(plan.Parameters.ElementsAs(ctx, &params, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		body.Parameters = params
+	}
+
 	result, err := r.client.UpdateForemanHostgroup(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update hostgroup, got error: %s", err))
@@ -252,6 +298,16 @@ func (r *hostgroupResource) Update(ctx context.Context, req resource.UpdateReque
 	plan.RealmID = types.StringValue(result.RealmID)
 	plan.Subnet6ID = types.Int64Value(int64(result.Subnet6ID))
 	plan.SubnetID = types.Int64Value(int64(result.SubnetID))
+
+	if result.Parameters != nil {
+		paramsMap := make(map[string]attr.Value)
+		for k, v := range result.Parameters {
+			paramsMap[k] = types.StringValue(v)
+		}
+		plan.Parameters = types.MapValueMust(types.StringType, paramsMap)
+	} else {
+		plan.Parameters = types.MapNull(types.StringType)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
