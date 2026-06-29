@@ -11,16 +11,14 @@ import (
 
 // ForemanHostRequest is the request payload.
 type ForemanHostRequest struct {
-	Name                     string  `json:"name,omitempty"`
-	Comment                  string  `json:"comment,omitempty"`
-	ComputeAttributes        string  `json:"compute_attributes,omitempty"`
-	HostParametersAttributes []int64 `json:"host_parameters_attributes,omitempty"`
-	InterfacesAttributes     []int64 `json:"interfaces_attributes,omitempty"`
-	IP                       string  `json:"ip,omitempty"`
-	MAC                      string  `json:"mac,omitempty"`
-	Overwrite                bool    `json:"overwrite,omitempty"`
-	ProgressReportID         string  `json:"progress_report_id,omitempty"`
-	PXELoader                string  `json:"pxe_loader,omitempty"`
+	Name              string `json:"name,omitempty"`
+	Comment           string `json:"comment,omitempty"`
+	ComputeAttributes string `json:"compute_attributes,omitempty"`
+	IP                string `json:"ip,omitempty"`
+	MAC               string `json:"mac,omitempty"`
+	Overwrite         bool   `json:"overwrite,omitempty"`
+	ProgressReportID  string `json:"progress_report_id,omitempty"`
+	PXELoader         string `json:"pxe_loader,omitempty"`
 }
 
 // ForemanHost is the entity type.

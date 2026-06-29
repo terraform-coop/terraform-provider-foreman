@@ -18,7 +18,6 @@ type ForemanOperatingSystemRequest struct {
 	Family                  string  `json:"family,omitempty"`
 	MediumIDs               []int64 `json:"medium_ids,omitempty"`
 	Minor                   string  `json:"minor,omitempty"`
-	OsParametersAttributes  []int64 `json:"os_parameters_attributes,omitempty"`
 	PasswordHash            string  `json:"password_hash,omitempty"`
 	ProvisioningTemplateIDs []int64 `json:"provisioning_template_ids,omitempty"`
 	PtableIDs               []int64 `json:"ptable_ids,omitempty"`
@@ -35,7 +34,6 @@ type ForemanOperatingSystem struct {
 	Family                  string  `json:"family"`
 	MediumIDs               []int64 `json:"medium_ids"`
 	Minor                   string  `json:"minor"`
-	OsParametersAttributes  []int64 `json:"os_parameters_attributes"`
 	PasswordHash            string  `json:"password_hash"`
 	ProvisioningTemplateIDs []int64 `json:"provisioning_template_ids"`
 	PtableIDs               []int64 `json:"ptable_ids"`

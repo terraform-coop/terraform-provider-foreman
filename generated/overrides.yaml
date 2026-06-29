@@ -50,6 +50,8 @@ resources:
       - image_id
       - image_name
       - interfaces
+      - interfaces_attributes
+      - host_parameters_attributes
       - template_combinations
       - parameters
       - all_parameters
@@ -118,6 +120,9 @@ resources:
   compute_resources:
     field_types:
       id: int
+  operatingsystems:
+    exclude_fields:
+      - os_parameters_attributes
   settings:
     exclude_fields:
       - category

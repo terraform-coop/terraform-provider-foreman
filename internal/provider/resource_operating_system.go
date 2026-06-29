@@ -40,7 +40,6 @@ type operatingsystemResourceModel struct {
 	Family                  types.String `tfsdk:"family"`
 	MediumIDs               types.List   `tfsdk:"medium_ids"`
 	Minor                   types.String `tfsdk:"minor"`
-	OsParametersAttributes  types.List   `tfsdk:"os_parameters_attributes"`
 	PasswordHash            types.String `tfsdk:"password_hash"`
 	ProvisioningTemplateIDs types.List   `tfsdk:"provisioning_template_ids"`
 	PtableIDs               types.List   `tfsdk:"ptable_ids"`
@@ -89,12 +88,6 @@ func (r *operatingsystemResource) Schema(_ context.Context, _ resource.SchemaReq
 			"minor": schema.StringAttribute{
 				Required: false,
 				Optional: true,
-			},
-			"os_parameters_attributes": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of parameters",
-				ElementType: types.Int64Type,
 			},
 			"password_hash": schema.StringAttribute{
 				Required:    false,
@@ -168,19 +161,7 @@ func (r *operatingsystemResource) Create(ctx context.Context, req resource.Creat
 			}
 			return ids
 		}(),
-		Minor: plan.Minor.ValueString(),
-		OsParametersAttributes: func() []int64 {
-			if plan.OsParametersAttributes.IsNull() || plan.OsParametersAttributes.IsUnknown() {
-				return nil
-			}
-			var ids []int64
-			for _, v := range plan.OsParametersAttributes.Elements() {
-				if iv, ok := v.(types.Int64); ok {
-					ids = append(ids, iv.ValueInt64())
-				}
-			}
-			return ids
-		}(),
+		Minor:        plan.Minor.ValueString(),
 		PasswordHash: plan.PasswordHash.ValueString(),
 		ProvisioningTemplateIDs: func() []int64 {
 			if plan.ProvisioningTemplateIDs.IsNull() || plan.ProvisioningTemplateIDs.IsUnknown() {
@@ -271,15 +252,6 @@ func (r *operatingsystemResource) Read(ctx context.Context, req resource.ReadReq
 		state.MediumIDs = types.ListNull(types.Int64Type)
 	}
 	state.Minor = types.StringValue(result.Minor)
-	if result.OsParametersAttributes != nil {
-		elems := make([]attr.Value, len(result.OsParametersAttributes))
-		for i, v := range result.OsParametersAttributes {
-			elems[i] = types.Int64Value(int64(v))
-		}
-		state.OsParametersAttributes = types.ListValueMust(types.Int64Type, elems)
-	} else {
-		state.OsParametersAttributes = types.ListNull(types.Int64Type)
-	}
 	state.PasswordHash = types.StringValue(result.PasswordHash)
 	if result.ProvisioningTemplateIDs != nil {
 		elems := make([]attr.Value, len(result.ProvisioningTemplateIDs))
@@ -346,19 +318,7 @@ func (r *operatingsystemResource) Update(ctx context.Context, req resource.Updat
 			}
 			return ids
 		}(),
-		Minor: plan.Minor.ValueString(),
-		OsParametersAttributes: func() []int64 {
-			if plan.OsParametersAttributes.IsNull() || plan.OsParametersAttributes.IsUnknown() {
-				return nil
-			}
-			var ids []int64
-			for _, v := range plan.OsParametersAttributes.Elements() {
-				if iv, ok := v.(types.Int64); ok {
-					ids = append(ids, iv.ValueInt64())
-				}
-			}
-			return ids
-		}(),
+		Minor:        plan.Minor.ValueString(),
 		PasswordHash: plan.PasswordHash.ValueString(),
 		ProvisioningTemplateIDs: func() []int64 {
 			if plan.ProvisioningTemplateIDs.IsNull() || plan.ProvisioningTemplateIDs.IsUnknown() {

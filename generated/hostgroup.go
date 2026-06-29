@@ -11,21 +11,21 @@ import (
 
 // ForemanHostgroupRequest is the request payload.
 type ForemanHostgroupRequest struct {
-	Name                      string  `json:"name,omitempty"`
-	ArchitectureID            int64   `json:"architecture_id,omitempty"`
-	ComputeProfileID          int64   `json:"compute_profile_id,omitempty"`
-	Description               string  `json:"description,omitempty"`
-	DomainID                  int64   `json:"domain_id,omitempty"`
-	GroupParametersAttributes []int64 `json:"group_parameters_attributes,omitempty"`
-	MediumID                  int64   `json:"medium_id,omitempty"`
-	OperatingsystemID         int64   `json:"operatingsystem_id,omitempty"`
-	ParentID                  int64   `json:"parent_id,omitempty"`
-	PtableID                  int64   `json:"ptable_id,omitempty"`
-	PXELoader                 string  `json:"pxe_loader,omitempty"`
-	RealmID                   int64   `json:"realm_id,omitempty"`
-	RootPass                  string  `json:"root_pass,omitempty"`
-	Subnet6ID                 int64   `json:"subnet6_id,omitempty"`
-	SubnetID                  int64   `json:"subnet_id,omitempty"`
+	Name                      string          `json:"name,omitempty"`
+	ArchitectureID            int64           `json:"architecture_id,omitempty"`
+	ComputeProfileID          int64           `json:"compute_profile_id,omitempty"`
+	Description               string          `json:"description,omitempty"`
+	DomainID                  int64           `json:"domain_id,omitempty"`
+	GroupParametersAttributes json.RawMessage `json:"group_parameters_attributes,omitempty"`
+	MediumID                  int64           `json:"medium_id,omitempty"`
+	OperatingsystemID         int64           `json:"operatingsystem_id,omitempty"`
+	ParentID                  int64           `json:"parent_id,omitempty"`
+	PtableID                  int64           `json:"ptable_id,omitempty"`
+	PXELoader                 string          `json:"pxe_loader,omitempty"`
+	RealmID                   int64           `json:"realm_id,omitempty"`
+	RootPass                  string          `json:"root_pass,omitempty"`
+	Subnet6ID                 int64           `json:"subnet6_id,omitempty"`
+	SubnetID                  int64           `json:"subnet_id,omitempty"`
 }
 
 // ForemanHostgroup is the entity type.
