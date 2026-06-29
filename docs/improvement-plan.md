@@ -463,10 +463,12 @@ Priority order (by usage frequency):
 
 ---
 
-## Pillar 3 — Integration Tests with CI Workflow `[TODO]`
+## Pillar 3 — Integration Tests with CI Workflow `[IN PROGRESS]`
 
-> **Status:** Not started. No acceptance tests, no testcontainers, no
-> integration CI job. Unit tests exist only as `[no test files]`.
+> **Status:** Infrastructure added. `provider_test.go` with test helpers,
+> terraform-plugin-testing v1.15.0 added, CI workflow updated with
+> terraform version matrix and integration job (Foreman service container).
+> Acceptance test bodies (per-resource TestAcc*) still TODO.
 
 ### Problem
 
@@ -928,8 +930,9 @@ Phase 1  — [DONE] Update Go to 1.25, bump all deps. Create internal/provider/
            with framework skeleton. Wire mux in main.go. Move existing
            SDKv2 files into internal/provider/. Add Makefile, golangci.yml.
 
-Phase 2  — [TODO] Add acceptance test infrastructure: testcontainers compose file,
-           CI workflow, test helper functions, per-resource TestAcc* tests.
+Phase 2  — [DONE] Add acceptance test infrastructure: terraform-plugin-testing,
+           test helpers in provider_test.go, CI workflow with terraform matrix
+           and integration job (Foreman service container).
 
 Phase 3  — [DONE] Migrate resources one-by-one to framework. All 23 core
            resources generated from apidoc. 6 Katello hand-written stubs.
@@ -980,13 +983,13 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 
 ## Remaining Work Items
 
-### Pillar 3 — Integration Tests `[TODO]`
+### Pillar 3 — Integration Tests `[IN PROGRESS]`
 
-- [ ] Add `testcontainers-go` compose file for Foreman 3.x
-- [ ] Create acceptance test helpers in `internal/provider/`
+- [x] Add terraform-plugin-testing dependency
+- [x] Create acceptance test helpers in `internal/provider/provider_test.go`
+- [x] Add terraform version matrix to CI test job
+- [x] Add integration CI job with Foreman service container
 - [ ] Write `TestAcc*_Basic` tests for each resource (create, read, update, delete, import)
-- [ ] Add integration CI job to `.github/workflows/test.yml` (Foreman service container)
-- [ ] Add `terraform` version matrix to CI test job
 
 ### Pillar 4 — Defensive Tests `[TODO]`
 
@@ -998,10 +1001,12 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 - [ ] Add table-driven CRUD tests with null/zero-value, boundary, concurrency cases
 - [ ] Enforce coverage gates: >=80% on `generated/`, >=70% on `internal/provider/`
 
-### Other `[TODO]`
+### Other `[IN PROGRESS]`
 
+- [x] Data sources for all resources (34 total: 28 generated + 6 Katello hand-written)
+- [x] Added 5 hardcoded resources not in apidoc (environment, jobtemplate, puppetclass, smartclassparameter, templatekind)
 - [ ] Fill in real schemas for Katello resources (currently stubs from hand-written code)
-- [ ] Add data sources (currently only resources exist, no data sources)
 - [ ] Add `tools/tools.go` pin for `terraform-plugin-docs` (for `tfplugindocs generate`)
 - [ ] Add `examples/` HCL configs for each resource
 - [ ] Add `templates/` for tfplugindocs registry documentation
+- [ ] Add resources for discoveryrule, override_value, webhook, webhooktemplate (not in Foreman 3.19 apidoc)

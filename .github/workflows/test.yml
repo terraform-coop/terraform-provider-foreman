@@ -29,6 +29,9 @@ jobs:
           version: v2.12.2
 
   test:
+    strategy:
+      matrix:
+        terraform: ['1.12.*', '1.13.*', '1.14.*']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +39,8 @@ jobs:
         with:
           go-version: '1.25'
       - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ matrix.terraform }}
       - run: go test -race -count=1 -coverprofile=coverage.out ./internal/...
 
   generate:
@@ -47,3 +52,24 @@ jobs:
           go-version: '1.25'
       - run: go generate ./...
       - run: git diff --compact-summary --exit-code
+
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      foreman:
+        image: theforeman/foreman:3.13
+        ports:
+          - 443:443
+        env:
+          FOREMAN_ADMIN_PASSWORD: changeme
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+      - run: go test -v -tags=integration -count=1 -race ./internal/...
+        env:
+          FOREMAN_SERVER_HOSTNAME: localhost
+          FOREMAN_CLIENT_USERNAME: admin
+          FOREMAN_CLIENT_PASSWORD: changeme
+          FOREMAN_CLIENT_TLS_INSECURE: true

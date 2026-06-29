@@ -149,9 +149,50 @@ func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resourc
 		NewForemanTemplateInputResource,
 		NewForemanUserResource,
 		NewForemanUsergroupResource,
+		NewForemanEnvironmentResource,
+		NewForemanJobTemplateResource,
+		NewForemanPuppetClassResource,
+		NewForemanSmartClassParameterResource,
+		NewForemanTemplateKindResource,
 	}
 }
 
 func (p *ForemanProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return nil
+	return []func() datasource.DataSource{
+		NewForemanArchitectureDataSource,
+		NewForemanAutosignDataSource,
+		NewForemanCommonParameterDataSource,
+		NewForemanComputeProfileDataSource,
+		NewForemanComputeResourceDataSource,
+		NewForemanDefaultTemplateDataSource,
+		NewForemanDomainDataSource,
+		NewForemanHTTPProxyDataSource,
+		NewForemanHostDataSource,
+		NewForemanHostgroupDataSource,
+		NewForemanImageDataSource,
+		NewForemanMediumDataSource,
+		NewForemanModelDataSource,
+		NewForemanOperatingSystemDataSource,
+		NewForemanParameterDataSource,
+		NewForemanPartitionTableDataSource,
+		NewForemanProvisioningTemplateDataSource,
+		NewForemanSettingDataSource,
+		NewForemanSmartProxyDataSource,
+		NewForemanSubnetDataSource,
+		NewForemanTemplateInputDataSource,
+		NewForemanUserDataSource,
+		NewForemanUsergroupDataSource,
+		NewForemanEnvironmentDataSource,
+		NewForemanJobTemplateDataSource,
+		NewForemanPuppetClassDataSource,
+		NewForemanSmartClassParameterDataSource,
+		NewForemanTemplateKindDataSource,
+		// Katello data sources (hand-written, not from apidoc)
+		NewKatelloContentCredentialDataSource,
+		NewKatelloContentViewDataSource,
+		NewKatelloLifecycleEnvironmentDataSource,
+		NewKatelloProductDataSource,
+		NewKatelloRepositoryDataSource,
+		NewKatelloSyncPlanDataSource,
+	}
 }
