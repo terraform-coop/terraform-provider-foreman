@@ -154,6 +154,9 @@ func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resourc
 		NewForemanPuppetClassResource,
 		NewForemanSmartClassParameterResource,
 		NewForemanTemplateKindResource,
+		NewForemanDiscoveryRuleResource,
+		NewForemanWebhookResource,
+		NewForemanWebhookTemplateResource,
 	}
 }
 
@@ -187,5 +190,8 @@ func (p *ForemanProvider) DataSources(_ context.Context) []func() datasource.Dat
 		NewForemanPuppetClassDataSource,
 		NewForemanSmartClassParameterDataSource,
 		NewForemanTemplateKindDataSource,
+		NewForemanDiscoveryRuleDataSource,
+		NewForemanWebhookDataSource,
+		NewForemanWebhookTemplateDataSource,
 	}
 }
