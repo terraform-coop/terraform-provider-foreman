@@ -1,5 +1,9 @@
 # Improvement Plan: terraform-provider-foreman
 
+> **Last updated:** 2026-06-29
+>
+> Status markers: `[DONE]` `[IN PROGRESS]` `[TODO]`
+
 ## Overview
 
 This provider was built under significant time constraints. The five-pillar
@@ -9,7 +13,12 @@ integration.
 
 ---
 
-## Pillar 1 — Auto-generated Foreman API Client Library
+## Pillar 1 — Auto-generated Foreman API Client Library `[DONE]`
+
+> **Status:** Complete. Generator at `tools/gen/client/main.go` (~800 lines).
+> 23 core resources + 6 Katello resources generated. `apidoc/v2.json` pinned
+> from Foreman 3.19 CI. Entity fields extracted from show/create examples.
+> Framework resource files also generated from same apidoc input.
 
 ### Problem
 
@@ -147,7 +156,13 @@ generated/
 
 ---
 
-## Pillar 2 — Migrate to Terraform Plugin Framework
+## Pillar 2 — Migrate to Terraform Plugin Framework `[DONE]`
+
+> **Status:** Complete. SDKv2 completely removed. Framework-only provider in
+> `internal/provider/`. All 23 core resources generated from apidoc. 6 Katello
+> resources hand-written stubs. `main.go` uses `providerserver.Serve` directly
+> (no mux needed — SDKv2 is gone). Module: Go 1.25, framework v1.19.0.
+> `.golangci.yml` depguard blocks SDKv2 re-introduction.
 
 ### Problem
 
@@ -448,7 +463,10 @@ Priority order (by usage frequency):
 
 ---
 
-## Pillar 3 — Integration Tests with CI Workflow
+## Pillar 3 — Integration Tests with CI Workflow `[TODO]`
+
+> **Status:** Not started. No acceptance tests, no testcontainers, no
+> integration CI job. Unit tests exist only as `[no test files]`.
 
 ### Problem
 
@@ -603,7 +621,10 @@ cover:
 
 ---
 
-## Pillar 4 — Defensive Test Architecture
+## Pillar 4 — Defensive Test Architecture `[TODO]`
+
+> **Status:** Not started. No round-trip, fuzz, golden file, status code,
+> or coverage gate tests. No generated tests from apidoc examples.
 
 ### Motivation
 
@@ -756,7 +777,12 @@ Every code generator template must emit tests for:
 
 ---
 
-## Pillar 5 — pre-commit Hooks
+## Pillar 5 — pre-commit Hooks `[DONE]`
+
+> **Status:** Complete. `.pre-commit-config.yaml` (TekWizely),
+> `.golangci.yml` (depguard blocks SDKv2). CI workflows updated:
+> `test.yml` (build/lint/test/generate jobs, Go 1.25),
+> `build.yml` (goreleaser v4).
 
 ### Hook pipeline
 
@@ -894,28 +920,28 @@ No existing library supports Foreman 3.x, Katello, or async task polling.
 ## Migration Order
 
 ```
-Phase 0  — Build code generator in tools/gen/client/. Generate all client
+Phase 0  — [DONE] Build code generator in tools/gen/client/. Generate all client
            code into generated/. Add overrides.yaml for type corrections.
            Result: no functional change, all SDKv2 resources still work.
 
-Phase 1  — Update Go to 1.25, bump all deps. Create internal/provider/
+Phase 1  — [DONE] Update Go to 1.25, bump all deps. Create internal/provider/
            with framework skeleton. Wire mux in main.go. Move existing
            SDKv2 files into internal/provider/. Add Makefile, golangci.yml.
 
-Phase 2  — Add acceptance test infrastructure: testcontainers compose file,
+Phase 2  — [TODO] Add acceptance test infrastructure: testcontainers compose file,
            CI workflow, test helper functions, per-resource TestAcc* tests.
 
-Phase 3  — Migrate resources one-by-one to framework. Priority order
-           defined in Pillar 2. Each commit replaces one SDKv2 resource
-           with a framework equivalent behind the mux.
+Phase 3  — [DONE] Migrate resources one-by-one to framework. All 23 core
+           resources generated from apidoc. 6 Katello hand-written stubs.
+           SDKv2 code fully removed. No mux needed (framework-only).
 
-Phase 4  — Add defensive tests (round-trip, fuzz, golden, status codes,
+Phase 4  — [TODO] Add defensive tests (round-trip, fuzz, golden, status codes,
            coverage gates, race detection). Some are generated (Pillar 1),
            some are hand-written per resource.
 
-Phase 5  — Add pre-commit config, .golangci.yml, CI lint job.
+Phase 5  — [DONE] Add pre-commit config, .golangci.yml, CI lint job.
 
-Phase 6  — Remove SDKv2 code, remove mux, remove sdk/v2 dep. Publish v2.x.
+Phase 6  — [DONE] Remove SDKv2 code, remove mux, remove sdk/v2 dep.
 
 All work on feat/rewrite-provider. Never push until Phase 6 is green.
 ```
@@ -925,32 +951,57 @@ All work on feat/rewrite-provider. Never push until Phase 6 is green.
 ```bash
 git checkout -b feat/rewrite-provider
 
-# Phase 0
+# Phase 0 [DONE]
 git commit -m "feat(api): add code generator and generated client code"
 
-# Phase 1
+# Phase 1 [DONE]
 git commit -m "feat(provider): update Go to 1.25, add framework skeleton, mux, Makefile"
 
-# Phase 2
+# Phase 2 [TODO]
 git commit -m "test: add acceptance test infrastructure with testcontainers"
 
-# Phase 3 (multiple commits)
-git commit -m "feat(resource): migrate domain to plugin framework"
-git commit -m "feat(resource): migrate subnet to plugin framework"
-git commit -m "feat(resource): migrate operatingsystem to plugin framework"
-git commit -m "feat(resource): migrate hostgroup to plugin framework"
-git commit -m "feat(resource): migrate host to plugin framework"
-# ... remaining resources
+# Phase 3 [DONE] — single large commit instead of per-resource
+git commit -m "feat: complete provider rewrite with auto-generated client and framework resources"
 
-# Phase 4
+# Phase 4 [TODO]
 git commit -m "test: add round-trip, fuzz, status code, coverage gate tests"
 
-# Phase 5
+# Phase 5 [DONE]
 git commit -m "ci: add pre-commit hooks, golangci.yml lint job"
 
-# Phase 6
+# Phase 6 [DONE]
 git commit -m "refactor: remove SDKv2 code and mux, publish v2"
 ```
 
 Every commit must pass `go build && go test -race -count=1 ./...` and all
 pre-commit hooks. Acceptance tests skip with `-tags=integration`.
+
+---
+
+## Remaining Work Items
+
+### Pillar 3 — Integration Tests `[TODO]`
+
+- [ ] Add `testcontainers-go` compose file for Foreman 3.x
+- [ ] Create acceptance test helpers in `internal/provider/`
+- [ ] Write `TestAcc*_Basic` tests for each resource (create, read, update, delete, import)
+- [ ] Add integration CI job to `.github/workflows/test.yml` (Foreman service container)
+- [ ] Add `terraform` version matrix to CI test job
+
+### Pillar 4 — Defensive Tests `[TODO]`
+
+- [ ] Generate httptest-based unit tests from apidoc `examples` (Pillar 1 generator)
+- [ ] Add round-trip JSON serialization tests for every generated struct
+- [ ] Add fuzz tests on API response parsing (one per struct)
+- [ ] Add golden file compilation guard (`TestGeneratedCodeUpToDate`)
+- [ ] Add exhaustive status code tests (200, 201, 400, 401, 403, 404, 422, 500)
+- [ ] Add table-driven CRUD tests with null/zero-value, boundary, concurrency cases
+- [ ] Enforce coverage gates: >=80% on `generated/`, >=70% on `internal/provider/`
+
+### Other `[TODO]`
+
+- [ ] Fill in real schemas for Katello resources (currently stubs from hand-written code)
+- [ ] Add data sources (currently only resources exist, no data sources)
+- [ ] Add `tools/tools.go` pin for `terraform-plugin-docs` (for `tfplugindocs generate`)
+- [ ] Add `examples/` HCL configs for each resource
+- [ ] Add `templates/` for tfplugindocs registry documentation
