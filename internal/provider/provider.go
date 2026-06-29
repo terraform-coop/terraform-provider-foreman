@@ -187,12 +187,5 @@ func (p *ForemanProvider) DataSources(_ context.Context) []func() datasource.Dat
 		NewForemanPuppetClassDataSource,
 		NewForemanSmartClassParameterDataSource,
 		NewForemanTemplateKindDataSource,
-		// Katello data sources (hand-written, not from apidoc)
-		NewKatelloContentCredentialDataSource,
-		NewKatelloContentViewDataSource,
-		NewKatelloLifecycleEnvironmentDataSource,
-		NewKatelloProductDataSource,
-		NewKatelloRepositoryDataSource,
-		NewKatelloSyncPlanDataSource,
 	}
 }

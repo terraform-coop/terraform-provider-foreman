@@ -42,7 +42,8 @@ jobs:
         with:
           tofu_version: ${{ matrix.opentofu }}
           tofu_wrapper: false
-      - run: go test -race -count=1 -coverprofile=coverage.out ./internal/...
+      - run: go test -race -count=1 -coverprofile=coverage.out ./internal/... ./generated/...
+      - run: go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%' | xargs -I{} sh -c 'test {} -ge 70'
 
   generate:
     runs-on: ubuntu-latest
