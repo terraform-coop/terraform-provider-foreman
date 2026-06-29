@@ -105,6 +105,9 @@ func (r *katelloRepositoryResource) Schema(_ context.Context, _ resource.SchemaR
 			"download_concurrency": schema.Int64Attribute{
 				Required: false,
 				Optional: true,
+				PlanModifiers: []planmodifier.Int64{
+					suppressDownloadConcurrencyDiff{},
+				},
 			},
 			"mirror_on_sync": schema.BoolAttribute{
 				Required: false,

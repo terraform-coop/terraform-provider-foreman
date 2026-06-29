@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/dpotapov/go-spnego"
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
@@ -141,8 +142,12 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 				return err
 			}
 			if finished.Result != "success" {
-				return fmt.Errorf("async task failed: %s", finished.Label)
+				return fmt.Errorf("async task failed: %s (result: %s)", finished.Label, finished.Result)
 			}
+		}
+		// For 202, the response body may be the created/updated resource
+		if respObj != nil && len(respBody) > 0 {
+			return json.Unmarshal(respBody, respObj)
 		}
 		return nil
 	}
@@ -233,5 +238,16 @@ func IsNotFoundError(err error) bool {
 }
 
 func (c *ForemanClient) waitForKatelloTask(ctx context.Context, taskID int) (*ForemanTask, error) {
-	return nil, fmt.Errorf("async task polling not yet implemented")
+	endpoint := fmt.Sprintf("/foreman_tasks/api/tasks/%d", taskID)
+	for i := 0; i < 10; i++ {
+		var task ForemanTask
+		if err := c.Get(ctx, endpoint, &task); err != nil {
+			return nil, fmt.Errorf("failed to poll task %d: %w", taskID, err)
+		}
+		if !task.Pending {
+			return &task, nil
+		}
+		time.Sleep(time.Duration(i+1) * time.Second)
+	}
+	return nil, fmt.Errorf("task %d did not complete within timeout", taskID)
 }

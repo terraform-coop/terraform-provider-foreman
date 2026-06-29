@@ -57,8 +57,7 @@ func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp
 				Optional: true,
 			},
 			"hosts_count": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"info": schema.StringAttribute{
 				Required: false,

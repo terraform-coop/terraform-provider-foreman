@@ -50,8 +50,7 @@ func (r *templatekindResource) Schema(_ context.Context, _ resource.SchemaReques
 				},
 			},
 			"name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 		},
 	}

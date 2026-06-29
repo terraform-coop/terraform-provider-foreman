@@ -55,28 +55,22 @@ func (r *smartclassparameterResource) Schema(_ context.Context, _ resource.Schem
 				},
 			},
 			"parameter": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"puppetclass_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"override": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"default_value": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"hidden_value": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 		},
 	}

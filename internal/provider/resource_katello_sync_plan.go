@@ -68,6 +68,9 @@ func (r *katelloSyncPlanResource) Schema(_ context.Context, _ resource.SchemaReq
 			"sync_date": schema.StringAttribute{
 				Required: false,
 				Optional: true,
+				PlanModifiers: []planmodifier.String{
+					suppressSyncDateDiff{},
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Required: false,

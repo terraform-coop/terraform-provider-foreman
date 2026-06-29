@@ -1005,10 +1005,17 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 
 ### Other `[IN PROGRESS]`
 
-- [x] Data sources for all resources (34 total: 28 generated + 6 Katello hand-written)
+- [x] Data sources for all resources (37 total: 28 generated + 6 Katello + 3 plugin)
 - [x] Added 5 hardcoded resources not in apidoc (environment, jobtemplate, puppetclass, smartclassparameter, templatekind)
-- [ ] Fill in real schemas for Katello resources (currently stubs from hand-written code)
-- [ ] Add `tools/tools.go` pin for `terraform-plugin-docs` (for `tfplugindocs generate`)
-- [ ] Add `examples/` HCL configs for each resource
-- [ ] Add `templates/` for tfplugindocs registry documentation
-- [ ] Add resources for discoveryrule, override_value, webhook, webhooktemplate (not in Foreman 3.19 apidoc)
+- [x] Plugin resources (discovery_rule, webhook, webhook_template, override_value)
+- [x] Katello framework resources (6 hand-written)
+- [x] 404 handling (Read→remove from state, Delete→ignore)
+- [x] Taxonomy wrapping (org/loc IDs added to request body)
+- [x] Wrapper key correctness (resource key in request body)
+- [x] Client regression tests (taxonomy, wrapper key, 404 handling)
+- [ ] Custom JSON marshaling (compute_profile vm_attrs, hostgroup KV params, operating_system nested types)
+- [ ] Diff suppression (host name domain suffix, katello sync_date normalization, repository download_concurrency)
+- [ ] TypeList/TypeSet for nested schemas (host interfaces, compute_profile attributes, template_combinations)
+- [ ] Async task polling (Katello content_view publish/remove)
+- [ ] State migration (host v0→v1)
+- [ ] HCL examples, tfplugindocs

@@ -80,129 +80,102 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 			},
 			"bmc_available": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"build_status": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"build_status_label": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"certname": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"comment": schema.StringAttribute{
 				Required: false,
 				Optional: true,
 			},
 			"compute_resource_provider": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"creator": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"creator_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"disk": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"display_name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"global_status": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"global_status_fulltext": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
+				Computed:    true,
 				ElementType: types.StringType,
 			},
 			"global_status_label": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"hostgroup_title": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"initiated_at": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"installed_at": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"ip": schema.StringAttribute{
 				Required: false,
 				Optional: true,
 			},
 			"ip6": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"last_compile": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"last_report": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"mac": schema.StringAttribute{
 				Required: false,
 				Optional: true,
 			},
 			"operatingsystem_icon": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"owner_name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"permissions": schema.MapAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"pxe_loader": schema.StringAttribute{
 				Required: false,
 				Optional: true,
 			},
 			"rebuild_requires_poweroff": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"sp_ip": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"sp_mac": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"sp_name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"sp_subnet_id": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 			"use_image": schema.StringAttribute{
-				Required: false,
-				Optional: true,
+				Computed: true,
 			},
 		},
 	}
