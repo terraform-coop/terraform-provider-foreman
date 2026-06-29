@@ -1,0 +1,129 @@
+# Type corrections and field exclusions for generated Foreman client code.
+# Run `go generate` to regenerate after editing this file.
+resources:
+  hosts:
+    exclude_fields:
+      - compute_resource_id
+      - compute_resource_name
+      - domain_id
+      - domain_name
+      - architecture_id
+      - architecture_name
+      - operatingsystem_id
+      - operatingsystem_name
+      - medium_id
+      - medium_name
+      - subnet_id
+      - subnet_name
+      - subnet6_id
+      - subnet6_name
+      - ptable_id
+      - ptable_name
+      - provision_method
+      - build
+      - enabled
+      - managed
+      - image_file
+      - uuid
+      - compute_resource_id
+      - hostgroup_id
+      - hostgroup_name
+      - owner_id
+      - owner_type
+      - root_pass
+      - realm_id
+      - realm_name
+      - puppet_ca_proxy_id
+      - puppet_ca_proxy_name
+      - puppet_proxy_id
+      - puppet_proxy_name
+      - puppet_status
+      - model_id
+      - model_name
+      - certificate_name
+      - capabilities
+      - compute_profile_id
+      - compute_profile_name
+      - token
+      - image_id
+      - image_name
+      - interfaces
+      - template_combinations
+      - parameters
+      - all_parameters
+      - operatingsystem
+      - compute_resource
+      - domain
+      - hostgroup
+      - architecture
+      - medium
+      - subnet
+      - subnet6
+      - ptable
+      - realm
+      - puppet_ca_proxy
+      - puppet_proxy
+      - model
+      - compute_profile
+      - image
+      - location_id
+      - location_ids
+      - location_name
+      - locations
+      - organization_id
+      - organization_ids
+      - organization_name
+      - organizations
+  hostgroups:
+    exclude_fields:
+      - ancestry
+      - architecture_name
+      - compute_profile_name
+      - compute_resource_id
+      - compute_resource_name
+      - domain_name
+      - inherited_architecture_id
+      - inherited_compute_profile_id
+      - inherited_compute_resource_id
+      - inherited_domain_id
+      - inherited_medium_id
+      - inherited_operatingsystem_id
+      - inherited_ptable_id
+      - inherited_puppet_ca_proxy_id
+      - inherited_puppet_proxy_id
+      - inherited_pxe_loader
+      - inherited_realm_id
+      - inherited_subnet6_id
+      - inherited_subnet_id
+      - locations
+      - medium_name
+      - operatingsystem_name
+      - organizations
+      - parameters
+      - parent_name
+      - ptable_name
+      - puppet_ca_proxy
+      - puppet_ca_proxy_name
+      - puppet_proxy
+      - puppet_proxy_name
+      - puppet_proxy_id
+      - puppet_ca_proxy_id
+      - realm_name
+      - subnet6_name
+      - subnet_name
+      - template_combinations
+      - title
+  compute_resources:
+    field_types:
+      id: int
+  settings:
+    exclude_fields:
+      - category
+      - settings_type
+      - default
+      - full_name
+      - select_values
+      - encrypt
+  architectures:
+    exclude_fields:
+      - ptables

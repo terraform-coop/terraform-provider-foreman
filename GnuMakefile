@@ -1,0 +1,35 @@
+default: build
+
+build:
+	go build -v .
+
+install:
+	go install -v .
+
+fmt:
+	gofmt -s -w -e .
+
+lint:
+	golangci-lint run
+
+generate:
+	go generate ./...
+
+docs:
+	cd tools; go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
+
+test:
+	go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
+
+testacc:
+	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 ./...
+
+testacc-parallel:
+	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 -parallel=20 ./...
+
+cover:
+	go test -coverprofile=coverage.out -covermode=atomic ./...
+	go tool cover -func=coverage.out | grep total | awk '{print $$3}' | \
+	  xargs -I{} sh -c 'test "$$(echo "{}" | tr -d %)" -ge 80'
+
+.PHONY: build install fmt lint generate docs test testacc testacc-parallel cover

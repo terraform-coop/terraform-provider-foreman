@@ -1,8 +1,0 @@
-{{define "argument_reference"}}
-## Argument Reference
-
-The following arguments are supported:
-{{ range .Arguments}}
-- `{{ .Name }}` - ({{ if .Optional }}Optional{{ else }}Required{{ end }}{{if .ForceNew}}, Force New{{end}}) {{ .Description -}}
-{{ end }}
-{{ end }}

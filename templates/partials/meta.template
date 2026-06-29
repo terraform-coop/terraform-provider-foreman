@@ -1,7 +1,0 @@
-{{ define "meta" }}
-## Interactivity
-
-* Creatable: **{{ if .Uncreatable }}NO{{ else }}YES{{ end }}**
-* Deletable: **{{ if .Undeletable }}NO{{ else }}YES{{ end }}**
-* Mutable:   **{{ if .Immutable }}NO{{ else }}YES{{ end }}**
-{{ end }}
