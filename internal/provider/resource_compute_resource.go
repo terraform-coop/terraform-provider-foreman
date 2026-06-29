@@ -180,7 +180,6 @@ func (r *computeresourceResource) Create(ctx context.Context, req resource.Creat
 		URL:                plan.URL.ValueString(),
 		User:               plan.User.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanComputeResource(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create computeresource, got error: %s", err))
@@ -221,7 +220,6 @@ func (r *computeresourceResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanComputeResource(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -282,7 +280,6 @@ func (r *computeresourceResource) Update(ctx context.Context, req resource.Updat
 		URL:                plan.URL.ValueString(),
 		User:               plan.User.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanComputeResource(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update computeresource, got error: %s", err))
@@ -319,7 +316,6 @@ func (r *computeresourceResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanComputeResource(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeresource, got error: %s", err))

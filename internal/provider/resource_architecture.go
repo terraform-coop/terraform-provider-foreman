@@ -96,7 +96,6 @@ func (r *architectureResource) Create(ctx context.Context, req resource.CreateRe
 			return ids
 		}(),
 	}
-
 	result, err := r.client.CreateForemanArchitecture(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create architecture, got error: %s", err))
@@ -122,7 +121,6 @@ func (r *architectureResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanArchitecture(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -174,7 +172,6 @@ func (r *architectureResource) Update(ctx context.Context, req resource.UpdateRe
 			return ids
 		}(),
 	}
-
 	result, err := r.client.UpdateForemanArchitecture(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update architecture, got error: %s", err))
@@ -196,7 +193,6 @@ func (r *architectureResource) Delete(ctx context.Context, req resource.DeleteRe
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanArchitecture(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete architecture, got error: %s", err))

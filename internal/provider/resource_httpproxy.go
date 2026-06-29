@@ -97,7 +97,6 @@ func (r *httpproxyResource) Create(ctx context.Context, req resource.CreateReque
 		Password: plan.Password.ValueString(),
 		Username: plan.Username.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanHTTPProxy(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create httpproxy, got error: %s", err))
@@ -126,7 +125,6 @@ func (r *httpproxyResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanHTTPProxy(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -163,7 +161,6 @@ func (r *httpproxyResource) Update(ctx context.Context, req resource.UpdateReque
 		Password: plan.Password.ValueString(),
 		Username: plan.Username.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanHTTPProxy(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update httpproxy, got error: %s", err))
@@ -188,7 +185,6 @@ func (r *httpproxyResource) Delete(ctx context.Context, req resource.DeleteReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanHTTPProxy(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete httpproxy, got error: %s", err))

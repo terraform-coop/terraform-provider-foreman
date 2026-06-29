@@ -93,7 +93,6 @@ func (r *commonparameterResource) Create(ctx context.Context, req resource.Creat
 		Value:         plan.Value.ValueString(),
 		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
-
 	result, err := r.client.CreateForemanCommonParameter(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create commonparameter, got error: %s", err))
@@ -122,7 +121,6 @@ func (r *commonparameterResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanCommonParameter(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -159,7 +157,6 @@ func (r *commonparameterResource) Update(ctx context.Context, req resource.Updat
 		Value:         plan.Value.ValueString(),
 		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
-
 	result, err := r.client.UpdateForemanCommonParameter(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update commonparameter, got error: %s", err))
@@ -184,7 +181,6 @@ func (r *commonparameterResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanCommonParameter(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete commonparameter, got error: %s", err))

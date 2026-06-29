@@ -70,7 +70,6 @@ func (r *autosignResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	body := &generated.ForemanAutosignRequest{}
-
 	result, err := r.client.CreateForemanAutosign(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create autosign, got error: %s", err))
@@ -104,7 +103,6 @@ func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanAutosign(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete autosign, got error: %s", err))

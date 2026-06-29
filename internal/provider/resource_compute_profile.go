@@ -76,7 +76,6 @@ func (r *computeprofileResource) Create(ctx context.Context, req resource.Create
 	body := &generated.ForemanComputeProfileRequest{
 		Name: plan.Name.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanComputeProfile(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create computeprofile, got error: %s", err))
@@ -102,7 +101,6 @@ func (r *computeprofileResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanComputeProfile(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -133,7 +131,6 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 	body := &generated.ForemanComputeProfileRequest{
 		Name: plan.Name.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanComputeProfile(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update computeprofile, got error: %s", err))
@@ -155,7 +152,6 @@ func (r *computeprofileResource) Delete(ctx context.Context, req resource.Delete
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanComputeProfile(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeprofile, got error: %s", err))

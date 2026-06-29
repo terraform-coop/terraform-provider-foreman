@@ -93,7 +93,6 @@ func (r *modelResource) Create(ctx context.Context, req resource.CreateRequest, 
 		Info:          plan.Info.ValueString(),
 		VendorClass:   plan.VendorClass.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanModel(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create model, got error: %s", err))
@@ -122,7 +121,6 @@ func (r *modelResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanModel(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -158,7 +156,6 @@ func (r *modelResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		Info:          plan.Info.ValueString(),
 		VendorClass:   plan.VendorClass.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanModel(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update model, got error: %s", err))
@@ -183,7 +180,6 @@ func (r *modelResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanModel(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete model, got error: %s", err))

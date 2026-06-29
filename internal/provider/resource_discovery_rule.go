@@ -113,7 +113,6 @@ func (r *discovery_ruleResource) Create(ctx context.Context, req resource.Create
 		Priority:           plan.Priority.ValueInt64(),
 		Enabled:            plan.Enabled.ValueBool(),
 	}
-
 	result, err := r.client.CreateForemanDiscoveryRule(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create discovery_rule, got error: %s", err))
@@ -145,7 +144,6 @@ func (r *discovery_ruleResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanDiscoveryRule(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -188,7 +186,6 @@ func (r *discovery_ruleResource) Update(ctx context.Context, req resource.Update
 		Priority:           plan.Priority.ValueInt64(),
 		Enabled:            plan.Enabled.ValueBool(),
 	}
-
 	result, err := r.client.UpdateForemanDiscoveryRule(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update discovery_rule, got error: %s", err))
@@ -216,7 +213,6 @@ func (r *discovery_ruleResource) Delete(ctx context.Context, req resource.Delete
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanDiscoveryRule(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete discovery_rule, got error: %s", err))

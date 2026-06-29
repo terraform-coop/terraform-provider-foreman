@@ -166,7 +166,6 @@ func (r *templateinputResource) Create(ctx context.Context, req resource.CreateR
 		ValueType:    plan.ValueType.ValueString(),
 		VariableName: plan.VariableName.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanTemplateInput(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create templateinput, got error: %s", err))
@@ -202,7 +201,6 @@ func (r *templateinputResource) Read(ctx context.Context, req resource.ReadReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanTemplateInput(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -274,7 +272,6 @@ func (r *templateinputResource) Update(ctx context.Context, req resource.UpdateR
 		ValueType:    plan.ValueType.ValueString(),
 		VariableName: plan.VariableName.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanTemplateInput(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update templateinput, got error: %s", err))
@@ -306,7 +303,6 @@ func (r *templateinputResource) Delete(ctx context.Context, req resource.DeleteR
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanTemplateInput(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete templateinput, got error: %s", err))

@@ -183,7 +183,6 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Timezone:      plan.Timezone.ValueString(),
 		UiCompactMode: plan.UiCompactMode.ValueBool(),
 	}
-
 	result, err := r.client.CreateForemanUser(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create user, got error: %s", err))
@@ -223,7 +222,6 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanUser(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -303,7 +301,6 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		Timezone:      plan.Timezone.ValueString(),
 		UiCompactMode: plan.UiCompactMode.ValueBool(),
 	}
-
 	result, err := r.client.UpdateForemanUser(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update user, got error: %s", err))
@@ -339,7 +336,6 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanUser(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete user, got error: %s", err))

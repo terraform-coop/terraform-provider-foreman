@@ -157,6 +157,7 @@ func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resourc
 		NewForemanDiscoveryRuleResource,
 		NewForemanWebhookResource,
 		NewForemanWebhookTemplateResource,
+		NewForemanOverrideValueResource,
 	}
 }
 

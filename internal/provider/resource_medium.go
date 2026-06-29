@@ -109,7 +109,6 @@ func (r *mediumResource) Create(ctx context.Context, req resource.CreateRequest,
 		}(),
 		OsFamily: plan.OsFamily.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanMedium(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create medium, got error: %s", err))
@@ -137,7 +136,6 @@ func (r *mediumResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanMedium(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -193,7 +191,6 @@ func (r *mediumResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}(),
 		OsFamily: plan.OsFamily.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanMedium(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update medium, got error: %s", err))
@@ -217,7 +214,6 @@ func (r *mediumResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanMedium(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete medium, got error: %s", err))

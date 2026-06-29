@@ -103,7 +103,6 @@ func (r *smartclassparameterResource) Read(ctx context.Context, req resource.Rea
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanSmartClassParameter(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -137,7 +136,6 @@ func (r *smartclassparameterResource) Update(ctx context.Context, req resource.U
 	}
 
 	body := &generated.ForemanSmartClassParameterRequest{}
-
 	result, err := r.client.UpdateForemanSmartClassParameter(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update smartclassparameter, got error: %s", err))

@@ -83,7 +83,6 @@ func (r *templatekindResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanTemplateKind(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {

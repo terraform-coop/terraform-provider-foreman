@@ -113,7 +113,6 @@ func (r *webhook_templateResource) Create(ctx context.Context, req resource.Crea
 		Default:      plan.Default.ValueBool(),
 		Description:  plan.Description.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanWebhookTemplate(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create webhook_template, got error: %s", err))
@@ -145,7 +144,6 @@ func (r *webhook_templateResource) Read(ctx context.Context, req resource.ReadRe
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanWebhookTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -188,7 +186,6 @@ func (r *webhook_templateResource) Update(ctx context.Context, req resource.Upda
 		Default:      plan.Default.ValueBool(),
 		Description:  plan.Description.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanWebhookTemplate(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update webhook_template, got error: %s", err))
@@ -216,7 +213,6 @@ func (r *webhook_templateResource) Delete(ctx context.Context, req resource.Dele
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanWebhookTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete webhook_template, got error: %s", err))

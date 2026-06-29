@@ -81,7 +81,6 @@ func (r *smartproxyResource) Create(ctx context.Context, req resource.CreateRequ
 		Name: plan.Name.ValueString(),
 		URL:  plan.URL.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanSmartProxy(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create smartproxy, got error: %s", err))
@@ -108,7 +107,6 @@ func (r *smartproxyResource) Read(ctx context.Context, req resource.ReadRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanSmartProxy(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -141,7 +139,6 @@ func (r *smartproxyResource) Update(ctx context.Context, req resource.UpdateRequ
 		Name: plan.Name.ValueString(),
 		URL:  plan.URL.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanSmartProxy(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update smartproxy, got error: %s", err))
@@ -164,7 +161,6 @@ func (r *smartproxyResource) Delete(ctx context.Context, req resource.DeleteRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanSmartProxy(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete smartproxy, got error: %s", err))

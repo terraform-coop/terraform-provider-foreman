@@ -204,7 +204,6 @@ func (r *hostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		MAC:       plan.MAC.ValueString(),
 		PXELoader: plan.PXELoader.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanHost(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create host, got error: %s", err))
@@ -258,7 +257,6 @@ func (r *hostResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanHost(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -320,7 +318,6 @@ func (r *hostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		MAC:       plan.MAC.ValueString(),
 		PXELoader: plan.PXELoader.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanHost(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update host, got error: %s", err))
@@ -370,7 +367,6 @@ func (r *hostResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanHost(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete host, got error: %s", err))

@@ -77,7 +77,6 @@ func (r *puppetclassResource) Create(ctx context.Context, req resource.CreateReq
 	body := &generated.ForemanPuppetClassRequest{
 		Name: plan.Name.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanPuppetClass(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create puppetclass, got error: %s", err))
@@ -103,7 +102,6 @@ func (r *puppetclassResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanPuppetClass(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -134,7 +132,6 @@ func (r *puppetclassResource) Update(ctx context.Context, req resource.UpdateReq
 	body := &generated.ForemanPuppetClassRequest{
 		Name: plan.Name.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanPuppetClass(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update puppetclass, got error: %s", err))
@@ -156,7 +153,6 @@ func (r *puppetclassResource) Delete(ctx context.Context, req resource.DeleteReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanPuppetClass(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete puppetclass, got error: %s", err))

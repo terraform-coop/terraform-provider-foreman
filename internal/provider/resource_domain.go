@@ -111,7 +111,6 @@ func (r *domainResource) Create(ctx context.Context, req resource.CreateRequest,
 		}(),
 		Fullname: plan.Fullname.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanDomain(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create domain, got error: %s", err))
@@ -139,7 +138,6 @@ func (r *domainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanDomain(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -195,7 +193,6 @@ func (r *domainResource) Update(ctx context.Context, req resource.UpdateRequest,
 		}(),
 		Fullname: plan.Fullname.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanDomain(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update domain, got error: %s", err))
@@ -219,7 +216,6 @@ func (r *domainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanDomain(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete domain, got error: %s", err))

@@ -170,7 +170,6 @@ func (r *partitiontableResource) Create(ctx context.Context, req resource.Create
 		OsFamily: plan.OsFamily.ValueString(),
 		Snippet:  plan.Snippet.ValueBool(),
 	}
-
 	result, err := r.client.CreateForemanPartitionTable(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create partitiontable, got error: %s", err))
@@ -202,7 +201,6 @@ func (r *partitiontableResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanPartitionTable(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -308,7 +306,6 @@ func (r *partitiontableResource) Update(ctx context.Context, req resource.Update
 		OsFamily: plan.OsFamily.ValueString(),
 		Snippet:  plan.Snippet.ValueBool(),
 	}
-
 	result, err := r.client.UpdateForemanPartitionTable(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update partitiontable, got error: %s", err))
@@ -336,7 +333,6 @@ func (r *partitiontableResource) Delete(ctx context.Context, req resource.Delete
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanPartitionTable(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete partitiontable, got error: %s", err))

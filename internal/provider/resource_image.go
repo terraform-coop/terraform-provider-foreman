@@ -121,7 +121,6 @@ func (r *imageResource) Create(ctx context.Context, req resource.CreateRequest, 
 		Password:          plan.Password.ValueString(),
 		UserData:          plan.UserData.ValueBool(),
 	}
-
 	result, err := r.client.CreateForemanImage(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create image, got error: %s", err))
@@ -154,7 +153,6 @@ func (r *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanImage(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -199,7 +197,6 @@ func (r *imageResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		Password:          plan.Password.ValueString(),
 		UserData:          plan.UserData.ValueBool(),
 	}
-
 	result, err := r.client.UpdateForemanImage(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update image, got error: %s", err))
@@ -228,7 +225,6 @@ func (r *imageResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanImage(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete image, got error: %s", err))

@@ -84,7 +84,6 @@ func (r *defaulttemplateResource) Create(ctx context.Context, req resource.Creat
 		ProvisioningTemplateID: plan.ProvisioningTemplateID.ValueInt64(),
 		TemplateKindID:         plan.TemplateKindID.ValueInt64(),
 	}
-
 	result, err := r.client.CreateForemanDefaultTemplate(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create defaulttemplate, got error: %s", err))
@@ -111,7 +110,6 @@ func (r *defaulttemplateResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanDefaultTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -144,7 +142,6 @@ func (r *defaulttemplateResource) Update(ctx context.Context, req resource.Updat
 		ProvisioningTemplateID: plan.ProvisioningTemplateID.ValueInt64(),
 		TemplateKindID:         plan.TemplateKindID.ValueInt64(),
 	}
-
 	result, err := r.client.UpdateForemanDefaultTemplate(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update defaulttemplate, got error: %s", err))
@@ -167,7 +164,6 @@ func (r *defaulttemplateResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanDefaultTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete defaulttemplate, got error: %s", err))

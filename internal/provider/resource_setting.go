@@ -84,7 +84,6 @@ func (r *settingResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanSetting(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -115,7 +114,6 @@ func (r *settingResource) Update(ctx context.Context, req resource.UpdateRequest
 	body := &generated.ForemanSettingRequest{
 		Value: plan.Value.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanSetting(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update setting, got error: %s", err))

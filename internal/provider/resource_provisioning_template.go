@@ -153,7 +153,6 @@ func (r *provisioningtemplateResource) Create(ctx context.Context, req resource.
 		}(),
 		TemplateKindID: plan.TemplateKindID.ValueInt64(),
 	}
-
 	result, err := r.client.CreateForemanProvisioningTemplate(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create provisioningtemplate, got error: %s", err))
@@ -185,7 +184,6 @@ func (r *provisioningtemplateResource) Read(ctx context.Context, req resource.Re
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanProvisioningTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -270,7 +268,6 @@ func (r *provisioningtemplateResource) Update(ctx context.Context, req resource.
 		}(),
 		TemplateKindID: plan.TemplateKindID.ValueInt64(),
 	}
-
 	result, err := r.client.UpdateForemanProvisioningTemplate(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update provisioningtemplate, got error: %s", err))
@@ -298,7 +295,6 @@ func (r *provisioningtemplateResource) Delete(ctx context.Context, req resource.
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanProvisioningTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete provisioningtemplate, got error: %s", err))

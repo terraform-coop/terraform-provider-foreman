@@ -95,7 +95,6 @@ func (r *job_templateResource) Create(ctx context.Context, req resource.CreateRe
 		JobCategory:  plan.JobCategory.ValueString(),
 		ProviderType: plan.ProviderType.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanJobTemplate(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create job_template, got error: %s", err))
@@ -124,7 +123,6 @@ func (r *job_templateResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanJobTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -161,7 +159,6 @@ func (r *job_templateResource) Update(ctx context.Context, req resource.UpdateRe
 		JobCategory:  plan.JobCategory.ValueString(),
 		ProviderType: plan.ProviderType.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanJobTemplate(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update job_template, got error: %s", err))
@@ -186,7 +183,6 @@ func (r *job_templateResource) Delete(ctx context.Context, req resource.DeleteRe
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanJobTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete job_template, got error: %s", err))

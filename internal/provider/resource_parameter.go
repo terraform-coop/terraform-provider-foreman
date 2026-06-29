@@ -94,7 +94,6 @@ func (r *parameterResource) Create(ctx context.Context, req resource.CreateReque
 		Value:         plan.Value.ValueString(),
 		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
-
 	result, err := r.client.CreateForemanParameter(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create parameter, got error: %s", err))
@@ -123,7 +122,6 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanParameter(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -160,7 +158,6 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 		Value:         plan.Value.ValueString(),
 		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
-
 	result, err := r.client.UpdateForemanParameter(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update parameter, got error: %s", err))
@@ -185,7 +182,6 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanParameter(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete parameter, got error: %s", err))

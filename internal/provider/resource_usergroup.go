@@ -138,7 +138,6 @@ func (r *usergroupResource) Create(ctx context.Context, req resource.CreateReque
 			return ids
 		}(),
 	}
-
 	result, err := r.client.CreateForemanUsergroup(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create usergroup, got error: %s", err))
@@ -165,7 +164,6 @@ func (r *usergroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanUsergroup(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -261,7 +259,6 @@ func (r *usergroupResource) Update(ctx context.Context, req resource.UpdateReque
 			return ids
 		}(),
 	}
-
 	result, err := r.client.UpdateForemanUsergroup(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update usergroup, got error: %s", err))
@@ -284,7 +281,6 @@ func (r *usergroupResource) Delete(ctx context.Context, req resource.DeleteReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanUsergroup(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete usergroup, got error: %s", err))

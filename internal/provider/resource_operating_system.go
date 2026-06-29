@@ -208,7 +208,6 @@ func (r *operatingsystemResource) Create(ctx context.Context, req resource.Creat
 		}(),
 		ReleaseName: plan.ReleaseName.ValueString(),
 	}
-
 	result, err := r.client.CreateForemanOperatingSystem(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create operatingsystem, got error: %s", err))
@@ -240,7 +239,6 @@ func (r *operatingsystemResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	result, err := r.client.ReadForemanOperatingSystem(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -388,7 +386,6 @@ func (r *operatingsystemResource) Update(ctx context.Context, req resource.Updat
 		}(),
 		ReleaseName: plan.ReleaseName.ValueString(),
 	}
-
 	result, err := r.client.UpdateForemanOperatingSystem(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update operatingsystem, got error: %s", err))
@@ -416,7 +413,6 @@ func (r *operatingsystemResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
-
 	err = r.client.DeleteForemanOperatingSystem(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete operatingsystem, got error: %s", err))
