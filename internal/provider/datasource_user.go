@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -52,63 +52,63 @@ func (d *userDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 }
 
 func (d *userDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the user to look up.",
 			},
-			"auth_source_id": schema.Int64Attribute{
+			"auth_source_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"login": schema.StringAttribute{
+			"login": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"mail": schema.StringAttribute{
+			"mail": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"admin": schema.BoolAttribute{
+			"admin": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "is an admin account",
 			},
-			"default_location_id": schema.Int64Attribute{
+			"default_location_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"default_organization_id": schema.Int64Attribute{
+			"default_organization_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"disabled": schema.BoolAttribute{
+			"disabled": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"firstname": schema.StringAttribute{
+			"firstname": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"lastname": schema.StringAttribute{
+			"lastname": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"locale": schema.StringAttribute{
+			"locale": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "User&#39;s preferred locale",
 			},
-			"mail_enabled": schema.BoolAttribute{
+			"mail_enabled": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Enable user&#39;s email",
 			},
-			"password": schema.StringAttribute{
+			"password": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Required unless user is in an external authentication source",
 			},
-			"timezone": schema.StringAttribute{
+			"timezone": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "User&#39;s timezone",
 			},
-			"ui_compact_mode": schema.BoolAttribute{
+			"ui_compact_mode": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Use compact UI",
 			},

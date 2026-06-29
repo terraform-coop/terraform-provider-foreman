@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -168,8 +168,20 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Locale:                plan.Locale.ValueString(),
 		MailEnabled:           plan.MailEnabled.ValueBool(),
 		Password:              plan.Password.ValueString(),
-		Timezone:              plan.Timezone.ValueString(),
-		UiCompactMode:         plan.UiCompactMode.ValueBool(),
+		RoleIDs: func() []int64 {
+			if plan.RoleIDs.IsNull() || plan.RoleIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.RoleIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		Timezone:      plan.Timezone.ValueString(),
+		UiCompactMode: plan.UiCompactMode.ValueBool(),
 	}
 
 	result, err := r.client.CreateForemanUser(ctx, body)
@@ -221,12 +233,12 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read user, got error: %s", err))
 		return
 	}
-	state.AuthSourceID = types.Int64Value(result.AuthSourceID)
+	state.AuthSourceID = types.Int64Value(int64(result.AuthSourceID))
 	state.Login = types.StringValue(result.Login)
 	state.Mail = types.StringValue(result.Mail)
 	state.Admin = types.BoolValue(result.Admin)
-	state.DefaultLocationID = types.Int64Value(result.DefaultLocationID)
-	state.DefaultOrganizationID = types.Int64Value(result.DefaultOrganizationID)
+	state.DefaultLocationID = types.Int64Value(int64(result.DefaultLocationID))
+	state.DefaultOrganizationID = types.Int64Value(int64(result.DefaultOrganizationID))
 	state.Description = types.StringValue(result.Description)
 	state.Disabled = types.BoolValue(result.Disabled)
 	state.Firstname = types.StringValue(result.Firstname)
@@ -234,6 +246,15 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	state.Locale = types.StringValue(result.Locale)
 	state.MailEnabled = types.BoolValue(result.MailEnabled)
 	state.Password = types.StringValue(result.Password)
+	if result.RoleIDs != nil {
+		elems := make([]attr.Value, len(result.RoleIDs))
+		for i, v := range result.RoleIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.RoleIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.RoleIDs = types.ListNull(types.Int64Type)
+	}
 	state.Timezone = types.StringValue(result.Timezone)
 	state.UiCompactMode = types.BoolValue(result.UiCompactMode)
 
@@ -267,8 +288,20 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		Locale:                plan.Locale.ValueString(),
 		MailEnabled:           plan.MailEnabled.ValueBool(),
 		Password:              plan.Password.ValueString(),
-		Timezone:              plan.Timezone.ValueString(),
-		UiCompactMode:         plan.UiCompactMode.ValueBool(),
+		RoleIDs: func() []int64 {
+			if plan.RoleIDs.IsNull() || plan.RoleIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.RoleIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		Timezone:      plan.Timezone.ValueString(),
+		UiCompactMode: plan.UiCompactMode.ValueBool(),
 	}
 
 	result, err := r.client.UpdateForemanUser(ctx, id, body)

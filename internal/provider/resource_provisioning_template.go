@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -121,12 +121,36 @@ func (r *provisioningtemplateResource) Create(ctx context.Context, req resource.
 	}
 
 	body := &generated.ForemanProvisioningTemplateRequest{
-		Name:           plan.Name.ValueString(),
-		Template:       plan.Template.ValueString(),
-		AuditComment:   plan.AuditComment.ValueString(),
-		Description:    plan.Description.ValueString(),
-		Locked:         plan.Locked.ValueBool(),
-		Snippet:        plan.Snippet.ValueBool(),
+		Name:         plan.Name.ValueString(),
+		Template:     plan.Template.ValueString(),
+		AuditComment: plan.AuditComment.ValueString(),
+		Description:  plan.Description.ValueString(),
+		Locked:       plan.Locked.ValueBool(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		Snippet: plan.Snippet.ValueBool(),
+		TemplateCombinationsAttributes: func() []int64 {
+			if plan.TemplateCombinationsAttributes.IsNull() || plan.TemplateCombinationsAttributes.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.TemplateCombinationsAttributes.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		TemplateKindID: plan.TemplateKindID.ValueInt64(),
 	}
 
@@ -176,8 +200,26 @@ func (r *provisioningtemplateResource) Read(ctx context.Context, req resource.Re
 	state.AuditComment = types.StringValue(result.AuditComment)
 	state.Description = types.StringValue(result.Description)
 	state.Locked = types.BoolValue(result.Locked)
+	if result.OperatingsystemIDs != nil {
+		elems := make([]attr.Value, len(result.OperatingsystemIDs))
+		for i, v := range result.OperatingsystemIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.OperatingsystemIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.OperatingsystemIDs = types.ListNull(types.Int64Type)
+	}
 	state.Snippet = types.BoolValue(result.Snippet)
-	state.TemplateKindID = types.Int64Value(result.TemplateKindID)
+	if result.TemplateCombinationsAttributes != nil {
+		elems := make([]attr.Value, len(result.TemplateCombinationsAttributes))
+		for i, v := range result.TemplateCombinationsAttributes {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.TemplateCombinationsAttributes = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.TemplateCombinationsAttributes = types.ListNull(types.Int64Type)
+	}
+	state.TemplateKindID = types.Int64Value(int64(result.TemplateKindID))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
@@ -196,12 +238,36 @@ func (r *provisioningtemplateResource) Update(ctx context.Context, req resource.
 	}
 
 	body := &generated.ForemanProvisioningTemplateRequest{
-		Name:           plan.Name.ValueString(),
-		Template:       plan.Template.ValueString(),
-		AuditComment:   plan.AuditComment.ValueString(),
-		Description:    plan.Description.ValueString(),
-		Locked:         plan.Locked.ValueBool(),
-		Snippet:        plan.Snippet.ValueBool(),
+		Name:         plan.Name.ValueString(),
+		Template:     plan.Template.ValueString(),
+		AuditComment: plan.AuditComment.ValueString(),
+		Description:  plan.Description.ValueString(),
+		Locked:       plan.Locked.ValueBool(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		Snippet: plan.Snippet.ValueBool(),
+		TemplateCombinationsAttributes: func() []int64 {
+			if plan.TemplateCombinationsAttributes.IsNull() || plan.TemplateCombinationsAttributes.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.TemplateCombinationsAttributes.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		TemplateKindID: plan.TemplateKindID.ValueInt64(),
 	}
 

@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -67,103 +67,103 @@ func (d *hostDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 }
 
 func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the host to look up.",
 			},
-			"bmc_available": schema.BoolAttribute{
+			"bmc_available": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"build_status": schema.Int64Attribute{
+			"build_status": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"build_status_label": schema.StringAttribute{
+			"build_status_label": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"certname": schema.StringAttribute{
+			"certname": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"comment": schema.StringAttribute{
+			"comment": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"compute_resource_provider": schema.StringAttribute{
+			"compute_resource_provider": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"creator": schema.StringAttribute{
+			"creator": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"creator_id": schema.Int64Attribute{
+			"creator_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"disk": schema.StringAttribute{
+			"disk": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"display_name": schema.StringAttribute{
+			"display_name": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"global_status": schema.Int64Attribute{
+			"global_status": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"global_status_label": schema.StringAttribute{
+			"global_status_label": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hostgroup_title": schema.StringAttribute{
+			"hostgroup_title": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"initiated_at": schema.StringAttribute{
+			"initiated_at": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"installed_at": schema.StringAttribute{
+			"installed_at": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"ip": schema.StringAttribute{
+			"ip": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"ip6": schema.StringAttribute{
+			"ip6": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"last_compile": schema.StringAttribute{
+			"last_compile": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"last_report": schema.StringAttribute{
+			"last_report": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"mac": schema.StringAttribute{
+			"mac": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"operatingsystem_icon": schema.StringAttribute{
+			"operatingsystem_icon": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"owner_name": schema.StringAttribute{
+			"owner_name": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"permissions": schema.MapAttribute{
+			"permissions": dsdchema.MapAttribute{
 				Computed: true,
 			},
-			"pxe_loader": schema.StringAttribute{
+			"pxe_loader": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"rebuild_requires_poweroff": schema.BoolAttribute{
+			"rebuild_requires_poweroff": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"sp_ip": schema.StringAttribute{
+			"sp_ip": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"sp_mac": schema.StringAttribute{
+			"sp_mac": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"sp_name": schema.StringAttribute{
+			"sp_name": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"sp_subnet_id": schema.StringAttribute{
+			"sp_subnet_id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"use_image": schema.StringAttribute{
+			"use_image": dsdchema.StringAttribute{
 				Computed: true,
 			},
 		},

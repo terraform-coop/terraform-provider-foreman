@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -101,6 +101,42 @@ func (r *usergroupResource) Create(ctx context.Context, req resource.CreateReque
 	body := &generated.ForemanUsergroupRequest{
 		Name:  plan.Name.ValueString(),
 		Admin: plan.Admin.ValueBool(),
+		RoleIDs: func() []int64 {
+			if plan.RoleIDs.IsNull() || plan.RoleIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.RoleIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		UserIDs: func() []int64 {
+			if plan.UserIDs.IsNull() || plan.UserIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.UserIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		UsergroupIDs: func() []int64 {
+			if plan.UsergroupIDs.IsNull() || plan.UsergroupIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.UsergroupIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 	}
 
 	result, err := r.client.CreateForemanUsergroup(ctx, body)
@@ -141,6 +177,33 @@ func (r *usergroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 	state.Name = types.StringValue(result.Name)
 	state.Admin = types.BoolValue(result.Admin)
+	if result.RoleIDs != nil {
+		elems := make([]attr.Value, len(result.RoleIDs))
+		for i, v := range result.RoleIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.RoleIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.RoleIDs = types.ListNull(types.Int64Type)
+	}
+	if result.UserIDs != nil {
+		elems := make([]attr.Value, len(result.UserIDs))
+		for i, v := range result.UserIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.UserIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.UserIDs = types.ListNull(types.Int64Type)
+	}
+	if result.UsergroupIDs != nil {
+		elems := make([]attr.Value, len(result.UsergroupIDs))
+		for i, v := range result.UsergroupIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.UsergroupIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.UsergroupIDs = types.ListNull(types.Int64Type)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
@@ -161,6 +224,42 @@ func (r *usergroupResource) Update(ctx context.Context, req resource.UpdateReque
 	body := &generated.ForemanUsergroupRequest{
 		Name:  plan.Name.ValueString(),
 		Admin: plan.Admin.ValueBool(),
+		RoleIDs: func() []int64 {
+			if plan.RoleIDs.IsNull() || plan.RoleIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.RoleIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		UserIDs: func() []int64 {
+			if plan.UserIDs.IsNull() || plan.UserIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.UserIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		UsergroupIDs: func() []int64 {
+			if plan.UsergroupIDs.IsNull() || plan.UsergroupIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.UsergroupIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 	}
 
 	result, err := r.client.UpdateForemanUsergroup(ctx, id, body)

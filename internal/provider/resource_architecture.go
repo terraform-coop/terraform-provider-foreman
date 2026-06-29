@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -83,6 +83,18 @@ func (r *architectureResource) Create(ctx context.Context, req resource.CreateRe
 
 	body := &generated.ForemanArchitectureRequest{
 		Name: plan.Name.ValueString(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 	}
 
 	result, err := r.client.CreateForemanArchitecture(ctx, body)
@@ -121,6 +133,15 @@ func (r *architectureResource) Read(ctx context.Context, req resource.ReadReques
 		return
 	}
 	state.Name = types.StringValue(result.Name)
+	if result.OperatingsystemIDs != nil {
+		elems := make([]attr.Value, len(result.OperatingsystemIDs))
+		for i, v := range result.OperatingsystemIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.OperatingsystemIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.OperatingsystemIDs = types.ListNull(types.Int64Type)
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
@@ -140,6 +161,18 @@ func (r *architectureResource) Update(ctx context.Context, req resource.UpdateRe
 
 	body := &generated.ForemanArchitectureRequest{
 		Name: plan.Name.ValueString(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 	}
 
 	result, err := r.client.UpdateForemanArchitecture(ctx, id, body)

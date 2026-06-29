@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -43,31 +43,31 @@ func (d *smartclassparameterDataSource) Metadata(_ context.Context, req datasour
 }
 
 func (d *smartclassparameterDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the smartclassparameter to look up.",
 			},
-			"parameter": schema.StringAttribute{
+			"parameter": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"puppetclass_id": schema.Int64Attribute{
+			"puppetclass_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"override": schema.BoolAttribute{
+			"override": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"default_value": schema.StringAttribute{
+			"default_value": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hidden_value": schema.BoolAttribute{
+			"hidden_value": dsdchema.BoolAttribute{
 				Computed: true,
 			},
 		},

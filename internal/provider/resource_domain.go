@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -95,8 +95,20 @@ func (r *domainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	body := &generated.ForemanDomainRequest{
-		Name:     plan.Name.ValueString(),
-		DNSID:    plan.DNSID.ValueInt64(),
+		Name:  plan.Name.ValueString(),
+		DNSID: plan.DNSID.ValueInt64(),
+		DomainParametersAttributes: func() []int64 {
+			if plan.DomainParametersAttributes.IsNull() || plan.DomainParametersAttributes.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.DomainParametersAttributes.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		Fullname: plan.Fullname.ValueString(),
 	}
 
@@ -138,7 +150,16 @@ func (r *domainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 	state.Name = types.StringValue(result.Name)
-	state.DNSID = types.Int64Value(result.DNSID)
+	state.DNSID = types.Int64Value(int64(result.DNSID))
+	if result.DomainParametersAttributes != nil {
+		elems := make([]attr.Value, len(result.DomainParametersAttributes))
+		for i, v := range result.DomainParametersAttributes {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.DomainParametersAttributes = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.DomainParametersAttributes = types.ListNull(types.Int64Type)
+	}
 	state.Fullname = types.StringValue(result.Fullname)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -158,8 +179,20 @@ func (r *domainResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	body := &generated.ForemanDomainRequest{
-		Name:     plan.Name.ValueString(),
-		DNSID:    plan.DNSID.ValueInt64(),
+		Name:  plan.Name.ValueString(),
+		DNSID: plan.DNSID.ValueInt64(),
+		DomainParametersAttributes: func() []int64 {
+			if plan.DomainParametersAttributes.IsNull() || plan.DomainParametersAttributes.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.DomainParametersAttributes.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		Fullname: plan.Fullname.ValueString(),
 	}
 

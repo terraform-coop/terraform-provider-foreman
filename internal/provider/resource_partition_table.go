@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -130,9 +130,45 @@ func (r *partitiontableResource) Create(ctx context.Context, req resource.Create
 		Name:         plan.Name.ValueString(),
 		AuditComment: plan.AuditComment.ValueString(),
 		Description:  plan.Description.ValueString(),
-		Locked:       plan.Locked.ValueBool(),
-		OsFamily:     plan.OsFamily.ValueString(),
-		Snippet:      plan.Snippet.ValueBool(),
+		HostIDs: func() []int64 {
+			if plan.HostIDs.IsNull() || plan.HostIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.HostIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		HostgroupIDs: func() []int64 {
+			if plan.HostgroupIDs.IsNull() || plan.HostgroupIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.HostgroupIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		Locked: plan.Locked.ValueBool(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		OsFamily: plan.OsFamily.ValueString(),
+		Snippet:  plan.Snippet.ValueBool(),
 	}
 
 	result, err := r.client.CreateForemanPartitionTable(ctx, body)
@@ -180,7 +216,34 @@ func (r *partitiontableResource) Read(ctx context.Context, req resource.ReadRequ
 	state.Name = types.StringValue(result.Name)
 	state.AuditComment = types.StringValue(result.AuditComment)
 	state.Description = types.StringValue(result.Description)
+	if result.HostIDs != nil {
+		elems := make([]attr.Value, len(result.HostIDs))
+		for i, v := range result.HostIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.HostIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.HostIDs = types.ListNull(types.Int64Type)
+	}
+	if result.HostgroupIDs != nil {
+		elems := make([]attr.Value, len(result.HostgroupIDs))
+		for i, v := range result.HostgroupIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.HostgroupIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.HostgroupIDs = types.ListNull(types.Int64Type)
+	}
 	state.Locked = types.BoolValue(result.Locked)
+	if result.OperatingsystemIDs != nil {
+		elems := make([]attr.Value, len(result.OperatingsystemIDs))
+		for i, v := range result.OperatingsystemIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.OperatingsystemIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.OperatingsystemIDs = types.ListNull(types.Int64Type)
+	}
 	state.OsFamily = types.StringValue(result.OsFamily)
 	state.Snippet = types.BoolValue(result.Snippet)
 
@@ -205,9 +268,45 @@ func (r *partitiontableResource) Update(ctx context.Context, req resource.Update
 		Name:         plan.Name.ValueString(),
 		AuditComment: plan.AuditComment.ValueString(),
 		Description:  plan.Description.ValueString(),
-		Locked:       plan.Locked.ValueBool(),
-		OsFamily:     plan.OsFamily.ValueString(),
-		Snippet:      plan.Snippet.ValueBool(),
+		HostIDs: func() []int64 {
+			if plan.HostIDs.IsNull() || plan.HostIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.HostIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		HostgroupIDs: func() []int64 {
+			if plan.HostgroupIDs.IsNull() || plan.HostgroupIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.HostgroupIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		Locked: plan.Locked.ValueBool(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		OsFamily: plan.OsFamily.ValueString(),
+		Snippet:  plan.Snippet.ValueBool(),
 	}
 
 	result, err := r.client.UpdateForemanPartitionTable(ctx, id, body)

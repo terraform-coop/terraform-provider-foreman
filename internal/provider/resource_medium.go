@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -93,8 +93,20 @@ func (r *mediumResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	body := &generated.ForemanMediumRequest{
-		Name:     plan.Name.ValueString(),
-		Path:     plan.Path.ValueString(),
+		Name: plan.Name.ValueString(),
+		Path: plan.Path.ValueString(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		OsFamily: plan.OsFamily.ValueString(),
 	}
 
@@ -137,6 +149,15 @@ func (r *mediumResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 	state.Name = types.StringValue(result.Name)
 	state.Path = types.StringValue(result.Path)
+	if result.OperatingsystemIDs != nil {
+		elems := make([]attr.Value, len(result.OperatingsystemIDs))
+		for i, v := range result.OperatingsystemIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.OperatingsystemIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.OperatingsystemIDs = types.ListNull(types.Int64Type)
+	}
 	state.OsFamily = types.StringValue(result.OsFamily)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -156,8 +177,20 @@ func (r *mediumResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	body := &generated.ForemanMediumRequest{
-		Name:     plan.Name.ValueString(),
-		Path:     plan.Path.ValueString(),
+		Name: plan.Name.ValueString(),
+		Path: plan.Path.ValueString(),
+		OperatingsystemIDs: func() []int64 {
+			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.OperatingsystemIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		OsFamily: plan.OsFamily.ValueString(),
 	}
 

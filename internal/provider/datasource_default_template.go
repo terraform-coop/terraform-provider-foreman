@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -39,20 +39,20 @@ func (d *defaulttemplateDataSource) Metadata(_ context.Context, req datasource.M
 }
 
 func (d *defaulttemplateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the defaulttemplate to look up.",
 			},
-			"provisioning_template_id": schema.Int64Attribute{
+			"provisioning_template_id": dsdchema.Int64Attribute{
 				Computed:    true,
 				Description: "ID of provisioning template",
 			},
-			"template_kind_id": schema.Int64Attribute{
+			"template_kind_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
 		},

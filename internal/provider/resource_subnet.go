@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -221,16 +221,28 @@ func (r *subnetResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	body := &generated.ForemanSubnetRequest{
-		Name:              plan.Name.ValueString(),
-		Network:           plan.Network.ValueString(),
-		BmcID:             plan.BmcID.ValueInt64(),
-		BootMode:          plan.BootMode.ValueString(),
-		Cidr:              plan.Cidr.ValueString(),
-		Description:       plan.Description.ValueString(),
-		DhcpID:            plan.DhcpID.ValueInt64(),
-		DNSID:             plan.DNSID.ValueInt64(),
-		DNSPrimary:        plan.DNSPrimary.ValueString(),
-		DNSSecondary:      plan.DNSSecondary.ValueString(),
+		Name:         plan.Name.ValueString(),
+		Network:      plan.Network.ValueString(),
+		BmcID:        plan.BmcID.ValueInt64(),
+		BootMode:     plan.BootMode.ValueString(),
+		Cidr:         plan.Cidr.ValueString(),
+		Description:  plan.Description.ValueString(),
+		DhcpID:       plan.DhcpID.ValueInt64(),
+		DNSID:        plan.DNSID.ValueInt64(),
+		DNSPrimary:   plan.DNSPrimary.ValueString(),
+		DNSSecondary: plan.DNSSecondary.ValueString(),
+		DomainIDs: func() []int64 {
+			if plan.DomainIDs.IsNull() || plan.DomainIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.DomainIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		ExternalipamGroup: plan.ExternalipamGroup.ValueString(),
 		ExternalipamID:    plan.ExternalipamID.ValueInt64(),
 		From:              plan.From.ValueString(),
@@ -240,10 +252,22 @@ func (r *subnetResource) Create(ctx context.Context, req resource.CreateRequest,
 		Mask:              plan.Mask.ValueString(),
 		Mtu:               plan.Mtu.ValueInt64(),
 		NetworkType:       plan.NetworkType.ValueString(),
-		TemplateID:        plan.TemplateID.ValueInt64(),
-		TftpID:            plan.TftpID.ValueInt64(),
-		To:                plan.To.ValueString(),
-		Vlanid:            plan.Vlanid.ValueString(),
+		SubnetParametersAttributes: func() []int64 {
+			if plan.SubnetParametersAttributes.IsNull() || plan.SubnetParametersAttributes.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.SubnetParametersAttributes.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		TemplateID: plan.TemplateID.ValueInt64(),
+		TftpID:     plan.TftpID.ValueInt64(),
+		To:         plan.To.ValueString(),
+		Vlanid:     plan.Vlanid.ValueString(),
 	}
 
 	result, err := r.client.CreateForemanSubnet(ctx, body)
@@ -305,25 +329,43 @@ func (r *subnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 	state.Name = types.StringValue(result.Name)
 	state.Network = types.StringValue(result.Network)
-	state.BmcID = types.Int64Value(result.BmcID)
+	state.BmcID = types.Int64Value(int64(result.BmcID))
 	state.BootMode = types.StringValue(result.BootMode)
 	state.Cidr = types.StringValue(result.Cidr)
 	state.Description = types.StringValue(result.Description)
-	state.DhcpID = types.Int64Value(result.DhcpID)
-	state.DNSID = types.Int64Value(result.DNSID)
+	state.DhcpID = types.Int64Value(int64(result.DhcpID))
+	state.DNSID = types.Int64Value(int64(result.DNSID))
 	state.DNSPrimary = types.StringValue(result.DNSPrimary)
 	state.DNSSecondary = types.StringValue(result.DNSSecondary)
+	if result.DomainIDs != nil {
+		elems := make([]attr.Value, len(result.DomainIDs))
+		for i, v := range result.DomainIDs {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.DomainIDs = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.DomainIDs = types.ListNull(types.Int64Type)
+	}
 	state.ExternalipamGroup = types.StringValue(result.ExternalipamGroup)
-	state.ExternalipamID = types.Int64Value(result.ExternalipamID)
+	state.ExternalipamID = types.Int64Value(int64(result.ExternalipamID))
 	state.From = types.StringValue(result.From)
 	state.Gateway = types.StringValue(result.Gateway)
-	state.HTTPbootID = types.Int64Value(result.HTTPbootID)
+	state.HTTPbootID = types.Int64Value(int64(result.HTTPbootID))
 	state.IPam = types.StringValue(result.IPam)
 	state.Mask = types.StringValue(result.Mask)
-	state.Mtu = types.Int64Value(result.Mtu)
+	state.Mtu = types.Int64Value(int64(result.Mtu))
 	state.NetworkType = types.StringValue(result.NetworkType)
-	state.TemplateID = types.Int64Value(result.TemplateID)
-	state.TftpID = types.Int64Value(result.TftpID)
+	if result.SubnetParametersAttributes != nil {
+		elems := make([]attr.Value, len(result.SubnetParametersAttributes))
+		for i, v := range result.SubnetParametersAttributes {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.SubnetParametersAttributes = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.SubnetParametersAttributes = types.ListNull(types.Int64Type)
+	}
+	state.TemplateID = types.Int64Value(int64(result.TemplateID))
+	state.TftpID = types.Int64Value(int64(result.TftpID))
 	state.To = types.StringValue(result.To)
 	state.Vlanid = types.StringValue(result.Vlanid)
 
@@ -344,16 +386,28 @@ func (r *subnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	body := &generated.ForemanSubnetRequest{
-		Name:              plan.Name.ValueString(),
-		Network:           plan.Network.ValueString(),
-		BmcID:             plan.BmcID.ValueInt64(),
-		BootMode:          plan.BootMode.ValueString(),
-		Cidr:              plan.Cidr.ValueString(),
-		Description:       plan.Description.ValueString(),
-		DhcpID:            plan.DhcpID.ValueInt64(),
-		DNSID:             plan.DNSID.ValueInt64(),
-		DNSPrimary:        plan.DNSPrimary.ValueString(),
-		DNSSecondary:      plan.DNSSecondary.ValueString(),
+		Name:         plan.Name.ValueString(),
+		Network:      plan.Network.ValueString(),
+		BmcID:        plan.BmcID.ValueInt64(),
+		BootMode:     plan.BootMode.ValueString(),
+		Cidr:         plan.Cidr.ValueString(),
+		Description:  plan.Description.ValueString(),
+		DhcpID:       plan.DhcpID.ValueInt64(),
+		DNSID:        plan.DNSID.ValueInt64(),
+		DNSPrimary:   plan.DNSPrimary.ValueString(),
+		DNSSecondary: plan.DNSSecondary.ValueString(),
+		DomainIDs: func() []int64 {
+			if plan.DomainIDs.IsNull() || plan.DomainIDs.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.DomainIDs.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		ExternalipamGroup: plan.ExternalipamGroup.ValueString(),
 		ExternalipamID:    plan.ExternalipamID.ValueInt64(),
 		From:              plan.From.ValueString(),
@@ -363,10 +417,22 @@ func (r *subnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 		Mask:              plan.Mask.ValueString(),
 		Mtu:               plan.Mtu.ValueInt64(),
 		NetworkType:       plan.NetworkType.ValueString(),
-		TemplateID:        plan.TemplateID.ValueInt64(),
-		TftpID:            plan.TftpID.ValueInt64(),
-		To:                plan.To.ValueString(),
-		Vlanid:            plan.Vlanid.ValueString(),
+		SubnetParametersAttributes: func() []int64 {
+			if plan.SubnetParametersAttributes.IsNull() || plan.SubnetParametersAttributes.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.SubnetParametersAttributes.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
+		TemplateID: plan.TemplateID.ValueInt64(),
+		TftpID:     plan.TftpID.ValueInt64(),
+		To:         plan.To.ValueString(),
+		Vlanid:     plan.Vlanid.ValueString(),
 	}
 
 	result, err := r.client.UpdateForemanSubnet(ctx, id, body)

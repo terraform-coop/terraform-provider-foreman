@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -270,16 +269,16 @@ func (r *hostResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 	state.BmcAvailable = types.BoolValue(result.BmcAvailable)
-	state.BuildStatus = types.Int64Value(result.BuildStatus)
+	state.BuildStatus = types.Int64Value(int64(result.BuildStatus))
 	state.BuildStatusLabel = types.StringValue(result.BuildStatusLabel)
 	state.Certname = types.StringValue(result.Certname)
 	state.Comment = types.StringValue(result.Comment)
 	state.ComputeResourceProvider = types.StringValue(result.ComputeResourceProvider)
 	state.Creator = types.StringValue(result.Creator)
-	state.CreatorID = types.Int64Value(result.CreatorID)
+	state.CreatorID = types.Int64Value(int64(result.CreatorID))
 	state.Disk = types.StringValue(result.Disk)
 	state.DisplayName = types.StringValue(result.DisplayName)
-	state.GlobalStatus = types.Int64Value(result.GlobalStatus)
+	state.GlobalStatus = types.Int64Value(int64(result.GlobalStatus))
 	state.GlobalStatusLabel = types.StringValue(result.GlobalStatusLabel)
 	state.HostgroupTitle = types.StringValue(result.HostgroupTitle)
 	state.InitiatedAt = types.StringValue(result.InitiatedAt)

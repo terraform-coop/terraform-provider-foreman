@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -170,7 +169,7 @@ func (r *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 	state.UUID = types.StringValue(result.UUID)
 	state.ArchitectureID = types.StringValue(result.ArchitectureID)
 	state.ComputeResourceID = types.StringValue(result.ComputeResourceID)
-	state.OperatingsystemID = types.Int64Value(result.OperatingsystemID)
+	state.OperatingsystemID = types.Int64Value(int64(result.OperatingsystemID))
 	state.Password = types.StringValue(result.Password)
 	state.UserData = types.BoolValue(result.UserData)
 

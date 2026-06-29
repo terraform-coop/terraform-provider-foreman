@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -43,31 +43,31 @@ func (d *webhook_templateDataSource) Metadata(_ context.Context, req datasource.
 }
 
 func (d *webhook_templateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the webhook_template to look up.",
 			},
-			"template": schema.StringAttribute{
+			"template": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"snippet": schema.BoolAttribute{
+			"snippet": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"audit_comment": schema.StringAttribute{
+			"audit_comment": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"locked": schema.BoolAttribute{
+			"locked": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"default": schema.BoolAttribute{
+			"default": dsdchema.BoolAttribute{
 				Computed: true,
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
 		},

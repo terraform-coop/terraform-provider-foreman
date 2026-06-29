@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -40,22 +40,22 @@ func (d *job_templateDataSource) Metadata(_ context.Context, req datasource.Meta
 }
 
 func (d *job_templateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the job_template to look up.",
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"job_category": schema.StringAttribute{
+			"job_category": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"provider_type": schema.StringAttribute{
+			"provider_type": dsdchema.StringAttribute{
 				Computed: true,
 			},
 		},

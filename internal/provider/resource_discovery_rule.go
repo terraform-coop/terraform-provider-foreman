@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -158,10 +157,10 @@ func (r *discovery_ruleResource) Read(ctx context.Context, req resource.ReadRequ
 	}
 	state.Name = types.StringValue(result.Name)
 	state.Search = types.StringValue(result.Search)
-	state.HostgroupID = types.Int64Value(result.HostgroupID)
+	state.HostgroupID = types.Int64Value(int64(result.HostgroupID))
 	state.Hostname = types.StringValue(result.Hostname)
-	state.HostsLimitMaxCount = types.Int64Value(result.HostsLimitMaxCount)
-	state.Priority = types.Int64Value(result.Priority)
+	state.HostsLimitMaxCount = types.Int64Value(int64(result.HostsLimitMaxCount))
+	state.Priority = types.Int64Value(int64(result.Priority))
 	state.Enabled = types.BoolValue(result.Enabled)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)

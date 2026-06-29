@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -49,49 +49,49 @@ func (d *hostgroupDataSource) Metadata(_ context.Context, req datasource.Metadat
 }
 
 func (d *hostgroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the hostgroup to look up.",
 			},
-			"architecture_id": schema.Int64Attribute{
+			"architecture_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"compute_profile_id": schema.Int64Attribute{
+			"compute_profile_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"domain_id": schema.Int64Attribute{
+			"domain_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"medium_id": schema.Int64Attribute{
+			"medium_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"operatingsystem_id": schema.Int64Attribute{
+			"operatingsystem_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"parent_id": schema.StringAttribute{
+			"parent_id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"ptable_id": schema.Int64Attribute{
+			"ptable_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"pxe_loader": schema.StringAttribute{
+			"pxe_loader": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"realm_id": schema.StringAttribute{
+			"realm_id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"subnet6_id": schema.Int64Attribute{
+			"subnet6_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"subnet_id": schema.Int64Attribute{
+			"subnet_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
 		},

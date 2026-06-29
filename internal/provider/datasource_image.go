@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -44,38 +44,38 @@ func (d *imageDataSource) Metadata(_ context.Context, req datasource.MetadataReq
 }
 
 func (d *imageDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the image to look up.",
 			},
-			"username": schema.StringAttribute{
+			"username": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"uuid": schema.StringAttribute{
+			"uuid": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Template ID in the compute resource",
 			},
-			"architecture_id": schema.StringAttribute{
+			"architecture_id": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "ID of architecture",
 			},
-			"compute_resource_id": schema.StringAttribute{
+			"compute_resource_id": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "ID of compute resource",
 			},
-			"operatingsystem_id": schema.Int64Attribute{
+			"operatingsystem_id": dsdchema.Int64Attribute{
 				Computed:    true,
 				Description: "ID of operating system",
 			},
-			"password": schema.StringAttribute{
+			"password": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"user_data": schema.BoolAttribute{
+			"user_data": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Whether or not the image supports user data",
 			},

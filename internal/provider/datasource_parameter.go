@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -40,23 +40,23 @@ func (d *parameterDataSource) Metadata(_ context.Context, req datasource.Metadat
 }
 
 func (d *parameterDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the parameter to look up.",
 			},
-			"parameter_type": schema.StringAttribute{
+			"parameter_type": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Type of value",
 			},
-			"value": schema.StringAttribute{
+			"value": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hidden_value": schema.BoolAttribute{
+			"hidden_value": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Should the value be hidden",
 			},

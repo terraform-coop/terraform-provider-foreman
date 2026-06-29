@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -52,71 +52,71 @@ func (d *computeresourceDataSource) Metadata(_ context.Context, req datasource.M
 }
 
 func (d *computeresourceDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the computeresource to look up.",
 			},
-			"caching_enabled": schema.BoolAttribute{
+			"caching_enabled": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "enable caching, for VMware only",
 			},
-			"datacenter": schema.StringAttribute{
+			"datacenter": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for VMware Datacenter",
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"display_type": schema.StringAttribute{
+			"display_type": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for Libvirt only",
 			},
-			"domain": schema.StringAttribute{
+			"domain": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for OpenStack (v3) only",
 			},
-			"password": schema.StringAttribute{
+			"password": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Password for EC2, VMware, OpenStack. Secret key for EC2",
 			},
-			"project_domain_id": schema.StringAttribute{
+			"project_domain_id": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for OpenStack (v3) only",
 			},
-			"project_domain_name": schema.StringAttribute{
+			"project_domain_name": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for OpenStack (v3) only",
 			},
-			"provider": schema.StringAttribute{
+			"provider": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Providers include Libvirt, EC2, Vmware, Openstack",
 			},
-			"region": schema.StringAttribute{
+			"region": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for AzureRm eg. &#39;eastus&#39; and for EC2 only. Use &#39;us-gov-west-1&#39; for EC2 GovCloud region",
 			},
-			"server": schema.StringAttribute{
+			"server": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for VMware",
 			},
-			"set_console_password": schema.BoolAttribute{
+			"set_console_password": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "for Libvirt and VMware only",
 			},
-			"tenant": schema.StringAttribute{
+			"tenant": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "for OpenStack and AzureRm only",
 			},
-			"url": schema.StringAttribute{
+			"url": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "URL for Libvirt and OpenStack",
 			},
-			"user": schema.StringAttribute{
+			"user": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Username for EC2, VMware, OpenStack. Access Key for EC2.",
 			},

@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -43,31 +43,31 @@ func (d *discovery_ruleDataSource) Metadata(_ context.Context, req datasource.Me
 }
 
 func (d *discovery_ruleDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the discovery_rule to look up.",
 			},
-			"search": schema.StringAttribute{
+			"search": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hostgroup_id": schema.Int64Attribute{
+			"hostgroup_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"hostname": schema.StringAttribute{
+			"hostname": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hosts_limit": schema.Int64Attribute{
+			"hosts_limit": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"priority": schema.Int64Attribute{
+			"priority": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"enabled": schema.BoolAttribute{
+			"enabled": dsdchema.BoolAttribute{
 				Computed: true,
 			},
 		},

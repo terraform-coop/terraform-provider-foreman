@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -47,52 +47,52 @@ func (d *templateinputDataSource) Metadata(_ context.Context, req datasource.Met
 }
 
 func (d *templateinputDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the templateinput to look up.",
 			},
-			"input_type": schema.StringAttribute{
+			"input_type": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Input type",
 			},
-			"advanced": schema.BoolAttribute{
+			"advanced": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Input is advanced",
 			},
-			"default": schema.StringAttribute{
+			"default": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Default value for user input",
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Input description",
 			},
-			"fact_name": schema.StringAttribute{
+			"fact_name": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Fact name, used when input type is Fact value",
 			},
-			"hidden_value": schema.BoolAttribute{
+			"hidden_value": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "The value contains sensitive information and shouldn not be normally visible, useful e.g. for passwords",
 			},
-			"required": schema.BoolAttribute{
+			"required": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Input is required",
 			},
-			"resource_type": schema.StringAttribute{
+			"resource_type": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "For values of type search, this is the resource the value searches in",
 			},
-			"value_type": schema.StringAttribute{
+			"value_type": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Value type, defaults to plain",
 			},
-			"variable_name": schema.StringAttribute{
+			"variable_name": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Variable name, used when input type is Variable",
 			},

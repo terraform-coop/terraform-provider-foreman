@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -41,25 +41,25 @@ func (d *modelDataSource) Metadata(_ context.Context, req datasource.MetadataReq
 }
 
 func (d *modelDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the model to look up.",
 			},
-			"hardware_model": schema.StringAttribute{
+			"hardware_model": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hosts_count": schema.Int64Attribute{
+			"hosts_count": dsdchema.Int64Attribute{
 				Computed: true,
 			},
-			"info": schema.StringAttribute{
+			"info": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"vendor_class": schema.StringAttribute{
+			"vendor_class": dsdchema.StringAttribute{
 				Computed: true,
 			},
 		},

@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -43,32 +43,32 @@ func (d *partitiontableDataSource) Metadata(_ context.Context, req datasource.Me
 }
 
 func (d *partitiontableDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the partitiontable to look up.",
 			},
-			"layout": schema.StringAttribute{
+			"layout": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"audit_comment": schema.StringAttribute{
+			"audit_comment": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"locked": schema.BoolAttribute{
+			"locked": dsdchema.BoolAttribute{
 				Computed:    true,
 				Description: "Whether or not the template is locked for editing",
 			},
-			"os_family": schema.StringAttribute{
+			"os_family": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"snippet": schema.BoolAttribute{
+			"snippet": dsdchema.BoolAttribute{
 				Computed: true,
 			},
 		},

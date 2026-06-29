@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -43,32 +43,32 @@ func (d *operatingsystemDataSource) Metadata(_ context.Context, req datasource.M
 }
 
 func (d *operatingsystemDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the operatingsystem to look up.",
 			},
-			"major": schema.StringAttribute{
+			"major": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"description": schema.StringAttribute{
+			"description": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"family": schema.StringAttribute{
+			"family": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"minor": schema.StringAttribute{
+			"minor": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"password_hash": schema.StringAttribute{
+			"password_hash": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Root password hash function to use",
 			},
-			"release_name": schema.StringAttribute{
+			"release_name": dsdchema.StringAttribute{
 				Computed: true,
 			},
 		},

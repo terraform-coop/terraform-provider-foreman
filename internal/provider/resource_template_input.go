@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -142,13 +142,25 @@ func (r *templateinputResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	body := &generated.ForemanTemplateInputRequest{
-		InputType:    plan.InputType.ValueString(),
-		Name:         plan.Name.ValueString(),
-		Advanced:     plan.Advanced.ValueBool(),
-		Default:      plan.Default.ValueString(),
-		Description:  plan.Description.ValueString(),
-		FactName:     plan.FactName.ValueString(),
-		HiddenValue:  plan.HiddenValue.ValueBool(),
+		InputType:   plan.InputType.ValueString(),
+		Name:        plan.Name.ValueString(),
+		Advanced:    plan.Advanced.ValueBool(),
+		Default:     plan.Default.ValueString(),
+		Description: plan.Description.ValueString(),
+		FactName:    plan.FactName.ValueString(),
+		HiddenValue: plan.HiddenValue.ValueBool(),
+		Options: func() []int64 {
+			if plan.Options.IsNull() || plan.Options.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.Options.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		Required:     plan.Required.ValueBool(),
 		ResourceType: plan.ResourceType.ValueString(),
 		ValueType:    plan.ValueType.ValueString(),
@@ -207,6 +219,15 @@ func (r *templateinputResource) Read(ctx context.Context, req resource.ReadReque
 	state.Description = types.StringValue(result.Description)
 	state.FactName = types.StringValue(result.FactName)
 	state.HiddenValue = types.BoolValue(result.HiddenValue)
+	if result.Options != nil {
+		elems := make([]attr.Value, len(result.Options))
+		for i, v := range result.Options {
+			elems[i] = types.Int64Value(int64(v))
+		}
+		state.Options = types.ListValueMust(types.Int64Type, elems)
+	} else {
+		state.Options = types.ListNull(types.Int64Type)
+	}
 	state.Required = types.BoolValue(result.Required)
 	state.ResourceType = types.StringValue(result.ResourceType)
 	state.ValueType = types.StringValue(result.ValueType)
@@ -229,13 +250,25 @@ func (r *templateinputResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	body := &generated.ForemanTemplateInputRequest{
-		InputType:    plan.InputType.ValueString(),
-		Name:         plan.Name.ValueString(),
-		Advanced:     plan.Advanced.ValueBool(),
-		Default:      plan.Default.ValueString(),
-		Description:  plan.Description.ValueString(),
-		FactName:     plan.FactName.ValueString(),
-		HiddenValue:  plan.HiddenValue.ValueBool(),
+		InputType:   plan.InputType.ValueString(),
+		Name:        plan.Name.ValueString(),
+		Advanced:    plan.Advanced.ValueBool(),
+		Default:     plan.Default.ValueString(),
+		Description: plan.Description.ValueString(),
+		FactName:    plan.FactName.ValueString(),
+		HiddenValue: plan.HiddenValue.ValueBool(),
+		Options: func() []int64 {
+			if plan.Options.IsNull() || plan.Options.IsUnknown() {
+				return nil
+			}
+			var ids []int64
+			for _, v := range plan.Options.Elements() {
+				if iv, ok := v.(types.Int64); ok {
+					ids = append(ids, iv.ValueInt64())
+				}
+			}
+			return ids
+		}(),
 		Required:     plan.Required.ValueBool(),
 		ResourceType: plan.ResourceType.ValueString(),
 		ValueType:    plan.ValueType.ValueString(),

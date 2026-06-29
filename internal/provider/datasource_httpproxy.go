@@ -10,7 +10,7 @@ import (
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -40,24 +40,24 @@ func (d *httpproxyDataSource) Metadata(_ context.Context, req datasource.Metadat
 }
 
 func (d *httpproxyDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+	resp.Schema = dsdchema.Schema{
+		Attributes: map[string]dsdchema.Attribute{
+			"id": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"name": schema.StringAttribute{
+			"name": dsdchema.StringAttribute{
 				Required:    true,
 				Description: "The name of the httpproxy to look up.",
 			},
-			"url": schema.StringAttribute{
+			"url": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "URL of the HTTP Proxy",
 			},
-			"password": schema.StringAttribute{
+			"password": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Password used to authenticate with the HTTP Proxy",
 			},
-			"username": schema.StringAttribute{
+			"username": dsdchema.StringAttribute{
 				Computed:    true,
 				Description: "Username used to authenticate with the HTTP Proxy",
 			},

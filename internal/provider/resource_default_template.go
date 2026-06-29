@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -16,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
 var (
@@ -122,8 +121,8 @@ func (r *defaulttemplateResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read defaulttemplate, got error: %s", err))
 		return
 	}
-	state.ProvisioningTemplateID = types.Int64Value(result.ProvisioningTemplateID)
-	state.TemplateKindID = types.Int64Value(result.TemplateKindID)
+	state.ProvisioningTemplateID = types.Int64Value(int64(result.ProvisioningTemplateID))
+	state.TemplateKindID = types.Int64Value(int64(result.TemplateKindID))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
