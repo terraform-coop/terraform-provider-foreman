@@ -1013,9 +1013,8 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 - [x] Taxonomy wrapping (org/loc IDs added to request body)
 - [x] Wrapper key correctness (resource key in request body)
 - [x] Client regression tests (taxonomy, wrapper key, 404 handling)
-- [ ] Custom JSON marshaling (compute_profile vm_attrs, hostgroup KV params, operating_system nested types)
-- [ ] Diff suppression (host name domain suffix, katello sync_date normalization, repository download_concurrency)
-- [ ] TypeList/TypeSet for nested schemas (host interfaces, compute_profile attributes, template_combinations)
-- [ ] Async task polling (Katello content_view publish/remove)
-- [ ] State migration (host v0→v1)
+- [x] Hostgroup parameters (dual-format array/map, hand-written resource)
+- [x] Generator: skip_resources option, hand-written file protection
+- [ ] Custom JSON marshal for operating_system, media, partition_table (3-attempt unmarshal pattern)
+- [ ] Nested TypeList schemas (host interfaces_attributes, compute_attributes)
 - [ ] HCL examples, tfplugindocs

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -32,6 +33,48 @@ type hostgroupResource struct {
 type foremanHostgroupWithParams struct {
 	generated.ForemanHostgroup
 	Parameters map[string]string `json:"parameters"`
+}
+
+// UnmarshalJSON handles the Foreman API's inconsistent parameter format.
+// Parameters can be returned as [{name, value}] array or {"key": "value"} map.
+func (h *foremanHostgroupWithParams) UnmarshalJSON(data []byte) error {
+	// First unmarshal the base ForemanHostgroup
+	if err := json.Unmarshal(data, &h.ForemanHostgroup); err != nil {
+		return err
+	}
+
+	// Then handle parameters separately
+	var raw struct {
+		Parameters json.RawMessage `json:"parameters"`
+	}
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return err
+	}
+
+	if len(raw.Parameters) > 0 {
+		// Try array format: [{"name": "key", "value": "val"}, ...]
+		var params []struct {
+			Name  string `json:"name"`
+			Value string `json:"value"`
+		}
+		if err := json.Unmarshal(raw.Parameters, &params); err == nil {
+			h.Parameters = make(map[string]string)
+			for _, p := range params {
+				h.Parameters[p.Name] = p.Value
+			}
+		} else {
+			// Try map format: {"key": "val", ...}
+			var paramsMap map[string]interface{}
+			if err := json.Unmarshal(raw.Parameters, &paramsMap); err == nil {
+				h.Parameters = make(map[string]string)
+				for k, v := range paramsMap {
+					h.Parameters[k] = fmt.Sprintf("%v", v)
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 type hostgroupResourceModel struct {
