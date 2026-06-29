@@ -1,5 +1,7 @@
 # Type corrections and field exclusions for generated Foreman client code.
 # Run `go generate` to regenerate after editing this file.
+skip_resources:
+  - hostgroups  # Hand-written: has custom parameter handling
 resources:
   hosts:
     exclude_fields:
