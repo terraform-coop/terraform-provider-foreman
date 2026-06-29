@@ -164,6 +164,10 @@ func (r *provisioningtemplateResource) Read(ctx context.Context, req resource.Re
 
 	result, err := r.client.ReadForemanProvisioningTemplate(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read provisioningtemplate, got error: %s", err))
 		return
 	}
@@ -230,7 +234,7 @@ func (r *provisioningtemplateResource) Delete(ctx context.Context, req resource.
 	}
 
 	err = r.client.DeleteForemanProvisioningTemplate(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete provisioningtemplate, got error: %s", err))
 		return
 	}

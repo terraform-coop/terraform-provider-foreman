@@ -107,6 +107,10 @@ func (r *environmentResource) Read(ctx context.Context, req resource.ReadRequest
 
 	result, err := r.client.ReadForemanEnvironment(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read environment, got error: %s", err))
 		return
 	}
@@ -155,7 +159,7 @@ func (r *environmentResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	err = r.client.DeleteForemanEnvironment(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete environment, got error: %s", err))
 		return
 	}

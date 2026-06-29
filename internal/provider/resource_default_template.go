@@ -115,6 +115,10 @@ func (r *defaulttemplateResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.ReadForemanDefaultTemplate(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read defaulttemplate, got error: %s", err))
 		return
 	}
@@ -166,7 +170,7 @@ func (r *defaulttemplateResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.DeleteForemanDefaultTemplate(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete defaulttemplate, got error: %s", err))
 		return
 	}

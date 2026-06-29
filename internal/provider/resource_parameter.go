@@ -127,6 +127,10 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	result, err := r.client.ReadForemanParameter(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read parameter, got error: %s", err))
 		return
 	}
@@ -184,7 +188,7 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	err = r.client.DeleteForemanParameter(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete parameter, got error: %s", err))
 		return
 	}

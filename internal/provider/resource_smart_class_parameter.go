@@ -113,6 +113,10 @@ func (r *smartclassparameterResource) Read(ctx context.Context, req resource.Rea
 
 	result, err := r.client.ReadForemanSmartClassParameter(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read smartclassparameter, got error: %s", err))
 		return
 	}

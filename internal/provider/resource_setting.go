@@ -88,6 +88,10 @@ func (r *settingResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	result, err := r.client.ReadForemanSetting(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read setting, got error: %s", err))
 		return
 	}

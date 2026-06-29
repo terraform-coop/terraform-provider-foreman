@@ -130,6 +130,10 @@ func (r *domainResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	result, err := r.client.ReadForemanDomain(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read domain, got error: %s", err))
 		return
 	}
@@ -184,7 +188,7 @@ func (r *domainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	err = r.client.DeleteForemanDomain(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete domain, got error: %s", err))
 		return
 	}

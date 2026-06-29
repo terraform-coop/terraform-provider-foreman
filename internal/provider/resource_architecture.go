@@ -113,6 +113,10 @@ func (r *architectureResource) Read(ctx context.Context, req resource.ReadReques
 
 	result, err := r.client.ReadForemanArchitecture(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read architecture, got error: %s", err))
 		return
 	}
@@ -161,7 +165,7 @@ func (r *architectureResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	err = r.client.DeleteForemanArchitecture(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete architecture, got error: %s", err))
 		return
 	}

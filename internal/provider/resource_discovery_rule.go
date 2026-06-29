@@ -149,6 +149,10 @@ func (r *discovery_ruleResource) Read(ctx context.Context, req resource.ReadRequ
 
 	result, err := r.client.ReadForemanDiscoveryRule(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read discovery_rule, got error: %s", err))
 		return
 	}
@@ -215,7 +219,7 @@ func (r *discovery_ruleResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	err = r.client.DeleteForemanDiscoveryRule(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete discovery_rule, got error: %s", err))
 		return
 	}

@@ -183,6 +183,10 @@ func (r *operatingsystemResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.ReadForemanOperatingSystem(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read operatingsystem, got error: %s", err))
 		return
 	}
@@ -249,7 +253,7 @@ func (r *operatingsystemResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.DeleteForemanOperatingSystem(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete operatingsystem, got error: %s", err))
 		return
 	}

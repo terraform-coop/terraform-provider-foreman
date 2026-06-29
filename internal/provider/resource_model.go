@@ -127,6 +127,10 @@ func (r *modelResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	result, err := r.client.ReadForemanModel(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read model, got error: %s", err))
 		return
 	}
@@ -183,7 +187,7 @@ func (r *modelResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	err = r.client.DeleteForemanModel(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete model, got error: %s", err))
 		return
 	}

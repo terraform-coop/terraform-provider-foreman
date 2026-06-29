@@ -106,6 +106,10 @@ func (r *computeprofileResource) Read(ctx context.Context, req resource.ReadRequ
 
 	result, err := r.client.ReadForemanComputeProfile(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read computeprofile, got error: %s", err))
 		return
 	}
@@ -154,7 +158,7 @@ func (r *computeprofileResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	err = r.client.DeleteForemanComputeProfile(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeprofile, got error: %s", err))
 		return
 	}

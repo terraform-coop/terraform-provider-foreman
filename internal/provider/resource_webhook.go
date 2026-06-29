@@ -177,6 +177,10 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	result, err := r.client.ReadForemanWebhook(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read webhook, got error: %s", err))
 		return
 	}
@@ -255,7 +259,7 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 	}
 
 	err = r.client.DeleteForemanWebhook(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete webhook, got error: %s", err))
 		return
 	}

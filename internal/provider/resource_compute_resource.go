@@ -225,6 +225,10 @@ func (r *computeresourceResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.ReadForemanComputeResource(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read computeresource, got error: %s", err))
 		return
 	}
@@ -318,7 +322,7 @@ func (r *computeresourceResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.DeleteForemanComputeResource(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeresource, got error: %s", err))
 		return
 	}

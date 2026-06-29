@@ -184,6 +184,10 @@ func (r *hostgroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	result, err := r.client.ReadForemanHostgroup(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read hostgroup, got error: %s", err))
 		return
 	}
@@ -265,7 +269,7 @@ func (r *hostgroupResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	err = r.client.DeleteForemanHostgroup(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete hostgroup, got error: %s", err))
 		return
 	}

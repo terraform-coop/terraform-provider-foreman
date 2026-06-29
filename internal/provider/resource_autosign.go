@@ -107,7 +107,7 @@ func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	err = r.client.DeleteForemanAutosign(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete autosign, got error: %s", err))
 		return
 	}

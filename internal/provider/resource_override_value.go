@@ -137,6 +137,10 @@ func (r *overrideValueResource) Read(ctx context.Context, req resource.ReadReque
 
 	result, err := r.client.ReadForemanOverrideValue(ctx, scpID, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read override_value, got error: %s", err))
 		return
 	}
@@ -194,7 +198,7 @@ func (r *overrideValueResource) Delete(ctx context.Context, req resource.DeleteR
 	}
 
 	err = r.client.DeleteForemanOverrideValue(ctx, scpID, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete override_value, got error: %s", err))
 		return
 	}

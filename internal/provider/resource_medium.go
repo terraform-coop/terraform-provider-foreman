@@ -128,6 +128,10 @@ func (r *mediumResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	result, err := r.client.ReadForemanMedium(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read medium, got error: %s", err))
 		return
 	}
@@ -182,7 +186,7 @@ func (r *mediumResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	err = r.client.DeleteForemanMedium(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete medium, got error: %s", err))
 		return
 	}

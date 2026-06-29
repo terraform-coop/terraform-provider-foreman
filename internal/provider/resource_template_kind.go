@@ -88,6 +88,10 @@ func (r *templatekindResource) Read(ctx context.Context, req resource.ReadReques
 
 	result, err := r.client.ReadForemanTemplateKind(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read templatekind, got error: %s", err))
 		return
 	}

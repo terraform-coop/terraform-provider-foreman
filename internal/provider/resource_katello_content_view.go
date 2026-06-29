@@ -184,6 +184,10 @@ func (r *katelloContentViewResource) Read(ctx context.Context, req resource.Read
 
 	result, err := r.client.ReadForemanKatelloContentView(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello content view, got error: %s", err))
 		return
 	}
@@ -262,7 +266,7 @@ func (r *katelloContentViewResource) Delete(ctx context.Context, req resource.De
 	}
 
 	err = r.client.DeleteForemanKatelloContentView(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello content view, got error: %s", err))
 		return
 	}

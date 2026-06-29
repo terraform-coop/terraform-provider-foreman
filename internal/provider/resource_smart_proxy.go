@@ -112,6 +112,10 @@ func (r *smartproxyResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	result, err := r.client.ReadForemanSmartProxy(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read smartproxy, got error: %s", err))
 		return
 	}
@@ -163,7 +167,7 @@ func (r *smartproxyResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	err = r.client.DeleteForemanSmartProxy(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete smartproxy, got error: %s", err))
 		return
 	}

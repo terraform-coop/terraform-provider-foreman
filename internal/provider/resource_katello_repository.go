@@ -205,6 +205,10 @@ func (r *katelloRepositoryResource) Read(ctx context.Context, req resource.ReadR
 
 	result, err := r.client.ReadForemanKatelloRepository(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello repository, got error: %s", err))
 		return
 	}
@@ -296,7 +300,7 @@ func (r *katelloRepositoryResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	err = r.client.DeleteForemanKatelloRepository(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello repository, got error: %s", err))
 		return
 	}

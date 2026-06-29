@@ -135,6 +135,10 @@ func (r *katelloLifecycleEnvironmentResource) Read(ctx context.Context, req reso
 
 	result, err := r.client.ReadForemanKatelloLifecycleEnvironment(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello lifecycle environment, got error: %s", err))
 		return
 	}
@@ -195,7 +199,7 @@ func (r *katelloLifecycleEnvironmentResource) Delete(ctx context.Context, req re
 	}
 
 	err = r.client.DeleteForemanKatelloLifecycleEnvironment(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello lifecycle environment, got error: %s", err))
 		return
 	}

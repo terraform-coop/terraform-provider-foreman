@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -112,7 +113,7 @@ func (c *ForemanClient) send(req *http.Request) (int, []byte, error) {
 func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody, respObj interface{}) error {
 	var bodyReader io.Reader
 	if reqBody != nil {
-		payload, err := c.wrapJSONWithTaxonomy(reqBody)
+		payload, err := json.Marshal(reqBody)
 		if err != nil {
 			return fmt.Errorf("failed to marshal request: %w", err)
 		}
@@ -160,14 +161,10 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 	return nil
 }
 
-func (c *ForemanClient) wrapJSONWithTaxonomy(reqBody interface{}) ([]byte, error) {
-	data, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, err
-	}
-	var m map[string]interface{}
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
+func (c *ForemanClient) addTaxonomy(body interface{}) interface{} {
+	m, ok := body.(map[string]interface{})
+	if !ok {
+		return body
 	}
 	if c.config.OrganizationID > 0 {
 		m["organization_id"] = c.config.OrganizationID
@@ -175,7 +172,7 @@ func (c *ForemanClient) wrapJSONWithTaxonomy(reqBody interface{}) ([]byte, error
 	if c.config.LocationID > 0 {
 		m["location_id"] = c.config.LocationID
 	}
-	return json.Marshal(m)
+	return m
 }
 
 func (c *ForemanClient) Get(ctx context.Context, endpoint string, respObj interface{}) error {
@@ -184,16 +181,22 @@ func (c *ForemanClient) Get(ctx context.Context, endpoint string, respObj interf
 
 func (c *ForemanClient) Post(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
 	wrapped := c.wrapRequestBody(wrapperKey, reqBody)
-	return c.do(ctx, http.MethodPost, endpoint, wrapped, respObj)
+	taxonomy := c.addTaxonomy(wrapped)
+	return c.do(ctx, http.MethodPost, endpoint, taxonomy, respObj)
 }
 
 func (c *ForemanClient) Put(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
 	wrapped := c.wrapRequestBody(wrapperKey, reqBody)
-	return c.do(ctx, http.MethodPut, endpoint, wrapped, respObj)
+	taxonomy := c.addTaxonomy(wrapped)
+	return c.do(ctx, http.MethodPut, endpoint, taxonomy, respObj)
 }
 
 func (c *ForemanClient) Delete(ctx context.Context, endpoint string) error {
-	return c.do(ctx, http.MethodDelete, endpoint, nil, nil)
+	err := c.do(ctx, http.MethodDelete, endpoint, nil, nil)
+	if err != nil && IsNotFoundError(err) {
+		return nil // Already deleted is not an error
+	}
+	return err
 }
 
 func (c *ForemanClient) wrapRequestBody(wrapperKey string, reqBody interface{}) interface{} {
@@ -215,6 +218,18 @@ func (e *HTTPError) Error() string {
 
 func (e *HTTPError) IsNotFound() bool {
 	return e.StatusCode == http.StatusNotFound
+}
+
+// IsNotFoundError returns true if the error is a 404 (resource not found).
+func IsNotFoundError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var httpErr *HTTPError
+	if errors.As(err, &httpErr) {
+		return httpErr.IsNotFound()
+	}
+	return false
 }
 
 func (c *ForemanClient) waitForKatelloTask(ctx context.Context, taskID int) (*ForemanTask, error) {

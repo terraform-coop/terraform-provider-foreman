@@ -107,6 +107,10 @@ func (r *puppetclassResource) Read(ctx context.Context, req resource.ReadRequest
 
 	result, err := r.client.ReadForemanPuppetClass(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read puppetclass, got error: %s", err))
 		return
 	}
@@ -155,7 +159,7 @@ func (r *puppetclassResource) Delete(ctx context.Context, req resource.DeleteReq
 	}
 
 	err = r.client.DeleteForemanPuppetClass(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete puppetclass, got error: %s", err))
 		return
 	}

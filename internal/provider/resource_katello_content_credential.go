@@ -114,6 +114,10 @@ func (r *katelloContentCredentialResource) Read(ctx context.Context, req resourc
 
 	result, err := r.client.ReadForemanKatelloContentCredential(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello content credential, got error: %s", err))
 		return
 	}
@@ -166,7 +170,7 @@ func (r *katelloContentCredentialResource) Delete(ctx context.Context, req resou
 	}
 
 	err = r.client.DeleteForemanKatelloContentCredential(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello content credential, got error: %s", err))
 		return
 	}

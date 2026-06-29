@@ -140,7 +140,6 @@ func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resourc
 		NewForemanMediumResource,
 		NewForemanModelResource,
 		NewForemanOperatingSystemResource,
-		NewForemanOverrideValueResource,
 		NewForemanParameterResource,
 		NewForemanPartitionTableResource,
 		NewForemanProvisioningTemplateResource,
@@ -158,12 +157,6 @@ func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resourc
 		NewForemanDiscoveryRuleResource,
 		NewForemanWebhookResource,
 		NewForemanWebhookTemplateResource,
-		NewKatelloContentCredentialResource,
-		NewKatelloContentViewResource,
-		NewKatelloLifecycleEnvironmentResource,
-		NewKatelloProductResource,
-		NewKatelloRepositoryResource,
-		NewKatelloSyncPlanResource,
 	}
 }
 

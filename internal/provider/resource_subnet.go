@@ -296,6 +296,10 @@ func (r *subnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	result, err := r.client.ReadForemanSubnet(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read subnet, got error: %s", err))
 		return
 	}
@@ -410,7 +414,7 @@ func (r *subnetResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	err = r.client.DeleteForemanSubnet(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete subnet, got error: %s", err))
 		return
 	}

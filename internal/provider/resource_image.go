@@ -158,6 +158,10 @@ func (r *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 
 	result, err := r.client.ReadForemanImage(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read image, got error: %s", err))
 		return
 	}
@@ -227,7 +231,7 @@ func (r *imageResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	err = r.client.DeleteForemanImage(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete image, got error: %s", err))
 		return
 	}

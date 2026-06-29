@@ -142,6 +142,10 @@ func (r *katelloSyncPlanResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.ReadForemanKatelloSyncPlan(ctx, id)
 	if err != nil {
+		if generated.IsNotFoundError(err) {
+			resp.State.RemoveResource(ctx)
+			return
+		}
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello sync plan, got error: %s", err))
 		return
 	}
@@ -206,7 +210,7 @@ func (r *katelloSyncPlanResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.DeleteForemanKatelloSyncPlan(ctx, id)
-	if err != nil {
+	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello sync plan, got error: %s", err))
 		return
 	}
