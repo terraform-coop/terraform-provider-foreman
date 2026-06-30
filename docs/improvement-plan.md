@@ -1015,6 +1015,11 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 - [x] Client regression tests (taxonomy, wrapper key, 404 handling)
 - [x] Hostgroup parameters (dual-format array/map, hand-written resource)
 - [x] Generator: skip_resources option, hand-written file protection
-- [ ] Custom JSON marshal for operating_system, media, partition_table (3-attempt unmarshal pattern)
-- [ ] Nested TypeList schemas (host interfaces_attributes, compute_attributes)
+- [x] json.RawMessage support for nested types (array of objects)
+- [x] parent_endpoint support for override_value
+- [x] Conditional encoding/json import
+- [x] Data sources only when HasIndex=true
+- [ ] interfaces_attributes (host) - complex nested type, excluded as known limitation
+- [ ] host_parameters_attributes (host) - complex nested type, excluded
+- [ ] os_parameters_attributes (operating_system) - excluded
 - [ ] HCL examples, tfplugindocs
