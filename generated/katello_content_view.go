@@ -83,3 +83,181 @@ func (c *ForemanClient) QueryForemanKatelloContentView(ctx context.Context, name
 	}
 	return &obj, nil
 }
+
+// ---------------------------------------------------------------------------
+// Content View Filters — managed via separate API endpoints
+// ---------------------------------------------------------------------------
+
+type ForemanKatelloContentViewFilter struct {
+	ID          int                                   `json:"id"`
+	Name        string                                `json:"name"`
+	Type        string                                `json:"type"`
+	Inclusion   bool                                  `json:"inclusion"`
+	Description string                                `json:"description"`
+	Rules       []ForemanKatelloContentViewFilterRule `json:"rules"`
+}
+
+type ForemanKatelloContentViewFilterRule struct {
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	Architecture string `json:"architecture,omitempty"`
+}
+
+// ReadContentViewFilters returns all filters (including rules) for a content view.
+func (c *ForemanClient) ReadContentViewFilters(ctx context.Context, cvID int) ([]ForemanKatelloContentViewFilter, error) {
+	var response QueryResponse
+	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters", cvID), &response)
+	if err != nil {
+		return nil, err
+	}
+	var filters []ForemanKatelloContentViewFilter
+	for _, raw := range response.Results {
+		var f ForemanKatelloContentViewFilter
+		if err := json.Unmarshal(raw, &f); err != nil {
+			continue
+		}
+		// Read rules for each filter
+		rules, err := c.ReadContentViewFilterRules(ctx, f.ID)
+		if err == nil {
+			f.Rules = rules
+		}
+		filters = append(filters, f)
+	}
+	return filters, nil
+}
+
+// CreateContentViewFilter creates a single filter on a content view, then creates its rules.
+func (c *ForemanClient) CreateContentViewFilter(ctx context.Context, cvID int, filter *ForemanKatelloContentViewFilter) (*ForemanKatelloContentViewFilter, error) {
+	var resp ForemanKatelloContentViewFilter
+	err := c.Post(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters", cvID), "content_view_filter", filter, &resp)
+	if err != nil {
+		return nil, err
+	}
+	// Create rules
+	if len(filter.Rules) > 0 {
+		rules, err := c.CreateContentViewFilterRules(ctx, resp.ID, filter.Rules)
+		if err != nil {
+			return nil, err
+		}
+		resp.Rules = rules
+	}
+	return &resp, nil
+}
+
+// UpdateContentViewFilter updates a single filter on a content view.
+func (c *ForemanClient) UpdateContentViewFilter(ctx context.Context, cvID int, filter *ForemanKatelloContentViewFilter) (*ForemanKatelloContentViewFilter, error) {
+	var resp ForemanKatelloContentViewFilter
+	err := c.Put(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters/%d", cvID, filter.ID), "content_view_filter", filter, &resp)
+	if err != nil {
+		return nil, err
+	}
+	// Update rules
+	if len(filter.Rules) > 0 {
+		rules, err := c.UpdateContentViewFilterRules(ctx, filter.ID, filter.Rules)
+		if err != nil {
+			return nil, err
+		}
+		resp.Rules = rules
+	}
+	return &resp, nil
+}
+
+// DeleteContentViewFilter deletes a single filter from a content view.
+func (c *ForemanClient) DeleteContentViewFilter(ctx context.Context, cvID int, filterID int) error {
+	return c.Delete(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters/%d", cvID, filterID))
+}
+
+// ReadContentViewFilterRules returns all rules for a filter.
+func (c *ForemanClient) ReadContentViewFilterRules(ctx context.Context, filterID int) ([]ForemanKatelloContentViewFilterRule, error) {
+	var response QueryResponse
+	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_view_filters/%d/rules", filterID), &response)
+	if err != nil {
+		return nil, err
+	}
+	var rules []ForemanKatelloContentViewFilterRule
+	for _, raw := range response.Results {
+		var r ForemanKatelloContentViewFilterRule
+		if err := json.Unmarshal(raw, &r); err != nil {
+			continue
+		}
+		rules = append(rules, r)
+	}
+	return rules, nil
+}
+
+// CreateContentViewFilterRules creates rules on a filter.
+func (c *ForemanClient) CreateContentViewFilterRules(ctx context.Context, filterID int, rules []ForemanKatelloContentViewFilterRule) ([]ForemanKatelloContentViewFilterRule, error) {
+	var created []ForemanKatelloContentViewFilterRule
+	for _, rule := range rules {
+		var resp ForemanKatelloContentViewFilterRule
+		err := c.Post(ctx, fmt.Sprintf("/katello/api/content_view_filters/%d/rules", filterID), "content_view_filter_rule", &rule, &resp)
+		if err != nil {
+			return nil, err
+		}
+		created = append(created, resp)
+	}
+	return created, nil
+}
+
+// UpdateContentViewFilterRules updates rules on a filter.
+func (c *ForemanClient) UpdateContentViewFilterRules(ctx context.Context, filterID int, rules []ForemanKatelloContentViewFilterRule) ([]ForemanKatelloContentViewFilterRule, error) {
+	var updated []ForemanKatelloContentViewFilterRule
+	for _, rule := range rules {
+		var resp ForemanKatelloContentViewFilterRule
+		err := c.Put(ctx, fmt.Sprintf("/katello/api/content_view_filters/%d/rules/%d", filterID, rule.ID), "content_view_filter_rule", &rule, &resp)
+		if err != nil {
+			return nil, err
+		}
+		updated = append(updated, resp)
+	}
+	return updated, nil
+}
+
+// SyncContentViewFilters syncs filters for a content view: creates new, updates existing, deletes removed.
+func (c *ForemanClient) SyncContentViewFilters(ctx context.Context, cvID int, desired []ForemanKatelloContentViewFilter) error {
+	existing, err := c.ReadContentViewFilters(ctx, cvID)
+	if err != nil {
+		// If read fails (e.g., 404), treat as no existing filters
+		existing = nil
+	}
+
+	existingByID := make(map[int]ForemanKatelloContentViewFilter)
+	for _, f := range existing {
+		existingByID[f.ID] = f
+	}
+	desiredByID := make(map[int]ForemanKatelloContentViewFilter)
+	for _, f := range desired {
+		if f.ID != 0 {
+			desiredByID[f.ID] = f
+		}
+	}
+
+	// Create new filters (no ID)
+	for _, f := range desired {
+		if f.ID == 0 {
+			if _, err := c.CreateContentViewFilter(ctx, cvID, &f); err != nil {
+				return fmt.Errorf("creating filter %q: %w", f.Name, err)
+			}
+		}
+	}
+
+	// Update existing filters
+	for _, f := range desired {
+		if f.ID != 0 {
+			if _, err := c.UpdateContentViewFilter(ctx, cvID, &f); err != nil {
+				return fmt.Errorf("updating filter %q: %w", f.Name, err)
+			}
+		}
+	}
+
+	// Delete removed filters
+	for id := range existingByID {
+		if _, ok := desiredByID[id]; !ok {
+			if err := c.DeleteContentViewFilter(ctx, cvID, id); err != nil {
+				return fmt.Errorf("deleting filter %d: %w", id, err)
+			}
+		}
+	}
+
+	return nil
+}

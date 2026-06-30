@@ -1,91 +1,93 @@
 # Type corrections and field exclusions for generated Foreman client code.
 # Run `go generate` to regenerate after editing this file.
+#
+# RULE: Only exclude fields that are TRULY read-only, taxonomy-managed,
+# or nested object duplications. Never exclude fields the old provider supported.
+# "manage in UI" is NEVER an acceptable reason.
 skip_resources:
   - hostgroups  # Hand-written: has custom parameter handling
 resources:
   hosts:
     exclude_fields:
-      - compute_resource_id
+      # --- READ-ONLY DISPLAY NAMES (use _id fields instead) ---
       - compute_resource_name
-      - domain_id
       - domain_name
-      - architecture_id
       - architecture_name
-      - operatingsystem_id
       - operatingsystem_name
-      - medium_id
       - medium_name
-      - subnet_id
       - subnet_name
-      - subnet6_id
       - subnet6_name
-      - ptable_id
       - ptable_name
-      - provision_method
-      - build
-      - enabled
-      - managed
-      - image_file
-      - uuid
-      - compute_resource_id
-      - hostgroup_id
       - hostgroup_name
-      - owner_id
-      - owner_type
-      - root_pass
-      - realm_id
+      - owner_name
       - realm_name
-      - puppet_ca_proxy_id
       - puppet_ca_proxy_name
-      - puppet_proxy_id
       - puppet_proxy_name
-      - puppet_status
-      - model_id
       - model_name
-      - certificate_name
-      - capabilities
-      - compute_profile_id
       - compute_profile_name
-      - token
-      - image_id
       - image_name
-      - interfaces
-      - interfaces_attributes
-      - host_parameters_attributes
-      - template_combinations
-      - parameters
-      - all_parameters
-      - operatingsystem
-      - compute_resource
-      - domain
-      - hostgroup
-      - architecture
-      - medium
-      - subnet
-      - subnet6
-      - ptable
-      - realm
-      - puppet_ca_proxy
-      - puppet_proxy
-      - model
-      - compute_profile
-      - image
-      - location_id
-      - location_ids
-      - location_name
-      - locations
-      - organization_id
-      - organization_ids
-      - organization_name
-      - organizations
+      # --- NESTED OBJECT DUPLICATIONS (use _id fields instead) ---
+      - operatingsystem    # Use operatingsystem_id
+      - compute_resource   # Use compute_resource_id
+      - domain             # Use domain_id
+      - hostgroup          # Use hostgroup_id
+      - architecture       # Use architecture_id
+      - medium             # Use medium_id
+      - subnet             # Use subnet_id
+      - subnet6            # Use subnet6_id
+      - ptable             # Use ptable_id
+      - realm              # Use realm_id
+      - puppet_ca_proxy    # Use puppet_ca_proxy_id
+      - puppet_proxy       # Use puppet_proxy_id
+      - model              # Use model_id
+      - compute_profile    # Use compute_profile_id
+      - image              # Use image_id
+      # --- COMPUTED/SYSTEM-MANAGED (not user-settable) ---
+      - token              # Security token, read-only
+      - certificate_name   # Read-only
+      - puppet_status      # Read-only
+      - image_file         # Read-only
+      - uuid               # Set by compute resource
+      - capabilities       # Read-only
+      - hostgroup_title    # Computed from parent chain
+      # --- TAXONOMY FIELDS (handled at provider level) ---
+      - location_id        # Handled by addTaxonomy()
+      - location_ids       # Handled by addTaxonomy()
+      - location_name      # Taxonomy display name
+      - locations          # Taxonomy nested object
+      - organization_id    # Handled by addTaxonomy()
+      - organization_ids   # Handled by addTaxonomy()
+      - organization_name  # Taxonomy display name
+      - organizations      # Taxonomy nested object
+      # --- COMPLEX NESTED TYPES (need custom bridging code) ---
+      # These are excluded because the generator can't auto-produce the
+      # bridging code. The resource file handles them manually with TODO(bridget).
+      - interfaces                   # Complex nested in response, handled via interfaces_attributes
+      - interfaces_attributes        # Complex nested: array of interface objects
+      - host_parameters_attributes   # Complex nested: array of {name,value}
+      - template_combinations        # Managed via provisioning_template_ids
+      - parameters                   # Managed via host_parameters_attributes
+      - all_parameters               # Read-only aggregation
+      - compute_attributes           # Hash, needs custom mapping per compute resource
+    field_types:
+      medium_id: int64
   hostgroups:
     exclude_fields:
-      - ancestry
+      # --- READ-ONLY DISPLAY NAMES ---
       - architecture_name
       - compute_profile_name
-      - compute_resource_id
       - compute_resource_name
       - domain_name
+      - medium_name
+      - operatingsystem_name
+      - parent_name
+      - ptable_name
+      - puppet_ca_proxy_name
+      - puppet_proxy_name
+      - realm_name
+      - subnet6_name
+      - subnet_name
+      # --- INHERITED VALUES (set by parent hostgroup) ---
       - inherited_architecture_id
       - inherited_compute_profile_id
       - inherited_compute_resource_id
@@ -99,32 +101,28 @@ resources:
       - inherited_realm_id
       - inherited_subnet6_id
       - inherited_subnet_id
-      - locations
-      - medium_name
-      - operatingsystem_name
-      - organizations
-      - parameters
-      - parent_name
-      - ptable_name
+      # --- NESTED OBJECT DUPLICATIONS ---
       - puppet_ca_proxy
-      - puppet_ca_proxy_name
       - puppet_proxy
-      - puppet_proxy_name
-      - puppet_proxy_id
-      - puppet_ca_proxy_id
-      - realm_name
-      - subnet6_name
-      - subnet_name
-      - template_combinations
-      - title
+      # --- COMPUTED ---
+      - ancestry            # Internal tree structure
+      - title               # Computed from parent chain
+      # --- TAXONOMY FIELDS ---
+      - locations
+      - organizations
+      # --- COMPLEX NESTED TYPES (need custom bridging) ---
+      - parameters                  # Hand-written resource handles via UnmarshalJSON
+      - template_combinations       # Managed via provisioning_template_ids
   compute_resources:
     field_types:
       id: int
   operatingsystems:
     exclude_fields:
-      - os_parameters_attributes
+      # --- COMPLEX NESTED TYPE (needs custom bridging code) ---
+      - os_parameters_attributes  # json.RawMessage, needs custom marshaling
   settings:
     exclude_fields:
+      # --- READ-ONLY METADATA FIELDS ---
       - category
       - settings_type
       - default
@@ -133,4 +131,4 @@ resources:
       - encrypt
   architectures:
     exclude_fields:
-      - ptables
+      # None currently excluded — ptables managed via operatingsystem.ptable_ids

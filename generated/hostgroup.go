@@ -14,6 +14,7 @@ type ForemanHostgroupRequest struct {
 	Name                      string          `json:"name,omitempty"`
 	ArchitectureID            int64           `json:"architecture_id,omitempty"`
 	ComputeProfileID          int64           `json:"compute_profile_id,omitempty"`
+	ComputeResourceID         int64           `json:"compute_resource_id,omitempty"`
 	Description               string          `json:"description,omitempty"`
 	DomainID                  int64           `json:"domain_id,omitempty"`
 	GroupParametersAttributes json.RawMessage `json:"group_parameters_attributes,omitempty"`
@@ -21,6 +22,8 @@ type ForemanHostgroupRequest struct {
 	OperatingsystemID         int64           `json:"operatingsystem_id,omitempty"`
 	ParentID                  int64           `json:"parent_id,omitempty"`
 	PtableID                  int64           `json:"ptable_id,omitempty"`
+	PuppetCaProxyID           int64           `json:"puppet_ca_proxy_id,omitempty"`
+	PuppetProxyID             int64           `json:"puppet_proxy_id,omitempty"`
 	PXELoader                 string          `json:"pxe_loader,omitempty"`
 	RealmID                   int64           `json:"realm_id,omitempty"`
 	RootPass                  string          `json:"root_pass,omitempty"`
@@ -33,12 +36,15 @@ type ForemanHostgroup struct {
 	ForemanObject
 	ArchitectureID    int64  `json:"architecture_id"`
 	ComputeProfileID  int64  `json:"compute_profile_id"`
+	ComputeResourceID string `json:"compute_resource_id"`
 	Description       string `json:"description"`
 	DomainID          int64  `json:"domain_id"`
 	MediumID          int64  `json:"medium_id"`
 	OperatingsystemID int64  `json:"operatingsystem_id"`
 	ParentID          string `json:"parent_id"`
 	PtableID          int64  `json:"ptable_id"`
+	PuppetCaProxyID   int64  `json:"puppet_ca_proxy_id"`
+	PuppetProxyID     int64  `json:"puppet_proxy_id"`
 	PXELoader         string `json:"pxe_loader"`
 	RealmID           string `json:"realm_id"`
 	Subnet6ID         int64  `json:"subnet6_id"`

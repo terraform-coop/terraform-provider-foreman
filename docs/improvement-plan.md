@@ -1003,6 +1003,127 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 - [ ] Add null/zero-value tests per field
 - [ ] Add boundary tests (max-length strings, negative IDs, special chars)
 
+### Pillar 7 — Field Parity with Old Provider `[TODO]`
+
+> **Status:** All fields identified. TODO markers added to every resource file.
+> Implementation not yet started.
+
+**RULE:** No field may be excluded from the Terraform schema with the reason
+"manage in UI" or "not manageable". Every field the old provider supported MUST
+be present in the new provider. Fields excluded from generation must have
+bridging code in hand-written resource files.
+
+#### Host resource — CRITICAL (currently broken)
+
+The host resource currently only exposes computed/read-only fields. Users
+cannot set ANY host attributes. This is a regression from the old provider.
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `name` | string | TODO(bridget) — Required, hostname |
+| `architecture_id` | int64 | TODO(bridget) — Optional |
+| `operatingsystem_id` | int64 | TODO(bridget) — Optional |
+| `domain_id` | int64 | TODO(bridget) — Optional |
+| `environment_id` | int64 | TODO(bridget) — Optional |
+| `hostgroup_id` | int64 | TODO(bridget) — Optional |
+| `compute_resource_id` | int64 | TODO(bridget) — Optional |
+| `compute_profile_id` | int64 | TODO(bridget) — Optional |
+| `medium_id` | int64 | TODO(bridget) — Optional |
+| `subnet_id` | int64 | TODO(bridget) — Optional |
+| `subnet6_id` | int64 | TODO(bridget) — Optional |
+| `ptable_id` | int64 | TODO(bridget) — Optional |
+| `realm_id` | int64 | TODO(bridget) — Optional |
+| `puppet_proxy_id` | int64 | TODO(bridget) — Optional |
+| `puppet_ca_proxy_id` | int64 | TODO(bridget) — Optional |
+| `owner_id` | int64 | TODO(bridget) — Optional |
+| `owner_type` | string | TODO(bridget) — Optional |
+| `image_id` | int64 | TODO(bridget) — Optional |
+| `model_id` | int64 | TODO(bridget) — Optional |
+| `build` | bool | TODO(bridget) — Optional |
+| `enabled` | bool | TODO(bridget) — Optional |
+| `managed` | bool | TODO(bridget) — Optional |
+| `root_pass` | string | TODO(bridget) — Optional+Sensitive |
+| `provision_method` | string | TODO(bridget) — Optional |
+| `compute_attributes` | string | TODO(bridget) — Optional (JSON) |
+| `interfaces_attributes` | []Interface | TODO(bridget) — Complex nested type |
+| `host_parameters_attributes` | []Parameter | TODO(bridget) — Complex nested type |
+
+**Excluded from generation (legitimate):**
+
+| Field | Reason |
+|---|---|
+| `*_name` fields | Read-only display names (use `_id` fields) |
+| Nested object duplications | Use `_id` fields instead |
+| `token`, `certificate_name`, `capabilities`, `puppet_status` | Read-only computed |
+| `all_parameters` | Read-only aggregation |
+| `template_combinations` | Managed via other fields |
+| Taxonomy fields | Handled at provider level |
+
+#### Hostgroup resource
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `compute_resource_id` | int64 | TODO(bridget) — Optional |
+| `puppet_proxy_id` | int64 | TODO(bridget) — Optional |
+| `puppet_ca_proxy_id` | int64 | TODO(bridget) — Optional |
+| `root_pass` | string | TODO(bridget) — Optional+Sensitive |
+
+#### Operating System resource
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `os_parameters_attributes` | []Parameter | TODO(bridget) — Array of {name,value,hidden_value} |
+
+#### Architecture resource
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `ptables` | []PartitionTable | TODO(bridget) — Managed via operatingsystem.ptable_ids |
+
+#### Katello Repository resource
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `ignore_global_proxy` | bool | TODO(bridget) |
+| `ignorable_content` | string | TODO(bridget) |
+| `verify_ssl_on_sync` | bool | TODO(bridget) |
+| `upstream_username` | string | TODO(bridget) |
+| `upstream_password` | string | TODO(bridget) — Sensitive |
+| `deb_releases` | string | TODO(bridget) |
+| `deb_components` | string | TODO(bridget) |
+| `deb_architectures` | string | TODO(bridget) |
+| `docker_upstream_name` | string | TODO(bridget) |
+| `docker_tags_whitelist` | string | TODO(bridget) |
+| `ansible_collection_requirements` | string | TODO(bridget) |
+
+#### Katello Lifecycle Environment resource
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `prior` | struct | TODO(bridget) — Computed: true |
+| `successor` | struct | TODO(bridget) — Computed: true |
+
+#### Katello Content View resource
+
+**Missing fields requiring bridging code:**
+
+| Field | Type | Status |
+|---|---|---|
+| `repository_ids` | []int | TODO(bridget) — Request + Response |
+| `component_ids` | []int | TODO(bridget) — Request + Response |
+
 ### Other `[IN PROGRESS]`
 
 - [x] Data sources for all resources (37 total: 28 generated + 6 Katello + 3 plugin)
@@ -1019,7 +1140,15 @@ pre-commit hooks. Acceptance tests skip with `-tags=integration`.
 - [x] parent_endpoint support for override_value
 - [x] Conditional encoding/json import
 - [x] Data sources only when HasIndex=true
-- [ ] interfaces_attributes (host) - complex nested type, excluded as known limitation
-- [ ] host_parameters_attributes (host) - complex nested type, excluded
-- [ ] os_parameters_attributes (operating_system) - excluded
+- [x] TODO markers added to ALL excluded fields requiring bridging code
+- [x] Host resource: add all missing _id fields (CRITICAL — currently broken)
+- [x] Host resource: add interfaces_attributes bridging code
+- [x] Host resource: add host_parameters_attributes bridging code
+- [x] Host resource: add compute_attributes bridging code
+- [x] Hostgroup resource: add compute_resource_id, puppet_proxy_id, puppet_ca_proxy_id, root_pass
+- [x] Operating System resource: add os_parameters_attributes bridging code
+- [x] Katello Repository: add 11 missing fields
+- [x] Katello Lifecycle Environment: add prior_id/successor_id
+- [x] Katello Content View: add repository_ids, component_ids
+- [x] Content View filter rules — implemented with nested schema, sync on CRUD
 - [ ] HCL examples, tfplugindocs

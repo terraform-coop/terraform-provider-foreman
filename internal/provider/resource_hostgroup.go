@@ -74,6 +74,10 @@ type hostgroupResourceModel struct {
 	PtableID          types.Int64  `tfsdk:"ptable_id"`
 	PXELoader         types.String `tfsdk:"pxe_loader"`
 	RealmID           types.String `tfsdk:"realm_id"`
+	ComputeResourceID types.Int64  `tfsdk:"compute_resource_id"`
+	PuppetProxyID     types.Int64  `tfsdk:"puppet_proxy_id"`
+	PuppetCaProxyID  types.Int64  `tfsdk:"puppet_ca_proxy_id"`
+	RootPass          types.String `tfsdk:"root_pass"`
 	Subnet6ID         types.Int64  `tfsdk:"subnet6_id"`
 	SubnetID          types.Int64  `tfsdk:"subnet_id"`
 	Parameters        types.Map    `tfsdk:"parameters"`
@@ -121,6 +125,19 @@ func (r *hostgroupResource) Schema(_ context.Context, _ resource.SchemaRequest, 
 			},
 			"realm_id": schema.StringAttribute{
 				Optional: true,
+			},
+			"compute_resource_id": schema.Int64Attribute{
+				Optional: true,
+			},
+			"puppet_proxy_id": schema.Int64Attribute{
+				Optional: true,
+			},
+			"puppet_ca_proxy_id": schema.Int64Attribute{
+				Optional: true,
+			},
+			"root_pass": schema.StringAttribute{
+				Optional:  true,
+				Sensitive: true,
 			},
 			"subnet6_id": schema.Int64Attribute{
 				Optional: true,
@@ -186,14 +203,18 @@ func (r *hostgroupResource) Create(ctx context.Context, req resource.CreateReque
 	body := &generated.ForemanHostgroupRequest{
 		ArchitectureID:    plan.ArchitectureID.ValueInt64(),
 		ComputeProfileID:  plan.ComputeProfileID.ValueInt64(),
+		ComputeResourceID: plan.ComputeResourceID.ValueInt64(),
 		Description:       plan.Description.ValueString(),
 		DomainID:          plan.DomainID.ValueInt64(),
 		MediumID:          plan.MediumID.ValueInt64(),
 		OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
 		ParentID:          parseStringToInt64(plan.ParentID.ValueString()),
 		PtableID:          plan.PtableID.ValueInt64(),
+		PuppetCaProxyID:  plan.PuppetCaProxyID.ValueInt64(),
+		PuppetProxyID:     plan.PuppetProxyID.ValueInt64(),
 		PXELoader:         plan.PXELoader.ValueString(),
 		RealmID:           parseStringToInt64(plan.RealmID.ValueString()),
+		RootPass:          plan.RootPass.ValueString(),
 		Subnet6ID:         plan.Subnet6ID.ValueInt64(),
 		SubnetID:          plan.SubnetID.ValueInt64(),
 	}
@@ -207,14 +228,18 @@ func (r *hostgroupResource) Create(ctx context.Context, req resource.CreateReque
 	plan.ID = types.StringValue(strconv.Itoa(int(result.ID)))
 	plan.ArchitectureID = types.Int64Value(int64(result.ArchitectureID))
 	plan.ComputeProfileID = types.Int64Value(int64(result.ComputeProfileID))
+	plan.ComputeResourceID = func() types.Int64 { v, _ := strconv.ParseInt(result.ComputeResourceID, 10, 64); return types.Int64Value(v) }()
 	plan.Description = types.StringValue(result.Description)
 	plan.DomainID = types.Int64Value(int64(result.DomainID))
 	plan.MediumID = types.Int64Value(int64(result.MediumID))
 	plan.OperatingsystemID = types.Int64Value(int64(result.OperatingsystemID))
 	plan.ParentID = types.StringValue(result.ParentID)
 	plan.PtableID = types.Int64Value(int64(result.PtableID))
+	plan.PuppetCaProxyID = types.Int64Value(int64(result.PuppetCaProxyID))
+	plan.PuppetProxyID = types.Int64Value(int64(result.PuppetProxyID))
 	plan.PXELoader = types.StringValue(result.PXELoader)
 	plan.RealmID = types.StringValue(result.RealmID)
+	plan.RootPass = types.StringNull() // RootPass not returned by API
 	plan.Subnet6ID = types.Int64Value(int64(result.Subnet6ID))
 	plan.SubnetID = types.Int64Value(int64(result.SubnetID))
 	plan.Parameters = mapToTypesMap(result.Parameters)
@@ -247,14 +272,18 @@ func (r *hostgroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 	state.ArchitectureID = types.Int64Value(int64(result.ArchitectureID))
 	state.ComputeProfileID = types.Int64Value(int64(result.ComputeProfileID))
+	state.ComputeResourceID = func() types.Int64 { v, _ := strconv.ParseInt(result.ComputeResourceID, 10, 64); return types.Int64Value(v) }()
 	state.Description = types.StringValue(result.Description)
 	state.DomainID = types.Int64Value(int64(result.DomainID))
 	state.MediumID = types.Int64Value(int64(result.MediumID))
 	state.OperatingsystemID = types.Int64Value(int64(result.OperatingsystemID))
 	state.ParentID = types.StringValue(result.ParentID)
 	state.PtableID = types.Int64Value(int64(result.PtableID))
+	state.PuppetCaProxyID = types.Int64Value(int64(result.PuppetCaProxyID))
+	state.PuppetProxyID = types.Int64Value(int64(result.PuppetProxyID))
 	state.PXELoader = types.StringValue(result.PXELoader)
 	state.RealmID = types.StringValue(result.RealmID)
+	state.RootPass = types.StringNull() // RootPass not returned by API
 	state.Subnet6ID = types.Int64Value(int64(result.Subnet6ID))
 	state.SubnetID = types.Int64Value(int64(result.SubnetID))
 	state.Parameters = mapToTypesMap(result.Parameters)
@@ -278,14 +307,18 @@ func (r *hostgroupResource) Update(ctx context.Context, req resource.UpdateReque
 	body := &generated.ForemanHostgroupRequest{
 		ArchitectureID:    plan.ArchitectureID.ValueInt64(),
 		ComputeProfileID:  plan.ComputeProfileID.ValueInt64(),
+		ComputeResourceID: plan.ComputeResourceID.ValueInt64(),
 		Description:       plan.Description.ValueString(),
 		DomainID:          plan.DomainID.ValueInt64(),
 		MediumID:          plan.MediumID.ValueInt64(),
 		OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
 		ParentID:          parseStringToInt64(plan.ParentID.ValueString()),
 		PtableID:          plan.PtableID.ValueInt64(),
+		PuppetCaProxyID:  plan.PuppetCaProxyID.ValueInt64(),
+		PuppetProxyID:     plan.PuppetProxyID.ValueInt64(),
 		PXELoader:         plan.PXELoader.ValueString(),
 		RealmID:           parseStringToInt64(plan.RealmID.ValueString()),
+		RootPass:          plan.RootPass.ValueString(),
 		Subnet6ID:         plan.Subnet6ID.ValueInt64(),
 		SubnetID:          plan.SubnetID.ValueInt64(),
 	}
@@ -297,14 +330,18 @@ func (r *hostgroupResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 	plan.ArchitectureID = types.Int64Value(int64(result.ArchitectureID))
 	plan.ComputeProfileID = types.Int64Value(int64(result.ComputeProfileID))
+	plan.ComputeResourceID = func() types.Int64 { v, _ := strconv.ParseInt(result.ComputeResourceID, 10, 64); return types.Int64Value(v) }()
 	plan.Description = types.StringValue(result.Description)
 	plan.DomainID = types.Int64Value(int64(result.DomainID))
 	plan.MediumID = types.Int64Value(int64(result.MediumID))
 	plan.OperatingsystemID = types.Int64Value(int64(result.OperatingsystemID))
 	plan.ParentID = types.StringValue(result.ParentID)
 	plan.PtableID = types.Int64Value(int64(result.PtableID))
+	plan.PuppetCaProxyID = types.Int64Value(int64(result.PuppetCaProxyID))
+	plan.PuppetProxyID = types.Int64Value(int64(result.PuppetProxyID))
 	plan.PXELoader = types.StringValue(result.PXELoader)
 	plan.RealmID = types.StringValue(result.RealmID)
+	plan.RootPass = types.StringNull() // RootPass not returned by API
 	plan.Subnet6ID = types.Int64Value(int64(result.Subnet6ID))
 	plan.SubnetID = types.Int64Value(int64(result.SubnetID))
 	plan.Parameters = mapToTypesMap(result.Parameters)

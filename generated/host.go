@@ -12,32 +12,59 @@ import (
 // ForemanHostRequest is the request payload.
 type ForemanHostRequest struct {
 	Name              string `json:"name,omitempty"`
+	ArchitectureID    int64  `json:"architecture_id,omitempty"`
+	Build             bool   `json:"build,omitempty"`
 	Comment           string `json:"comment,omitempty"`
-	ComputeAttributes string `json:"compute_attributes,omitempty"`
+	ComputeProfileID  int64  `json:"compute_profile_id,omitempty"`
+	ComputeResourceID int64  `json:"compute_resource_id,omitempty"`
+	DomainID          int64  `json:"domain_id,omitempty"`
+	Enabled           bool   `json:"enabled,omitempty"`
+	HostgroupID       int64  `json:"hostgroup_id,omitempty"`
+	ImageID           int64  `json:"image_id,omitempty"`
 	IP                string `json:"ip,omitempty"`
 	MAC               string `json:"mac,omitempty"`
+	Managed           bool   `json:"managed,omitempty"`
+	MediumID          int64  `json:"medium_id,omitempty"`
+	ModelID           int64  `json:"model_id,omitempty"`
+	OperatingsystemID int64  `json:"operatingsystem_id,omitempty"`
 	Overwrite         bool   `json:"overwrite,omitempty"`
+	OwnerID           int64  `json:"owner_id,omitempty"`
+	OwnerType         string `json:"owner_type,omitempty"`
 	ProgressReportID  string `json:"progress_report_id,omitempty"`
+	ProvisionMethod   string `json:"provision_method,omitempty"`
+	PtableID          int64  `json:"ptable_id,omitempty"`
+	PuppetCaProxyID   int64  `json:"puppet_ca_proxy_id,omitempty"`
+	PuppetProxyID     int64  `json:"puppet_proxy_id,omitempty"`
 	PXELoader         string `json:"pxe_loader,omitempty"`
+	RealmID           int64  `json:"realm_id,omitempty"`
+	RootPass          string `json:"root_pass,omitempty"`
+	SubnetID          int64  `json:"subnet_id,omitempty"`
 }
 
 // ForemanHost is the entity type.
 type ForemanHost struct {
 	ForemanObject
+	ArchitectureID          int64                  `json:"architecture_id"`
 	BmcAvailable            bool                   `json:"bmc_available"`
+	Build                   bool                   `json:"build"`
 	BuildStatus             int64                  `json:"build_status"`
 	BuildStatusLabel        string                 `json:"build_status_label"`
 	Certname                string                 `json:"certname"`
 	Comment                 string                 `json:"comment"`
+	ComputeProfileID        string                 `json:"compute_profile_id"`
+	ComputeResourceID       int64                  `json:"compute_resource_id"`
 	ComputeResourceProvider string                 `json:"compute_resource_provider"`
 	Creator                 string                 `json:"creator"`
 	CreatorID               int64                  `json:"creator_id"`
 	Disk                    string                 `json:"disk"`
 	DisplayName             string                 `json:"display_name"`
+	DomainID                int64                  `json:"domain_id"`
+	Enabled                 bool                   `json:"enabled"`
 	GlobalStatus            int64                  `json:"global_status"`
 	GlobalStatusFulltext    []string               `json:"global_status_fulltext"`
 	GlobalStatusLabel       string                 `json:"global_status_label"`
-	HostgroupTitle          string                 `json:"hostgroup_title"`
+	HostgroupID             int64                  `json:"hostgroup_id"`
+	ImageID                 string                 `json:"image_id"`
 	InitiatedAt             string                 `json:"initiated_at"`
 	InstalledAt             string                 `json:"installed_at"`
 	IP                      string                 `json:"ip"`
@@ -45,15 +72,27 @@ type ForemanHost struct {
 	LastCompile             string                 `json:"last_compile"`
 	LastReport              string                 `json:"last_report"`
 	MAC                     string                 `json:"mac"`
+	Managed                 bool                   `json:"managed"`
+	MediumID                int64                  `json:"medium_id"`
+	ModelID                 string                 `json:"model_id"`
 	OperatingsystemIcon     string                 `json:"operatingsystem_icon"`
-	OwnerName               string                 `json:"owner_name"`
+	OperatingsystemID       int64                  `json:"operatingsystem_id"`
+	OwnerID                 int64                  `json:"owner_id"`
+	OwnerType               string                 `json:"owner_type"`
 	Permissions             map[string]interface{} `json:"permissions"`
+	ProvisionMethod         string                 `json:"provision_method"`
+	PtableID                int64                  `json:"ptable_id"`
+	PuppetCaProxyID         string                 `json:"puppet_ca_proxy_id"`
+	PuppetProxyID           string                 `json:"puppet_proxy_id"`
 	PXELoader               string                 `json:"pxe_loader"`
+	RealmID                 string                 `json:"realm_id"`
 	RebuildRequiresPoweroff bool                   `json:"rebuild_requires_poweroff"`
 	SpIP                    string                 `json:"sp_ip"`
 	SpMAC                   string                 `json:"sp_mac"`
 	SpName                  string                 `json:"sp_name"`
 	SpSubnetID              string                 `json:"sp_subnet_id"`
+	Subnet6ID               string                 `json:"subnet6_id"`
+	SubnetID                string                 `json:"subnet_id"`
 	UseImage                string                 `json:"use_image"`
 }
 

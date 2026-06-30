@@ -30,19 +30,26 @@ type hostDataSource struct {
 type hostDataSourceModel struct {
 	ID                      types.String `tfsdk:"id"`
 	Name                    types.String `tfsdk:"name"`
+	ArchitectureID          types.Int64  `tfsdk:"architecture_id"`
 	BmcAvailable            types.Bool   `tfsdk:"bmc_available"`
+	Build                   types.Bool   `tfsdk:"build"`
 	BuildStatus             types.Int64  `tfsdk:"build_status"`
 	BuildStatusLabel        types.String `tfsdk:"build_status_label"`
 	Certname                types.String `tfsdk:"certname"`
 	Comment                 types.String `tfsdk:"comment"`
+	ComputeProfileID        types.String `tfsdk:"compute_profile_id"`
+	ComputeResourceID       types.Int64  `tfsdk:"compute_resource_id"`
 	ComputeResourceProvider types.String `tfsdk:"compute_resource_provider"`
 	Creator                 types.String `tfsdk:"creator"`
 	CreatorID               types.Int64  `tfsdk:"creator_id"`
 	Disk                    types.String `tfsdk:"disk"`
 	DisplayName             types.String `tfsdk:"display_name"`
+	DomainID                types.Int64  `tfsdk:"domain_id"`
+	Enabled                 types.Bool   `tfsdk:"enabled"`
 	GlobalStatus            types.Int64  `tfsdk:"global_status"`
 	GlobalStatusLabel       types.String `tfsdk:"global_status_label"`
-	HostgroupTitle          types.String `tfsdk:"hostgroup_title"`
+	HostgroupID             types.Int64  `tfsdk:"hostgroup_id"`
+	ImageID                 types.String `tfsdk:"image_id"`
 	InitiatedAt             types.String `tfsdk:"initiated_at"`
 	InstalledAt             types.String `tfsdk:"installed_at"`
 	IP                      types.String `tfsdk:"ip"`
@@ -50,15 +57,27 @@ type hostDataSourceModel struct {
 	LastCompile             types.String `tfsdk:"last_compile"`
 	LastReport              types.String `tfsdk:"last_report"`
 	MAC                     types.String `tfsdk:"mac"`
+	Managed                 types.Bool   `tfsdk:"managed"`
+	MediumID                types.Int64  `tfsdk:"medium_id"`
+	ModelID                 types.String `tfsdk:"model_id"`
 	OperatingsystemIcon     types.String `tfsdk:"operatingsystem_icon"`
-	OwnerName               types.String `tfsdk:"owner_name"`
+	OperatingsystemID       types.Int64  `tfsdk:"operatingsystem_id"`
+	OwnerID                 types.Int64  `tfsdk:"owner_id"`
+	OwnerType               types.String `tfsdk:"owner_type"`
 	Permissions             types.Map    `tfsdk:"permissions"`
+	ProvisionMethod         types.String `tfsdk:"provision_method"`
+	PtableID                types.Int64  `tfsdk:"ptable_id"`
+	PuppetCaProxyID         types.String `tfsdk:"puppet_ca_proxy_id"`
+	PuppetProxyID           types.String `tfsdk:"puppet_proxy_id"`
 	PXELoader               types.String `tfsdk:"pxe_loader"`
+	RealmID                 types.String `tfsdk:"realm_id"`
 	RebuildRequiresPoweroff types.Bool   `tfsdk:"rebuild_requires_poweroff"`
 	SpIP                    types.String `tfsdk:"sp_ip"`
 	SpMAC                   types.String `tfsdk:"sp_mac"`
 	SpName                  types.String `tfsdk:"sp_name"`
 	SpSubnetID              types.String `tfsdk:"sp_subnet_id"`
+	Subnet6ID               types.String `tfsdk:"subnet6_id"`
+	SubnetID                types.String `tfsdk:"subnet_id"`
 	UseImage                types.String `tfsdk:"use_image"`
 }
 
@@ -76,7 +95,13 @@ func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Required:    true,
 				Description: "The name of the host to look up.",
 			},
+			"architecture_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
 			"bmc_available": dsdchema.BoolAttribute{
+				Computed: true,
+			},
+			"build": dsdchema.BoolAttribute{
 				Computed: true,
 			},
 			"build_status": dsdchema.Int64Attribute{
@@ -89,6 +114,12 @@ func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Computed: true,
 			},
 			"comment": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"compute_profile_id": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"compute_resource_id": dsdchema.Int64Attribute{
 				Computed: true,
 			},
 			"compute_resource_provider": dsdchema.StringAttribute{
@@ -106,13 +137,22 @@ func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 			"display_name": dsdchema.StringAttribute{
 				Computed: true,
 			},
+			"domain_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
+			"enabled": dsdchema.BoolAttribute{
+				Computed: true,
+			},
 			"global_status": dsdchema.Int64Attribute{
 				Computed: true,
 			},
 			"global_status_label": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"hostgroup_title": dsdchema.StringAttribute{
+			"hostgroup_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
+			"image_id": dsdchema.StringAttribute{
 				Computed: true,
 			},
 			"initiated_at": dsdchema.StringAttribute{
@@ -136,16 +176,46 @@ func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 			"mac": dsdchema.StringAttribute{
 				Computed: true,
 			},
+			"managed": dsdchema.BoolAttribute{
+				Computed: true,
+			},
+			"medium_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
+			"model_id": dsdchema.StringAttribute{
+				Computed: true,
+			},
 			"operatingsystem_icon": dsdchema.StringAttribute{
 				Computed: true,
 			},
-			"owner_name": dsdchema.StringAttribute{
+			"operatingsystem_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
+			"owner_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
+			"owner_type": dsdchema.StringAttribute{
 				Computed: true,
 			},
 			"permissions": dsdchema.MapAttribute{
 				Computed: true,
 			},
+			"provision_method": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"ptable_id": dsdchema.Int64Attribute{
+				Computed: true,
+			},
+			"puppet_ca_proxy_id": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"puppet_proxy_id": dsdchema.StringAttribute{
+				Computed: true,
+			},
 			"pxe_loader": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"realm_id": dsdchema.StringAttribute{
 				Computed: true,
 			},
 			"rebuild_requires_poweroff": dsdchema.BoolAttribute{
@@ -161,6 +231,12 @@ func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 				Computed: true,
 			},
 			"sp_subnet_id": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"subnet6_id": dsdchema.StringAttribute{
+				Computed: true,
+			},
+			"subnet_id": dsdchema.StringAttribute{
 				Computed: true,
 			},
 			"use_image": dsdchema.StringAttribute{
@@ -201,19 +277,26 @@ func (d *hostDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	}
 
 	data.ID = types.StringValue(strconv.Itoa(int(result.ID)))
+	data.ArchitectureID = types.Int64Value(int64(result.ArchitectureID))
 	data.BmcAvailable = types.BoolValue(result.BmcAvailable)
+	data.Build = types.BoolValue(result.Build)
 	data.BuildStatus = types.Int64Value(int64(result.BuildStatus))
 	data.BuildStatusLabel = types.StringValue(result.BuildStatusLabel)
 	data.Certname = types.StringValue(result.Certname)
 	data.Comment = types.StringValue(result.Comment)
+	data.ComputeProfileID = types.StringValue(result.ComputeProfileID)
+	data.ComputeResourceID = types.Int64Value(int64(result.ComputeResourceID))
 	data.ComputeResourceProvider = types.StringValue(result.ComputeResourceProvider)
 	data.Creator = types.StringValue(result.Creator)
 	data.CreatorID = types.Int64Value(int64(result.CreatorID))
 	data.Disk = types.StringValue(result.Disk)
 	data.DisplayName = types.StringValue(result.DisplayName)
+	data.DomainID = types.Int64Value(int64(result.DomainID))
+	data.Enabled = types.BoolValue(result.Enabled)
 	data.GlobalStatus = types.Int64Value(int64(result.GlobalStatus))
 	data.GlobalStatusLabel = types.StringValue(result.GlobalStatusLabel)
-	data.HostgroupTitle = types.StringValue(result.HostgroupTitle)
+	data.HostgroupID = types.Int64Value(int64(result.HostgroupID))
+	data.ImageID = types.StringValue(result.ImageID)
 	data.InitiatedAt = types.StringValue(result.InitiatedAt)
 	data.InstalledAt = types.StringValue(result.InstalledAt)
 	data.IP = types.StringValue(result.IP)
@@ -221,14 +304,26 @@ func (d *hostDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	data.LastCompile = types.StringValue(result.LastCompile)
 	data.LastReport = types.StringValue(result.LastReport)
 	data.MAC = types.StringValue(result.MAC)
+	data.Managed = types.BoolValue(result.Managed)
+	data.MediumID = types.Int64Value(int64(result.MediumID))
+	data.ModelID = types.StringValue(result.ModelID)
 	data.OperatingsystemIcon = types.StringValue(result.OperatingsystemIcon)
-	data.OwnerName = types.StringValue(result.OwnerName)
+	data.OperatingsystemID = types.Int64Value(int64(result.OperatingsystemID))
+	data.OwnerID = types.Int64Value(int64(result.OwnerID))
+	data.OwnerType = types.StringValue(result.OwnerType)
+	data.ProvisionMethod = types.StringValue(result.ProvisionMethod)
+	data.PtableID = types.Int64Value(int64(result.PtableID))
+	data.PuppetCaProxyID = types.StringValue(result.PuppetCaProxyID)
+	data.PuppetProxyID = types.StringValue(result.PuppetProxyID)
 	data.PXELoader = types.StringValue(result.PXELoader)
+	data.RealmID = types.StringValue(result.RealmID)
 	data.RebuildRequiresPoweroff = types.BoolValue(result.RebuildRequiresPoweroff)
 	data.SpIP = types.StringValue(result.SpIP)
 	data.SpMAC = types.StringValue(result.SpMAC)
 	data.SpName = types.StringValue(result.SpName)
 	data.SpSubnetID = types.StringValue(result.SpSubnetID)
+	data.Subnet6ID = types.StringValue(result.Subnet6ID)
+	data.SubnetID = types.StringValue(result.SubnetID)
 	data.UseImage = types.StringValue(result.UseImage)
 
 	tflog.Trace(ctx, "read host data source", map[string]interface{}{"id": data.ID.ValueString()})
