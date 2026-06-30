@@ -35,6 +35,25 @@ func TestForemanHTTPProxy_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Username, decoded.Username)
 }
 
+func TestForemanHTTPProxy_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanHTTPProxy{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanHTTPProxy
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.URL, decoded.URL)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.Username, decoded.Username)
+}
+
 func TestForemanHTTPProxy_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanHTTPProxyRequest{
@@ -43,6 +62,22 @@ func TestForemanHTTPProxy_RoundTripRequest(t *testing.T) {
 		Password: "test_password",
 		Username: "test_username",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanHTTPProxyRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.URL, decoded.URL)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.Username, decoded.Username)
+}
+
+func TestForemanHTTPProxy_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanHTTPProxyRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

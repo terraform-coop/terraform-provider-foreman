@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/dpotapov/go-spnego"
-	cleanhttp "github.com/hashicorp/go-cleanhttp"
 )
 
 const (
@@ -23,6 +22,8 @@ const (
 	ForemanKatelloURLPrefix = "/katello/api"
 	ForemanTasksURLPrefix   = "/foreman_tasks/api"
 	ForemanPuppetURLPrefix  = "/foreman_puppet/api"
+
+	defaultRequestTimeout = 60 * time.Second
 )
 
 type ForemanClient struct {
@@ -48,19 +49,15 @@ func NewClient(serverURL url.URL, creds ClientCredentials, cfg ClientConfig) *Fo
 	tlsCfg := &tls.Config{
 		InsecureSkipVerify: cfg.TLSInsecure,
 	}
-	cleanClient := cleanhttp.DefaultClient()
+	client := &http.Client{Timeout: defaultRequestTimeout}
 	if cfg.NegotiateAuth {
-		transCfg := &spnego.Transport{}
-		transCfg.TLSClientConfig = tlsCfg
-		cleanClient.Transport = transCfg
+		client.Transport = &spnego.Transport{Transport: http.Transport{TLSClientConfig: tlsCfg}}
 	} else {
-		transCfg := &http.Transport{}
-		transCfg.TLSClientConfig = tlsCfg
-		cleanClient.Transport = transCfg
+		client.Transport = &http.Transport{TLSClientConfig: tlsCfg}
 	}
 	return &ForemanClient{
 		serverURL:   serverURL,
-		httpClient:  cleanClient,
+		httpClient:  client,
 		credentials: creds,
 		config:      cfg,
 	}
@@ -94,7 +91,9 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 	req.Header.Add("User-Agent", "terraform-provider-foreman")
 	req.Header.Add("Accept", "application/json,version="+ForemanAPIVersion)
 	req.Header.Add("Content-Type", "application/json")
-	req.SetBasicAuth(c.credentials.Username, c.credentials.Password)
+	if !c.config.NegotiateAuth {
+		req.SetBasicAuth(c.credentials.Username, c.credentials.Password)
+	}
 	return req, nil
 }
 
@@ -221,10 +220,6 @@ func (e *HTTPError) Error() string {
 	return fmt.Sprintf("HTTP error: endpoint=%s status=%d body=%s", e.Endpoint, e.StatusCode, e.Body)
 }
 
-func (e *HTTPError) IsNotFound() bool {
-	return e.StatusCode == http.StatusNotFound
-}
-
 // IsNotFoundError returns true if the error is a 404 (resource not found).
 func IsNotFoundError(err error) bool {
 	if err == nil {
@@ -232,7 +227,7 @@ func IsNotFoundError(err error) bool {
 	}
 	var httpErr *HTTPError
 	if errors.As(err, &httpErr) {
-		return httpErr.IsNotFound()
+		return httpErr.StatusCode == http.StatusNotFound
 	}
 	return false
 }
@@ -247,7 +242,11 @@ func (c *ForemanClient) waitForKatelloTask(ctx context.Context, taskID int) (*Fo
 		if !task.Pending {
 			return &task, nil
 		}
-		time.Sleep(time.Duration(i+1) * time.Second)
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("task %d polling cancelled: %w", taskID, ctx.Err())
+		case <-time.After(time.Duration(i+1) * time.Second):
+		}
 	}
 	return nil, fmt.Errorf("task %d did not complete within timeout", taskID)
 }

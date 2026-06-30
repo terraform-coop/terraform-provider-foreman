@@ -49,6 +49,32 @@ func TestForemanTemplateInput_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.VariableName, decoded.VariableName)
 }
 
+func TestForemanTemplateInput_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanTemplateInput{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanTemplateInput
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.InputType, decoded.InputType)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Advanced, decoded.Advanced)
+	assert.Equal(t, original.Default, decoded.Default)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.FactName, decoded.FactName)
+	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
+	assert.Equal(t, original.Required, decoded.Required)
+	assert.Equal(t, original.ResourceType, decoded.ResourceType)
+	assert.Equal(t, original.ValueType, decoded.ValueType)
+	assert.Equal(t, original.VariableName, decoded.VariableName)
+}
+
 func TestForemanTemplateInput_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanTemplateInputRequest{
@@ -64,6 +90,29 @@ func TestForemanTemplateInput_RoundTripRequest(t *testing.T) {
 		ValueType:    "test_value_type",
 		VariableName: "test_variable_name",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanTemplateInputRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.InputType, decoded.InputType)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Advanced, decoded.Advanced)
+	assert.Equal(t, original.Default, decoded.Default)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.FactName, decoded.FactName)
+	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
+	assert.Equal(t, original.Required, decoded.Required)
+	assert.Equal(t, original.ResourceType, decoded.ResourceType)
+	assert.Equal(t, original.ValueType, decoded.ValueType)
+	assert.Equal(t, original.VariableName, decoded.VariableName)
+}
+
+func TestForemanTemplateInput_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanTemplateInputRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

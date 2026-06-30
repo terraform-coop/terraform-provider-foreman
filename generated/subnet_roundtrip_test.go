@@ -73,6 +73,44 @@ func TestForemanSubnet_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Vlanid, decoded.Vlanid)
 }
 
+func TestForemanSubnet_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSubnet{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSubnet
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Network, decoded.Network)
+	assert.Equal(t, original.BmcID, decoded.BmcID)
+	assert.Equal(t, original.BootMode, decoded.BootMode)
+	assert.Equal(t, original.Cidr, decoded.Cidr)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.DhcpID, decoded.DhcpID)
+	assert.Equal(t, original.DNSID, decoded.DNSID)
+	assert.Equal(t, original.DNSPrimary, decoded.DNSPrimary)
+	assert.Equal(t, original.DNSSecondary, decoded.DNSSecondary)
+	assert.Equal(t, original.ExternalipamGroup, decoded.ExternalipamGroup)
+	assert.Equal(t, original.ExternalipamID, decoded.ExternalipamID)
+	assert.Equal(t, original.From, decoded.From)
+	assert.Equal(t, original.Gateway, decoded.Gateway)
+	assert.Equal(t, original.HTTPbootID, decoded.HTTPbootID)
+	assert.Equal(t, original.IPam, decoded.IPam)
+	assert.Equal(t, original.Mask, decoded.Mask)
+	assert.Equal(t, original.Mtu, decoded.Mtu)
+	assert.Equal(t, original.NetworkType, decoded.NetworkType)
+	assert.Equal(t, original.TemplateID, decoded.TemplateID)
+	assert.Equal(t, original.TftpID, decoded.TftpID)
+	assert.Equal(t, original.To, decoded.To)
+	assert.Equal(t, original.Vlanid, decoded.Vlanid)
+}
+
 func TestForemanSubnet_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSubnetRequest{
@@ -100,6 +138,41 @@ func TestForemanSubnet_RoundTripRequest(t *testing.T) {
 		To:                "test_to",
 		Vlanid:            "test_vlanid",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSubnetRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Network, decoded.Network)
+	assert.Equal(t, original.BmcID, decoded.BmcID)
+	assert.Equal(t, original.BootMode, decoded.BootMode)
+	assert.Equal(t, original.Cidr, decoded.Cidr)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.DhcpID, decoded.DhcpID)
+	assert.Equal(t, original.DNSID, decoded.DNSID)
+	assert.Equal(t, original.DNSPrimary, decoded.DNSPrimary)
+	assert.Equal(t, original.DNSSecondary, decoded.DNSSecondary)
+	assert.Equal(t, original.ExternalipamGroup, decoded.ExternalipamGroup)
+	assert.Equal(t, original.ExternalipamID, decoded.ExternalipamID)
+	assert.Equal(t, original.From, decoded.From)
+	assert.Equal(t, original.Gateway, decoded.Gateway)
+	assert.Equal(t, original.HTTPbootID, decoded.HTTPbootID)
+	assert.Equal(t, original.IPam, decoded.IPam)
+	assert.Equal(t, original.Mask, decoded.Mask)
+	assert.Equal(t, original.Mtu, decoded.Mtu)
+	assert.Equal(t, original.NetworkType, decoded.NetworkType)
+	assert.Equal(t, original.TemplateID, decoded.TemplateID)
+	assert.Equal(t, original.TftpID, decoded.TftpID)
+	assert.Equal(t, original.To, decoded.To)
+	assert.Equal(t, original.Vlanid, decoded.Vlanid)
+}
+
+func TestForemanSubnet_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSubnetRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

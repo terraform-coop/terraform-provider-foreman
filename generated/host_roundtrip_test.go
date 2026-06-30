@@ -124,6 +124,70 @@ func TestForemanHost_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.UseImage, decoded.UseImage)
 }
 
+func TestForemanHost_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanHost{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanHost
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.ArchitectureID, decoded.ArchitectureID)
+	assert.Equal(t, original.BmcAvailable, decoded.BmcAvailable)
+	assert.Equal(t, original.Build, decoded.Build)
+	assert.Equal(t, original.BuildStatus, decoded.BuildStatus)
+	assert.Equal(t, original.BuildStatusLabel, decoded.BuildStatusLabel)
+	assert.Equal(t, original.Certname, decoded.Certname)
+	assert.Equal(t, original.Comment, decoded.Comment)
+	assert.Equal(t, original.ComputeProfileID, decoded.ComputeProfileID)
+	assert.Equal(t, original.ComputeResourceID, decoded.ComputeResourceID)
+	assert.Equal(t, original.ComputeResourceProvider, decoded.ComputeResourceProvider)
+	assert.Equal(t, original.Creator, decoded.Creator)
+	assert.Equal(t, original.CreatorID, decoded.CreatorID)
+	assert.Equal(t, original.Disk, decoded.Disk)
+	assert.Equal(t, original.DisplayName, decoded.DisplayName)
+	assert.Equal(t, original.DomainID, decoded.DomainID)
+	assert.Equal(t, original.Enabled, decoded.Enabled)
+	assert.Equal(t, original.GlobalStatus, decoded.GlobalStatus)
+	assert.Equal(t, original.GlobalStatusLabel, decoded.GlobalStatusLabel)
+	assert.Equal(t, original.HostgroupID, decoded.HostgroupID)
+	assert.Equal(t, original.ImageID, decoded.ImageID)
+	assert.Equal(t, original.InitiatedAt, decoded.InitiatedAt)
+	assert.Equal(t, original.InstalledAt, decoded.InstalledAt)
+	assert.Equal(t, original.IP, decoded.IP)
+	assert.Equal(t, original.IP6, decoded.IP6)
+	assert.Equal(t, original.LastCompile, decoded.LastCompile)
+	assert.Equal(t, original.LastReport, decoded.LastReport)
+	assert.Equal(t, original.MAC, decoded.MAC)
+	assert.Equal(t, original.Managed, decoded.Managed)
+	assert.Equal(t, original.MediumID, decoded.MediumID)
+	assert.Equal(t, original.ModelID, decoded.ModelID)
+	assert.Equal(t, original.OperatingsystemIcon, decoded.OperatingsystemIcon)
+	assert.Equal(t, original.OperatingsystemID, decoded.OperatingsystemID)
+	assert.Equal(t, original.OwnerID, decoded.OwnerID)
+	assert.Equal(t, original.OwnerType, decoded.OwnerType)
+	assert.Equal(t, original.Permissions, decoded.Permissions)
+	assert.Equal(t, original.ProvisionMethod, decoded.ProvisionMethod)
+	assert.Equal(t, original.PtableID, decoded.PtableID)
+	assert.Equal(t, original.PuppetCaProxyID, decoded.PuppetCaProxyID)
+	assert.Equal(t, original.PuppetProxyID, decoded.PuppetProxyID)
+	assert.Equal(t, original.PXELoader, decoded.PXELoader)
+	assert.Equal(t, original.RealmID, decoded.RealmID)
+	assert.Equal(t, original.RebuildRequiresPoweroff, decoded.RebuildRequiresPoweroff)
+	assert.Equal(t, original.SpIP, decoded.SpIP)
+	assert.Equal(t, original.SpMAC, decoded.SpMAC)
+	assert.Equal(t, original.SpName, decoded.SpName)
+	assert.Equal(t, original.SpSubnetID, decoded.SpSubnetID)
+	assert.Equal(t, original.Subnet6ID, decoded.Subnet6ID)
+	assert.Equal(t, original.SubnetID, decoded.SubnetID)
+	assert.Equal(t, original.UseImage, decoded.UseImage)
+}
+
 func TestForemanHost_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanHostRequest{
@@ -156,6 +220,46 @@ func TestForemanHost_RoundTripRequest(t *testing.T) {
 		RootPass:          "test_root_pass",
 		SubnetID:          42,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanHostRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.ArchitectureID, decoded.ArchitectureID)
+	assert.Equal(t, original.Build, decoded.Build)
+	assert.Equal(t, original.Comment, decoded.Comment)
+	assert.Equal(t, original.ComputeProfileID, decoded.ComputeProfileID)
+	assert.Equal(t, original.ComputeResourceID, decoded.ComputeResourceID)
+	assert.Equal(t, original.DomainID, decoded.DomainID)
+	assert.Equal(t, original.Enabled, decoded.Enabled)
+	assert.Equal(t, original.HostgroupID, decoded.HostgroupID)
+	assert.Equal(t, original.ImageID, decoded.ImageID)
+	assert.Equal(t, original.IP, decoded.IP)
+	assert.Equal(t, original.MAC, decoded.MAC)
+	assert.Equal(t, original.Managed, decoded.Managed)
+	assert.Equal(t, original.MediumID, decoded.MediumID)
+	assert.Equal(t, original.ModelID, decoded.ModelID)
+	assert.Equal(t, original.OperatingsystemID, decoded.OperatingsystemID)
+	assert.Equal(t, original.Overwrite, decoded.Overwrite)
+	assert.Equal(t, original.OwnerID, decoded.OwnerID)
+	assert.Equal(t, original.OwnerType, decoded.OwnerType)
+	assert.Equal(t, original.ProgressReportID, decoded.ProgressReportID)
+	assert.Equal(t, original.ProvisionMethod, decoded.ProvisionMethod)
+	assert.Equal(t, original.PtableID, decoded.PtableID)
+	assert.Equal(t, original.PuppetCaProxyID, decoded.PuppetCaProxyID)
+	assert.Equal(t, original.PuppetProxyID, decoded.PuppetProxyID)
+	assert.Equal(t, original.PXELoader, decoded.PXELoader)
+	assert.Equal(t, original.RealmID, decoded.RealmID)
+	assert.Equal(t, original.RootPass, decoded.RootPass)
+	assert.Equal(t, original.SubnetID, decoded.SubnetID)
+}
+
+func TestForemanHost_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanHostRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

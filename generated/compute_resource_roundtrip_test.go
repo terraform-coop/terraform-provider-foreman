@@ -59,6 +59,37 @@ func TestForemanComputeResource_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.User, decoded.User)
 }
 
+func TestForemanComputeResource_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanComputeResource{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanComputeResource
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.CachingEnabled, decoded.CachingEnabled)
+	assert.Equal(t, original.Datacenter, decoded.Datacenter)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.DisplayType, decoded.DisplayType)
+	assert.Equal(t, original.Domain, decoded.Domain)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.ProjectDomainID, decoded.ProjectDomainID)
+	assert.Equal(t, original.ProjectDomainName, decoded.ProjectDomainName)
+	assert.Equal(t, original.Provider, decoded.Provider)
+	assert.Equal(t, original.Region, decoded.Region)
+	assert.Equal(t, original.Server, decoded.Server)
+	assert.Equal(t, original.SetConsolePassword, decoded.SetConsolePassword)
+	assert.Equal(t, original.Tenant, decoded.Tenant)
+	assert.Equal(t, original.URL, decoded.URL)
+	assert.Equal(t, original.User, decoded.User)
+}
+
 func TestForemanComputeResource_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanComputeResourceRequest{
@@ -79,6 +110,34 @@ func TestForemanComputeResource_RoundTripRequest(t *testing.T) {
 		URL:                "test_url",
 		User:               "test_user",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanComputeResourceRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.CachingEnabled, decoded.CachingEnabled)
+	assert.Equal(t, original.Datacenter, decoded.Datacenter)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.DisplayType, decoded.DisplayType)
+	assert.Equal(t, original.Domain, decoded.Domain)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.ProjectDomainID, decoded.ProjectDomainID)
+	assert.Equal(t, original.ProjectDomainName, decoded.ProjectDomainName)
+	assert.Equal(t, original.Provider, decoded.Provider)
+	assert.Equal(t, original.Region, decoded.Region)
+	assert.Equal(t, original.Server, decoded.Server)
+	assert.Equal(t, original.SetConsolePassword, decoded.SetConsolePassword)
+	assert.Equal(t, original.Tenant, decoded.Tenant)
+	assert.Equal(t, original.URL, decoded.URL)
+	assert.Equal(t, original.User, decoded.User)
+}
+
+func TestForemanComputeResource_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanComputeResourceRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

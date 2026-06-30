@@ -16,9 +16,9 @@ func TestClient_TaxonomyWrapping(t *testing.T) {
 
 	var receivedBody map[string]interface{}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewDecoder(r.Body).Decode(&receivedBody)
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&receivedBody))
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(map[string]interface{}{"id": 1, "name": "test"})
+		require.NoError(t, json.NewEncoder(w).Encode(map[string]interface{}{"id": 1, "name": "test"}))
 	}))
 	defer srv.Close()
 
@@ -44,9 +44,9 @@ func TestClient_WrapperKey(t *testing.T) {
 
 	var receivedBody map[string]interface{}
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewDecoder(r.Body).Decode(&receivedBody)
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&receivedBody))
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(map[string]interface{}{"id": 1, "name": "test"})
+		require.NoError(t, json.NewEncoder(w).Encode(map[string]interface{}{"id": 1, "name": "test"}))
 	}))
 	defer srv.Close()
 
@@ -64,9 +64,9 @@ func TestClient_WrapperKey(t *testing.T) {
 	// Test with empty wrapper key (Katello pattern)
 	receivedBody2 := map[string]interface{}{}
 	srv2 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		json.NewDecoder(r.Body).Decode(&receivedBody2)
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&receivedBody2))
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(map[string]interface{}{"id": 1, "name": "test"})
+		require.NoError(t, json.NewEncoder(w).Encode(map[string]interface{}{"id": 1, "name": "test"}))
 	}))
 	defer srv2.Close()
 
@@ -86,7 +86,8 @@ func TestClient_404Handling(t *testing.T) {
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		w.Write([]byte(`{"error":{"message":"Resource not found"}}`))
+		_, err := w.Write([]byte(`{"error":{"message":"Resource not found"}}`))
+		require.NoError(t, err)
 	}))
 	defer srv.Close()
 

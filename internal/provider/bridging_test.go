@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -241,7 +242,8 @@ func TestFlattenInterfacesAttributes(t *testing.T) {
 func TestExpandInterfacesAttributes(t *testing.T) {
 	t.Run("valid json array", func(t *testing.T) {
 		raw := json.RawMessage(`[{"id":1,"primary":true,"ip":"10.0.0.1","mac":"aa:bb:cc:dd:ee:ff","name":"eth0","subnet_id":5,"identifier":"eth0","managed":true,"provision":true,"virtual":false,"type":"interface","bmc_provider":"ipmitool","username":"admin","password":"secret","domain_id":3,"attached_to":"","attached_devices":"","compute_attributes":"{\"type\":\"bridge\"}"}]`)
-		l := expandInterfacesAttributes(raw)
+		var diags diag.Diagnostics
+		l := expandInterfacesAttributes(raw, &diags)
 		if l.IsNull() {
 			t.Fatal("expected non-null list")
 		}
@@ -260,7 +262,8 @@ func TestExpandInterfacesAttributes(t *testing.T) {
 
 	t.Run("empty array", func(t *testing.T) {
 		raw := json.RawMessage(`[]`)
-		l := expandInterfacesAttributes(raw)
+		var diags diag.Diagnostics
+		l := expandInterfacesAttributes(raw, &diags)
 		if l.IsNull() {
 			t.Fatal("expected non-null list for empty array")
 		}
@@ -270,14 +273,16 @@ func TestExpandInterfacesAttributes(t *testing.T) {
 	})
 
 	t.Run("null", func(t *testing.T) {
-		l := expandInterfacesAttributes(json.RawMessage(`null`))
+		var diags diag.Diagnostics
+		l := expandInterfacesAttributes(json.RawMessage(`null`), &diags)
 		if !l.IsNull() {
 			t.Fatal("expected null list")
 		}
 	})
 
 	t.Run("empty bytes", func(t *testing.T) {
-		l := expandInterfacesAttributes(json.RawMessage{})
+		var diags diag.Diagnostics
+		l := expandInterfacesAttributes(json.RawMessage{}, &diags)
 		if !l.IsNull() {
 			t.Fatal("expected null list for empty bytes")
 		}

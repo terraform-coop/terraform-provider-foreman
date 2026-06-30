@@ -29,11 +29,40 @@ func TestForemanSetting_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Value, decoded.Value)
 }
 
+func TestForemanSetting_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSetting{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSetting
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Value, decoded.Value)
+}
+
 func TestForemanSetting_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSettingRequest{
 		Value: "test_value",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSettingRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Value, decoded.Value)
+}
+
+func TestForemanSetting_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSettingRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

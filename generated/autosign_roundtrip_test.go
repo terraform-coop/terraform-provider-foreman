@@ -27,7 +27,34 @@ func TestForemanAutosign_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Name, decoded.Name)
 }
 
+func TestForemanAutosign_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanAutosign{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanAutosign
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+}
+
 func TestForemanAutosign_RoundTripRequest(t *testing.T) {
+	t.Parallel()
+	original := &ForemanAutosignRequest{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanAutosignRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+}
+
+func TestForemanAutosign_RoundTripRequestZeroValues(t *testing.T) {
 	t.Parallel()
 	original := &ForemanAutosignRequest{}
 

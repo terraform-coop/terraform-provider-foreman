@@ -39,7 +39,40 @@ func TestForemanSmartClassParameter_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
 }
 
+func TestForemanSmartClassParameter_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSmartClassParameter{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSmartClassParameter
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Parameter, decoded.Parameter)
+	assert.Equal(t, original.PuppetclassID, decoded.PuppetclassID)
+	assert.Equal(t, original.Override, decoded.Override)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.DefaultValue, decoded.DefaultValue)
+	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
+}
+
 func TestForemanSmartClassParameter_RoundTripRequest(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSmartClassParameterRequest{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSmartClassParameterRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+}
+
+func TestForemanSmartClassParameter_RoundTripRequestZeroValues(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSmartClassParameterRequest{}
 

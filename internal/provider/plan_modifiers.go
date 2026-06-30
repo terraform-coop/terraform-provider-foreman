@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -33,30 +32,23 @@ func (m suppressDomainSuffixDiff) PlanModifyString(ctx context.Context, req plan
 		return
 	}
 
-	// Extract domain_name from state (set by the API)
-	// We can't access other attributes directly in a plan modifier,
-	// so we compare by checking if one is a prefix of the other after removing domain
-	oldParts := strings.SplitN(old, ".", 2)
-	newParts := strings.SplitN(new, ".", 2)
-
-	// If both have same hostpart (before first dot), suppress
-	if len(oldParts) > 0 && len(newParts) > 0 && oldParts[0] == newParts[0] {
-		resp.PlanValue = req.StateValue
-		return
-	}
-
-	// If one is empty and the other is just the hostname, suppress
-	if (old == "" && new != "") || (old != "" && new == "") {
-		if strings.HasPrefix(new, old) || strings.HasPrefix(old, new) {
+	// We can't access other attributes directly in a plan modifier, so we treat
+	// the diff as a domain-suffix change only when one value is the other value
+	// plus a domain suffix (e.g. "host" <-> "host.example.com"). This avoids
+	// incorrectly suppressing "host.example.com" <-> "host.malicious.com".
+	if old == "" || new == "" {
+		if strings.HasPrefix(new, old+".") || strings.HasPrefix(old, new+".") {
 			resp.PlanValue = req.StateValue
 		}
+		return
+	}
+	if strings.HasPrefix(old, new+".") || strings.HasPrefix(new, old+".") {
+		resp.PlanValue = req.StateValue
 	}
 }
 
 // suppressSyncDateDiff normalizes sync_date times (UTC → +0000).
 type suppressSyncDateDiff struct{}
-
-const syncDateLayout = "2006-01-02 15:04:05 -0700"
 
 func (m suppressSyncDateDiff) Description(_ context.Context) string {
 	return "Normalizes sync_date times (UTC → +0000)"
@@ -78,22 +70,15 @@ func (m suppressSyncDateDiff) PlanModifyString(ctx context.Context, req planmodi
 		return
 	}
 
-	// Try parsing as time
-	oldTime, err1 := parseSyncDate(old)
-	newTime, err2 := parseSyncDate(new)
-	if err1 == nil && err2 == nil && oldTime == newTime {
+	// Normalize "UTC" to "+0000" and compare strings directly. Using time.Parse
+	// is intentionally avoided because Foreman date formats are locale-dependent.
+	if old == new {
 		resp.PlanValue = req.StateValue
 	}
 }
 
 func normalizeSyncDate(s string) string {
 	return strings.ReplaceAll(s, "UTC", "+0000")
-}
-
-func parseSyncDate(s string) (string, error) {
-	s = normalizeSyncDate(s)
-	// Just compare normalized strings — time.Parse is locale-dependent
-	return s, nil
 }
 
 // suppressDownloadConcurrencyDiff suppresses when API returns 0 but config has >0.
@@ -115,8 +100,7 @@ func (m suppressDownloadConcurrencyDiff) PlanModifyInt64(ctx context.Context, re
 	old := req.StateValue.ValueInt64()
 	new := req.PlanValue.ValueInt64()
 
-	// If API returned 0 but config has >0, suppress the diff
-	if old == 0 && new > 0 {
+	if shouldSuppressDownloadConcurrency(old, new) {
 		resp.PlanValue = req.StateValue
 	}
 }
@@ -143,36 +127,6 @@ func (m suppressValueTypeDiff) PlanModifyString(ctx context.Context, req planmod
 
 	// API never returns value_type, so on existing resources old="" new="plain" is expected
 	if old == "" && new == "plain" {
-		resp.PlanValue = req.StateValue
-	}
-}
-
-// suppressEmptyToDefault suppresses empty→default for fields the API doesn't return.
-func suppressEmptyDefaultDiff(defaultValue string) planmodifier.String {
-	return &suppressEmptyDefaultImpl{defaultValue: defaultValue}
-}
-
-type suppressEmptyDefaultImpl struct {
-	defaultValue string
-}
-
-func (m *suppressEmptyDefaultImpl) Description(_ context.Context) string {
-	return fmt.Sprintf("Suppresses diff when API returns empty and plan has default %q", m.defaultValue)
-}
-
-func (m *suppressEmptyDefaultImpl) MarkdownDescription(ctx context.Context) string {
-	return m.Description(ctx)
-}
-
-func (m *suppressEmptyDefaultImpl) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
-	if req.StateValue.IsNull() || req.StateValue.IsUnknown() {
-		return
-	}
-
-	old := req.StateValue.ValueString()
-	new := req.PlanValue.ValueString()
-
-	if old == "" && new == m.defaultValue {
 		resp.PlanValue = req.StateValue
 	}
 }
@@ -204,10 +158,15 @@ func (m intToStringSuppressDownloadConcurrency) PlanModifyString(ctx context.Con
 		return
 	}
 
-	// If API returned 0 but config has >0, suppress the diff
-	if old == 0 && new > 0 {
+	if shouldSuppressDownloadConcurrency(old, new) {
 		resp.PlanValue = req.StateValue
 	}
+}
+
+// shouldSuppressDownloadConcurrency returns true when the API returned 0 but
+// the config has a positive value, which is common for fields the API omits.
+func shouldSuppressDownloadConcurrency(old, new int64) bool {
+	return old == 0 && new > 0
 }
 
 // Ensure interface compliance

@@ -31,12 +31,43 @@ func TestForemanSmartProxy_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.URL, decoded.URL)
 }
 
+func TestForemanSmartProxy_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSmartProxy{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSmartProxy
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.URL, decoded.URL)
+}
+
 func TestForemanSmartProxy_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSmartProxyRequest{
 		Name: "test_name",
 		URL:  "test_url",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanSmartProxyRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.URL, decoded.URL)
+}
+
+func TestForemanSmartProxy_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanSmartProxyRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

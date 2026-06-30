@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -316,37 +317,9 @@ func (r *hostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	body := &foremanHostFullRequest{
-		ForemanHostRequest: generated.ForemanHostRequest{
-			Name:              plan.Name.ValueString(),
-			ArchitectureID:    plan.ArchitectureID.ValueInt64(),
-			Build:             plan.Build.ValueBool(),
-			Comment:           plan.Comment.ValueString(),
-			ComputeProfileID:  func() int64 { v, _ := strconv.ParseInt(plan.ComputeProfileID.ValueString(), 10, 64); return v }(),
-			ComputeResourceID: plan.ComputeResourceID.ValueInt64(),
-			DomainID:          plan.DomainID.ValueInt64(),
-			Enabled:           plan.Enabled.ValueBool(),
-			HostgroupID:       plan.HostgroupID.ValueInt64(),
-			ImageID:           func() int64 { v, _ := strconv.ParseInt(plan.ImageID.ValueString(), 10, 64); return v }(),
-			IP:                plan.IP.ValueString(),
-			MAC:               plan.MAC.ValueString(),
-			Managed:           plan.Managed.ValueBool(),
-			MediumID:          plan.MediumID.ValueInt64(),
-			ModelID:           func() int64 { v, _ := strconv.ParseInt(plan.ModelID.ValueString(), 10, 64); return v }(),
-			OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
-			OwnerID:           plan.OwnerID.ValueInt64(),
-			OwnerType:         plan.OwnerType.ValueString(),
-			ProvisionMethod:   plan.ProvisionMethod.ValueString(),
-			PtableID:          plan.PtableID.ValueInt64(),
-			PuppetCaProxyID:   func() int64 { v, _ := strconv.ParseInt(plan.PuppetCaProxyID.ValueString(), 10, 64); return v }(),
-			PuppetProxyID:     func() int64 { v, _ := strconv.ParseInt(plan.PuppetProxyID.ValueString(), 10, 64); return v }(),
-			PXELoader:         plan.PXELoader.ValueString(),
-			RealmID:           func() int64 { v, _ := strconv.ParseInt(plan.RealmID.ValueString(), 10, 64); return v }(),
-			SubnetID:          func() int64 { v, _ := strconv.ParseInt(plan.SubnetID.ValueString(), 10, 64); return v }(),
-		},
-		InterfacesAttributes:     flattenInterfacesAttributes(plan.InterfacesAttributes),
-		HostParametersAttributes: flattenParameters(plan.HostParametersAttributes),
-		ComputeAttributes:        flattenComputeAttributes(plan.ComputeAttributes),
+	body := buildHostRequest(plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	var result foremanHostFullResponse
@@ -356,7 +329,10 @@ func (r *hostResource) Create(ctx context.Context, req resource.CreateRequest, r
 		return
 	}
 
-	marshalHostResultToState(&result, &plan)
+	marshalHostResultToState(&result, &plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "created host", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -385,7 +361,10 @@ func (r *hostResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	marshalHostResultToState(&result, &state)
+	marshalHostResultToState(&result, &state, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
@@ -403,37 +382,9 @@ func (r *hostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	body := &foremanHostFullRequest{
-		ForemanHostRequest: generated.ForemanHostRequest{
-			Name:              plan.Name.ValueString(),
-			ArchitectureID:    plan.ArchitectureID.ValueInt64(),
-			Build:             plan.Build.ValueBool(),
-			Comment:           plan.Comment.ValueString(),
-			ComputeProfileID:  func() int64 { v, _ := strconv.ParseInt(plan.ComputeProfileID.ValueString(), 10, 64); return v }(),
-			ComputeResourceID: plan.ComputeResourceID.ValueInt64(),
-			DomainID:          plan.DomainID.ValueInt64(),
-			Enabled:           plan.Enabled.ValueBool(),
-			HostgroupID:       plan.HostgroupID.ValueInt64(),
-			ImageID:           func() int64 { v, _ := strconv.ParseInt(plan.ImageID.ValueString(), 10, 64); return v }(),
-			IP:                plan.IP.ValueString(),
-			MAC:               plan.MAC.ValueString(),
-			Managed:           plan.Managed.ValueBool(),
-			MediumID:          plan.MediumID.ValueInt64(),
-			ModelID:           func() int64 { v, _ := strconv.ParseInt(plan.ModelID.ValueString(), 10, 64); return v }(),
-			OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
-			OwnerID:           plan.OwnerID.ValueInt64(),
-			OwnerType:         plan.OwnerType.ValueString(),
-			ProvisionMethod:   plan.ProvisionMethod.ValueString(),
-			PtableID:          plan.PtableID.ValueInt64(),
-			PuppetCaProxyID:   func() int64 { v, _ := strconv.ParseInt(plan.PuppetCaProxyID.ValueString(), 10, 64); return v }(),
-			PuppetProxyID:     func() int64 { v, _ := strconv.ParseInt(plan.PuppetProxyID.ValueString(), 10, 64); return v }(),
-			PXELoader:         plan.PXELoader.ValueString(),
-			RealmID:           func() int64 { v, _ := strconv.ParseInt(plan.RealmID.ValueString(), 10, 64); return v }(),
-			SubnetID:          func() int64 { v, _ := strconv.ParseInt(plan.SubnetID.ValueString(), 10, 64); return v }(),
-		},
-		InterfacesAttributes:     flattenInterfacesAttributes(plan.InterfacesAttributes),
-		HostParametersAttributes: flattenParameters(plan.HostParametersAttributes),
-		ComputeAttributes:        flattenComputeAttributes(plan.ComputeAttributes),
+	body := buildHostRequest(plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
 	}
 
 	var result foremanHostFullResponse
@@ -443,7 +394,10 @@ func (r *hostResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	marshalHostResultToState(&result, &plan)
+	marshalHostResultToState(&result, &plan, &resp.Diagnostics)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
@@ -471,8 +425,44 @@ func (r *hostResource) ImportState(ctx context.Context, req resource.ImportState
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
+// buildHostRequest builds the full API request body from the Terraform plan.
+func buildHostRequest(plan hostResourceModel, diags *diag.Diagnostics) *foremanHostFullRequest {
+	return &foremanHostFullRequest{
+		ForemanHostRequest: generated.ForemanHostRequest{
+			Name:              plan.Name.ValueString(),
+			ArchitectureID:    plan.ArchitectureID.ValueInt64(),
+			Build:             plan.Build.ValueBool(),
+			Comment:           plan.Comment.ValueString(),
+			ComputeProfileID:  parseStringToInt64(plan.ComputeProfileID.ValueString(), "compute_profile_id", diags),
+			ComputeResourceID: plan.ComputeResourceID.ValueInt64(),
+			DomainID:          plan.DomainID.ValueInt64(),
+			Enabled:           plan.Enabled.ValueBool(),
+			HostgroupID:       plan.HostgroupID.ValueInt64(),
+			ImageID:           parseStringToInt64(plan.ImageID.ValueString(), "image_id", diags),
+			IP:                plan.IP.ValueString(),
+			MAC:               plan.MAC.ValueString(),
+			Managed:           plan.Managed.ValueBool(),
+			MediumID:          plan.MediumID.ValueInt64(),
+			ModelID:           parseStringToInt64(plan.ModelID.ValueString(), "model_id", diags),
+			OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
+			OwnerID:           plan.OwnerID.ValueInt64(),
+			OwnerType:         plan.OwnerType.ValueString(),
+			ProvisionMethod:   plan.ProvisionMethod.ValueString(),
+			PtableID:          plan.PtableID.ValueInt64(),
+			PuppetCaProxyID:   parseStringToInt64(plan.PuppetCaProxyID.ValueString(), "puppet_ca_proxy_id", diags),
+			PuppetProxyID:     parseStringToInt64(plan.PuppetProxyID.ValueString(), "puppet_proxy_id", diags),
+			PXELoader:         plan.PXELoader.ValueString(),
+			RealmID:           parseStringToInt64(plan.RealmID.ValueString(), "realm_id", diags),
+			SubnetID:          parseStringToInt64(plan.SubnetID.ValueString(), "subnet_id", diags),
+		},
+		InterfacesAttributes:     flattenInterfacesAttributes(plan.InterfacesAttributes),
+		HostParametersAttributes: flattenParameters(plan.HostParametersAttributes),
+		ComputeAttributes:        flattenComputeAttributes(plan.ComputeAttributes),
+	}
+}
+
 // marshalHostResultToState maps a bridged API response back into the Terraform state model.
-func marshalHostResultToState(result *foremanHostFullResponse, state *hostResourceModel) {
+func marshalHostResultToState(result *foremanHostFullResponse, state *hostResourceModel, diags *diag.Diagnostics) {
 	state.ID = types.StringValue(strconv.Itoa(result.ID))
 	state.Name = types.StringValue(result.Name)
 	state.ArchitectureID = types.Int64Value(result.ArchitectureID)
@@ -529,7 +519,9 @@ func marshalHostResultToState(result *foremanHostFullResponse, state *hostResour
 		for i, s := range result.GlobalStatusFulltext {
 			elems[i] = types.StringValue(s)
 		}
-		state.GlobalStatusFulltext, _ = types.ListValue(types.StringType, elems)
+		listVal, d := types.ListValue(types.StringType, elems)
+		diags.Append(d...)
+		state.GlobalStatusFulltext = listVal
 	} else {
 		state.GlobalStatusFulltext = types.ListNull(types.StringType)
 	}
@@ -539,12 +531,14 @@ func marshalHostResultToState(result *foremanHostFullResponse, state *hostResour
 		for k, v := range result.Permissions {
 			elems[k] = types.StringValue(fmt.Sprint(v))
 		}
-		state.Permissions, _ = types.MapValue(types.StringType, elems)
+		mapVal, d := types.MapValue(types.StringType, elems)
+		diags.Append(d...)
+		state.Permissions = mapVal
 	} else {
 		state.Permissions = types.MapNull(types.StringType)
 	}
 
-	state.InterfacesAttributes = expandInterfacesAttributes(result.InterfacesAttributes)
+	state.InterfacesAttributes = expandInterfacesAttributes(result.InterfacesAttributes, diags)
 	state.HostParametersAttributes = expandParameters(result.HostParametersAttributes)
 	state.ComputeAttributes = expandComputeAttributes(result.ComputeAttributes)
 }
@@ -637,7 +631,7 @@ func flattenInterfacesAttributes(l types.List) []map[string]interface{} {
 	return out
 }
 
-func expandInterfacesAttributes(raw json.RawMessage) types.List {
+func expandInterfacesAttributes(raw json.RawMessage, diags *diag.Diagnostics) types.List {
 	if len(raw) == 0 || string(raw) == "null" {
 		return types.ListNull(types.ObjectType{AttrTypes: interfaceAttrTypes})
 	}
@@ -667,13 +661,16 @@ func expandInterfacesAttributes(raw json.RawMessage) types.List {
 			"attached_devices":   stringValue(item["attached_devices"]),
 			"compute_attributes": stringValue(item["compute_attributes"]),
 		}
-		val, diags := types.ObjectValue(interfaceAttrTypes, obj)
-		if !diags.HasError() {
-			elems = append(elems, val)
+		val, objDiags := types.ObjectValue(interfaceAttrTypes, obj)
+		if objDiags.HasError() {
+			diags.Append(objDiags...)
+			continue
 		}
+		elems = append(elems, val)
 	}
-	listVal, diags := types.ListValue(types.ObjectType{AttrTypes: interfaceAttrTypes}, elems)
-	if diags.HasError() {
+	listVal, listDiags := types.ListValue(types.ObjectType{AttrTypes: interfaceAttrTypes}, elems)
+	if listDiags.HasError() {
+		diags.Append(listDiags...)
 		return types.ListNull(types.ObjectType{AttrTypes: interfaceAttrTypes})
 	}
 	return listVal

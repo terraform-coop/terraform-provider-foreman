@@ -49,6 +49,32 @@ func TestForemanWebhook_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.WebhookTemplateID, decoded.WebhookTemplateID)
 }
 
+func TestForemanWebhook_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanWebhook{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanWebhook
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.TargetURL, decoded.TargetURL)
+	assert.Equal(t, original.HTTPMethod, decoded.HTTPMethod)
+	assert.Equal(t, original.HTTPContentType, decoded.HTTPContentType)
+	assert.Equal(t, original.HTTPHeaders, decoded.HTTPHeaders)
+	assert.Equal(t, original.Event, decoded.Event)
+	assert.Equal(t, original.Enabled, decoded.Enabled)
+	assert.Equal(t, original.VerifySSL, decoded.VerifySSL)
+	assert.Equal(t, original.SSLCACerts, decoded.SSLCACerts)
+	assert.Equal(t, original.ProxyAuthorization, decoded.ProxyAuthorization)
+	assert.Equal(t, original.WebhookTemplateID, decoded.WebhookTemplateID)
+}
+
 func TestForemanWebhook_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanWebhookRequest{
@@ -66,6 +92,31 @@ func TestForemanWebhook_RoundTripRequest(t *testing.T) {
 		Password:           "test_password",
 		WebhookTemplateID:  42,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanWebhookRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.TargetURL, decoded.TargetURL)
+	assert.Equal(t, original.HTTPMethod, decoded.HTTPMethod)
+	assert.Equal(t, original.HTTPContentType, decoded.HTTPContentType)
+	assert.Equal(t, original.HTTPHeaders, decoded.HTTPHeaders)
+	assert.Equal(t, original.Event, decoded.Event)
+	assert.Equal(t, original.Enabled, decoded.Enabled)
+	assert.Equal(t, original.VerifySSL, decoded.VerifySSL)
+	assert.Equal(t, original.SSLCACerts, decoded.SSLCACerts)
+	assert.Equal(t, original.ProxyAuthorization, decoded.ProxyAuthorization)
+	assert.Equal(t, original.User, decoded.User)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.WebhookTemplateID, decoded.WebhookTemplateID)
+}
+
+func TestForemanWebhook_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanWebhookRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

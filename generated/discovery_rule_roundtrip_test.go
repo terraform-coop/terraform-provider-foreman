@@ -41,6 +41,28 @@ func TestForemanDiscoveryRule_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Enabled, decoded.Enabled)
 }
 
+func TestForemanDiscoveryRule_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanDiscoveryRule{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanDiscoveryRule
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Search, decoded.Search)
+	assert.Equal(t, original.HostgroupID, decoded.HostgroupID)
+	assert.Equal(t, original.Hostname, decoded.Hostname)
+	assert.Equal(t, original.HostsLimitMaxCount, decoded.HostsLimitMaxCount)
+	assert.Equal(t, original.Priority, decoded.Priority)
+	assert.Equal(t, original.Enabled, decoded.Enabled)
+}
+
 func TestForemanDiscoveryRule_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanDiscoveryRuleRequest{
@@ -52,6 +74,25 @@ func TestForemanDiscoveryRule_RoundTripRequest(t *testing.T) {
 		Priority:           42,
 		Enabled:            true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanDiscoveryRuleRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Search, decoded.Search)
+	assert.Equal(t, original.HostgroupID, decoded.HostgroupID)
+	assert.Equal(t, original.Hostname, decoded.Hostname)
+	assert.Equal(t, original.HostsLimitMaxCount, decoded.HostsLimitMaxCount)
+	assert.Equal(t, original.Priority, decoded.Priority)
+	assert.Equal(t, original.Enabled, decoded.Enabled)
+}
+
+func TestForemanDiscoveryRule_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanDiscoveryRuleRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

@@ -22,7 +22,23 @@ test:
 	go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
 
 testacc:
-	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 ./...
+	@echo "Starting Foreman (docker compose up -d)..."
+	docker compose up -d
+	@echo "Waiting for Foreman to be ready..."
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do \
+		if curl -fsS -o /dev/null -u admin:changeme "http://localhost:3000/api/v2/status" 2>/dev/null; then \
+			echo "Foreman is ready"; break; \
+		fi; \
+		echo "  waiting... ($$i/30)"; sleep 10; \
+	done
+	FOREMAN_SERVER_HOSTNAME=localhost:3000 \
+	FOREMAN_CLIENT_USERNAME=admin \
+	FOREMAN_CLIENT_PASSWORD=changeme \
+	FOREMAN_CLIENT_TLS_INSECURE=true \
+	FOREMAN_CLIENT_SCHEME=http \
+	go test -v -cover -timeout=300s -tags=integration -count=1 ./internal/provider/...
+	@echo "Tearing down Foreman..."
+	docker compose down -v
 
 testacc-parallel:
 	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 -parallel=20 ./...

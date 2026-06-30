@@ -33,6 +33,24 @@ func TestForemanMedium_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.OsFamily, decoded.OsFamily)
 }
 
+func TestForemanMedium_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanMedium{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanMedium
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Path, decoded.Path)
+	assert.Equal(t, original.OsFamily, decoded.OsFamily)
+}
+
 func TestForemanMedium_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanMediumRequest{
@@ -40,6 +58,21 @@ func TestForemanMedium_RoundTripRequest(t *testing.T) {
 		Path:     "test_path",
 		OsFamily: "test_os_family",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanMediumRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Path, decoded.Path)
+	assert.Equal(t, original.OsFamily, decoded.OsFamily)
+}
+
+func TestForemanMedium_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanMediumRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

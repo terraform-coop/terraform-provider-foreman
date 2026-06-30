@@ -57,6 +57,36 @@ func TestForemanUser_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.UiCompactMode, decoded.UiCompactMode)
 }
 
+func TestForemanUser_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanUser{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanUser
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.AuthSourceID, decoded.AuthSourceID)
+	assert.Equal(t, original.Login, decoded.Login)
+	assert.Equal(t, original.Mail, decoded.Mail)
+	assert.Equal(t, original.Admin, decoded.Admin)
+	assert.Equal(t, original.DefaultLocationID, decoded.DefaultLocationID)
+	assert.Equal(t, original.DefaultOrganizationID, decoded.DefaultOrganizationID)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Disabled, decoded.Disabled)
+	assert.Equal(t, original.Firstname, decoded.Firstname)
+	assert.Equal(t, original.Lastname, decoded.Lastname)
+	assert.Equal(t, original.Locale, decoded.Locale)
+	assert.Equal(t, original.MailEnabled, decoded.MailEnabled)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.Timezone, decoded.Timezone)
+	assert.Equal(t, original.UiCompactMode, decoded.UiCompactMode)
+}
+
 func TestForemanUser_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanUserRequest{
@@ -76,6 +106,33 @@ func TestForemanUser_RoundTripRequest(t *testing.T) {
 		Timezone:              "test_timezone",
 		UiCompactMode:         true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanUserRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.AuthSourceID, decoded.AuthSourceID)
+	assert.Equal(t, original.Login, decoded.Login)
+	assert.Equal(t, original.Mail, decoded.Mail)
+	assert.Equal(t, original.Admin, decoded.Admin)
+	assert.Equal(t, original.DefaultLocationID, decoded.DefaultLocationID)
+	assert.Equal(t, original.DefaultOrganizationID, decoded.DefaultOrganizationID)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Disabled, decoded.Disabled)
+	assert.Equal(t, original.Firstname, decoded.Firstname)
+	assert.Equal(t, original.Lastname, decoded.Lastname)
+	assert.Equal(t, original.Locale, decoded.Locale)
+	assert.Equal(t, original.MailEnabled, decoded.MailEnabled)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.Timezone, decoded.Timezone)
+	assert.Equal(t, original.UiCompactMode, decoded.UiCompactMode)
+}
+
+func TestForemanUser_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanUserRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

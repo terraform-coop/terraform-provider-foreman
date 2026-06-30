@@ -35,6 +35,25 @@ func TestForemanParameter_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
 }
 
+func TestForemanParameter_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanParameter{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanParameter
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.ParameterType, decoded.ParameterType)
+	assert.Equal(t, original.Value, decoded.Value)
+	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
+}
+
 func TestForemanParameter_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanParameterRequest{
@@ -43,6 +62,22 @@ func TestForemanParameter_RoundTripRequest(t *testing.T) {
 		Value:         "test_value",
 		HiddenValue:   true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanParameterRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.ParameterType, decoded.ParameterType)
+	assert.Equal(t, original.Value, decoded.Value)
+	assert.Equal(t, original.HiddenValue, decoded.HiddenValue)
+}
+
+func TestForemanParameter_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanParameterRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

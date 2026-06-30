@@ -35,6 +35,25 @@ func TestForemanModel_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.VendorClass, decoded.VendorClass)
 }
 
+func TestForemanModel_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanModel{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanModel
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.HardwareModel, decoded.HardwareModel)
+	assert.Equal(t, original.HostsCount, decoded.HostsCount)
+	assert.Equal(t, original.Info, decoded.Info)
+	assert.Equal(t, original.VendorClass, decoded.VendorClass)
+}
+
 func TestForemanModel_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanModelRequest{
@@ -43,6 +62,22 @@ func TestForemanModel_RoundTripRequest(t *testing.T) {
 		Info:          "test_info",
 		VendorClass:   "test_vendor_class",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanModelRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.HardwareModel, decoded.HardwareModel)
+	assert.Equal(t, original.Info, decoded.Info)
+	assert.Equal(t, original.VendorClass, decoded.VendorClass)
+}
+
+func TestForemanModel_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanModelRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

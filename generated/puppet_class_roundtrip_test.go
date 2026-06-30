@@ -29,11 +29,40 @@ func TestForemanPuppetClass_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Name, decoded.Name)
 }
 
+func TestForemanPuppetClass_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanPuppetClass{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanPuppetClass
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+}
+
 func TestForemanPuppetClass_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanPuppetClassRequest{
 		Name: "test_name",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanPuppetClassRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+}
+
+func TestForemanPuppetClass_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanPuppetClassRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

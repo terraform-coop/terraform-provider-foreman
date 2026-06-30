@@ -159,6 +159,14 @@ func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resourc
 		NewForemanWebhookResource,
 		NewForemanWebhookTemplateResource,
 		NewForemanOverrideValueResource,
+		// Katello resources are not in the pinned core apidoc/v2.json, so they
+		// are registered explicitly here. Keep in sync with generated/katello_*.go.
+		NewKatelloContentCredentialResource,
+		NewKatelloContentViewResource,
+		NewKatelloLifecycleEnvironmentResource,
+		NewKatelloProductResource,
+		NewKatelloRepositoryResource,
+		NewKatelloSyncPlanResource,
 	}
 }
 
@@ -196,5 +204,12 @@ func (p *ForemanProvider) DataSources(_ context.Context) []func() datasource.Dat
 		NewForemanDiscoveryRuleDataSource,
 		NewForemanWebhookDataSource,
 		NewForemanWebhookTemplateDataSource,
+		// Katello data sources are not in the pinned core apidoc/v2.json.
+		NewKatelloContentCredentialDataSource,
+		NewKatelloContentViewDataSource,
+		NewKatelloLifecycleEnvironmentDataSource,
+		NewKatelloProductDataSource,
+		NewKatelloRepositoryDataSource,
+		NewKatelloSyncPlanDataSource,
 	}
 }

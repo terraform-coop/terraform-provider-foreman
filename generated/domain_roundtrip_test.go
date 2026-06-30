@@ -33,6 +33,24 @@ func TestForemanDomain_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Fullname, decoded.Fullname)
 }
 
+func TestForemanDomain_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanDomain{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanDomain
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.DNSID, decoded.DNSID)
+	assert.Equal(t, original.Fullname, decoded.Fullname)
+}
+
 func TestForemanDomain_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanDomainRequest{
@@ -40,6 +58,21 @@ func TestForemanDomain_RoundTripRequest(t *testing.T) {
 		DNSID:    42,
 		Fullname: "test_fullname",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanDomainRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.DNSID, decoded.DNSID)
+	assert.Equal(t, original.Fullname, decoded.Fullname)
+}
+
+func TestForemanDomain_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanDomainRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

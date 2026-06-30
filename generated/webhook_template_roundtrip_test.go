@@ -41,6 +41,28 @@ func TestForemanWebhookTemplate_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Description, decoded.Description)
 }
 
+func TestForemanWebhookTemplate_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanWebhookTemplate{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanWebhookTemplate
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Template, decoded.Template)
+	assert.Equal(t, original.Snippet, decoded.Snippet)
+	assert.Equal(t, original.AuditComment, decoded.AuditComment)
+	assert.Equal(t, original.Locked, decoded.Locked)
+	assert.Equal(t, original.Default, decoded.Default)
+	assert.Equal(t, original.Description, decoded.Description)
+}
+
 func TestForemanWebhookTemplate_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanWebhookTemplateRequest{
@@ -52,6 +74,25 @@ func TestForemanWebhookTemplate_RoundTripRequest(t *testing.T) {
 		Default:      true,
 		Description:  "test_description",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanWebhookTemplateRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Template, decoded.Template)
+	assert.Equal(t, original.Snippet, decoded.Snippet)
+	assert.Equal(t, original.AuditComment, decoded.AuditComment)
+	assert.Equal(t, original.Locked, decoded.Locked)
+	assert.Equal(t, original.Default, decoded.Default)
+	assert.Equal(t, original.Description, decoded.Description)
+}
+
+func TestForemanWebhookTemplate_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanWebhookTemplateRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

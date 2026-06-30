@@ -41,6 +41,28 @@ func TestForemanProvisioningTemplate_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.TemplateKindID, decoded.TemplateKindID)
 }
 
+func TestForemanProvisioningTemplate_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanProvisioningTemplate{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanProvisioningTemplate
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Template, decoded.Template)
+	assert.Equal(t, original.AuditComment, decoded.AuditComment)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Locked, decoded.Locked)
+	assert.Equal(t, original.Snippet, decoded.Snippet)
+	assert.Equal(t, original.TemplateKindID, decoded.TemplateKindID)
+}
+
 func TestForemanProvisioningTemplate_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanProvisioningTemplateRequest{
@@ -52,6 +74,25 @@ func TestForemanProvisioningTemplate_RoundTripRequest(t *testing.T) {
 		Snippet:        true,
 		TemplateKindID: 42,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanProvisioningTemplateRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Template, decoded.Template)
+	assert.Equal(t, original.AuditComment, decoded.AuditComment)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Locked, decoded.Locked)
+	assert.Equal(t, original.Snippet, decoded.Snippet)
+	assert.Equal(t, original.TemplateKindID, decoded.TemplateKindID)
+}
+
+func TestForemanProvisioningTemplate_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanProvisioningTemplateRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

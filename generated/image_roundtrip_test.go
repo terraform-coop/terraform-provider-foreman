@@ -43,6 +43,29 @@ func TestForemanImage_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.UserData, decoded.UserData)
 }
 
+func TestForemanImage_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanImage{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanImage
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Username, decoded.Username)
+	assert.Equal(t, original.UUID, decoded.UUID)
+	assert.Equal(t, original.ArchitectureID, decoded.ArchitectureID)
+	assert.Equal(t, original.ComputeResourceID, decoded.ComputeResourceID)
+	assert.Equal(t, original.OperatingsystemID, decoded.OperatingsystemID)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.UserData, decoded.UserData)
+}
+
 func TestForemanImage_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanImageRequest{
@@ -55,6 +78,26 @@ func TestForemanImage_RoundTripRequest(t *testing.T) {
 		Password:          "test_password",
 		UserData:          true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanImageRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Username, decoded.Username)
+	assert.Equal(t, original.UUID, decoded.UUID)
+	assert.Equal(t, original.ArchitectureID, decoded.ArchitectureID)
+	assert.Equal(t, original.ComputeResourceID, decoded.ComputeResourceID)
+	assert.Equal(t, original.OperatingsystemID, decoded.OperatingsystemID)
+	assert.Equal(t, original.Password, decoded.Password)
+	assert.Equal(t, original.UserData, decoded.UserData)
+}
+
+func TestForemanImage_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanImageRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

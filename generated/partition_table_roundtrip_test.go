@@ -41,6 +41,28 @@ func TestForemanPartitionTable_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Snippet, decoded.Snippet)
 }
 
+func TestForemanPartitionTable_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanPartitionTable{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanPartitionTable
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Layout, decoded.Layout)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.AuditComment, decoded.AuditComment)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Locked, decoded.Locked)
+	assert.Equal(t, original.OsFamily, decoded.OsFamily)
+	assert.Equal(t, original.Snippet, decoded.Snippet)
+}
+
 func TestForemanPartitionTable_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanPartitionTableRequest{
@@ -52,6 +74,25 @@ func TestForemanPartitionTable_RoundTripRequest(t *testing.T) {
 		OsFamily:     "test_os_family",
 		Snippet:      true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanPartitionTableRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Layout, decoded.Layout)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.AuditComment, decoded.AuditComment)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Locked, decoded.Locked)
+	assert.Equal(t, original.OsFamily, decoded.OsFamily)
+	assert.Equal(t, original.Snippet, decoded.Snippet)
+}
+
+func TestForemanPartitionTable_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanPartitionTableRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

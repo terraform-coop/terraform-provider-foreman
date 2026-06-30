@@ -16,9 +16,4 @@ linters-settings:
           - pkg: github.com/hashicorp/terraform-plugin-sdk/v2
             desc: "Use terraform-plugin-framework or terraform-plugin-testing instead"
 
-issues:
-  exclude-rules:
-    - path: generated/
-      linters:
-        - govet
-        - errcheck
+

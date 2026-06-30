@@ -41,6 +41,28 @@ func TestForemanOperatingSystem_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.ReleaseName, decoded.ReleaseName)
 }
 
+func TestForemanOperatingSystem_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanOperatingSystem{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanOperatingSystem
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Major, decoded.Major)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Family, decoded.Family)
+	assert.Equal(t, original.Minor, decoded.Minor)
+	assert.Equal(t, original.PasswordHash, decoded.PasswordHash)
+	assert.Equal(t, original.ReleaseName, decoded.ReleaseName)
+}
+
 func TestForemanOperatingSystem_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanOperatingSystemRequest{
@@ -52,6 +74,25 @@ func TestForemanOperatingSystem_RoundTripRequest(t *testing.T) {
 		PasswordHash: "test_password_hash",
 		ReleaseName:  "test_release_name",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanOperatingSystemRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Major, decoded.Major)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.Family, decoded.Family)
+	assert.Equal(t, original.Minor, decoded.Minor)
+	assert.Equal(t, original.PasswordHash, decoded.PasswordHash)
+	assert.Equal(t, original.ReleaseName, decoded.ReleaseName)
+}
+
+func TestForemanOperatingSystem_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanOperatingSystemRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

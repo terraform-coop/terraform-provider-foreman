@@ -35,6 +35,25 @@ func TestForemanJobTemplate_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.ProviderType, decoded.ProviderType)
 }
 
+func TestForemanJobTemplate_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanJobTemplate{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanJobTemplate
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.JobCategory, decoded.JobCategory)
+	assert.Equal(t, original.ProviderType, decoded.ProviderType)
+}
+
 func TestForemanJobTemplate_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanJobTemplateRequest{
@@ -43,6 +62,22 @@ func TestForemanJobTemplate_RoundTripRequest(t *testing.T) {
 		JobCategory:  "test_job_category",
 		ProviderType: "test_provider_type",
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanJobTemplateRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Description, decoded.Description)
+	assert.Equal(t, original.JobCategory, decoded.JobCategory)
+	assert.Equal(t, original.ProviderType, decoded.ProviderType)
+}
+
+func TestForemanJobTemplate_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanJobTemplateRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

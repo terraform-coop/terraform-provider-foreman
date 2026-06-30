@@ -2,8 +2,12 @@ package provider
 
 import (
 	"encoding/json"
+	"fmt"
+	"strconv"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -55,6 +59,39 @@ func expandParameters(raw json.RawMessage) types.Map {
 	return m
 }
 
+// List bridging — types.List of int64 → []int64 for API.
+// Used by: operating_system (architecture_ids, medium_ids, provisioning_template_ids, ptable_ids).
+
+// listToInt64Slice converts a types.List with Int64 elements to a []int64.
+func listToInt64Slice(list types.List) []int64 {
+	if list.IsNull() || list.IsUnknown() {
+		return nil
+	}
+	elems := list.Elements()
+	result := make([]int64, 0, len(elems))
+	for _, v := range elems {
+		if iv, ok := v.(types.Int64); ok {
+			result = append(result, iv.ValueInt64())
+		}
+	}
+	return result
+}
+
+// int64SliceToList converts a []int64 to a types.List of Int64 elements.
+// Diagnostics are appended on error instead of being discarded.
+func int64SliceToList(ids []int64, diags *diag.Diagnostics) types.List {
+	if ids == nil {
+		return types.ListNull(types.Int64Type)
+	}
+	elems := make([]attr.Value, len(ids))
+	for i, v := range ids {
+		elems[i] = types.Int64Value(v)
+	}
+	list, d := types.ListValue(types.Int64Type, elems)
+	diags.Append(d...)
+	return list
+}
+
 // Compute attributes bridging — types.String (JSON) ↔ map for API.
 // Used by: host (compute_attributes).
 
@@ -76,6 +113,25 @@ func expandComputeAttributes(raw json.RawMessage) types.String {
 		return types.StringNull()
 	}
 	return types.StringValue(string(raw))
+}
+
+// parseStringToInt64 parses a string representation of an int64 and appends a
+// diagnostic on error. An empty string is treated as 0 (unset) so that optional
+// string-as-int64 fields do not produce false positives.
+func parseStringToInt64(s, field string, diags *diag.Diagnostics) int64 {
+	if s == "" {
+		return 0
+	}
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		diags.AddAttributeError(
+			path.Root(field),
+			"Invalid Field",
+			fmt.Sprintf("Unable to parse %s: %s", field, err),
+		)
+		return 0
+	}
+	return v
 }
 
 // Primitive helpers for safe type conversions from API response.

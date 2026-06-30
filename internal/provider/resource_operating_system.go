@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -142,6 +142,25 @@ type foremanOperatingSystemFullResponse struct {
 	OsParametersAttributes json.RawMessage `json:"os_parameters_attributes"`
 }
 
+func buildOperatingSystemRequest(plan operatingsystemResourceModel, diags *diag.Diagnostics) *foremanOperatingSystemFullRequest {
+	return &foremanOperatingSystemFullRequest{
+		ForemanOperatingSystemRequest: generated.ForemanOperatingSystemRequest{
+			Major:                   plan.Major.ValueString(),
+			Name:                    plan.Name.ValueString(),
+			ArchitectureIDs:         listToInt64Slice(plan.ArchitectureIDs),
+			Description:             plan.Description.ValueString(),
+			Family:                  plan.Family.ValueString(),
+			MediumIDs:               listToInt64Slice(plan.MediumIDs),
+			Minor:                   plan.Minor.ValueString(),
+			PasswordHash:            plan.PasswordHash.ValueString(),
+			ProvisioningTemplateIDs: listToInt64Slice(plan.ProvisioningTemplateIDs),
+			PtableIDs:               listToInt64Slice(plan.PtableIDs),
+			ReleaseName:             plan.ReleaseName.ValueString(),
+		},
+		OsParametersAttributes: flattenParameters(plan.OsParametersAttributes),
+	}
+}
+
 func (r *operatingsystemResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan operatingsystemResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -149,66 +168,7 @@ func (r *operatingsystemResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	body := &foremanOperatingSystemFullRequest{
-		ForemanOperatingSystemRequest: generated.ForemanOperatingSystemRequest{
-			Major: plan.Major.ValueString(),
-			Name:  plan.Name.ValueString(),
-			ArchitectureIDs: func() []int64 {
-				if plan.ArchitectureIDs.IsNull() || plan.ArchitectureIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.ArchitectureIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			Description: plan.Description.ValueString(),
-			Family:      plan.Family.ValueString(),
-			MediumIDs: func() []int64 {
-				if plan.MediumIDs.IsNull() || plan.MediumIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.MediumIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			Minor:        plan.Minor.ValueString(),
-			PasswordHash: plan.PasswordHash.ValueString(),
-			ProvisioningTemplateIDs: func() []int64 {
-				if plan.ProvisioningTemplateIDs.IsNull() || plan.ProvisioningTemplateIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.ProvisioningTemplateIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			PtableIDs: func() []int64 {
-				if plan.PtableIDs.IsNull() || plan.PtableIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.PtableIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			ReleaseName: plan.ReleaseName.ValueString(),
-		},
-		OsParametersAttributes: flattenParameters(plan.OsParametersAttributes),
-	}
+	body := buildOperatingSystemRequest(plan, &resp.Diagnostics)
 
 	var result foremanOperatingSystemFullResponse
 	err := r.client.Post(ctx, "operatingsystems", "operatingsystem", body, &result)
@@ -217,7 +177,7 @@ func (r *operatingsystemResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	marshalOperatingSystemResultToState(&result, &plan)
+	marshalOperatingSystemResultToState(&result, &plan, &resp.Diagnostics)
 
 	tflog.Trace(ctx, "created operatingsystem", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -246,7 +206,7 @@ func (r *operatingsystemResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	marshalOperatingSystemResultToState(&result, &state)
+	marshalOperatingSystemResultToState(&result, &state, &resp.Diagnostics)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
@@ -264,66 +224,7 @@ func (r *operatingsystemResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	body := &foremanOperatingSystemFullRequest{
-		ForemanOperatingSystemRequest: generated.ForemanOperatingSystemRequest{
-			Major: plan.Major.ValueString(),
-			Name:  plan.Name.ValueString(),
-			ArchitectureIDs: func() []int64 {
-				if plan.ArchitectureIDs.IsNull() || plan.ArchitectureIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.ArchitectureIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			Description: plan.Description.ValueString(),
-			Family:      plan.Family.ValueString(),
-			MediumIDs: func() []int64 {
-				if plan.MediumIDs.IsNull() || plan.MediumIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.MediumIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			Minor:        plan.Minor.ValueString(),
-			PasswordHash: plan.PasswordHash.ValueString(),
-			ProvisioningTemplateIDs: func() []int64 {
-				if plan.ProvisioningTemplateIDs.IsNull() || plan.ProvisioningTemplateIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.ProvisioningTemplateIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			PtableIDs: func() []int64 {
-				if plan.PtableIDs.IsNull() || plan.PtableIDs.IsUnknown() {
-					return nil
-				}
-				var ids []int64
-				for _, v := range plan.PtableIDs.Elements() {
-					if iv, ok := v.(types.Int64); ok {
-						ids = append(ids, iv.ValueInt64())
-					}
-				}
-				return ids
-			}(),
-			ReleaseName: plan.ReleaseName.ValueString(),
-		},
-		OsParametersAttributes: flattenParameters(plan.OsParametersAttributes),
-	}
+	body := buildOperatingSystemRequest(plan, &resp.Diagnostics)
 
 	var result foremanOperatingSystemFullResponse
 	err = r.client.Put(ctx, fmt.Sprintf("operatingsystems/%d", id), "operatingsystem", body, &result)
@@ -332,7 +233,7 @@ func (r *operatingsystemResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	marshalOperatingSystemResultToState(&result, &plan)
+	marshalOperatingSystemResultToState(&result, &plan, &resp.Diagnostics)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
@@ -355,50 +256,18 @@ func (r *operatingsystemResource) Delete(ctx context.Context, req resource.Delet
 	}
 }
 
-func marshalOperatingSystemResultToState(result *foremanOperatingSystemFullResponse, state *operatingsystemResourceModel) {
+func marshalOperatingSystemResultToState(result *foremanOperatingSystemFullResponse, state *operatingsystemResourceModel, diags *diag.Diagnostics) {
 	state.ID = types.StringValue(strconv.Itoa(int(result.ID)))
 	state.Major = types.StringValue(result.Major)
 	state.Name = types.StringValue(result.Name)
-	if result.ArchitectureIDs != nil {
-		elems := make([]attr.Value, len(result.ArchitectureIDs))
-		for i, v := range result.ArchitectureIDs {
-			elems[i] = types.Int64Value(int64(v))
-		}
-		state.ArchitectureIDs = types.ListValueMust(types.Int64Type, elems)
-	} else {
-		state.ArchitectureIDs = types.ListNull(types.Int64Type)
-	}
+	state.ArchitectureIDs = int64SliceToList(result.ArchitectureIDs, diags)
 	state.Description = types.StringValue(result.Description)
 	state.Family = types.StringValue(result.Family)
-	if result.MediumIDs != nil {
-		elems := make([]attr.Value, len(result.MediumIDs))
-		for i, v := range result.MediumIDs {
-			elems[i] = types.Int64Value(int64(v))
-		}
-		state.MediumIDs = types.ListValueMust(types.Int64Type, elems)
-	} else {
-		state.MediumIDs = types.ListNull(types.Int64Type)
-	}
+	state.MediumIDs = int64SliceToList(result.MediumIDs, diags)
 	state.Minor = types.StringValue(result.Minor)
 	state.PasswordHash = types.StringValue(result.PasswordHash)
-	if result.ProvisioningTemplateIDs != nil {
-		elems := make([]attr.Value, len(result.ProvisioningTemplateIDs))
-		for i, v := range result.ProvisioningTemplateIDs {
-			elems[i] = types.Int64Value(int64(v))
-		}
-		state.ProvisioningTemplateIDs = types.ListValueMust(types.Int64Type, elems)
-	} else {
-		state.ProvisioningTemplateIDs = types.ListNull(types.Int64Type)
-	}
-	if result.PtableIDs != nil {
-		elems := make([]attr.Value, len(result.PtableIDs))
-		for i, v := range result.PtableIDs {
-			elems[i] = types.Int64Value(int64(v))
-		}
-		state.PtableIDs = types.ListValueMust(types.Int64Type, elems)
-	} else {
-		state.PtableIDs = types.ListNull(types.Int64Type)
-	}
+	state.ProvisioningTemplateIDs = int64SliceToList(result.ProvisioningTemplateIDs, diags)
+	state.PtableIDs = int64SliceToList(result.PtableIDs, diags)
 	state.ReleaseName = types.StringValue(result.ReleaseName)
 	state.OsParametersAttributes = expandParameters(result.OsParametersAttributes)
 }

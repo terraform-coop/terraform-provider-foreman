@@ -31,12 +31,43 @@ func TestForemanUsergroup_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Admin, decoded.Admin)
 }
 
+func TestForemanUsergroup_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanUsergroup{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanUsergroup
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Admin, decoded.Admin)
+}
+
 func TestForemanUsergroup_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanUsergroupRequest{
 		Name:  "test_name",
 		Admin: true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanUsergroupRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Admin, decoded.Admin)
+}
+
+func TestForemanUsergroup_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanUsergroupRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

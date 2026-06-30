@@ -33,6 +33,24 @@ func TestForemanOverrideValue_RoundTrip(t *testing.T) {
 	assert.Equal(t, original.Omit, decoded.Omit)
 }
 
+func TestForemanOverrideValue_RoundTripZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanOverrideValue{}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanOverrideValue
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+
+	assert.Equal(t, original.ID, decoded.ID)
+	assert.Equal(t, original.Name, decoded.Name)
+	assert.Equal(t, original.Match, decoded.Match)
+	assert.Equal(t, original.Value, decoded.Value)
+	assert.Equal(t, original.Omit, decoded.Omit)
+}
+
 func TestForemanOverrideValue_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanOverrideValueRequest{
@@ -40,6 +58,21 @@ func TestForemanOverrideValue_RoundTripRequest(t *testing.T) {
 		Value: "test_value",
 		Omit:  true,
 	}
+
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+
+	var decoded ForemanOverrideValueRequest
+	err = json.Unmarshal(data, &decoded)
+	require.NoError(t, err)
+	assert.Equal(t, original.Match, decoded.Match)
+	assert.Equal(t, original.Value, decoded.Value)
+	assert.Equal(t, original.Omit, decoded.Omit)
+}
+
+func TestForemanOverrideValue_RoundTripRequestZeroValues(t *testing.T) {
+	t.Parallel()
+	original := &ForemanOverrideValueRequest{}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)

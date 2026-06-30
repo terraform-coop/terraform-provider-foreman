@@ -2,7 +2,6 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -601,13 +600,4 @@ func expandContentViewFilters(ctx context.Context, filtersList types.List) ([]ge
 	}
 
 	return result, diags
-}
-
-// flattenContentViewFiltersToJSON is a utility for debugging, not used in normal flow.
-func flattenContentViewFiltersToJSON(filters []generated.ForemanKatelloContentViewFilter) (string, error) {
-	data, err := json.Marshal(filters)
-	if err != nil {
-		return "", err
-	}
-	return string(data), nil
 }
