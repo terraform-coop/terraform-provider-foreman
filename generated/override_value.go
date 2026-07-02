@@ -7,14 +7,12 @@ import (
 	"fmt"
 )
 
-// ForemanOverrideValueRequest is the request payload.
 type ForemanOverrideValueRequest struct {
 	Match string `json:"match,omitempty"`
 	Value string `json:"value,omitempty"`
 	Omit  bool   `json:"omit,omitempty"`
 }
 
-// ForemanOverrideValue is the entity type.
 type ForemanOverrideValue struct {
 	ForemanObject
 	Match string `json:"match"`
@@ -22,7 +20,6 @@ type ForemanOverrideValue struct {
 	Omit  bool   `json:"omit"`
 }
 
-// CreateForemanOverrideValue creates a new ForemanOverrideValue.
 func (c *ForemanClient) CreateForemanOverrideValue(ctx context.Context, parentID int, req *ForemanOverrideValueRequest) (*ForemanOverrideValue, error) {
 	var resp ForemanOverrideValue
 	err := c.Post(ctx, fmt.Sprintf("smart_class_parameters/%d/override_values", parentID), "override_value", req, &resp)
@@ -32,7 +29,6 @@ func (c *ForemanClient) CreateForemanOverrideValue(ctx context.Context, parentID
 	return &resp, nil
 }
 
-// ReadForemanOverrideValue reads a ForemanOverrideValue by ID.
 func (c *ForemanClient) ReadForemanOverrideValue(ctx context.Context, parentID int, id int) (*ForemanOverrideValue, error) {
 	var resp ForemanOverrideValue
 	err := c.Get(ctx, fmt.Sprintf("smart_class_parameters/%d/override_values/%d", parentID, id), &resp)
@@ -42,7 +38,6 @@ func (c *ForemanClient) ReadForemanOverrideValue(ctx context.Context, parentID i
 	return &resp, nil
 }
 
-// UpdateForemanOverrideValue updates a ForemanOverrideValue by ID.
 func (c *ForemanClient) UpdateForemanOverrideValue(ctx context.Context, parentID int, id int, req *ForemanOverrideValueRequest) (*ForemanOverrideValue, error) {
 	var resp ForemanOverrideValue
 	err := c.Put(ctx, fmt.Sprintf("smart_class_parameters/%d/override_values/%d", parentID, id), "override_value", req, &resp)
@@ -52,7 +47,6 @@ func (c *ForemanClient) UpdateForemanOverrideValue(ctx context.Context, parentID
 	return &resp, nil
 }
 
-// DeleteForemanOverrideValue deletes a ForemanOverrideValue by ID.
 func (c *ForemanClient) DeleteForemanOverrideValue(ctx context.Context, parentID int, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("smart_class_parameters/%d/override_values/%d", parentID, id))
 }

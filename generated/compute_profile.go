@@ -9,18 +9,15 @@ import (
 	"net/url"
 )
 
-// ForemanComputeProfileRequest is the request payload.
 type ForemanComputeProfileRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
-// ForemanComputeProfile is the entity type.
 type ForemanComputeProfile struct {
 	ForemanObject
 	Name string `json:"name"`
 }
 
-// CreateForemanComputeProfile creates a new ForemanComputeProfile.
 func (c *ForemanClient) CreateForemanComputeProfile(ctx context.Context, req *ForemanComputeProfileRequest) (*ForemanComputeProfile, error) {
 	var resp ForemanComputeProfile
 	err := c.Post(ctx, "compute_profiles", "compute_profile", req, &resp)
@@ -30,7 +27,6 @@ func (c *ForemanClient) CreateForemanComputeProfile(ctx context.Context, req *Fo
 	return &resp, nil
 }
 
-// ReadForemanComputeProfile reads a ForemanComputeProfile by ID.
 func (c *ForemanClient) ReadForemanComputeProfile(ctx context.Context, id int) (*ForemanComputeProfile, error) {
 	var resp ForemanComputeProfile
 	err := c.Get(ctx, fmt.Sprintf("compute_profiles/%d", id), &resp)
@@ -40,7 +36,6 @@ func (c *ForemanClient) ReadForemanComputeProfile(ctx context.Context, id int) (
 	return &resp, nil
 }
 
-// UpdateForemanComputeProfile updates a ForemanComputeProfile by ID.
 func (c *ForemanClient) UpdateForemanComputeProfile(ctx context.Context, id int, req *ForemanComputeProfileRequest) (*ForemanComputeProfile, error) {
 	var resp ForemanComputeProfile
 	err := c.Put(ctx, fmt.Sprintf("compute_profiles/%d", id), "compute_profile", req, &resp)
@@ -50,12 +45,10 @@ func (c *ForemanClient) UpdateForemanComputeProfile(ctx context.Context, id int,
 	return &resp, nil
 }
 
-// DeleteForemanComputeProfile deletes a ForemanComputeProfile by ID.
 func (c *ForemanClient) DeleteForemanComputeProfile(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("compute_profiles/%d", id))
 }
 
-// QueryForemanComputeProfile queries ForemanComputeProfile by name.
 func (c *ForemanClient) QueryForemanComputeProfile(ctx context.Context, name string) (*ForemanComputeProfile, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("compute_profiles?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -66,7 +59,7 @@ func (c *ForemanClient) QueryForemanComputeProfile(ctx context.Context, name str
 		return nil, nil
 	}
 	var obj ForemanComputeProfile
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

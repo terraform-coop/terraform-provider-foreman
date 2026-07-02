@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &partitiontableResource{}
-	_ resource.ResourceWithImportState = &partitiontableResource{}
-)
+var _ resource.Resource = &partitiontableResource{}
+var _ resource.ResourceWithImportState = &partitiontableResource{}
 
 func NewForemanPartitionTableResource() resource.Resource {
 	return &partitiontableResource{}
@@ -50,61 +47,53 @@ func (r *partitiontableResource) Metadata(_ context.Context, req resource.Metada
 }
 
 func (r *partitiontableResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"layout": schema.StringAttribute{
-				Required: true,
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"audit_comment": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"host_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of host IDs to associate with the partition table",
-				ElementType: types.Int64Type,
-			},
-			"hostgroup_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of host group IDs to associate with the partition table",
-				ElementType: types.Int64Type,
-			},
-			"locked": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Whether or not the template is locked for editing",
-			},
-			"operatingsystem_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of operating system IDs to associate with the partition table",
-				ElementType: types.Int64Type,
-			},
-			"os_family": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"snippet": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"audit_comment": schema.StringAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"description": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"host_ids": schema.ListAttribute{
+			Description: "Array of host IDs to associate with the partition table",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"hostgroup_ids": schema.ListAttribute{
+			Description: "Array of host group IDs to associate with the partition table",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"layout": schema.StringAttribute{Required: true},
+		"locked": schema.BoolAttribute{
+			Description: "Whether or not the template is locked for editing",
+			Optional:    true,
+			Required:    false,
+		},
+		"name": schema.StringAttribute{Required: true},
+		"operatingsystem_ids": schema.ListAttribute{
+			Description: "Array of operating system IDs to associate with the partition table",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"os_family": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"snippet": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *partitiontableResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -118,6 +107,7 @@ func (r *partitiontableResource) Configure(_ context.Context, req resource.Confi
 	}
 	r.client = client
 }
+
 func (r *partitiontableResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan partitiontableResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -126,8 +116,6 @@ func (r *partitiontableResource) Create(ctx context.Context, req resource.Create
 	}
 
 	body := &generated.ForemanPartitionTableRequest{
-		Layout:       plan.Layout.ValueString(),
-		Name:         plan.Name.ValueString(),
 		AuditComment: plan.AuditComment.ValueString(),
 		Description:  plan.Description.ValueString(),
 		HostIDs: func() []int64 {
@@ -154,7 +142,9 @@ func (r *partitiontableResource) Create(ctx context.Context, req resource.Create
 			}
 			return ids
 		}(),
+		Layout: plan.Layout.ValueString(),
 		Locked: plan.Locked.ValueBool(),
+		Name:   plan.Name.ValueString(),
 		OperatingsystemIDs: func() []int64 {
 			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
 				return nil
@@ -170,6 +160,7 @@ func (r *partitiontableResource) Create(ctx context.Context, req resource.Create
 		OsFamily: plan.OsFamily.ValueString(),
 		Snippet:  plan.Snippet.ValueBool(),
 	}
+
 	result, err := r.client.CreateForemanPartitionTable(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create partitiontable, got error: %s", err))
@@ -201,6 +192,7 @@ func (r *partitiontableResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanPartitionTable(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -210,6 +202,7 @@ func (r *partitiontableResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read partitiontable, got error: %s", err))
 		return
 	}
+
 	state.Layout = types.StringValue(result.Layout)
 	state.Name = types.StringValue(result.Name)
 	state.AuditComment = types.StringValue(result.AuditComment)
@@ -262,8 +255,6 @@ func (r *partitiontableResource) Update(ctx context.Context, req resource.Update
 	}
 
 	body := &generated.ForemanPartitionTableRequest{
-		Layout:       plan.Layout.ValueString(),
-		Name:         plan.Name.ValueString(),
 		AuditComment: plan.AuditComment.ValueString(),
 		Description:  plan.Description.ValueString(),
 		HostIDs: func() []int64 {
@@ -290,7 +281,9 @@ func (r *partitiontableResource) Update(ctx context.Context, req resource.Update
 			}
 			return ids
 		}(),
+		Layout: plan.Layout.ValueString(),
 		Locked: plan.Locked.ValueBool(),
+		Name:   plan.Name.ValueString(),
 		OperatingsystemIDs: func() []int64 {
 			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
 				return nil
@@ -306,11 +299,13 @@ func (r *partitiontableResource) Update(ctx context.Context, req resource.Update
 		OsFamily: plan.OsFamily.ValueString(),
 		Snippet:  plan.Snippet.ValueBool(),
 	}
+
 	result, err := r.client.UpdateForemanPartitionTable(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update partitiontable, got error: %s", err))
 		return
 	}
+
 	plan.Layout = types.StringValue(result.Layout)
 	plan.Name = types.StringValue(result.Name)
 	plan.AuditComment = types.StringValue(result.AuditComment)
@@ -321,6 +316,7 @@ func (r *partitiontableResource) Update(ctx context.Context, req resource.Update
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *partitiontableResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state partitiontableResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -333,6 +329,7 @@ func (r *partitiontableResource) Delete(ctx context.Context, req resource.Delete
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanPartitionTable(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete partitiontable, got error: %s", err))

@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanJobTemplateRequest is the request payload.
 type ForemanJobTemplateRequest struct {
 	Name         string `json:"name,omitempty"`
 	Description  string `json:"description,omitempty"`
@@ -17,7 +16,6 @@ type ForemanJobTemplateRequest struct {
 	ProviderType string `json:"provider_type,omitempty"`
 }
 
-// ForemanJobTemplate is the entity type.
 type ForemanJobTemplate struct {
 	ForemanObject
 	Name         string `json:"name"`
@@ -26,7 +24,6 @@ type ForemanJobTemplate struct {
 	ProviderType string `json:"provider_type"`
 }
 
-// CreateForemanJobTemplate creates a new ForemanJobTemplate.
 func (c *ForemanClient) CreateForemanJobTemplate(ctx context.Context, req *ForemanJobTemplateRequest) (*ForemanJobTemplate, error) {
 	var resp ForemanJobTemplate
 	err := c.Post(ctx, "job_templates", "job_template", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanJobTemplate(ctx context.Context, req *Forem
 	return &resp, nil
 }
 
-// ReadForemanJobTemplate reads a ForemanJobTemplate by ID.
 func (c *ForemanClient) ReadForemanJobTemplate(ctx context.Context, id int) (*ForemanJobTemplate, error) {
 	var resp ForemanJobTemplate
 	err := c.Get(ctx, fmt.Sprintf("job_templates/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanJobTemplate(ctx context.Context, id int) (*Fo
 	return &resp, nil
 }
 
-// UpdateForemanJobTemplate updates a ForemanJobTemplate by ID.
 func (c *ForemanClient) UpdateForemanJobTemplate(ctx context.Context, id int, req *ForemanJobTemplateRequest) (*ForemanJobTemplate, error) {
 	var resp ForemanJobTemplate
 	err := c.Put(ctx, fmt.Sprintf("job_templates/%d", id), "job_template", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanJobTemplate(ctx context.Context, id int, re
 	return &resp, nil
 }
 
-// DeleteForemanJobTemplate deletes a ForemanJobTemplate by ID.
 func (c *ForemanClient) DeleteForemanJobTemplate(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("job_templates/%d", id))
 }
 
-// QueryForemanJobTemplate queries ForemanJobTemplate by name.
 func (c *ForemanClient) QueryForemanJobTemplate(ctx context.Context, name string) (*ForemanJobTemplate, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("job_templates?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanJobTemplate(ctx context.Context, name string
 		return nil, nil
 	}
 	var obj ForemanJobTemplate
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

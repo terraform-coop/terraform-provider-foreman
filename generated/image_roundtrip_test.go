@@ -4,24 +4,26 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanImage_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanImage{
-		ForemanObject:     ForemanObject{ID: 1, Name: "test"},
-		Name:              "test_name",
-		Username:          "test_username",
-		UUID:              "test_uuid",
 		ArchitectureID:    "test_architecture_id",
 		ComputeResourceID: "test_compute_resource_id",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Name:              "test_name",
 		OperatingsystemID: 42,
 		Password:          "test_password",
+		UUID:              "test_uuid",
 		UserData:          true,
+		Username:          "test_username",
 	}
 
 	data, err := json.Marshal(original)
@@ -69,14 +71,14 @@ func TestForemanImage_RoundTripZeroValues(t *testing.T) {
 func TestForemanImage_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanImageRequest{
-		Name:              "test_name",
-		Username:          "test_username",
-		UUID:              "test_uuid",
 		ArchitectureID:    "test_architecture_id",
 		ComputeResourceID: "test_compute_resource_id",
+		Name:              "test_name",
 		OperatingsystemID: 42,
 		Password:          "test_password",
+		UUID:              "test_uuid",
 		UserData:          true,
+		Username:          "test_username",
 	}
 
 	data, err := json.Marshal(original)
@@ -85,6 +87,7 @@ func TestForemanImage_RoundTripRequest(t *testing.T) {
 	var decoded ForemanImageRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Username, decoded.Username)
 	assert.Equal(t, original.UUID, decoded.UUID)
@@ -105,6 +108,7 @@ func TestForemanImage_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanImageRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Username, decoded.Username)
 	assert.Equal(t, original.UUID, decoded.UUID)

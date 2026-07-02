@@ -4,23 +4,25 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanOperatingSystem_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanOperatingSystem{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Major:         "test_major",
-		Name:          "test_name",
-		Description:   "test_description",
-		Family:        "test_family",
-		Minor:         "test_minor",
-		PasswordHash:  "test_password_hash",
-		ReleaseName:   "test_release_name",
+		Description: "test_description",
+		Family:      "test_family",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Major:        "test_major",
+		Minor:        "test_minor",
+		Name:         "test_name",
+		PasswordHash: "test_password_hash",
+		ReleaseName:  "test_release_name",
 	}
 
 	data, err := json.Marshal(original)
@@ -66,11 +68,11 @@ func TestForemanOperatingSystem_RoundTripZeroValues(t *testing.T) {
 func TestForemanOperatingSystem_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanOperatingSystemRequest{
-		Major:        "test_major",
-		Name:         "test_name",
 		Description:  "test_description",
 		Family:       "test_family",
+		Major:        "test_major",
 		Minor:        "test_minor",
+		Name:         "test_name",
 		PasswordHash: "test_password_hash",
 		ReleaseName:  "test_release_name",
 	}
@@ -81,6 +83,7 @@ func TestForemanOperatingSystem_RoundTripRequest(t *testing.T) {
 	var decoded ForemanOperatingSystemRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Major, decoded.Major)
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Description, decoded.Description)
@@ -100,6 +103,7 @@ func TestForemanOperatingSystem_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanOperatingSystemRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Major, decoded.Major)
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Description, decoded.Description)

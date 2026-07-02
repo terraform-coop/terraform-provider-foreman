@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &subnetResource{}
-	_ resource.ResourceWithImportState = &subnetResource{}
-)
+var _ resource.Resource = &subnetResource{}
+var _ resource.ResourceWithImportState = &subnetResource{}
 
 func NewForemanSubnetResource() resource.Resource {
 	return &subnetResource{}
@@ -65,141 +62,137 @@ func (r *subnetResource) Metadata(_ context.Context, req resource.MetadataReques
 }
 
 func (r *subnetResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "Subnet name",
-			},
-			"network": schema.StringAttribute{
-				Required:    true,
-				Description: "Subnet network",
-			},
-			"bmc_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "BMC Proxy ID to use within this subnet",
-			},
-			"boot_mode": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Default boot mode for interfaces assigned to this subnet.",
-			},
-			"cidr": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Network prefix in CIDR notation",
-			},
-			"description": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Subnet description",
-			},
-			"dhcp_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "DHCP Proxy ID to use within this subnet",
-			},
-			"dns_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "DNS Proxy ID to use within this subnet",
-			},
-			"dns_primary": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Primary DNS for this subnet",
-			},
-			"dns_secondary": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Secondary DNS for this subnet",
-			},
-			"domain_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Domains in which this subnet is part",
-				ElementType: types.Int64Type,
-			},
-			"externalipam_group": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "External IPAM group - only relevant when IPAM is set to external",
-			},
-			"externalipam_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "External IPAM Proxy ID to use within this subnet",
-			},
-			"from": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Starting IP Address for IP auto suggestion",
-			},
-			"gateway": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Subnet gateway",
-			},
-			"httpboot_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "HTTPBoot Proxy ID to use within this subnet",
-			},
-			"ipam": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "IP Address auto suggestion mode for this subnet.",
-			},
-			"mask": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Netmask for this subnet",
-			},
-			"mtu": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "MTU for this subnet",
-			},
-			"network_type": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Type or protocol, IPv4 or IPv6, defaults to IPv4",
-			},
-			"subnet_parameters_attributes": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of parameters (name, value)",
-				ElementType: types.Int64Type,
-			},
-			"template_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Template HTTP(S) Proxy ID to use within this subnet",
-			},
-			"tftp_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "TFTP Proxy ID to use within this subnet",
-			},
-			"to": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Ending IP Address for IP auto suggestion",
-			},
-			"vlanid": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "VLAN ID for this subnet",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"bmc_id": schema.Int64Attribute{
+			Description: "BMC Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"boot_mode": schema.StringAttribute{
+			Description: "Default boot mode for interfaces assigned to this subnet.",
+			Optional:    true,
+			Required:    false,
+		},
+		"cidr": schema.StringAttribute{
+			Description: "Network prefix in CIDR notation",
+			Optional:    true,
+			Required:    false,
+		},
+		"description": schema.StringAttribute{
+			Description: "Subnet description",
+			Optional:    true,
+			Required:    false,
+		},
+		"dhcp_id": schema.Int64Attribute{
+			Description: "DHCP Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"dns_id": schema.Int64Attribute{
+			Description: "DNS Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"dns_primary": schema.StringAttribute{
+			Description: "Primary DNS for this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"dns_secondary": schema.StringAttribute{
+			Description: "Secondary DNS for this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"domain_ids": schema.ListAttribute{
+			Description: "Domains in which this subnet is part",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"externalipam_group": schema.StringAttribute{
+			Description: "External IPAM group - only relevant when IPAM is set to external",
+			Optional:    true,
+			Required:    false,
+		},
+		"externalipam_id": schema.Int64Attribute{
+			Description: "External IPAM Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"from": schema.StringAttribute{
+			Description: "Starting IP Address for IP auto suggestion",
+			Optional:    true,
+			Required:    false,
+		},
+		"gateway": schema.StringAttribute{
+			Description: "Subnet gateway",
+			Optional:    true,
+			Required:    false,
+		},
+		"httpboot_id": schema.Int64Attribute{
+			Description: "HTTPBoot Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"ipam": schema.StringAttribute{
+			Description: "IP Address auto suggestion mode for this subnet.",
+			Optional:    true,
+			Required:    false,
+		},
+		"mask": schema.StringAttribute{
+			Description: "Netmask for this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"mtu": schema.Int64Attribute{
+			Description: "MTU for this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"name": schema.StringAttribute{
+			Description: "Subnet name",
+			Required:    true,
+		},
+		"network": schema.StringAttribute{
+			Description: "Subnet network",
+			Required:    true,
+		},
+		"network_type": schema.StringAttribute{
+			Description: "Type or protocol, IPv4 or IPv6, defaults to IPv4",
+			Optional:    true,
+			Required:    false,
+		},
+		"subnet_parameters_attributes": schema.ListAttribute{
+			Description: "Array of parameters (name, value)",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"template_id": schema.Int64Attribute{
+			Description: "Template HTTP(S) Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"tftp_id": schema.Int64Attribute{
+			Description: "TFTP Proxy ID to use within this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+		"to": schema.StringAttribute{
+			Description: "Ending IP Address for IP auto suggestion",
+			Optional:    true,
+			Required:    false,
+		},
+		"vlanid": schema.StringAttribute{
+			Description: "VLAN ID for this subnet",
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *subnetResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -213,6 +206,7 @@ func (r *subnetResource) Configure(_ context.Context, req resource.ConfigureRequ
 	}
 	r.client = client
 }
+
 func (r *subnetResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan subnetResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -221,16 +215,14 @@ func (r *subnetResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	body := &generated.ForemanSubnetRequest{
-		Name:         plan.Name.ValueString(),
-		Network:      plan.Network.ValueString(),
 		BmcID:        plan.BmcID.ValueInt64(),
 		BootMode:     plan.BootMode.ValueString(),
 		Cidr:         plan.Cidr.ValueString(),
-		Description:  plan.Description.ValueString(),
-		DhcpID:       plan.DhcpID.ValueInt64(),
 		DNSID:        plan.DNSID.ValueInt64(),
 		DNSPrimary:   plan.DNSPrimary.ValueString(),
 		DNSSecondary: plan.DNSSecondary.ValueString(),
+		Description:  plan.Description.ValueString(),
+		DhcpID:       plan.DhcpID.ValueInt64(),
 		DomainIDs: func() []int64 {
 			if plan.DomainIDs.IsNull() || plan.DomainIDs.IsUnknown() {
 				return nil
@@ -251,6 +243,8 @@ func (r *subnetResource) Create(ctx context.Context, req resource.CreateRequest,
 		IPam:              plan.IPam.ValueString(),
 		Mask:              plan.Mask.ValueString(),
 		Mtu:               plan.Mtu.ValueInt64(),
+		Name:              plan.Name.ValueString(),
+		Network:           plan.Network.ValueString(),
 		NetworkType:       plan.NetworkType.ValueString(),
 		SubnetParametersAttributes: func() []int64 {
 			if plan.SubnetParametersAttributes.IsNull() || plan.SubnetParametersAttributes.IsUnknown() {
@@ -269,6 +263,7 @@ func (r *subnetResource) Create(ctx context.Context, req resource.CreateRequest,
 		To:         plan.To.ValueString(),
 		Vlanid:     plan.Vlanid.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanSubnet(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create subnet, got error: %s", err))
@@ -316,6 +311,7 @@ func (r *subnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanSubnet(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -325,6 +321,7 @@ func (r *subnetResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read subnet, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Network = types.StringValue(result.Network)
 	state.BmcID = types.Int64Value(int64(result.BmcID))
@@ -384,16 +381,14 @@ func (r *subnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	body := &generated.ForemanSubnetRequest{
-		Name:         plan.Name.ValueString(),
-		Network:      plan.Network.ValueString(),
 		BmcID:        plan.BmcID.ValueInt64(),
 		BootMode:     plan.BootMode.ValueString(),
 		Cidr:         plan.Cidr.ValueString(),
-		Description:  plan.Description.ValueString(),
-		DhcpID:       plan.DhcpID.ValueInt64(),
 		DNSID:        plan.DNSID.ValueInt64(),
 		DNSPrimary:   plan.DNSPrimary.ValueString(),
 		DNSSecondary: plan.DNSSecondary.ValueString(),
+		Description:  plan.Description.ValueString(),
+		DhcpID:       plan.DhcpID.ValueInt64(),
 		DomainIDs: func() []int64 {
 			if plan.DomainIDs.IsNull() || plan.DomainIDs.IsUnknown() {
 				return nil
@@ -414,6 +409,8 @@ func (r *subnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 		IPam:              plan.IPam.ValueString(),
 		Mask:              plan.Mask.ValueString(),
 		Mtu:               plan.Mtu.ValueInt64(),
+		Name:              plan.Name.ValueString(),
+		Network:           plan.Network.ValueString(),
 		NetworkType:       plan.NetworkType.ValueString(),
 		SubnetParametersAttributes: func() []int64 {
 			if plan.SubnetParametersAttributes.IsNull() || plan.SubnetParametersAttributes.IsUnknown() {
@@ -432,11 +429,13 @@ func (r *subnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 		To:         plan.To.ValueString(),
 		Vlanid:     plan.Vlanid.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanSubnet(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update subnet, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Network = types.StringValue(result.Network)
 	plan.BmcID = types.Int64Value(int64(result.BmcID))
@@ -463,6 +462,7 @@ func (r *subnetResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *subnetResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state subnetResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -475,6 +475,7 @@ func (r *subnetResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanSubnet(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete subnet, got error: %s", err))

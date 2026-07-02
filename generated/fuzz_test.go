@@ -10,48 +10,15 @@ import (
 func FuzzForemanParseResponse(f *testing.F) {
 	// Seed with valid empty JSON objects so fuzzer has a sane starting point.
 	f.Add([]byte("{}"))
-	f.Add([]byte(`{"id":1,"name":"seed"}`))
-	f.Add([]byte(`{"error":{"message":"boom"}}`))
-	f.Add([]byte(`{"total":0,"page":1,"per_page":20,"results":[]}`))
-	f.Add([]byte(`{"total":1,"page":1,"per_page":20,"results":[{"id":1,"name":"seed"}]}`))
+	f.Add([]byte("{\"id\":1,\"name\":\"seed\"}"))
+	f.Add([]byte("{\"error\":{\"message\":\"boom\"}}"))
+	f.Add([]byte("{\"total\":0,\"page\":1,\"per_page\":20,\"results\":[]}"))
+	f.Add([]byte("{\"total\":1,\"page\":1,\"per_page\":20,\"results\":[{\"id\":1,\"name\":\"seed\"}]}"))
 
 	f.Fuzz(func(t *testing.T, data []byte) {
-		for _, target := range []interface{}{
-			&ForemanArchitecture{},
-			&ForemanAutosign{},
-			&ForemanCommonParameter{},
-			&ForemanComputeProfile{},
-			&ForemanComputeResource{},
-			&ForemanDefaultTemplate{},
-			&ForemanDomain{},
-			&ForemanHTTPProxy{},
-			&ForemanHost{},
-			&ForemanHostgroup{},
-			&ForemanImage{},
-			&ForemanMedium{},
-			&ForemanModel{},
-			&ForemanOperatingSystem{},
-			&ForemanParameter{},
-			&ForemanPartitionTable{},
-			&ForemanProvisioningTemplate{},
-			&ForemanRealm{},
-			&ForemanSetting{},
-			&ForemanSmartProxy{},
-			&ForemanSubnet{},
-			&ForemanTemplateInput{},
-			&ForemanUser{},
-			&ForemanUsergroup{},
-			&ForemanEnvironment{},
-			&ForemanJobTemplate{},
-			&ForemanPuppetClass{},
-			&ForemanSmartClassParameter{},
-			&ForemanTemplateKind{},
-			&ForemanDiscoveryRule{},
-			&ForemanWebhook{},
-			&ForemanWebhookTemplate{},
-			&ForemanOverrideValue{},
-		} {
-			_ = json.Unmarshal(data, target) // must not panic
+		for _, target := range []interface{}{&ForemanArchitecture{}, &ForemanAutosign{}, &ForemanCommonParameter{}, &ForemanComputeProfile{}, &ForemanComputeResource{}, &ForemanDefaultTemplate{}, &ForemanDomain{}, &ForemanHTTPProxy{}, &ForemanHost{}, &ForemanHostgroup{}, &ForemanImage{}, &ForemanMedium{}, &ForemanModel{}, &ForemanOperatingSystem{}, &ForemanParameter{}, &ForemanPartitionTable{}, &ForemanProvisioningTemplate{}, &ForemanRealm{}, &ForemanSetting{}, &ForemanSmartProxy{}, &ForemanSubnet{}, &ForemanTemplateInput{}, &ForemanUser{}, &ForemanUsergroup{}, &ForemanEnvironment{}, &ForemanJobTemplate{}, &ForemanPuppetClass{}, &ForemanSmartClassParameter{}, &ForemanTemplateKind{}, &ForemanDiscoveryRule{}, &ForemanWebhook{}, &ForemanWebhookTemplate{}, &ForemanOverrideValue{}} {
+			_ = json.Unmarshal(data, target)
+			// must not panic
 		}
 	})
 }

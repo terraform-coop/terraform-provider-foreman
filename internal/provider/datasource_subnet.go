@@ -5,19 +5,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &subnetDataSource{}
-)
+var _ datasource.DataSource = &subnetDataSource{}
 
 func NewForemanSubnetDataSource() datasource.DataSource {
 	return &subnetDataSource{}
@@ -59,105 +55,13 @@ func (d *subnetDataSource) Metadata(_ context.Context, req datasource.MetadataRe
 }
 
 func (d *subnetDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the subnet to look up.",
-			},
-			"network": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Subnet network",
-			},
-			"bmc_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "BMC Proxy ID to use within this subnet",
-			},
-			"boot_mode": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Default boot mode for interfaces assigned to this subnet.",
-			},
-			"cidr": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Network prefix in CIDR notation",
-			},
-			"description": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Subnet description",
-			},
-			"dhcp_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "DHCP Proxy ID to use within this subnet",
-			},
-			"dns_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "DNS Proxy ID to use within this subnet",
-			},
-			"dns_primary": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Primary DNS for this subnet",
-			},
-			"dns_secondary": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Secondary DNS for this subnet",
-			},
-			"externalipam_group": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "External IPAM group - only relevant when IPAM is set to external",
-			},
-			"externalipam_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "External IPAM Proxy ID to use within this subnet",
-			},
-			"from": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Starting IP Address for IP auto suggestion",
-			},
-			"gateway": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Subnet gateway",
-			},
-			"httpboot_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "HTTPBoot Proxy ID to use within this subnet",
-			},
-			"ipam": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "IP Address auto suggestion mode for this subnet.",
-			},
-			"mask": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Netmask for this subnet",
-			},
-			"mtu": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "MTU for this subnet",
-			},
-			"network_type": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Type or protocol, IPv4 or IPv6, defaults to IPv4",
-			},
-			"template_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "Template HTTP(S) Proxy ID to use within this subnet",
-			},
-			"tftp_id": dsdchema.Int64Attribute{
-				Computed:    true,
-				Description: "TFTP Proxy ID to use within this subnet",
-			},
-			"to": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Ending IP Address for IP auto suggestion",
-			},
-			"vlanid": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "VLAN ID for this subnet",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the subnet to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
 func (d *subnetDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

@@ -9,20 +9,17 @@ import (
 	"net/url"
 )
 
-// ForemanSmartProxyRequest is the request payload.
 type ForemanSmartProxyRequest struct {
 	Name string `json:"name,omitempty"`
 	URL  string `json:"url,omitempty"`
 }
 
-// ForemanSmartProxy is the entity type.
 type ForemanSmartProxy struct {
 	ForemanObject
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
 
-// CreateForemanSmartProxy creates a new ForemanSmartProxy.
 func (c *ForemanClient) CreateForemanSmartProxy(ctx context.Context, req *ForemanSmartProxyRequest) (*ForemanSmartProxy, error) {
 	var resp ForemanSmartProxy
 	err := c.Post(ctx, "smart_proxies", "smart_proxy", req, &resp)
@@ -32,7 +29,6 @@ func (c *ForemanClient) CreateForemanSmartProxy(ctx context.Context, req *Forema
 	return &resp, nil
 }
 
-// ReadForemanSmartProxy reads a ForemanSmartProxy by ID.
 func (c *ForemanClient) ReadForemanSmartProxy(ctx context.Context, id int) (*ForemanSmartProxy, error) {
 	var resp ForemanSmartProxy
 	err := c.Get(ctx, fmt.Sprintf("smart_proxies/%d", id), &resp)
@@ -42,7 +38,6 @@ func (c *ForemanClient) ReadForemanSmartProxy(ctx context.Context, id int) (*For
 	return &resp, nil
 }
 
-// UpdateForemanSmartProxy updates a ForemanSmartProxy by ID.
 func (c *ForemanClient) UpdateForemanSmartProxy(ctx context.Context, id int, req *ForemanSmartProxyRequest) (*ForemanSmartProxy, error) {
 	var resp ForemanSmartProxy
 	err := c.Put(ctx, fmt.Sprintf("smart_proxies/%d", id), "smart_proxy", req, &resp)
@@ -52,12 +47,10 @@ func (c *ForemanClient) UpdateForemanSmartProxy(ctx context.Context, id int, req
 	return &resp, nil
 }
 
-// DeleteForemanSmartProxy deletes a ForemanSmartProxy by ID.
 func (c *ForemanClient) DeleteForemanSmartProxy(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("smart_proxies/%d", id))
 }
 
-// QueryForemanSmartProxy queries ForemanSmartProxy by name.
 func (c *ForemanClient) QueryForemanSmartProxy(ctx context.Context, name string) (*ForemanSmartProxy, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("smart_proxies?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -68,7 +61,7 @@ func (c *ForemanClient) QueryForemanSmartProxy(ctx context.Context, name string)
 		return nil, nil
 	}
 	var obj ForemanSmartProxy
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

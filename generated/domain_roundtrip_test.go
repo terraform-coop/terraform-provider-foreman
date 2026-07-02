@@ -4,19 +4,21 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanDomain_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanDomain{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
-		DNSID:         42,
-		Fullname:      "test_fullname",
+		DNSID: 42,
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Fullname: "test_fullname",
+		Name:     "test_name",
 	}
 
 	data, err := json.Marshal(original)
@@ -54,9 +56,9 @@ func TestForemanDomain_RoundTripZeroValues(t *testing.T) {
 func TestForemanDomain_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanDomainRequest{
-		Name:     "test_name",
 		DNSID:    42,
 		Fullname: "test_fullname",
+		Name:     "test_name",
 	}
 
 	data, err := json.Marshal(original)
@@ -65,6 +67,7 @@ func TestForemanDomain_RoundTripRequest(t *testing.T) {
 	var decoded ForemanDomainRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.DNSID, decoded.DNSID)
 	assert.Equal(t, original.Fullname, decoded.Fullname)
@@ -80,6 +83,7 @@ func TestForemanDomain_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanDomainRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.DNSID, decoded.DNSID)
 	assert.Equal(t, original.Fullname, decoded.Fullname)

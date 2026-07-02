@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &smartclassparameterResource{}
-	_ resource.ResourceWithImportState = &smartclassparameterResource{}
-)
+var _ resource.Resource = &smartclassparameterResource{}
+var _ resource.ResourceWithImportState = &smartclassparameterResource{}
 
 func NewForemanSmartClassParameterResource() resource.Resource {
 	return &smartclassparameterResource{}
@@ -45,34 +42,18 @@ func (r *smartclassparameterResource) Metadata(_ context.Context, req resource.M
 }
 
 func (r *smartclassparameterResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"parameter": schema.StringAttribute{
-				Computed: true,
-			},
-			"puppetclass_id": schema.Int64Attribute{
-				Computed: true,
-			},
-			"override": schema.BoolAttribute{
-				Computed: true,
-			},
-			"description": schema.StringAttribute{
-				Computed: true,
-			},
-			"default_value": schema.StringAttribute{
-				Computed: true,
-			},
-			"hidden_value": schema.BoolAttribute{
-				Computed: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"default_value": schema.StringAttribute{Computed: true},
+		"description":   schema.StringAttribute{Computed: true},
+		"hidden_value":  schema.BoolAttribute{Computed: true},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"override":       schema.BoolAttribute{Computed: true},
+		"parameter":      schema.StringAttribute{Computed: true},
+		"puppetclass_id": schema.Int64Attribute{Computed: true},
+	}}
 }
 
 func (r *smartclassparameterResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -86,6 +67,7 @@ func (r *smartclassparameterResource) Configure(_ context.Context, req resource.
 	}
 	r.client = client
 }
+
 func (r *smartclassparameterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Warn(ctx, "Create is not supported for smartclassparameter")
 	resp.Diagnostics.AddError("Not Supported", "Create is not supported for this resource")
@@ -103,6 +85,7 @@ func (r *smartclassparameterResource) Read(ctx context.Context, req resource.Rea
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanSmartClassParameter(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -112,6 +95,7 @@ func (r *smartclassparameterResource) Read(ctx context.Context, req resource.Rea
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read smartclassparameter, got error: %s", err))
 		return
 	}
+
 	state.Parameter = types.StringValue(result.Parameter)
 	state.PuppetclassID = types.Int64Value(int64(result.PuppetclassID))
 	state.Override = types.BoolValue(result.Override)
@@ -136,11 +120,13 @@ func (r *smartclassparameterResource) Update(ctx context.Context, req resource.U
 	}
 
 	body := &generated.ForemanSmartClassParameterRequest{}
+
 	result, err := r.client.UpdateForemanSmartClassParameter(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update smartclassparameter, got error: %s", err))
 		return
 	}
+
 	plan.Parameter = types.StringValue(result.Parameter)
 	plan.PuppetclassID = types.Int64Value(int64(result.PuppetclassID))
 	plan.Override = types.BoolValue(result.Override)
@@ -150,6 +136,7 @@ func (r *smartclassparameterResource) Update(ctx context.Context, req resource.U
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *smartclassparameterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Warn(ctx, "Delete is not supported for smartclassparameter")
 	resp.Diagnostics.AddError("Not Supported", "Delete is not supported for this resource")

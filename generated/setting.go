@@ -9,18 +9,15 @@ import (
 	"net/url"
 )
 
-// ForemanSettingRequest is the request payload.
 type ForemanSettingRequest struct {
 	Value string `json:"value,omitempty"`
 }
 
-// ForemanSetting is the entity type.
 type ForemanSetting struct {
 	ForemanObject
 	Value string `json:"value"`
 }
 
-// ReadForemanSetting reads a ForemanSetting by ID.
 func (c *ForemanClient) ReadForemanSetting(ctx context.Context, id int) (*ForemanSetting, error) {
 	var resp ForemanSetting
 	err := c.Get(ctx, fmt.Sprintf("settings/%d", id), &resp)
@@ -30,7 +27,6 @@ func (c *ForemanClient) ReadForemanSetting(ctx context.Context, id int) (*Forema
 	return &resp, nil
 }
 
-// UpdateForemanSetting updates a ForemanSetting by ID.
 func (c *ForemanClient) UpdateForemanSetting(ctx context.Context, id int, req *ForemanSettingRequest) (*ForemanSetting, error) {
 	var resp ForemanSetting
 	err := c.Put(ctx, fmt.Sprintf("settings/%d", id), "setting", req, &resp)
@@ -40,7 +36,6 @@ func (c *ForemanClient) UpdateForemanSetting(ctx context.Context, id int, req *F
 	return &resp, nil
 }
 
-// QueryForemanSetting queries ForemanSetting by name.
 func (c *ForemanClient) QueryForemanSetting(ctx context.Context, name string) (*ForemanSetting, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("settings?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -51,7 +46,7 @@ func (c *ForemanClient) QueryForemanSetting(ctx context.Context, name string) (*
 		return nil, nil
 	}
 	var obj ForemanSetting
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

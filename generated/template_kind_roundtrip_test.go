@@ -4,17 +4,19 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanTemplateKind_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanTemplateKind{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Name: "test_name",
 	}
 
 	data, err := json.Marshal(original)
@@ -55,6 +57,7 @@ func TestForemanTemplateKind_RoundTripRequest(t *testing.T) {
 	var decoded ForemanTemplateKindRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 }
 
 func TestForemanTemplateKind_RoundTripRequestZeroValues(t *testing.T) {
@@ -67,4 +70,5 @@ func TestForemanTemplateKind_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanTemplateKindRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 }

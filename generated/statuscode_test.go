@@ -6,12 +6,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestStatusCodes(t *testing.T) {
@@ -20,145 +19,204 @@ func TestStatusCodes(t *testing.T) {
 	codes := []struct {
 		code      int
 		wantError bool
-	}{
-		{200, false}, {201, false},
-		{400, true}, {401, true}, {403, true},
-		{404, true}, {422, true}, {500, true},
-	}
+	}{{200, false}, {201, false}, {400, true}, {401, true}, {403, true}, {404, true}, {422, true}, {500, true}}
 
 	queryFuncs := []struct {
 		name string
 		fn   func(*ForemanClient, context.Context) error
-	}{
-		{"ForemanArchitecture", func(c *ForemanClient, ctx context.Context) error {
+	}{{
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanArchitecture(ctx, "test")
 			return err
-		}},
-		{"ForemanAutosign", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanArchitecture",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanAutosign(ctx, "test")
 			return err
-		}},
-		{"ForemanCommonParameter", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanAutosign",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanCommonParameter(ctx, "test")
 			return err
-		}},
-		{"ForemanComputeProfile", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanCommonParameter",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanComputeProfile(ctx, "test")
 			return err
-		}},
-		{"ForemanComputeResource", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanComputeProfile",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanComputeResource(ctx, "test")
 			return err
-		}},
-		{"ForemanDefaultTemplate", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanComputeResource",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanDefaultTemplate(ctx, "test")
 			return err
-		}},
-		{"ForemanDomain", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanDefaultTemplate",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanDomain(ctx, "test")
 			return err
-		}},
-		{"ForemanHTTPProxy", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanDomain",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanHTTPProxy(ctx, "test")
 			return err
-		}},
-		{"ForemanHost", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanHTTPProxy",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanHost(ctx, "test")
 			return err
-		}},
-		{"ForemanHostgroup", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanHost",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanHostgroup(ctx, "test")
 			return err
-		}},
-		{"ForemanImage", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanHostgroup",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanImage(ctx, "test")
 			return err
-		}},
-		{"ForemanMedium", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanImage",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanMedium(ctx, "test")
 			return err
-		}},
-		{"ForemanModel", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanMedium",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanModel(ctx, "test")
 			return err
-		}},
-		{"ForemanOperatingSystem", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanModel",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanOperatingSystem(ctx, "test")
 			return err
-		}},
-		{"ForemanParameter", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanOperatingSystem",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanParameter(ctx, "test")
 			return err
-		}},
-		{"ForemanPartitionTable", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanParameter",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanPartitionTable(ctx, "test")
 			return err
-		}},
-		{"ForemanProvisioningTemplate", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanPartitionTable",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanProvisioningTemplate(ctx, "test")
 			return err
-		}},
-		{"ForemanRealm", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanProvisioningTemplate",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanRealm(ctx, "test")
 			return err
-		}},
-		{"ForemanSetting", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanRealm",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanSetting(ctx, "test")
 			return err
-		}},
-		{"ForemanSmartProxy", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanSetting",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanSmartProxy(ctx, "test")
 			return err
-		}},
-		{"ForemanSubnet", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanSmartProxy",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanSubnet(ctx, "test")
 			return err
-		}},
-		{"ForemanTemplateInput", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanSubnet",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanTemplateInput(ctx, "test")
 			return err
-		}},
-		{"ForemanUser", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanTemplateInput",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanUser(ctx, "test")
 			return err
-		}},
-		{"ForemanUsergroup", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanUser",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanUsergroup(ctx, "test")
 			return err
-		}},
-		{"ForemanEnvironment", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanUsergroup",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanEnvironment(ctx, "test")
 			return err
-		}},
-		{"ForemanJobTemplate", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanEnvironment",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanJobTemplate(ctx, "test")
 			return err
-		}},
-		{"ForemanPuppetClass", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanJobTemplate",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanPuppetClass(ctx, "test")
 			return err
-		}},
-		{"ForemanSmartClassParameter", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanPuppetClass",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanSmartClassParameter(ctx, "test")
 			return err
-		}},
-		{"ForemanTemplateKind", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanSmartClassParameter",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanTemplateKind(ctx, "test")
 			return err
-		}},
-		{"ForemanDiscoveryRule", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanTemplateKind",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanDiscoveryRule(ctx, "test")
 			return err
-		}},
-		{"ForemanWebhook", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanDiscoveryRule",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanWebhook(ctx, "test")
 			return err
-		}},
-		{"ForemanWebhookTemplate", func(c *ForemanClient, ctx context.Context) error {
+		},
+		name: "ForemanWebhook",
+	}, {
+		fn: func(c *ForemanClient, ctx context.Context) error {
 			_, err := c.QueryForemanWebhookTemplate(ctx, "test")
 			return err
-		}},
-	}
+		},
+		name: "ForemanWebhookTemplate",
+	}}
 
 	for _, qf := range queryFuncs {
 		qf := qf
@@ -171,17 +229,13 @@ func TestStatusCodes(t *testing.T) {
 						if !tc.wantError {
 							require.NoError(t, json.NewEncoder(w).Encode(map[string]interface{}{}))
 						} else {
-							_, err := fmt.Fprintf(w, `{"error":{"message":"test error"}}`)
+							_, err := fmt.Fprintf(w, "{\"error\":{\"message\":\"test error\"}}")
 							require.NoError(t, err)
 						}
 					}))
 					defer srv.Close()
 
-					client := NewClient(
-						parseURL(srv.URL),
-						ClientCredentials{},
-						ClientConfig{},
-					)
+					client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
 
 					err := qf.fn(client, context.Background())
 					if tc.wantError {

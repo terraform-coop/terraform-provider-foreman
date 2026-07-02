@@ -4,20 +4,22 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanHTTPProxy_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanHTTPProxy{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
-		URL:           "test_url",
-		Password:      "test_password",
-		Username:      "test_username",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Name:     "test_name",
+		Password: "test_password",
+		URL:      "test_url",
+		Username: "test_username",
 	}
 
 	data, err := json.Marshal(original)
@@ -58,8 +60,8 @@ func TestForemanHTTPProxy_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanHTTPProxyRequest{
 		Name:     "test_name",
-		URL:      "test_url",
 		Password: "test_password",
+		URL:      "test_url",
 		Username: "test_username",
 	}
 
@@ -69,6 +71,7 @@ func TestForemanHTTPProxy_RoundTripRequest(t *testing.T) {
 	var decoded ForemanHTTPProxyRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.URL, decoded.URL)
 	assert.Equal(t, original.Password, decoded.Password)
@@ -85,6 +88,7 @@ func TestForemanHTTPProxy_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanHTTPProxyRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.URL, decoded.URL)
 	assert.Equal(t, original.Password, decoded.Password)

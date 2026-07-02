@@ -9,17 +9,13 @@ import (
 	"net/url"
 )
 
-// ForemanTemplateKindRequest is the request payload.
-type ForemanTemplateKindRequest struct {
-}
+type ForemanTemplateKindRequest struct{}
 
-// ForemanTemplateKind is the entity type.
 type ForemanTemplateKind struct {
 	ForemanObject
 	Name string `json:"name"`
 }
 
-// ReadForemanTemplateKind reads a ForemanTemplateKind by ID.
 func (c *ForemanClient) ReadForemanTemplateKind(ctx context.Context, id int) (*ForemanTemplateKind, error) {
 	var resp ForemanTemplateKind
 	err := c.Get(ctx, fmt.Sprintf("template_kinds/%d", id), &resp)
@@ -29,7 +25,6 @@ func (c *ForemanClient) ReadForemanTemplateKind(ctx context.Context, id int) (*F
 	return &resp, nil
 }
 
-// QueryForemanTemplateKind queries ForemanTemplateKind by name.
 func (c *ForemanClient) QueryForemanTemplateKind(ctx context.Context, name string) (*ForemanTemplateKind, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("template_kinds?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -40,7 +35,7 @@ func (c *ForemanClient) QueryForemanTemplateKind(ctx context.Context, name strin
 		return nil, nil
 	}
 	var obj ForemanTemplateKind
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

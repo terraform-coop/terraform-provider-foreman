@@ -5,29 +5,25 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &webhook_templateDataSource{}
-)
+var _ datasource.DataSource = &webhooktemplateDataSource{}
 
 func NewForemanWebhookTemplateDataSource() datasource.DataSource {
-	return &webhook_templateDataSource{}
+	return &webhooktemplateDataSource{}
 }
 
-type webhook_templateDataSource struct {
+type webhooktemplateDataSource struct {
 	client *generated.ForemanClient
 }
 
-type webhook_templateDataSourceModel struct {
+type webhooktemplateDataSourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
 	Template     types.String `tfsdk:"template"`
@@ -38,43 +34,21 @@ type webhook_templateDataSourceModel struct {
 	Description  types.String `tfsdk:"description"`
 }
 
-func (d *webhook_templateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_webhook_template"
+func (d *webhooktemplateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_webhooktemplate"
 }
 
-func (d *webhook_templateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the webhook_template to look up.",
-			},
-			"template": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"snippet": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"audit_comment": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"locked": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"default": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"description": dsdchema.StringAttribute{
-				Computed: true,
-			},
+func (d *webhooktemplateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the webhooktemplate to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
-func (d *webhook_templateDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *webhooktemplateDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -86,8 +60,8 @@ func (d *webhook_templateDataSource) Configure(_ context.Context, req datasource
 	d.client = client
 }
 
-func (d *webhook_templateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data webhook_templateDataSourceModel
+func (d *webhooktemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data webhooktemplateDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -96,7 +70,7 @@ func (d *webhook_templateDataSource) Read(ctx context.Context, req datasource.Re
 	name := data.Name.ValueString()
 	result, err := d.client.QueryForemanWebhookTemplate(ctx, name)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read webhook_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read webhooktemplate, got error: %s", err))
 		return
 	}
 	if result == nil {
@@ -112,6 +86,6 @@ func (d *webhook_templateDataSource) Read(ctx context.Context, req datasource.Re
 	data.Default = types.BoolValue(result.Default)
 	data.Description = types.StringValue(result.Description)
 
-	tflog.Trace(ctx, "read webhook_template data source", map[string]interface{}{"id": data.ID.ValueString()})
+	tflog.Trace(ctx, "read webhooktemplate data source", map[string]interface{}{"id": data.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

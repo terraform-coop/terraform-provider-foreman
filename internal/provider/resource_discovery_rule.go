@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &discovery_ruleResource{}
-	_ resource.ResourceWithImportState = &discovery_ruleResource{}
-)
+var _ resource.Resource = &discovery_ruleResource{}
+var _ resource.ResourceWithImportState = &discovery_ruleResource{}
 
 func NewForemanDiscoveryRuleResource() resource.Resource {
 	return &discovery_ruleResource{}
@@ -46,44 +43,40 @@ func (r *discovery_ruleResource) Metadata(_ context.Context, req resource.Metada
 }
 
 func (r *discovery_ruleResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"search": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"hostgroup_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
-			"hostname": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"hosts_limit": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
-			"priority": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
-			"enabled": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"enabled": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"hostgroup_id": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+		"hostname": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"hosts_limit": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"priority": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+		"search": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *discovery_ruleResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -97,6 +90,7 @@ func (r *discovery_ruleResource) Configure(_ context.Context, req resource.Confi
 	}
 	r.client = client
 }
+
 func (r *discovery_ruleResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan discovery_ruleResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -105,14 +99,15 @@ func (r *discovery_ruleResource) Create(ctx context.Context, req resource.Create
 	}
 
 	body := &generated.ForemanDiscoveryRuleRequest{
-		Name:               plan.Name.ValueString(),
-		Search:             plan.Search.ValueString(),
+		Enabled:            plan.Enabled.ValueBool(),
 		HostgroupID:        plan.HostgroupID.ValueInt64(),
 		Hostname:           plan.Hostname.ValueString(),
 		HostsLimitMaxCount: plan.HostsLimitMaxCount.ValueInt64(),
+		Name:               plan.Name.ValueString(),
 		Priority:           plan.Priority.ValueInt64(),
-		Enabled:            plan.Enabled.ValueBool(),
+		Search:             plan.Search.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanDiscoveryRule(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create discovery_rule, got error: %s", err))
@@ -144,6 +139,7 @@ func (r *discovery_ruleResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanDiscoveryRule(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -153,6 +149,7 @@ func (r *discovery_ruleResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read discovery_rule, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Search = types.StringValue(result.Search)
 	state.HostgroupID = types.Int64Value(int64(result.HostgroupID))
@@ -178,19 +175,21 @@ func (r *discovery_ruleResource) Update(ctx context.Context, req resource.Update
 	}
 
 	body := &generated.ForemanDiscoveryRuleRequest{
-		Name:               plan.Name.ValueString(),
-		Search:             plan.Search.ValueString(),
+		Enabled:            plan.Enabled.ValueBool(),
 		HostgroupID:        plan.HostgroupID.ValueInt64(),
 		Hostname:           plan.Hostname.ValueString(),
 		HostsLimitMaxCount: plan.HostsLimitMaxCount.ValueInt64(),
+		Name:               plan.Name.ValueString(),
 		Priority:           plan.Priority.ValueInt64(),
-		Enabled:            plan.Enabled.ValueBool(),
+		Search:             plan.Search.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanDiscoveryRule(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update discovery_rule, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Search = types.StringValue(result.Search)
 	plan.HostgroupID = types.Int64Value(int64(result.HostgroupID))
@@ -201,6 +200,7 @@ func (r *discovery_ruleResource) Update(ctx context.Context, req resource.Update
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *discovery_ruleResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state discovery_ruleResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -213,6 +213,7 @@ func (r *discovery_ruleResource) Delete(ctx context.Context, req resource.Delete
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanDiscoveryRule(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete discovery_rule, got error: %s", err))

@@ -5,19 +5,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &userDataSource{}
-)
+var _ datasource.DataSource = &userDataSource{}
 
 func NewForemanUserDataSource() datasource.DataSource {
 	return &userDataSource{}
@@ -52,68 +48,13 @@ func (d *userDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 }
 
 func (d *userDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the user to look up.",
-			},
-			"auth_source_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"login": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"mail": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"admin": dsdchema.BoolAttribute{
-				Computed:    true,
-				Description: "is an admin account",
-			},
-			"default_location_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"default_organization_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"description": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"disabled": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"firstname": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"lastname": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"locale": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "User&#39;s preferred locale",
-			},
-			"mail_enabled": dsdchema.BoolAttribute{
-				Computed:    true,
-				Description: "Enable user&#39;s email",
-			},
-			"password": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Required unless user is in an external authentication source",
-			},
-			"timezone": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "User&#39;s timezone",
-			},
-			"ui_compact_mode": dsdchema.BoolAttribute{
-				Computed:    true,
-				Description: "Use compact UI",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the user to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
 func (d *userDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

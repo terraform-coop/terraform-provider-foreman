@@ -5,33 +5,30 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &mediumResource{}
-	_ resource.ResourceWithImportState = &mediumResource{}
-)
+var _ resource.Resource = &mediaResource{}
+var _ resource.ResourceWithImportState = &mediaResource{}
 
 func NewForemanMediumResource() resource.Resource {
-	return &mediumResource{}
+	return &mediaResource{}
 }
 
-type mediumResource struct {
+type mediaResource struct {
 	client *generated.ForemanClient
 }
 
-type mediumResourceModel struct {
+type mediaResourceModel struct {
 	ID                 types.String `tfsdk:"id"`
 	Name               types.String `tfsdk:"name"`
 	Path               types.String `tfsdk:"path"`
@@ -39,42 +36,38 @@ type mediumResourceModel struct {
 	OsFamily           types.String `tfsdk:"os_family"`
 }
 
-func (r *mediumResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_medium"
+func (r *mediaResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_media"
 }
 
-func (r *mediumResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "Name of media",
-			},
-			"path": schema.StringAttribute{
-				Required:    true,
-				Description: "The path to the medium, can be a URL or a valid NFS server (exclusive of the architecture).  for example mirror.centos.org/centos/$version/os/$arch where $arch will be substituted for the host&#39;s actual OS architecture and $version, $major and $minor will be substituted for the version of the operating system.  Solaris and Debian media may also use $release.",
-			},
-			"operatingsystem_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				ElementType: types.Int64Type,
-			},
-			"os_family": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Operating system family, available values: AIX, Altlinux, Archlinux, Coreos, Debian, Fcos, Freebsd, Gentoo, Junos, NXOS, Rancheros, Redhat, Rhcos, Solaris, Suse, VRP, Windows, Xenserver",
-			},
+func (r *mediaResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"name": schema.StringAttribute{
+			Description: "Name of media",
+			Required:    true,
+		},
+		"operatingsystem_ids": schema.ListAttribute{
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"os_family": schema.StringAttribute{
+			Description: "Operating system family, available values: AIX, Altlinux, Archlinux, Coreos, Debian, Fcos, Freebsd, Gentoo, Junos, NXOS, Rancheros, Redhat, Rhcos, Solaris, Suse, VRP, Windows, Xenserver",
+			Optional:    true,
+			Required:    false,
+		},
+		"path": schema.StringAttribute{
+			Description: "The path to the medium, can be a URL or a valid NFS server (exclusive of the architecture).  for example mirror.centos.org/centos/$version/os/$arch where $arch will be substituted for the host&#39;s actual OS architecture and $version, $major and $minor will be substituted for the version of the operating system.  Solaris and Debian media may also use $release.",
+			Required:    true,
+		},
+	}}
 }
 
-func (r *mediumResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *mediaResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -85,8 +78,9 @@ func (r *mediumResource) Configure(_ context.Context, req resource.ConfigureRequ
 	}
 	r.client = client
 }
-func (r *mediumResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan mediumResourceModel
+
+func (r *mediaResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan mediaResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -94,7 +88,6 @@ func (r *mediumResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	body := &generated.ForemanMediumRequest{
 		Name: plan.Name.ValueString(),
-		Path: plan.Path.ValueString(),
 		OperatingsystemIDs: func() []int64 {
 			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
 				return nil
@@ -108,10 +101,12 @@ func (r *mediumResource) Create(ctx context.Context, req resource.CreateRequest,
 			return ids
 		}(),
 		OsFamily: plan.OsFamily.ValueString(),
+		Path:     plan.Path.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanMedium(ctx, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create medium, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create media, got error: %s", err))
 		return
 	}
 
@@ -120,12 +115,12 @@ func (r *mediumResource) Create(ctx context.Context, req resource.CreateRequest,
 	plan.Path = types.StringValue(result.Path)
 	plan.OsFamily = types.StringValue(result.OsFamily)
 
-	tflog.Trace(ctx, "created medium", map[string]interface{}{"id": plan.ID.ValueString()})
+	tflog.Trace(ctx, "created media", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
-func (r *mediumResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state mediumResourceModel
+func (r *mediaResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state mediaResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -136,15 +131,17 @@ func (r *mediumResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanMedium(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read medium, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read media, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Path = types.StringValue(result.Path)
 	if result.OperatingsystemIDs != nil {
@@ -161,8 +158,8 @@ func (r *mediumResource) Read(ctx context.Context, req resource.ReadRequest, res
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
-func (r *mediumResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan mediumResourceModel
+func (r *mediaResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan mediaResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -176,7 +173,6 @@ func (r *mediumResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	body := &generated.ForemanMediumRequest{
 		Name: plan.Name.ValueString(),
-		Path: plan.Path.ValueString(),
 		OperatingsystemIDs: func() []int64 {
 			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
 				return nil
@@ -190,20 +186,24 @@ func (r *mediumResource) Update(ctx context.Context, req resource.UpdateRequest,
 			return ids
 		}(),
 		OsFamily: plan.OsFamily.ValueString(),
+		Path:     plan.Path.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanMedium(ctx, id, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update medium, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update media, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Path = types.StringValue(result.Path)
 	plan.OsFamily = types.StringValue(result.OsFamily)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
-func (r *mediumResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state mediumResourceModel
+
+func (r *mediaResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state mediaResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -214,13 +214,14 @@ func (r *mediumResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanMedium(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete medium, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete media, got error: %s", err))
 		return
 	}
 }
 
-func (r *mediumResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *mediaResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

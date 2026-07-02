@@ -9,18 +9,15 @@ import (
 	"net/url"
 )
 
-// ForemanPuppetClassRequest is the request payload.
 type ForemanPuppetClassRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
-// ForemanPuppetClass is the entity type.
 type ForemanPuppetClass struct {
 	ForemanObject
 	Name string `json:"name"`
 }
 
-// CreateForemanPuppetClass creates a new ForemanPuppetClass.
 func (c *ForemanClient) CreateForemanPuppetClass(ctx context.Context, req *ForemanPuppetClassRequest) (*ForemanPuppetClass, error) {
 	var resp ForemanPuppetClass
 	err := c.Post(ctx, "puppetclasses", "puppetclass", req, &resp)
@@ -30,7 +27,6 @@ func (c *ForemanClient) CreateForemanPuppetClass(ctx context.Context, req *Forem
 	return &resp, nil
 }
 
-// ReadForemanPuppetClass reads a ForemanPuppetClass by ID.
 func (c *ForemanClient) ReadForemanPuppetClass(ctx context.Context, id int) (*ForemanPuppetClass, error) {
 	var resp ForemanPuppetClass
 	err := c.Get(ctx, fmt.Sprintf("puppetclasses/%d", id), &resp)
@@ -40,7 +36,6 @@ func (c *ForemanClient) ReadForemanPuppetClass(ctx context.Context, id int) (*Fo
 	return &resp, nil
 }
 
-// UpdateForemanPuppetClass updates a ForemanPuppetClass by ID.
 func (c *ForemanClient) UpdateForemanPuppetClass(ctx context.Context, id int, req *ForemanPuppetClassRequest) (*ForemanPuppetClass, error) {
 	var resp ForemanPuppetClass
 	err := c.Put(ctx, fmt.Sprintf("puppetclasses/%d", id), "puppetclass", req, &resp)
@@ -50,12 +45,10 @@ func (c *ForemanClient) UpdateForemanPuppetClass(ctx context.Context, id int, re
 	return &resp, nil
 }
 
-// DeleteForemanPuppetClass deletes a ForemanPuppetClass by ID.
 func (c *ForemanClient) DeleteForemanPuppetClass(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("puppetclasses/%d", id))
 }
 
-// QueryForemanPuppetClass queries ForemanPuppetClass by name.
 func (c *ForemanClient) QueryForemanPuppetClass(ctx context.Context, name string) (*ForemanPuppetClass, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("puppetclasses?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -66,7 +59,7 @@ func (c *ForemanClient) QueryForemanPuppetClass(ctx context.Context, name string
 		return nil, nil
 	}
 	var obj ForemanPuppetClass
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

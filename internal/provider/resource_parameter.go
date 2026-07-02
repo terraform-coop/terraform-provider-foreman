@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &parameterResource{}
-	_ resource.ResourceWithImportState = &parameterResource{}
-)
+var _ resource.Resource = &parameterResource{}
+var _ resource.ResourceWithImportState = &parameterResource{}
 
 func NewForemanParameterResource() resource.Resource {
 	return &parameterResource{}
@@ -43,31 +40,23 @@ func (r *parameterResource) Metadata(_ context.Context, req resource.MetadataReq
 }
 
 func (r *parameterResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"parameter_type": schema.StringAttribute{
-				Required:    true,
-				Description: "Type of value",
-			},
-			"value": schema.StringAttribute{
-				Required: true,
-			},
-			"hidden_value": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Should the value be hidden",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"hidden_value": schema.BoolAttribute{
+			Description: "Should the value be hidden",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{Required: true},
+		"parameter_type": schema.StringAttribute{
+			Description: "Type of value",
+			Required:    true,
+		},
+		"value": schema.StringAttribute{Required: true},
+	}}
 }
 
 func (r *parameterResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -81,6 +70,7 @@ func (r *parameterResource) Configure(_ context.Context, req resource.ConfigureR
 	}
 	r.client = client
 }
+
 func (r *parameterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan parameterResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -89,11 +79,12 @@ func (r *parameterResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	body := &generated.ForemanParameterRequest{
+		HiddenValue:   plan.HiddenValue.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
 		Value:         plan.Value.ValueString(),
-		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
+
 	result, err := r.client.CreateForemanParameter(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create parameter, got error: %s", err))
@@ -122,6 +113,7 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanParameter(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -131,6 +123,7 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read parameter, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.ParameterType = types.StringValue(result.ParameterType)
 	state.Value = types.StringValue(result.Value)
@@ -153,16 +146,18 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	body := &generated.ForemanParameterRequest{
+		HiddenValue:   plan.HiddenValue.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
 		Value:         plan.Value.ValueString(),
-		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
+
 	result, err := r.client.UpdateForemanParameter(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update parameter, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.ParameterType = types.StringValue(result.ParameterType)
 	plan.Value = types.StringValue(result.Value)
@@ -170,6 +165,7 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state parameterResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -182,6 +178,7 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanParameter(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete parameter, got error: %s", err))

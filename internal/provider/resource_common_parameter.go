@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &commonparameterResource{}
-	_ resource.ResourceWithImportState = &commonparameterResource{}
-)
+var _ resource.Resource = &commonparameterResource{}
+var _ resource.ResourceWithImportState = &commonparameterResource{}
 
 func NewForemanCommonParameterResource() resource.Resource {
 	return &commonparameterResource{}
@@ -43,30 +40,22 @@ func (r *commonparameterResource) Metadata(_ context.Context, req resource.Metad
 }
 
 func (r *commonparameterResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"parameter_type": schema.StringAttribute{
-				Required:    true,
-				Description: "Type of value",
-			},
-			"value": schema.StringAttribute{
-				Required: true,
-			},
-			"hidden_value": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"hidden_value": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{Required: true},
+		"parameter_type": schema.StringAttribute{
+			Description: "Type of value",
+			Required:    true,
+		},
+		"value": schema.StringAttribute{Required: true},
+	}}
 }
 
 func (r *commonparameterResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -80,6 +69,7 @@ func (r *commonparameterResource) Configure(_ context.Context, req resource.Conf
 	}
 	r.client = client
 }
+
 func (r *commonparameterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan commonparameterResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -88,11 +78,12 @@ func (r *commonparameterResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	body := &generated.ForemanCommonParameterRequest{
+		HiddenValue:   plan.HiddenValue.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
 		Value:         plan.Value.ValueString(),
-		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
+
 	result, err := r.client.CreateForemanCommonParameter(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create commonparameter, got error: %s", err))
@@ -121,6 +112,7 @@ func (r *commonparameterResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanCommonParameter(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -130,6 +122,7 @@ func (r *commonparameterResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read commonparameter, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.ParameterType = types.StringValue(result.ParameterType)
 	state.Value = types.StringValue(result.Value)
@@ -152,16 +145,18 @@ func (r *commonparameterResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	body := &generated.ForemanCommonParameterRequest{
+		HiddenValue:   plan.HiddenValue.ValueBool(),
 		Name:          plan.Name.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
 		Value:         plan.Value.ValueString(),
-		HiddenValue:   plan.HiddenValue.ValueBool(),
 	}
+
 	result, err := r.client.UpdateForemanCommonParameter(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update commonparameter, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.ParameterType = types.StringValue(result.ParameterType)
 	plan.Value = types.StringValue(result.Value)
@@ -169,6 +164,7 @@ func (r *commonparameterResource) Update(ctx context.Context, req resource.Updat
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *commonparameterResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state commonparameterResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -181,6 +177,7 @@ func (r *commonparameterResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanCommonParameter(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete commonparameter, got error: %s", err))

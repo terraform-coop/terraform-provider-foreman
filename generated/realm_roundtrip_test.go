@@ -4,19 +4,21 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanRealm_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanRealm{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
-		RealmProxyID:  42,
-		RealmType:     "test_realm_type",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Name:         "test_name",
+		RealmProxyID: 42,
+		RealmType:    "test_realm_type",
 	}
 
 	data, err := json.Marshal(original)
@@ -65,6 +67,7 @@ func TestForemanRealm_RoundTripRequest(t *testing.T) {
 	var decoded ForemanRealmRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.RealmProxyID, decoded.RealmProxyID)
 	assert.Equal(t, original.RealmType, decoded.RealmType)
@@ -80,6 +83,7 @@ func TestForemanRealm_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanRealmRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.RealmProxyID, decoded.RealmProxyID)
 	assert.Equal(t, original.RealmType, decoded.RealmType)

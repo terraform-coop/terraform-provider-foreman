@@ -5,19 +5,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &usergroupDataSource{}
-)
+var _ datasource.DataSource = &usergroupDataSource{}
 
 func NewForemanUsergroupDataSource() datasource.DataSource {
 	return &usergroupDataSource{}
@@ -38,21 +34,13 @@ func (d *usergroupDataSource) Metadata(_ context.Context, req datasource.Metadat
 }
 
 func (d *usergroupDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the usergroup to look up.",
-			},
-			"admin": dsdchema.BoolAttribute{
-				Computed:    true,
-				Description: "is an admin user group, can be modified by admins only",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the usergroup to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
 func (d *usergroupDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

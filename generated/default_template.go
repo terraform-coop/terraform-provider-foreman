@@ -9,20 +9,17 @@ import (
 	"net/url"
 )
 
-// ForemanDefaultTemplateRequest is the request payload.
 type ForemanDefaultTemplateRequest struct {
 	ProvisioningTemplateID int64 `json:"provisioning_template_id,omitempty"`
 	TemplateKindID         int64 `json:"template_kind_id,omitempty"`
 }
 
-// ForemanDefaultTemplate is the entity type.
 type ForemanDefaultTemplate struct {
 	ForemanObject
 	ProvisioningTemplateID int64 `json:"provisioning_template_id"`
 	TemplateKindID         int64 `json:"template_kind_id"`
 }
 
-// CreateForemanDefaultTemplate creates a new ForemanDefaultTemplate.
 func (c *ForemanClient) CreateForemanDefaultTemplate(ctx context.Context, req *ForemanDefaultTemplateRequest) (*ForemanDefaultTemplate, error) {
 	var resp ForemanDefaultTemplate
 	err := c.Post(ctx, "os_default_templates", "os_default_template", req, &resp)
@@ -32,7 +29,6 @@ func (c *ForemanClient) CreateForemanDefaultTemplate(ctx context.Context, req *F
 	return &resp, nil
 }
 
-// ReadForemanDefaultTemplate reads a ForemanDefaultTemplate by ID.
 func (c *ForemanClient) ReadForemanDefaultTemplate(ctx context.Context, id int) (*ForemanDefaultTemplate, error) {
 	var resp ForemanDefaultTemplate
 	err := c.Get(ctx, fmt.Sprintf("os_default_templates/%d", id), &resp)
@@ -42,7 +38,6 @@ func (c *ForemanClient) ReadForemanDefaultTemplate(ctx context.Context, id int) 
 	return &resp, nil
 }
 
-// UpdateForemanDefaultTemplate updates a ForemanDefaultTemplate by ID.
 func (c *ForemanClient) UpdateForemanDefaultTemplate(ctx context.Context, id int, req *ForemanDefaultTemplateRequest) (*ForemanDefaultTemplate, error) {
 	var resp ForemanDefaultTemplate
 	err := c.Put(ctx, fmt.Sprintf("os_default_templates/%d", id), "os_default_template", req, &resp)
@@ -52,12 +47,10 @@ func (c *ForemanClient) UpdateForemanDefaultTemplate(ctx context.Context, id int
 	return &resp, nil
 }
 
-// DeleteForemanDefaultTemplate deletes a ForemanDefaultTemplate by ID.
 func (c *ForemanClient) DeleteForemanDefaultTemplate(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("os_default_templates/%d", id))
 }
 
-// QueryForemanDefaultTemplate queries ForemanDefaultTemplate by name.
 func (c *ForemanClient) QueryForemanDefaultTemplate(ctx context.Context, name string) (*ForemanDefaultTemplate, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("os_default_templates?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -68,7 +61,7 @@ func (c *ForemanClient) QueryForemanDefaultTemplate(ctx context.Context, name st
 		return nil, nil
 	}
 	var obj ForemanDefaultTemplate
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

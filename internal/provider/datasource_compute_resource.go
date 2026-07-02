@@ -5,19 +5,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &computeresourceDataSource{}
-)
+var _ datasource.DataSource = &computeresourceDataSource{}
 
 func NewForemanComputeResourceDataSource() datasource.DataSource {
 	return &computeresourceDataSource{}
@@ -52,76 +48,13 @@ func (d *computeresourceDataSource) Metadata(_ context.Context, req datasource.M
 }
 
 func (d *computeresourceDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the computeresource to look up.",
-			},
-			"caching_enabled": dsdchema.BoolAttribute{
-				Computed:    true,
-				Description: "enable caching, for VMware only",
-			},
-			"datacenter": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for VMware Datacenter",
-			},
-			"description": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"display_type": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for Libvirt only",
-			},
-			"domain": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for OpenStack (v3) only",
-			},
-			"password": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Password for EC2, VMware, OpenStack. Secret key for EC2",
-			},
-			"project_domain_id": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for OpenStack (v3) only",
-			},
-			"project_domain_name": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for OpenStack (v3) only",
-			},
-			"provider": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Providers include Libvirt, EC2, Vmware, Openstack",
-			},
-			"region": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for AzureRm eg. &#39;eastus&#39; and for EC2 only. Use &#39;us-gov-west-1&#39; for EC2 GovCloud region",
-			},
-			"server": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for VMware",
-			},
-			"set_console_password": dsdchema.BoolAttribute{
-				Computed:    true,
-				Description: "for Libvirt and VMware only",
-			},
-			"tenant": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "for OpenStack and AzureRm only",
-			},
-			"url": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "URL for Libvirt and OpenStack",
-			},
-			"user": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Username for EC2, VMware, OpenStack. Access Key for EC2.",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the computeresource to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
 func (d *computeresourceDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

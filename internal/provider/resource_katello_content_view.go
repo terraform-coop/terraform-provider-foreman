@@ -227,6 +227,16 @@ func (r *katelloContentViewResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
+	// Publish an initial version after creation (matches old provider behavior)
+	published, err := r.client.PublishContentView(ctx, int(result.ID))
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to publish initial content view version, got error: %s", err))
+		return
+	}
+	if published != nil {
+		result = published
+	}
+
 	plan.ID = types.StringValue(strconv.Itoa(int(result.ID)))
 	plan.Name = types.StringValue(result.Name)
 	plan.Description = types.StringValue(result.Description)

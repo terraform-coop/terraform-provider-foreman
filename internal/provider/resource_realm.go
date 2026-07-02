@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &realmResource{}
-	_ resource.ResourceWithImportState = &realmResource{}
-)
+var _ resource.Resource = &realmResource{}
+var _ resource.ResourceWithImportState = &realmResource{}
 
 func NewForemanRealmResource() resource.Resource {
 	return &realmResource{}
@@ -42,28 +39,24 @@ func (r *realmResource) Metadata(_ context.Context, req resource.MetadataRequest
 }
 
 func (r *realmResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "The realm name, e.g. EXAMPLE.COM",
-			},
-			"realm_proxy_id": schema.Int64Attribute{
-				Required:    true,
-				Description: "Proxy ID to use within this realm",
-			},
-			"realm_type": schema.StringAttribute{
-				Required:    true,
-				Description: "Realm type, e.g. FreeIPA or Active Directory",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"name": schema.StringAttribute{
+			Description: "The realm name, e.g. EXAMPLE.COM",
+			Required:    true,
+		},
+		"realm_proxy_id": schema.Int64Attribute{
+			Description: "Proxy ID to use within this realm",
+			Required:    true,
+		},
+		"realm_type": schema.StringAttribute{
+			Description: "Realm type, e.g. FreeIPA or Active Directory",
+			Required:    true,
+		},
+	}}
 }
 
 func (r *realmResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -77,6 +70,7 @@ func (r *realmResource) Configure(_ context.Context, req resource.ConfigureReque
 	}
 	r.client = client
 }
+
 func (r *realmResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan realmResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -89,6 +83,7 @@ func (r *realmResource) Create(ctx context.Context, req resource.CreateRequest, 
 		RealmProxyID: plan.RealmProxyID.ValueInt64(),
 		RealmType:    plan.RealmType.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanRealm(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create realm, got error: %s", err))
@@ -116,6 +111,7 @@ func (r *realmResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanRealm(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -125,6 +121,7 @@ func (r *realmResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read realm, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.RealmProxyID = types.Int64Value(int64(result.RealmProxyID))
 	state.RealmType = types.StringValue(result.RealmType)
@@ -150,17 +147,20 @@ func (r *realmResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		RealmProxyID: plan.RealmProxyID.ValueInt64(),
 		RealmType:    plan.RealmType.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanRealm(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update realm, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.RealmProxyID = types.Int64Value(int64(result.RealmProxyID))
 	plan.RealmType = types.StringValue(result.RealmType)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *realmResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state realmResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -173,6 +173,7 @@ func (r *realmResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanRealm(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete realm, got error: %s", err))

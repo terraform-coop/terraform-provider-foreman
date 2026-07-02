@@ -3,14 +3,13 @@
 package generated
 
 import (
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestGeneratedCodeUpToDate(t *testing.T) {
@@ -31,11 +30,7 @@ func TestGeneratedCodeUpToDate(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Run generator into temp dir
-	cmd := exec.Command("go", "run", "tools/gen/client/main.go",
-		"--input", "apidoc/v2.json",
-		"--output", tmpDir+"/generated/",
-		"--provider", tmpDir+"/internal/provider/",
-	)
+	cmd := exec.Command("go", "run", "./tools/gen/client/", "--input", "apidoc/v2.json", "--output", tmpDir+"/generated/", "--provider", tmpDir+"/internal/provider/")
 	cmd.Dir = dir
 	out, err := cmd.CombinedOutput()
 	require.NoError(t, err, "generator failed: %s", string(out))
@@ -50,14 +45,13 @@ func TestGeneratedCodeUpToDate(t *testing.T) {
 		name := entry.Name()
 		expected, err := os.ReadFile(filepath.Join(tmpDir, "generated", name))
 		if os.IsNotExist(err) {
-			continue // not generated (hand-written)
+			continue
 		}
 		require.NoError(t, err)
 
 		actual, err := os.ReadFile(filepath.Join(dir, "generated", name))
 		require.NoError(t, err)
 
-		assert.Equal(t, string(expected), string(actual),
-			"generated/%s is out of date. Run the generator.", name)
+		assert.Equal(t, string(expected), string(actual), "generated/%s is out of date. Run the generator.", name)
 	}
 }

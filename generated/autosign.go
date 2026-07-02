@@ -9,16 +9,12 @@ import (
 	"net/url"
 )
 
-// ForemanAutosignRequest is the request payload.
-type ForemanAutosignRequest struct {
-}
+type ForemanAutosignRequest struct{}
 
-// ForemanAutosign is the entity type.
 type ForemanAutosign struct {
 	ForemanObject
 }
 
-// CreateForemanAutosign creates a new ForemanAutosign.
 func (c *ForemanClient) CreateForemanAutosign(ctx context.Context, req *ForemanAutosignRequest) (*ForemanAutosign, error) {
 	var resp ForemanAutosign
 	err := c.Post(ctx, "autosign", "", req, &resp)
@@ -28,12 +24,10 @@ func (c *ForemanClient) CreateForemanAutosign(ctx context.Context, req *ForemanA
 	return &resp, nil
 }
 
-// DeleteForemanAutosign deletes a ForemanAutosign by ID.
 func (c *ForemanClient) DeleteForemanAutosign(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("autosign/%d", id))
 }
 
-// QueryForemanAutosign queries ForemanAutosign by name.
 func (c *ForemanClient) QueryForemanAutosign(ctx context.Context, name string) (*ForemanAutosign, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("autosign?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -44,7 +38,7 @@ func (c *ForemanClient) QueryForemanAutosign(ctx context.Context, name string) (
 		return nil, nil
 	}
 	var obj ForemanAutosign
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

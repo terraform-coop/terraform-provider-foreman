@@ -5,32 +5,29 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &webhook_templateResource{}
-	_ resource.ResourceWithImportState = &webhook_templateResource{}
-)
+var _ resource.Resource = &webhooktemplateResource{}
+var _ resource.ResourceWithImportState = &webhooktemplateResource{}
 
 func NewForemanWebhookTemplateResource() resource.Resource {
-	return &webhook_templateResource{}
+	return &webhooktemplateResource{}
 }
 
-type webhook_templateResource struct {
+type webhooktemplateResource struct {
 	client *generated.ForemanClient
 }
 
-type webhook_templateResourceModel struct {
+type webhooktemplateResourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
 	Template     types.String `tfsdk:"template"`
@@ -41,52 +38,48 @@ type webhook_templateResourceModel struct {
 	Description  types.String `tfsdk:"description"`
 }
 
-func (r *webhook_templateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_webhook_template"
+func (r *webhooktemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_webhooktemplate"
 }
 
-func (r *webhook_templateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"template": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"snippet": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"audit_comment": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"locked": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"default": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
+func (r *webhooktemplateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"audit_comment": schema.StringAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"default": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"description": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"locked": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"name": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"snippet": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"template": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
-func (r *webhook_templateResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *webhooktemplateResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -97,25 +90,27 @@ func (r *webhook_templateResource) Configure(_ context.Context, req resource.Con
 	}
 	r.client = client
 }
-func (r *webhook_templateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan webhook_templateResourceModel
+
+func (r *webhooktemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan webhooktemplateResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	body := &generated.ForemanWebhookTemplateRequest{
-		Name:         plan.Name.ValueString(),
-		Template:     plan.Template.ValueString(),
-		Snippet:      plan.Snippet.ValueBool(),
 		AuditComment: plan.AuditComment.ValueString(),
-		Locked:       plan.Locked.ValueBool(),
 		Default:      plan.Default.ValueBool(),
 		Description:  plan.Description.ValueString(),
+		Locked:       plan.Locked.ValueBool(),
+		Name:         plan.Name.ValueString(),
+		Snippet:      plan.Snippet.ValueBool(),
+		Template:     plan.Template.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanWebhookTemplate(ctx, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create webhook_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create webhooktemplate, got error: %s", err))
 		return
 	}
 
@@ -128,12 +123,12 @@ func (r *webhook_templateResource) Create(ctx context.Context, req resource.Crea
 	plan.Default = types.BoolValue(result.Default)
 	plan.Description = types.StringValue(result.Description)
 
-	tflog.Trace(ctx, "created webhook_template", map[string]interface{}{"id": plan.ID.ValueString()})
+	tflog.Trace(ctx, "created webhooktemplate", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
-func (r *webhook_templateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state webhook_templateResourceModel
+func (r *webhooktemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state webhooktemplateResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -144,15 +139,17 @@ func (r *webhook_templateResource) Read(ctx context.Context, req resource.ReadRe
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanWebhookTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read webhook_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read webhooktemplate, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Template = types.StringValue(result.Template)
 	state.Snippet = types.BoolValue(result.Snippet)
@@ -164,8 +161,8 @@ func (r *webhook_templateResource) Read(ctx context.Context, req resource.ReadRe
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
-func (r *webhook_templateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan webhook_templateResourceModel
+func (r *webhooktemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan webhooktemplateResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -178,19 +175,21 @@ func (r *webhook_templateResource) Update(ctx context.Context, req resource.Upda
 	}
 
 	body := &generated.ForemanWebhookTemplateRequest{
-		Name:         plan.Name.ValueString(),
-		Template:     plan.Template.ValueString(),
-		Snippet:      plan.Snippet.ValueBool(),
 		AuditComment: plan.AuditComment.ValueString(),
-		Locked:       plan.Locked.ValueBool(),
 		Default:      plan.Default.ValueBool(),
 		Description:  plan.Description.ValueString(),
+		Locked:       plan.Locked.ValueBool(),
+		Name:         plan.Name.ValueString(),
+		Snippet:      plan.Snippet.ValueBool(),
+		Template:     plan.Template.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanWebhookTemplate(ctx, id, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update webhook_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update webhooktemplate, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Template = types.StringValue(result.Template)
 	plan.Snippet = types.BoolValue(result.Snippet)
@@ -201,8 +200,9 @@ func (r *webhook_templateResource) Update(ctx context.Context, req resource.Upda
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
-func (r *webhook_templateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state webhook_templateResourceModel
+
+func (r *webhooktemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state webhooktemplateResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -213,13 +213,14 @@ func (r *webhook_templateResource) Delete(ctx context.Context, req resource.Dele
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanWebhookTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete webhook_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete webhooktemplate, got error: %s", err))
 		return
 	}
 }
 
-func (r *webhook_templateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *webhooktemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

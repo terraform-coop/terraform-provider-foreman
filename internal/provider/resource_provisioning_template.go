@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &provisioningtemplateResource{}
-	_ resource.ResourceWithImportState = &provisioningtemplateResource{}
-)
+var _ resource.Resource = &provisioningtemplateResource{}
+var _ resource.ResourceWithImportState = &provisioningtemplateResource{}
 
 func NewForemanProvisioningTemplateResource() resource.Resource {
 	return &provisioningtemplateResource{}
@@ -49,57 +46,51 @@ func (r *provisioningtemplateResource) Metadata(_ context.Context, req resource.
 }
 
 func (r *provisioningtemplateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "template name",
-			},
-			"template": schema.StringAttribute{
-				Required: true,
-			},
-			"audit_comment": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"locked": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Whether or not the template is locked for editing",
-			},
-			"operatingsystem_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of operating system IDs to associate with the template",
-				ElementType: types.Int64Type,
-			},
-			"snippet": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"template_combinations_attributes": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of template combinations (hostgroup_id, environment_id)",
-				ElementType: types.Int64Type,
-			},
-			"template_kind_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "not relevant for snippet",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"audit_comment": schema.StringAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"description": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"locked": schema.BoolAttribute{
+			Description: "Whether or not the template is locked for editing",
+			Optional:    true,
+			Required:    false,
+		},
+		"name": schema.StringAttribute{
+			Description: "template name",
+			Required:    true,
+		},
+		"operatingsystem_ids": schema.ListAttribute{
+			Description: "Array of operating system IDs to associate with the template",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"snippet": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"template": schema.StringAttribute{Required: true},
+		"template_combinations_attributes": schema.ListAttribute{
+			Description: "Array of template combinations (hostgroup_id, environment_id)",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"template_kind_id": schema.Int64Attribute{
+			Description: "not relevant for snippet",
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *provisioningtemplateResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -113,6 +104,7 @@ func (r *provisioningtemplateResource) Configure(_ context.Context, req resource
 	}
 	r.client = client
 }
+
 func (r *provisioningtemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan provisioningtemplateResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -121,11 +113,10 @@ func (r *provisioningtemplateResource) Create(ctx context.Context, req resource.
 	}
 
 	body := &generated.ForemanProvisioningTemplateRequest{
-		Name:         plan.Name.ValueString(),
-		Template:     plan.Template.ValueString(),
 		AuditComment: plan.AuditComment.ValueString(),
 		Description:  plan.Description.ValueString(),
 		Locked:       plan.Locked.ValueBool(),
+		Name:         plan.Name.ValueString(),
 		OperatingsystemIDs: func() []int64 {
 			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
 				return nil
@@ -138,7 +129,8 @@ func (r *provisioningtemplateResource) Create(ctx context.Context, req resource.
 			}
 			return ids
 		}(),
-		Snippet: plan.Snippet.ValueBool(),
+		Snippet:  plan.Snippet.ValueBool(),
+		Template: plan.Template.ValueString(),
 		TemplateCombinationsAttributes: func() []int64 {
 			if plan.TemplateCombinationsAttributes.IsNull() || plan.TemplateCombinationsAttributes.IsUnknown() {
 				return nil
@@ -153,6 +145,7 @@ func (r *provisioningtemplateResource) Create(ctx context.Context, req resource.
 		}(),
 		TemplateKindID: plan.TemplateKindID.ValueInt64(),
 	}
+
 	result, err := r.client.CreateForemanProvisioningTemplate(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create provisioningtemplate, got error: %s", err))
@@ -184,6 +177,7 @@ func (r *provisioningtemplateResource) Read(ctx context.Context, req resource.Re
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanProvisioningTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -193,6 +187,7 @@ func (r *provisioningtemplateResource) Read(ctx context.Context, req resource.Re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read provisioningtemplate, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Template = types.StringValue(result.Template)
 	state.AuditComment = types.StringValue(result.AuditComment)
@@ -236,11 +231,10 @@ func (r *provisioningtemplateResource) Update(ctx context.Context, req resource.
 	}
 
 	body := &generated.ForemanProvisioningTemplateRequest{
-		Name:         plan.Name.ValueString(),
-		Template:     plan.Template.ValueString(),
 		AuditComment: plan.AuditComment.ValueString(),
 		Description:  plan.Description.ValueString(),
 		Locked:       plan.Locked.ValueBool(),
+		Name:         plan.Name.ValueString(),
 		OperatingsystemIDs: func() []int64 {
 			if plan.OperatingsystemIDs.IsNull() || plan.OperatingsystemIDs.IsUnknown() {
 				return nil
@@ -253,7 +247,8 @@ func (r *provisioningtemplateResource) Update(ctx context.Context, req resource.
 			}
 			return ids
 		}(),
-		Snippet: plan.Snippet.ValueBool(),
+		Snippet:  plan.Snippet.ValueBool(),
+		Template: plan.Template.ValueString(),
 		TemplateCombinationsAttributes: func() []int64 {
 			if plan.TemplateCombinationsAttributes.IsNull() || plan.TemplateCombinationsAttributes.IsUnknown() {
 				return nil
@@ -268,11 +263,13 @@ func (r *provisioningtemplateResource) Update(ctx context.Context, req resource.
 		}(),
 		TemplateKindID: plan.TemplateKindID.ValueInt64(),
 	}
+
 	result, err := r.client.UpdateForemanProvisioningTemplate(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update provisioningtemplate, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Template = types.StringValue(result.Template)
 	plan.AuditComment = types.StringValue(result.AuditComment)
@@ -283,6 +280,7 @@ func (r *provisioningtemplateResource) Update(ctx context.Context, req resource.
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *provisioningtemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state provisioningtemplateResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -295,6 +293,7 @@ func (r *provisioningtemplateResource) Delete(ctx context.Context, req resource.
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanProvisioningTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete provisioningtemplate, got error: %s", err))

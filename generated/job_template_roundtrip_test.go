@@ -4,20 +4,22 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanJobTemplate_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanJobTemplate{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
-		Description:   "test_description",
-		JobCategory:   "test_job_category",
-		ProviderType:  "test_provider_type",
+		Description: "test_description",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		JobCategory:  "test_job_category",
+		Name:         "test_name",
+		ProviderType: "test_provider_type",
 	}
 
 	data, err := json.Marshal(original)
@@ -57,9 +59,9 @@ func TestForemanJobTemplate_RoundTripZeroValues(t *testing.T) {
 func TestForemanJobTemplate_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanJobTemplateRequest{
-		Name:         "test_name",
 		Description:  "test_description",
 		JobCategory:  "test_job_category",
+		Name:         "test_name",
 		ProviderType: "test_provider_type",
 	}
 
@@ -69,6 +71,7 @@ func TestForemanJobTemplate_RoundTripRequest(t *testing.T) {
 	var decoded ForemanJobTemplateRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Description, decoded.Description)
 	assert.Equal(t, original.JobCategory, decoded.JobCategory)
@@ -85,6 +88,7 @@ func TestForemanJobTemplate_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanJobTemplateRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Description, decoded.Description)
 	assert.Equal(t, original.JobCategory, decoded.JobCategory)

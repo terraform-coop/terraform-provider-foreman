@@ -5,32 +5,29 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &job_templateResource{}
-	_ resource.ResourceWithImportState = &job_templateResource{}
-)
+var _ resource.Resource = &jobtemplateResource{}
+var _ resource.ResourceWithImportState = &jobtemplateResource{}
 
 func NewForemanJobTemplateResource() resource.Resource {
-	return &job_templateResource{}
+	return &jobtemplateResource{}
 }
 
-type job_templateResource struct {
+type jobtemplateResource struct {
 	client *generated.ForemanClient
 }
 
-type job_templateResourceModel struct {
+type jobtemplateResourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
 	Description  types.String `tfsdk:"description"`
@@ -38,40 +35,36 @@ type job_templateResourceModel struct {
 	ProviderType types.String `tfsdk:"provider_type"`
 }
 
-func (r *job_templateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_job_template"
+func (r *jobtemplateResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_jobtemplate"
 }
 
-func (r *job_templateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"job_category": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"provider_type": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
+func (r *jobtemplateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"description": schema.StringAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"job_category": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"name": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"provider_type": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
-func (r *job_templateResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
+func (r *jobtemplateResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -82,22 +75,24 @@ func (r *job_templateResource) Configure(_ context.Context, req resource.Configu
 	}
 	r.client = client
 }
-func (r *job_templateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	var plan job_templateResourceModel
+
+func (r *jobtemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	var plan jobtemplateResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
 	body := &generated.ForemanJobTemplateRequest{
-		Name:         plan.Name.ValueString(),
 		Description:  plan.Description.ValueString(),
 		JobCategory:  plan.JobCategory.ValueString(),
+		Name:         plan.Name.ValueString(),
 		ProviderType: plan.ProviderType.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanJobTemplate(ctx, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create job_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create jobtemplate, got error: %s", err))
 		return
 	}
 
@@ -107,12 +102,12 @@ func (r *job_templateResource) Create(ctx context.Context, req resource.CreateRe
 	plan.JobCategory = types.StringValue(result.JobCategory)
 	plan.ProviderType = types.StringValue(result.ProviderType)
 
-	tflog.Trace(ctx, "created job_template", map[string]interface{}{"id": plan.ID.ValueString()})
+	tflog.Trace(ctx, "created jobtemplate", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
 
-func (r *job_templateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	var state job_templateResourceModel
+func (r *jobtemplateResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	var state jobtemplateResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -123,15 +118,17 @@ func (r *job_templateResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanJobTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read job_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read jobtemplate, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Description = types.StringValue(result.Description)
 	state.JobCategory = types.StringValue(result.JobCategory)
@@ -140,8 +137,8 @@ func (r *job_templateResource) Read(ctx context.Context, req resource.ReadReques
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
 
-func (r *job_templateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	var plan job_templateResourceModel
+func (r *jobtemplateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	var plan jobtemplateResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -154,16 +151,18 @@ func (r *job_templateResource) Update(ctx context.Context, req resource.UpdateRe
 	}
 
 	body := &generated.ForemanJobTemplateRequest{
-		Name:         plan.Name.ValueString(),
 		Description:  plan.Description.ValueString(),
 		JobCategory:  plan.JobCategory.ValueString(),
+		Name:         plan.Name.ValueString(),
 		ProviderType: plan.ProviderType.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanJobTemplate(ctx, id, body)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update job_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update jobtemplate, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Description = types.StringValue(result.Description)
 	plan.JobCategory = types.StringValue(result.JobCategory)
@@ -171,8 +170,9 @@ func (r *job_templateResource) Update(ctx context.Context, req resource.UpdateRe
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
-func (r *job_templateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	var state job_templateResourceModel
+
+func (r *jobtemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	var state jobtemplateResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -183,13 +183,14 @@ func (r *job_templateResource) Delete(ctx context.Context, req resource.DeleteRe
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanJobTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete job_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete jobtemplate, got error: %s", err))
 		return
 	}
 }
 
-func (r *job_templateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *jobtemplateResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }

@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &modelResource{}
-	_ resource.ResourceWithImportState = &modelResource{}
-)
+var _ resource.Resource = &modelResource{}
+var _ resource.ResourceWithImportState = &modelResource{}
 
 func NewForemanModelResource() resource.Resource {
 	return &modelResource{}
@@ -43,31 +40,25 @@ func (r *modelResource) Metadata(_ context.Context, req resource.MetadataRequest
 }
 
 func (r *modelResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"hardware_model": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"hosts_count": schema.Int64Attribute{
-				Computed: true,
-			},
-			"info": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"vendor_class": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"hardware_model": schema.StringAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"hosts_count": schema.Int64Attribute{Computed: true},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"info": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"vendor_class": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *modelResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -81,6 +72,7 @@ func (r *modelResource) Configure(_ context.Context, req resource.ConfigureReque
 	}
 	r.client = client
 }
+
 func (r *modelResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan modelResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -93,6 +85,7 @@ func (r *modelResource) Create(ctx context.Context, req resource.CreateRequest, 
 		Info:          plan.Info.ValueString(),
 		VendorClass:   plan.VendorClass.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanModel(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create model, got error: %s", err))
@@ -121,6 +114,7 @@ func (r *modelResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanModel(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -130,6 +124,7 @@ func (r *modelResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read model, got error: %s", err))
 		return
 	}
+
 	state.HardwareModel = types.StringValue(result.HardwareModel)
 	state.HostsCount = types.Int64Value(int64(result.HostsCount))
 	state.Info = types.StringValue(result.Info)
@@ -156,11 +151,13 @@ func (r *modelResource) Update(ctx context.Context, req resource.UpdateRequest, 
 		Info:          plan.Info.ValueString(),
 		VendorClass:   plan.VendorClass.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanModel(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update model, got error: %s", err))
 		return
 	}
+
 	plan.HardwareModel = types.StringValue(result.HardwareModel)
 	plan.HostsCount = types.Int64Value(int64(result.HostsCount))
 	plan.Info = types.StringValue(result.Info)
@@ -168,6 +165,7 @@ func (r *modelResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *modelResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state modelResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -180,6 +178,7 @@ func (r *modelResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanModel(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete model, got error: %s", err))

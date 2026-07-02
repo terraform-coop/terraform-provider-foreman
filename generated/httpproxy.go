@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanHTTPProxyRequest is the request payload.
 type ForemanHTTPProxyRequest struct {
 	Name     string `json:"name,omitempty"`
 	URL      string `json:"url,omitempty"`
@@ -17,7 +16,6 @@ type ForemanHTTPProxyRequest struct {
 	Username string `json:"username,omitempty"`
 }
 
-// ForemanHTTPProxy is the entity type.
 type ForemanHTTPProxy struct {
 	ForemanObject
 	Name     string `json:"name"`
@@ -26,7 +24,6 @@ type ForemanHTTPProxy struct {
 	Username string `json:"username"`
 }
 
-// CreateForemanHTTPProxy creates a new ForemanHTTPProxy.
 func (c *ForemanClient) CreateForemanHTTPProxy(ctx context.Context, req *ForemanHTTPProxyRequest) (*ForemanHTTPProxy, error) {
 	var resp ForemanHTTPProxy
 	err := c.Post(ctx, "http_proxies", "http_proxy", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanHTTPProxy(ctx context.Context, req *Foreman
 	return &resp, nil
 }
 
-// ReadForemanHTTPProxy reads a ForemanHTTPProxy by ID.
 func (c *ForemanClient) ReadForemanHTTPProxy(ctx context.Context, id int) (*ForemanHTTPProxy, error) {
 	var resp ForemanHTTPProxy
 	err := c.Get(ctx, fmt.Sprintf("http_proxies/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanHTTPProxy(ctx context.Context, id int) (*Fore
 	return &resp, nil
 }
 
-// UpdateForemanHTTPProxy updates a ForemanHTTPProxy by ID.
 func (c *ForemanClient) UpdateForemanHTTPProxy(ctx context.Context, id int, req *ForemanHTTPProxyRequest) (*ForemanHTTPProxy, error) {
 	var resp ForemanHTTPProxy
 	err := c.Put(ctx, fmt.Sprintf("http_proxies/%d", id), "http_proxy", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanHTTPProxy(ctx context.Context, id int, req 
 	return &resp, nil
 }
 
-// DeleteForemanHTTPProxy deletes a ForemanHTTPProxy by ID.
 func (c *ForemanClient) DeleteForemanHTTPProxy(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("http_proxies/%d", id))
 }
 
-// QueryForemanHTTPProxy queries ForemanHTTPProxy by name.
 func (c *ForemanClient) QueryForemanHTTPProxy(ctx context.Context, name string) (*ForemanHTTPProxy, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("http_proxies?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanHTTPProxy(ctx context.Context, name string) 
 		return nil, nil
 	}
 	var obj ForemanHTTPProxy
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &domainResource{}
-	_ resource.ResourceWithImportState = &domainResource{}
-)
+var _ resource.Resource = &domainResource{}
+var _ resource.ResourceWithImportState = &domainResource{}
 
 func NewForemanDomainResource() resource.Resource {
 	return &domainResource{}
@@ -44,36 +41,32 @@ func (r *domainResource) Metadata(_ context.Context, req resource.MetadataReques
 }
 
 func (r *domainResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "The full DNS domain name",
-			},
-			"dns_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "DNS proxy ID to use within this domain",
-			},
-			"domain_parameters_attributes": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Array of parameters (name, value)",
-				ElementType: types.Int64Type,
-			},
-			"fullname": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Description of the domain",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"dns_id": schema.Int64Attribute{
+			Description: "DNS proxy ID to use within this domain",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"domain_parameters_attributes": schema.ListAttribute{
+			Description: "Array of parameters (name, value)",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"fullname": schema.StringAttribute{
+			Description: "Description of the domain",
+			Optional:    true,
+			Required:    false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{
+			Description: "The full DNS domain name",
+			Required:    true,
+		},
+	}}
 }
 
 func (r *domainResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -87,6 +80,7 @@ func (r *domainResource) Configure(_ context.Context, req resource.ConfigureRequ
 	}
 	r.client = client
 }
+
 func (r *domainResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan domainResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -95,7 +89,6 @@ func (r *domainResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	body := &generated.ForemanDomainRequest{
-		Name:  plan.Name.ValueString(),
 		DNSID: plan.DNSID.ValueInt64(),
 		DomainParametersAttributes: func() []int64 {
 			if plan.DomainParametersAttributes.IsNull() || plan.DomainParametersAttributes.IsUnknown() {
@@ -110,7 +103,9 @@ func (r *domainResource) Create(ctx context.Context, req resource.CreateRequest,
 			return ids
 		}(),
 		Fullname: plan.Fullname.ValueString(),
+		Name:     plan.Name.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanDomain(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create domain, got error: %s", err))
@@ -138,6 +133,7 @@ func (r *domainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanDomain(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -147,6 +143,7 @@ func (r *domainResource) Read(ctx context.Context, req resource.ReadRequest, res
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read domain, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.DNSID = types.Int64Value(int64(result.DNSID))
 	if result.DomainParametersAttributes != nil {
@@ -177,7 +174,6 @@ func (r *domainResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	body := &generated.ForemanDomainRequest{
-		Name:  plan.Name.ValueString(),
 		DNSID: plan.DNSID.ValueInt64(),
 		DomainParametersAttributes: func() []int64 {
 			if plan.DomainParametersAttributes.IsNull() || plan.DomainParametersAttributes.IsUnknown() {
@@ -192,18 +188,22 @@ func (r *domainResource) Update(ctx context.Context, req resource.UpdateRequest,
 			return ids
 		}(),
 		Fullname: plan.Fullname.ValueString(),
+		Name:     plan.Name.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanDomain(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update domain, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.DNSID = types.Int64Value(int64(result.DNSID))
 	plan.Fullname = types.StringValue(result.Fullname)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *domainResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state domainResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -216,6 +216,7 @@ func (r *domainResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanDomain(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete domain, got error: %s", err))

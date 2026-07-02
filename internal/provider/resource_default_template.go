@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &defaulttemplateResource{}
-	_ resource.ResourceWithImportState = &defaulttemplateResource{}
-)
+var _ resource.Resource = &defaulttemplateResource{}
+var _ resource.ResourceWithImportState = &defaulttemplateResource{}
 
 func NewForemanDefaultTemplateResource() resource.Resource {
 	return &defaulttemplateResource{}
@@ -41,25 +38,21 @@ func (r *defaulttemplateResource) Metadata(_ context.Context, req resource.Metad
 }
 
 func (r *defaulttemplateResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"provisioning_template_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "ID of provisioning template",
-			},
-			"template_kind_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"provisioning_template_id": schema.Int64Attribute{
+			Description: "ID of provisioning template",
+			Optional:    true,
+			Required:    false,
+		},
+		"template_kind_id": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *defaulttemplateResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -73,6 +66,7 @@ func (r *defaulttemplateResource) Configure(_ context.Context, req resource.Conf
 	}
 	r.client = client
 }
+
 func (r *defaulttemplateResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan defaulttemplateResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -84,6 +78,7 @@ func (r *defaulttemplateResource) Create(ctx context.Context, req resource.Creat
 		ProvisioningTemplateID: plan.ProvisioningTemplateID.ValueInt64(),
 		TemplateKindID:         plan.TemplateKindID.ValueInt64(),
 	}
+
 	result, err := r.client.CreateForemanDefaultTemplate(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create defaulttemplate, got error: %s", err))
@@ -110,6 +105,7 @@ func (r *defaulttemplateResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanDefaultTemplate(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -119,6 +115,7 @@ func (r *defaulttemplateResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read defaulttemplate, got error: %s", err))
 		return
 	}
+
 	state.ProvisioningTemplateID = types.Int64Value(int64(result.ProvisioningTemplateID))
 	state.TemplateKindID = types.Int64Value(int64(result.TemplateKindID))
 
@@ -142,16 +139,19 @@ func (r *defaulttemplateResource) Update(ctx context.Context, req resource.Updat
 		ProvisioningTemplateID: plan.ProvisioningTemplateID.ValueInt64(),
 		TemplateKindID:         plan.TemplateKindID.ValueInt64(),
 	}
+
 	result, err := r.client.UpdateForemanDefaultTemplate(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update defaulttemplate, got error: %s", err))
 		return
 	}
+
 	plan.ProvisioningTemplateID = types.Int64Value(int64(result.ProvisioningTemplateID))
 	plan.TemplateKindID = types.Int64Value(int64(result.TemplateKindID))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *defaulttemplateResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state defaulttemplateResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -164,6 +164,7 @@ func (r *defaulttemplateResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanDefaultTemplate(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete defaulttemplate, got error: %s", err))

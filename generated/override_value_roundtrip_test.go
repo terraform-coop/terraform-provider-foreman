@@ -4,19 +4,21 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanOverrideValue_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanOverrideValue{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Match:         "test_match",
-		Value:         "test_value",
-		Omit:          true,
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Match: "test_match",
+		Omit:  true,
+		Value: "test_value",
 	}
 
 	data, err := json.Marshal(original)
@@ -55,8 +57,8 @@ func TestForemanOverrideValue_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanOverrideValueRequest{
 		Match: "test_match",
-		Value: "test_value",
 		Omit:  true,
+		Value: "test_value",
 	}
 
 	data, err := json.Marshal(original)
@@ -65,6 +67,7 @@ func TestForemanOverrideValue_RoundTripRequest(t *testing.T) {
 	var decoded ForemanOverrideValueRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Match, decoded.Match)
 	assert.Equal(t, original.Value, decoded.Value)
 	assert.Equal(t, original.Omit, decoded.Omit)
@@ -80,6 +83,7 @@ func TestForemanOverrideValue_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanOverrideValueRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Match, decoded.Match)
 	assert.Equal(t, original.Value, decoded.Value)
 	assert.Equal(t, original.Omit, decoded.Omit)

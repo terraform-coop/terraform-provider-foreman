@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &autosignResource{}
-	_ resource.ResourceWithImportState = &autosignResource{}
-)
+var _ resource.Resource = &autosignResource{}
+var _ resource.ResourceWithImportState = &autosignResource{}
 
 func NewForemanAutosignResource() resource.Resource {
 	return &autosignResource{}
@@ -39,16 +36,10 @@ func (r *autosignResource) Metadata(_ context.Context, req resource.MetadataRequ
 }
 
 func (r *autosignResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-		},
-	}
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{"id": schema.StringAttribute{
+		Computed:      true,
+		PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+	}}}
 }
 
 func (r *autosignResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -62,6 +53,7 @@ func (r *autosignResource) Configure(_ context.Context, req resource.ConfigureRe
 	}
 	r.client = client
 }
+
 func (r *autosignResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan autosignResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -70,6 +62,7 @@ func (r *autosignResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	body := &generated.ForemanAutosignRequest{}
+
 	result, err := r.client.CreateForemanAutosign(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create autosign, got error: %s", err))
@@ -91,6 +84,7 @@ func (r *autosignResource) Update(ctx context.Context, req resource.UpdateReques
 	tflog.Warn(ctx, "Update is not supported for autosign")
 	resp.Diagnostics.AddError("Not Supported", "Update is not supported for this resource")
 }
+
 func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state autosignResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -103,6 +97,7 @@ func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanAutosign(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete autosign, got error: %s", err))

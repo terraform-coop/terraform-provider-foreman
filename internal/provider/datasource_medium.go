@@ -5,62 +5,46 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &mediumDataSource{}
-)
+var _ datasource.DataSource = &mediaDataSource{}
 
 func NewForemanMediumDataSource() datasource.DataSource {
-	return &mediumDataSource{}
+	return &mediaDataSource{}
 }
 
-type mediumDataSource struct {
+type mediaDataSource struct {
 	client *generated.ForemanClient
 }
 
-type mediumDataSourceModel struct {
+type mediaDataSourceModel struct {
 	ID       types.String `tfsdk:"id"`
 	Name     types.String `tfsdk:"name"`
 	Path     types.String `tfsdk:"path"`
 	OsFamily types.String `tfsdk:"os_family"`
 }
 
-func (d *mediumDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_medium"
+func (d *mediaDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_media"
 }
 
-func (d *mediumDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the medium to look up.",
-			},
-			"path": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "The path to the medium, can be a URL or a valid NFS server (exclusive of the architecture).  for example mirror.centos.org/centos/$version/os/$arch where $arch will be substituted for the host&#39;s actual OS architecture and $version, $major and $minor will be substituted for the version of the operating system.  Solaris and Debian media may also use $release.",
-			},
-			"os_family": dsdchema.StringAttribute{
-				Computed:    true,
-				Description: "Operating system family, available values: AIX, Altlinux, Archlinux, Coreos, Debian, Fcos, Freebsd, Gentoo, Junos, NXOS, Rancheros, Redhat, Rhcos, Solaris, Suse, VRP, Windows, Xenserver",
-			},
+func (d *mediaDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the media to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
-func (d *mediumDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *mediaDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -72,8 +56,8 @@ func (d *mediumDataSource) Configure(_ context.Context, req datasource.Configure
 	d.client = client
 }
 
-func (d *mediumDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data mediumDataSourceModel
+func (d *mediaDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data mediaDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -82,7 +66,7 @@ func (d *mediumDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	name := data.Name.ValueString()
 	result, err := d.client.QueryForemanMedium(ctx, name)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read medium, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read media, got error: %s", err))
 		return
 	}
 	if result == nil {
@@ -94,6 +78,6 @@ func (d *mediumDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	data.Path = types.StringValue(result.Path)
 	data.OsFamily = types.StringValue(result.OsFamily)
 
-	tflog.Trace(ctx, "read medium data source", map[string]interface{}{"id": data.ID.ValueString()})
+	tflog.Trace(ctx, "read media data source", map[string]interface{}{"id": data.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

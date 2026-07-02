@@ -4,17 +4,19 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanArchitecture_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanArchitecture{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Name: "test_name",
 	}
 
 	data, err := json.Marshal(original)
@@ -47,9 +49,7 @@ func TestForemanArchitecture_RoundTripZeroValues(t *testing.T) {
 
 func TestForemanArchitecture_RoundTripRequest(t *testing.T) {
 	t.Parallel()
-	original := &ForemanArchitectureRequest{
-		Name: "test_name",
-	}
+	original := &ForemanArchitectureRequest{Name: "test_name"}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)
@@ -57,6 +57,7 @@ func TestForemanArchitecture_RoundTripRequest(t *testing.T) {
 	var decoded ForemanArchitectureRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 }
 
@@ -70,5 +71,6 @@ func TestForemanArchitecture_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanArchitectureRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 }

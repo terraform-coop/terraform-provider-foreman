@@ -9,11 +9,8 @@ import (
 	"net/url"
 )
 
-// ForemanSmartClassParameterRequest is the request payload.
-type ForemanSmartClassParameterRequest struct {
-}
+type ForemanSmartClassParameterRequest struct{}
 
-// ForemanSmartClassParameter is the entity type.
 type ForemanSmartClassParameter struct {
 	ForemanObject
 	Parameter     string `json:"parameter"`
@@ -24,7 +21,6 @@ type ForemanSmartClassParameter struct {
 	HiddenValue   bool   `json:"hidden_value"`
 }
 
-// ReadForemanSmartClassParameter reads a ForemanSmartClassParameter by ID.
 func (c *ForemanClient) ReadForemanSmartClassParameter(ctx context.Context, id int) (*ForemanSmartClassParameter, error) {
 	var resp ForemanSmartClassParameter
 	err := c.Get(ctx, fmt.Sprintf("smart_class_parameters/%d", id), &resp)
@@ -34,7 +30,6 @@ func (c *ForemanClient) ReadForemanSmartClassParameter(ctx context.Context, id i
 	return &resp, nil
 }
 
-// UpdateForemanSmartClassParameter updates a ForemanSmartClassParameter by ID.
 func (c *ForemanClient) UpdateForemanSmartClassParameter(ctx context.Context, id int, req *ForemanSmartClassParameterRequest) (*ForemanSmartClassParameter, error) {
 	var resp ForemanSmartClassParameter
 	err := c.Put(ctx, fmt.Sprintf("smart_class_parameters/%d", id), "smart_class_parameter", req, &resp)
@@ -44,7 +39,6 @@ func (c *ForemanClient) UpdateForemanSmartClassParameter(ctx context.Context, id
 	return &resp, nil
 }
 
-// QueryForemanSmartClassParameter queries ForemanSmartClassParameter by name.
 func (c *ForemanClient) QueryForemanSmartClassParameter(ctx context.Context, name string) (*ForemanSmartClassParameter, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("smart_class_parameters?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -55,7 +49,7 @@ func (c *ForemanClient) QueryForemanSmartClassParameter(ctx context.Context, nam
 		return nil, nil
 	}
 	var obj ForemanSmartClassParameter
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanImageRequest is the request payload.
 type ForemanImageRequest struct {
 	Name              string `json:"name,omitempty"`
 	Username          string `json:"username,omitempty"`
@@ -21,7 +20,6 @@ type ForemanImageRequest struct {
 	UserData          bool   `json:"user_data,omitempty"`
 }
 
-// ForemanImage is the entity type.
 type ForemanImage struct {
 	ForemanObject
 	Name              string `json:"name"`
@@ -34,7 +32,6 @@ type ForemanImage struct {
 	UserData          bool   `json:"user_data"`
 }
 
-// CreateForemanImage creates a new ForemanImage.
 func (c *ForemanClient) CreateForemanImage(ctx context.Context, req *ForemanImageRequest) (*ForemanImage, error) {
 	var resp ForemanImage
 	err := c.Post(ctx, "images", "image", req, &resp)
@@ -44,7 +41,6 @@ func (c *ForemanClient) CreateForemanImage(ctx context.Context, req *ForemanImag
 	return &resp, nil
 }
 
-// ReadForemanImage reads a ForemanImage by ID.
 func (c *ForemanClient) ReadForemanImage(ctx context.Context, id int) (*ForemanImage, error) {
 	var resp ForemanImage
 	err := c.Get(ctx, fmt.Sprintf("images/%d", id), &resp)
@@ -54,7 +50,6 @@ func (c *ForemanClient) ReadForemanImage(ctx context.Context, id int) (*ForemanI
 	return &resp, nil
 }
 
-// UpdateForemanImage updates a ForemanImage by ID.
 func (c *ForemanClient) UpdateForemanImage(ctx context.Context, id int, req *ForemanImageRequest) (*ForemanImage, error) {
 	var resp ForemanImage
 	err := c.Put(ctx, fmt.Sprintf("images/%d", id), "image", req, &resp)
@@ -64,12 +59,10 @@ func (c *ForemanClient) UpdateForemanImage(ctx context.Context, id int, req *For
 	return &resp, nil
 }
 
-// DeleteForemanImage deletes a ForemanImage by ID.
 func (c *ForemanClient) DeleteForemanImage(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("images/%d", id))
 }
 
-// QueryForemanImage queries ForemanImage by name.
 func (c *ForemanClient) QueryForemanImage(ctx context.Context, name string) (*ForemanImage, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("images?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -80,7 +73,7 @@ func (c *ForemanClient) QueryForemanImage(ctx context.Context, name string) (*Fo
 		return nil, nil
 	}
 	var obj ForemanImage
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

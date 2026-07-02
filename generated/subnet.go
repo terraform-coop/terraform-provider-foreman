@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanSubnetRequest is the request payload.
 type ForemanSubnetRequest struct {
 	Name                       string  `json:"name,omitempty"`
 	Network                    string  `json:"network,omitempty"`
@@ -38,7 +37,6 @@ type ForemanSubnetRequest struct {
 	Vlanid                     string  `json:"vlanid,omitempty"`
 }
 
-// ForemanSubnet is the entity type.
 type ForemanSubnet struct {
 	ForemanObject
 	Name                       string  `json:"name"`
@@ -68,7 +66,6 @@ type ForemanSubnet struct {
 	Vlanid                     string  `json:"vlanid"`
 }
 
-// CreateForemanSubnet creates a new ForemanSubnet.
 func (c *ForemanClient) CreateForemanSubnet(ctx context.Context, req *ForemanSubnetRequest) (*ForemanSubnet, error) {
 	var resp ForemanSubnet
 	err := c.Post(ctx, "subnets", "subnet", req, &resp)
@@ -78,7 +75,6 @@ func (c *ForemanClient) CreateForemanSubnet(ctx context.Context, req *ForemanSub
 	return &resp, nil
 }
 
-// ReadForemanSubnet reads a ForemanSubnet by ID.
 func (c *ForemanClient) ReadForemanSubnet(ctx context.Context, id int) (*ForemanSubnet, error) {
 	var resp ForemanSubnet
 	err := c.Get(ctx, fmt.Sprintf("subnets/%d", id), &resp)
@@ -88,7 +84,6 @@ func (c *ForemanClient) ReadForemanSubnet(ctx context.Context, id int) (*Foreman
 	return &resp, nil
 }
 
-// UpdateForemanSubnet updates a ForemanSubnet by ID.
 func (c *ForemanClient) UpdateForemanSubnet(ctx context.Context, id int, req *ForemanSubnetRequest) (*ForemanSubnet, error) {
 	var resp ForemanSubnet
 	err := c.Put(ctx, fmt.Sprintf("subnets/%d", id), "subnet", req, &resp)
@@ -98,12 +93,10 @@ func (c *ForemanClient) UpdateForemanSubnet(ctx context.Context, id int, req *Fo
 	return &resp, nil
 }
 
-// DeleteForemanSubnet deletes a ForemanSubnet by ID.
 func (c *ForemanClient) DeleteForemanSubnet(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("subnets/%d", id))
 }
 
-// QueryForemanSubnet queries ForemanSubnet by name.
 func (c *ForemanClient) QueryForemanSubnet(ctx context.Context, name string) (*ForemanSubnet, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("subnets?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -114,7 +107,7 @@ func (c *ForemanClient) QueryForemanSubnet(ctx context.Context, name string) (*F
 		return nil, nil
 	}
 	var obj ForemanSubnet
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -9,18 +9,15 @@ import (
 	"net/url"
 )
 
-// ForemanEnvironmentRequest is the request payload.
 type ForemanEnvironmentRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
-// ForemanEnvironment is the entity type.
 type ForemanEnvironment struct {
 	ForemanObject
 	Name string `json:"name"`
 }
 
-// CreateForemanEnvironment creates a new ForemanEnvironment.
 func (c *ForemanClient) CreateForemanEnvironment(ctx context.Context, req *ForemanEnvironmentRequest) (*ForemanEnvironment, error) {
 	var resp ForemanEnvironment
 	err := c.Post(ctx, "environments", "environment", req, &resp)
@@ -30,7 +27,6 @@ func (c *ForemanClient) CreateForemanEnvironment(ctx context.Context, req *Forem
 	return &resp, nil
 }
 
-// ReadForemanEnvironment reads a ForemanEnvironment by ID.
 func (c *ForemanClient) ReadForemanEnvironment(ctx context.Context, id int) (*ForemanEnvironment, error) {
 	var resp ForemanEnvironment
 	err := c.Get(ctx, fmt.Sprintf("environments/%d", id), &resp)
@@ -40,7 +36,6 @@ func (c *ForemanClient) ReadForemanEnvironment(ctx context.Context, id int) (*Fo
 	return &resp, nil
 }
 
-// UpdateForemanEnvironment updates a ForemanEnvironment by ID.
 func (c *ForemanClient) UpdateForemanEnvironment(ctx context.Context, id int, req *ForemanEnvironmentRequest) (*ForemanEnvironment, error) {
 	var resp ForemanEnvironment
 	err := c.Put(ctx, fmt.Sprintf("environments/%d", id), "environment", req, &resp)
@@ -50,12 +45,10 @@ func (c *ForemanClient) UpdateForemanEnvironment(ctx context.Context, id int, re
 	return &resp, nil
 }
 
-// DeleteForemanEnvironment deletes a ForemanEnvironment by ID.
 func (c *ForemanClient) DeleteForemanEnvironment(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("environments/%d", id))
 }
 
-// QueryForemanEnvironment queries ForemanEnvironment by name.
 func (c *ForemanClient) QueryForemanEnvironment(ctx context.Context, name string) (*ForemanEnvironment, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("environments?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -66,7 +59,7 @@ func (c *ForemanClient) QueryForemanEnvironment(ctx context.Context, name string
 		return nil, nil
 	}
 	var obj ForemanEnvironment
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &puppetclassResource{}
-	_ resource.ResourceWithImportState = &puppetclassResource{}
-)
+var _ resource.Resource = &puppetclassResource{}
+var _ resource.ResourceWithImportState = &puppetclassResource{}
 
 func NewForemanPuppetClassResource() resource.Resource {
 	return &puppetclassResource{}
@@ -40,20 +37,16 @@ func (r *puppetclassResource) Metadata(_ context.Context, req resource.MetadataR
 }
 
 func (r *puppetclassResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"name": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *puppetclassResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -67,6 +60,7 @@ func (r *puppetclassResource) Configure(_ context.Context, req resource.Configur
 	}
 	r.client = client
 }
+
 func (r *puppetclassResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan puppetclassResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -74,9 +68,8 @@ func (r *puppetclassResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	body := &generated.ForemanPuppetClassRequest{
-		Name: plan.Name.ValueString(),
-	}
+	body := &generated.ForemanPuppetClassRequest{Name: plan.Name.ValueString()}
+
 	result, err := r.client.CreateForemanPuppetClass(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create puppetclass, got error: %s", err))
@@ -102,6 +95,7 @@ func (r *puppetclassResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanPuppetClass(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -111,6 +105,7 @@ func (r *puppetclassResource) Read(ctx context.Context, req resource.ReadRequest
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read puppetclass, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -129,18 +124,19 @@ func (r *puppetclassResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	body := &generated.ForemanPuppetClassRequest{
-		Name: plan.Name.ValueString(),
-	}
+	body := &generated.ForemanPuppetClassRequest{Name: plan.Name.ValueString()}
+
 	result, err := r.client.UpdateForemanPuppetClass(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update puppetclass, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *puppetclassResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state puppetclassResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -153,6 +149,7 @@ func (r *puppetclassResource) Delete(ctx context.Context, req resource.DeleteReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanPuppetClass(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete puppetclass, got error: %s", err))

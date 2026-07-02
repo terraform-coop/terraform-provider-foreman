@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &templateinputResource{}
-	_ resource.ResourceWithImportState = &templateinputResource{}
-)
+var _ resource.Resource = &templateinputResource{}
+var _ resource.ResourceWithImportState = &templateinputResource{}
 
 func NewForemanTemplateInputResource() resource.Resource {
 	return &templateinputResource{}
@@ -52,75 +49,71 @@ func (r *templateinputResource) Metadata(_ context.Context, req resource.Metadat
 }
 
 func (r *templateinputResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"input_type": schema.StringAttribute{
-				Required:    true,
-				Description: "Input type",
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "Input name",
-			},
-			"advanced": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Input is advanced",
-			},
-			"default": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Default value for user input",
-			},
-			"description": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Input description",
-			},
-			"fact_name": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Fact name, used when input type is Fact value",
-			},
-			"hidden_value": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "The value contains sensitive information and shouldn not be normally visible, useful e.g. for passwords",
-			},
-			"options": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Selectable values for user inputs",
-				ElementType: types.Int64Type,
-			},
-			"required": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Input is required",
-			},
-			"resource_type": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "For values of type search, this is the resource the value searches in",
-			},
-			"value_type": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Value type, defaults to plain",
-			},
-			"variable_name": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Variable name, used when input type is Variable",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"advanced": schema.BoolAttribute{
+			Description: "Input is advanced",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"default": schema.StringAttribute{
+			Description: "Default value for user input",
+			Optional:    true,
+			Required:    false,
+		},
+		"description": schema.StringAttribute{
+			Description: "Input description",
+			Optional:    true,
+			Required:    false,
+		},
+		"fact_name": schema.StringAttribute{
+			Description: "Fact name, used when input type is Fact value",
+			Optional:    true,
+			Required:    false,
+		},
+		"hidden_value": schema.BoolAttribute{
+			Description: "The value contains sensitive information and shouldn not be normally visible, useful e.g. for passwords",
+			Optional:    true,
+			Required:    false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"input_type": schema.StringAttribute{
+			Description: "Input type",
+			Required:    true,
+		},
+		"name": schema.StringAttribute{
+			Description: "Input name",
+			Required:    true,
+		},
+		"options": schema.ListAttribute{
+			Description: "Selectable values for user inputs",
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"required": schema.BoolAttribute{
+			Description: "Input is required",
+			Optional:    true,
+			Required:    false,
+		},
+		"resource_type": schema.StringAttribute{
+			Description: "For values of type search, this is the resource the value searches in",
+			Optional:    true,
+			Required:    false,
+		},
+		"value_type": schema.StringAttribute{
+			Description: "Value type, defaults to plain",
+			Optional:    true,
+			Required:    false,
+		},
+		"variable_name": schema.StringAttribute{
+			Description: "Variable name, used when input type is Variable",
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *templateinputResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -134,6 +127,7 @@ func (r *templateinputResource) Configure(_ context.Context, req resource.Config
 	}
 	r.client = client
 }
+
 func (r *templateinputResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan templateinputResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -142,13 +136,13 @@ func (r *templateinputResource) Create(ctx context.Context, req resource.CreateR
 	}
 
 	body := &generated.ForemanTemplateInputRequest{
-		InputType:   plan.InputType.ValueString(),
-		Name:        plan.Name.ValueString(),
 		Advanced:    plan.Advanced.ValueBool(),
 		Default:     plan.Default.ValueString(),
 		Description: plan.Description.ValueString(),
 		FactName:    plan.FactName.ValueString(),
 		HiddenValue: plan.HiddenValue.ValueBool(),
+		InputType:   plan.InputType.ValueString(),
+		Name:        plan.Name.ValueString(),
 		Options: func() []int64 {
 			if plan.Options.IsNull() || plan.Options.IsUnknown() {
 				return nil
@@ -166,6 +160,7 @@ func (r *templateinputResource) Create(ctx context.Context, req resource.CreateR
 		ValueType:    plan.ValueType.ValueString(),
 		VariableName: plan.VariableName.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanTemplateInput(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create templateinput, got error: %s", err))
@@ -201,6 +196,7 @@ func (r *templateinputResource) Read(ctx context.Context, req resource.ReadReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanTemplateInput(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -210,6 +206,7 @@ func (r *templateinputResource) Read(ctx context.Context, req resource.ReadReque
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read templateinput, got error: %s", err))
 		return
 	}
+
 	state.InputType = types.StringValue(result.InputType)
 	state.Name = types.StringValue(result.Name)
 	state.Advanced = types.BoolValue(result.Advanced)
@@ -248,13 +245,13 @@ func (r *templateinputResource) Update(ctx context.Context, req resource.UpdateR
 	}
 
 	body := &generated.ForemanTemplateInputRequest{
-		InputType:   plan.InputType.ValueString(),
-		Name:        plan.Name.ValueString(),
 		Advanced:    plan.Advanced.ValueBool(),
 		Default:     plan.Default.ValueString(),
 		Description: plan.Description.ValueString(),
 		FactName:    plan.FactName.ValueString(),
 		HiddenValue: plan.HiddenValue.ValueBool(),
+		InputType:   plan.InputType.ValueString(),
+		Name:        plan.Name.ValueString(),
 		Options: func() []int64 {
 			if plan.Options.IsNull() || plan.Options.IsUnknown() {
 				return nil
@@ -272,11 +269,13 @@ func (r *templateinputResource) Update(ctx context.Context, req resource.UpdateR
 		ValueType:    plan.ValueType.ValueString(),
 		VariableName: plan.VariableName.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanTemplateInput(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update templateinput, got error: %s", err))
 		return
 	}
+
 	plan.InputType = types.StringValue(result.InputType)
 	plan.Name = types.StringValue(result.Name)
 	plan.Advanced = types.BoolValue(result.Advanced)
@@ -291,6 +290,7 @@ func (r *templateinputResource) Update(ctx context.Context, req resource.UpdateR
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *templateinputResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state templateinputResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -303,6 +303,7 @@ func (r *templateinputResource) Delete(ctx context.Context, req resource.DeleteR
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanTemplateInput(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete templateinput, got error: %s", err))

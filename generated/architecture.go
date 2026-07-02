@@ -9,20 +9,17 @@ import (
 	"net/url"
 )
 
-// ForemanArchitectureRequest is the request payload.
 type ForemanArchitectureRequest struct {
 	Name               string  `json:"name,omitempty"`
 	OperatingsystemIDs []int64 `json:"operatingsystem_ids,omitempty"`
 }
 
-// ForemanArchitecture is the entity type.
 type ForemanArchitecture struct {
 	ForemanObject
 	Name               string  `json:"name"`
 	OperatingsystemIDs []int64 `json:"operatingsystem_ids"`
 }
 
-// CreateForemanArchitecture creates a new ForemanArchitecture.
 func (c *ForemanClient) CreateForemanArchitecture(ctx context.Context, req *ForemanArchitectureRequest) (*ForemanArchitecture, error) {
 	var resp ForemanArchitecture
 	err := c.Post(ctx, "architectures", "architecture", req, &resp)
@@ -32,7 +29,6 @@ func (c *ForemanClient) CreateForemanArchitecture(ctx context.Context, req *Fore
 	return &resp, nil
 }
 
-// ReadForemanArchitecture reads a ForemanArchitecture by ID.
 func (c *ForemanClient) ReadForemanArchitecture(ctx context.Context, id int) (*ForemanArchitecture, error) {
 	var resp ForemanArchitecture
 	err := c.Get(ctx, fmt.Sprintf("architectures/%d", id), &resp)
@@ -42,7 +38,6 @@ func (c *ForemanClient) ReadForemanArchitecture(ctx context.Context, id int) (*F
 	return &resp, nil
 }
 
-// UpdateForemanArchitecture updates a ForemanArchitecture by ID.
 func (c *ForemanClient) UpdateForemanArchitecture(ctx context.Context, id int, req *ForemanArchitectureRequest) (*ForemanArchitecture, error) {
 	var resp ForemanArchitecture
 	err := c.Put(ctx, fmt.Sprintf("architectures/%d", id), "architecture", req, &resp)
@@ -52,12 +47,10 @@ func (c *ForemanClient) UpdateForemanArchitecture(ctx context.Context, id int, r
 	return &resp, nil
 }
 
-// DeleteForemanArchitecture deletes a ForemanArchitecture by ID.
 func (c *ForemanClient) DeleteForemanArchitecture(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("architectures/%d", id))
 }
 
-// QueryForemanArchitecture queries ForemanArchitecture by name.
 func (c *ForemanClient) QueryForemanArchitecture(ctx context.Context, name string) (*ForemanArchitecture, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("architectures?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -68,7 +61,7 @@ func (c *ForemanClient) QueryForemanArchitecture(ctx context.Context, name strin
 		return nil, nil
 	}
 	var obj ForemanArchitecture
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

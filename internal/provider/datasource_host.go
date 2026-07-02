@@ -5,19 +5,15 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &hostDataSource{}
-)
+var _ datasource.DataSource = &hostDataSource{}
 
 func NewForemanHostDataSource() datasource.DataSource {
 	return &hostDataSource{}
@@ -86,164 +82,13 @@ func (d *hostDataSource) Metadata(_ context.Context, req datasource.MetadataRequ
 }
 
 func (d *hostDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the host to look up.",
-			},
-			"architecture_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"bmc_available": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"build": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"build_status": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"build_status_label": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"certname": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"comment": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"compute_profile_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"compute_resource_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"compute_resource_provider": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"creator": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"creator_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"disk": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"display_name": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"domain_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"enabled": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"global_status": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"global_status_label": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"hostgroup_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"image_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"initiated_at": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"installed_at": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"ip": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"ip6": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"last_compile": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"last_report": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"mac": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"managed": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"medium_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"model_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"operatingsystem_icon": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"operatingsystem_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"owner_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"owner_type": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"permissions": dsdchema.MapAttribute{
-				Computed: true,
-			},
-			"provision_method": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"ptable_id": dsdchema.Int64Attribute{
-				Computed: true,
-			},
-			"puppet_ca_proxy_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"puppet_proxy_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"pxe_loader": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"realm_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"rebuild_requires_poweroff": dsdchema.BoolAttribute{
-				Computed: true,
-			},
-			"sp_ip": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"sp_mac": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"sp_name": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"sp_subnet_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"subnet6_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"subnet_id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"use_image": dsdchema.StringAttribute{
-				Computed: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the host to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
 func (d *hostDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {

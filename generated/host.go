@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanHostRequest is the request payload.
 type ForemanHostRequest struct {
 	Name              string `json:"name,omitempty"`
 	ArchitectureID    int64  `json:"architecture_id,omitempty"`
@@ -41,7 +40,6 @@ type ForemanHostRequest struct {
 	SubnetID          int64  `json:"subnet_id,omitempty"`
 }
 
-// ForemanHost is the entity type.
 type ForemanHost struct {
 	ForemanObject
 	ArchitectureID          int64                  `json:"architecture_id"`
@@ -96,7 +94,6 @@ type ForemanHost struct {
 	UseImage                string                 `json:"use_image"`
 }
 
-// CreateForemanHost creates a new ForemanHost.
 func (c *ForemanClient) CreateForemanHost(ctx context.Context, req *ForemanHostRequest) (*ForemanHost, error) {
 	var resp ForemanHost
 	err := c.Post(ctx, "hosts", "host", req, &resp)
@@ -106,7 +103,6 @@ func (c *ForemanClient) CreateForemanHost(ctx context.Context, req *ForemanHostR
 	return &resp, nil
 }
 
-// ReadForemanHost reads a ForemanHost by ID.
 func (c *ForemanClient) ReadForemanHost(ctx context.Context, id int) (*ForemanHost, error) {
 	var resp ForemanHost
 	err := c.Get(ctx, fmt.Sprintf("hosts/%d", id), &resp)
@@ -116,7 +112,6 @@ func (c *ForemanClient) ReadForemanHost(ctx context.Context, id int) (*ForemanHo
 	return &resp, nil
 }
 
-// UpdateForemanHost updates a ForemanHost by ID.
 func (c *ForemanClient) UpdateForemanHost(ctx context.Context, id int, req *ForemanHostRequest) (*ForemanHost, error) {
 	var resp ForemanHost
 	err := c.Put(ctx, fmt.Sprintf("hosts/%d", id), "host", req, &resp)
@@ -126,12 +121,10 @@ func (c *ForemanClient) UpdateForemanHost(ctx context.Context, id int, req *Fore
 	return &resp, nil
 }
 
-// DeleteForemanHost deletes a ForemanHost by ID.
 func (c *ForemanClient) DeleteForemanHost(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("hosts/%d", id))
 }
 
-// QueryForemanHost queries ForemanHost by name.
 func (c *ForemanClient) QueryForemanHost(ctx context.Context, name string) (*ForemanHost, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("hosts?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -142,7 +135,7 @@ func (c *ForemanClient) QueryForemanHost(ctx context.Context, name string) (*For
 		return nil, nil
 	}
 	var obj ForemanHost
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -4,23 +4,25 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanWebhookTemplate_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanWebhookTemplate{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
-		Template:      "test_template",
-		Snippet:       true,
-		AuditComment:  "test_audit_comment",
-		Locked:        true,
-		Default:       true,
-		Description:   "test_description",
+		AuditComment: "test_audit_comment",
+		Default:      true,
+		Description:  "test_description",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Locked:   true,
+		Name:     "test_name",
+		Snippet:  true,
+		Template: "test_template",
 	}
 
 	data, err := json.Marshal(original)
@@ -66,13 +68,13 @@ func TestForemanWebhookTemplate_RoundTripZeroValues(t *testing.T) {
 func TestForemanWebhookTemplate_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanWebhookTemplateRequest{
-		Name:         "test_name",
-		Template:     "test_template",
-		Snippet:      true,
 		AuditComment: "test_audit_comment",
-		Locked:       true,
 		Default:      true,
 		Description:  "test_description",
+		Locked:       true,
+		Name:         "test_name",
+		Snippet:      true,
+		Template:     "test_template",
 	}
 
 	data, err := json.Marshal(original)
@@ -81,6 +83,7 @@ func TestForemanWebhookTemplate_RoundTripRequest(t *testing.T) {
 	var decoded ForemanWebhookTemplateRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Template, decoded.Template)
 	assert.Equal(t, original.Snippet, decoded.Snippet)
@@ -100,6 +103,7 @@ func TestForemanWebhookTemplate_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanWebhookTemplateRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Template, decoded.Template)
 	assert.Equal(t, original.Snippet, decoded.Snippet)

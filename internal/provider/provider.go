@@ -4,16 +4,14 @@ package provider
 
 import (
 	"context"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	provider "github.com/hashicorp/terraform-plugin-framework/provider"
+	schema "github.com/hashicorp/terraform-plugin-framework/provider/schema"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"net/url"
 	"os"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	"github.com/hashicorp/terraform-plugin-framework/provider"
-	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 var _ provider.Provider = &ForemanProvider{}
@@ -45,18 +43,41 @@ func (p *ForemanProvider) Metadata(_ context.Context, _ provider.MetadataRequest
 }
 
 func (p *ForemanProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp *provider.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"server_hostname":       schema.StringAttribute{Required: true, Description: "The hostname / IP address of the Foreman REST API server"},
-			"server_protocol":       schema.StringAttribute{Optional: true, Description: "The protocol. Defaults to https."},
-			"client_username":       schema.StringAttribute{Optional: true, Description: "Username. Can also be set via FOREMAN_CLIENT_USERNAME."},
-			"client_password":       schema.StringAttribute{Optional: true, Sensitive: true, Description: "Password. Can also be set via FOREMAN_CLIENT_PASSWORD."},
-			"client_tls_insecure":   schema.BoolAttribute{Optional: true, Description: "Skip TLS verification. Defaults to false."},
-			"client_auth_negotiate": schema.BoolAttribute{Optional: true, Description: "Use HTTP negotiate auth. Defaults to false."},
-			"organization_id":       schema.Int64Attribute{Optional: true, Description: "Organization for all API calls. Defaults to 0."},
-			"location_id":           schema.Int64Attribute{Optional: true, Description: "Location for all API calls. Defaults to 0."},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"client_auth_negotiate": schema.BoolAttribute{
+			Description: "Use HTTP negotiate auth. Defaults to false.",
+			Optional:    true,
 		},
-	}
+		"client_password": schema.StringAttribute{
+			Description: "Password. Can also be set via FOREMAN_CLIENT_PASSWORD.",
+			Optional:    true,
+			Sensitive:   true,
+		},
+		"client_tls_insecure": schema.BoolAttribute{
+			Description: "Skip TLS verification. Defaults to false.",
+			Optional:    true,
+		},
+		"client_username": schema.StringAttribute{
+			Description: "Username. Can also be set via FOREMAN_CLIENT_USERNAME.",
+			Optional:    true,
+		},
+		"location_id": schema.Int64Attribute{
+			Description: "Location for all API calls. Defaults to 0.",
+			Optional:    true,
+		},
+		"organization_id": schema.Int64Attribute{
+			Description: "Organization for all API calls. Defaults to 0.",
+			Optional:    true,
+		},
+		"server_hostname": schema.StringAttribute{
+			Description: "The hostname / IP address of the Foreman REST API server",
+			Required:    true,
+		},
+		"server_protocol": schema.StringAttribute{
+			Description: "The protocol. Defaults to https.",
+			Optional:    true,
+		},
+	}}
 }
 
 func (p *ForemanProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
@@ -109,107 +130,30 @@ func (p *ForemanProvider) Configure(ctx context.Context, req provider.ConfigureR
 		locID = config.LocationID.ValueInt64()
 	}
 
-	client := generated.NewClient(
-		url.URL{Scheme: protocol, Host: hostname},
-		generated.ClientCredentials{Username: username, Password: password},
-		generated.ClientConfig{
-			TLSInsecure:    tlsInsecure,
-			NegotiateAuth:  negotiateAuth,
-			OrganizationID: int(orgID),
-			LocationID:     int(locID),
-		},
-	)
+	client := generated.NewClient(url.URL{
+		Host:   hostname,
+		Scheme: protocol,
+	}, generated.ClientCredentials{
+		Password: password,
+		Username: username,
+	}, generated.ClientConfig{
+		LocationID:     int(locID),
+		NegotiateAuth:  negotiateAuth,
+		OrganizationID: int(orgID),
+		TLSInsecure:    tlsInsecure,
+	})
 
 	resp.DataSourceData = client
 	resp.ResourceData = client
 }
 
 func (p *ForemanProvider) Resources(_ context.Context) []func() resource.Resource {
-	return []func() resource.Resource{
-		NewForemanArchitectureResource,
-		NewForemanAutosignResource,
-		NewForemanCommonParameterResource,
-		NewForemanComputeProfileResource,
-		NewForemanComputeResourceResource,
-		NewForemanDefaultTemplateResource,
-		NewForemanDomainResource,
-		NewForemanHTTPProxyResource,
-		NewForemanHostResource,
-		NewForemanHostgroupResource,
-		NewForemanImageResource,
-		NewForemanMediumResource,
-		NewForemanModelResource,
-		NewForemanOperatingSystemResource,
-		NewForemanParameterResource,
-		NewForemanPartitionTableResource,
-		NewForemanProvisioningTemplateResource,
-		NewForemanRealmResource,
-		NewForemanSettingResource,
-		NewForemanSmartProxyResource,
-		NewForemanSubnetResource,
-		NewForemanTemplateInputResource,
-		NewForemanUserResource,
-		NewForemanUsergroupResource,
-		NewForemanEnvironmentResource,
-		NewForemanJobTemplateResource,
-		NewForemanPuppetClassResource,
-		NewForemanSmartClassParameterResource,
-		NewForemanTemplateKindResource,
-		NewForemanDiscoveryRuleResource,
-		NewForemanWebhookResource,
-		NewForemanWebhookTemplateResource,
-		NewForemanOverrideValueResource,
-		// Katello resources are not in the pinned core apidoc/v2.json, so they
-		// are registered explicitly here. Keep in sync with generated/katello_*.go.
-		NewKatelloContentCredentialResource,
-		NewKatelloContentViewResource,
-		NewKatelloLifecycleEnvironmentResource,
-		NewKatelloProductResource,
-		NewKatelloRepositoryResource,
-		NewKatelloSyncPlanResource,
-	}
+	// Katello resources are not in the pinned core apidoc/v2.json, so they
+	// are registered explicitly here. Keep in sync with generated/katello_*.go.
+	return []func() resource.Resource{NewForemanArchitectureResource, NewForemanAutosignResource, NewForemanCommonParameterResource, NewForemanComputeProfileResource, NewForemanComputeResourceResource, NewForemanDefaultTemplateResource, NewForemanDomainResource, NewForemanHTTPProxyResource, NewForemanHostResource, NewForemanHostgroupResource, NewForemanImageResource, NewForemanMediumResource, NewForemanModelResource, NewForemanOperatingSystemResource, NewForemanParameterResource, NewForemanPartitionTableResource, NewForemanProvisioningTemplateResource, NewForemanRealmResource, NewForemanSettingResource, NewForemanSmartProxyResource, NewForemanSubnetResource, NewForemanTemplateInputResource, NewForemanUserResource, NewForemanUsergroupResource, NewForemanEnvironmentResource, NewForemanJobTemplateResource, NewForemanPuppetClassResource, NewForemanSmartClassParameterResource, NewForemanTemplateKindResource, NewForemanDiscoveryRuleResource, NewForemanWebhookResource, NewForemanWebhookTemplateResource, NewForemanOverrideValueResource, NewKatelloContentCredentialResource, NewKatelloContentViewResource, NewKatelloLifecycleEnvironmentResource, NewKatelloProductResource, NewKatelloRepositoryResource, NewKatelloSyncPlanResource}
 }
 
 func (p *ForemanProvider) DataSources(_ context.Context) []func() datasource.DataSource {
-	return []func() datasource.DataSource{
-		NewForemanArchitectureDataSource,
-		NewForemanAutosignDataSource,
-		NewForemanCommonParameterDataSource,
-		NewForemanComputeProfileDataSource,
-		NewForemanComputeResourceDataSource,
-		NewForemanDefaultTemplateDataSource,
-		NewForemanDomainDataSource,
-		NewForemanHTTPProxyDataSource,
-		NewForemanHostDataSource,
-		NewForemanHostgroupDataSource,
-		NewForemanImageDataSource,
-		NewForemanMediumDataSource,
-		NewForemanModelDataSource,
-		NewForemanOperatingSystemDataSource,
-		NewForemanParameterDataSource,
-		NewForemanPartitionTableDataSource,
-		NewForemanProvisioningTemplateDataSource,
-		NewForemanRealmDataSource,
-		NewForemanSettingDataSource,
-		NewForemanSmartProxyDataSource,
-		NewForemanSubnetDataSource,
-		NewForemanTemplateInputDataSource,
-		NewForemanUserDataSource,
-		NewForemanUsergroupDataSource,
-		NewForemanEnvironmentDataSource,
-		NewForemanJobTemplateDataSource,
-		NewForemanPuppetClassDataSource,
-		NewForemanSmartClassParameterDataSource,
-		NewForemanTemplateKindDataSource,
-		NewForemanDiscoveryRuleDataSource,
-		NewForemanWebhookDataSource,
-		NewForemanWebhookTemplateDataSource,
-		// Katello data sources are not in the pinned core apidoc/v2.json.
-		NewKatelloContentCredentialDataSource,
-		NewKatelloContentViewDataSource,
-		NewKatelloLifecycleEnvironmentDataSource,
-		NewKatelloProductDataSource,
-		NewKatelloRepositoryDataSource,
-		NewKatelloSyncPlanDataSource,
-	}
+	// Katello data sources are not in the pinned core apidoc/v2.json.
+	return []func() datasource.DataSource{NewForemanArchitectureDataSource, NewForemanAutosignDataSource, NewForemanCommonParameterDataSource, NewForemanComputeProfileDataSource, NewForemanComputeResourceDataSource, NewForemanDefaultTemplateDataSource, NewForemanDomainDataSource, NewForemanHTTPProxyDataSource, NewForemanHostDataSource, NewForemanHostgroupDataSource, NewForemanImageDataSource, NewForemanMediumDataSource, NewForemanModelDataSource, NewForemanOperatingSystemDataSource, NewForemanParameterDataSource, NewForemanPartitionTableDataSource, NewForemanProvisioningTemplateDataSource, NewForemanRealmDataSource, NewForemanSettingDataSource, NewForemanSmartProxyDataSource, NewForemanSubnetDataSource, NewForemanTemplateInputDataSource, NewForemanUserDataSource, NewForemanUsergroupDataSource, NewForemanEnvironmentDataSource, NewForemanJobTemplateDataSource, NewForemanPuppetClassDataSource, NewForemanSmartClassParameterDataSource, NewForemanTemplateKindDataSource, NewForemanDiscoveryRuleDataSource, NewForemanWebhookDataSource, NewForemanWebhookTemplateDataSource, NewKatelloContentCredentialDataSource, NewKatelloContentViewDataSource, NewKatelloLifecycleEnvironmentDataSource, NewKatelloProductDataSource, NewKatelloRepositoryDataSource, NewKatelloSyncPlanDataSource}
 }

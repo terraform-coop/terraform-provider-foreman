@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanDomainRequest is the request payload.
 type ForemanDomainRequest struct {
 	Name                       string  `json:"name,omitempty"`
 	DNSID                      int64   `json:"dns_id,omitempty"`
@@ -17,7 +16,6 @@ type ForemanDomainRequest struct {
 	Fullname                   string  `json:"fullname,omitempty"`
 }
 
-// ForemanDomain is the entity type.
 type ForemanDomain struct {
 	ForemanObject
 	Name                       string  `json:"name"`
@@ -26,7 +24,6 @@ type ForemanDomain struct {
 	Fullname                   string  `json:"fullname"`
 }
 
-// CreateForemanDomain creates a new ForemanDomain.
 func (c *ForemanClient) CreateForemanDomain(ctx context.Context, req *ForemanDomainRequest) (*ForemanDomain, error) {
 	var resp ForemanDomain
 	err := c.Post(ctx, "domains", "domain", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanDomain(ctx context.Context, req *ForemanDom
 	return &resp, nil
 }
 
-// ReadForemanDomain reads a ForemanDomain by ID.
 func (c *ForemanClient) ReadForemanDomain(ctx context.Context, id int) (*ForemanDomain, error) {
 	var resp ForemanDomain
 	err := c.Get(ctx, fmt.Sprintf("domains/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanDomain(ctx context.Context, id int) (*Foreman
 	return &resp, nil
 }
 
-// UpdateForemanDomain updates a ForemanDomain by ID.
 func (c *ForemanClient) UpdateForemanDomain(ctx context.Context, id int, req *ForemanDomainRequest) (*ForemanDomain, error) {
 	var resp ForemanDomain
 	err := c.Put(ctx, fmt.Sprintf("domains/%d", id), "domain", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanDomain(ctx context.Context, id int, req *Fo
 	return &resp, nil
 }
 
-// DeleteForemanDomain deletes a ForemanDomain by ID.
 func (c *ForemanClient) DeleteForemanDomain(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("domains/%d", id))
 }
 
-// QueryForemanDomain queries ForemanDomain by name.
 func (c *ForemanClient) QueryForemanDomain(ctx context.Context, name string) (*ForemanDomain, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("domains?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanDomain(ctx context.Context, name string) (*F
 		return nil, nil
 	}
 	var obj ForemanDomain
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

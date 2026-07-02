@@ -86,7 +86,7 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 
 	req, err := http.NewRequestWithContext(ctx, strings.ToUpper(method), reqURL.String(), body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, fmt.Errorf("creating request: %w", err)
 	}
 	req.Header.Add("User-Agent", "terraform-provider-foreman")
 	req.Header.Add("Accept", "application/json,version="+ForemanAPIVersion)
@@ -100,12 +100,12 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 func (c *ForemanClient) send(req *http.Request) (int, []byte, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return -1, nil, fmt.Errorf("request failed: %w", err)
+		return -1, nil, fmt.Errorf("sending request: %w", err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return resp.StatusCode, nil, fmt.Errorf("failed to read response: %w", err)
+		return resp.StatusCode, nil, fmt.Errorf("reading response: %w", err)
 	}
 	return resp.StatusCode, body, nil
 }
@@ -115,7 +115,7 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 	if reqBody != nil {
 		payload, err := json.Marshal(reqBody)
 		if err != nil {
-			return fmt.Errorf("failed to marshal request: %w", err)
+			return fmt.Errorf("marshaling request: %w", err)
 		}
 		bodyReader = bytes.NewReader(payload)
 	}
@@ -133,7 +133,7 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 	if statusCode == 202 {
 		var task ForemanTask
 		if err := json.Unmarshal(respBody, &task); err != nil {
-			return fmt.Errorf("failed to parse async task: %w", err)
+			return fmt.Errorf("parsing async task: %w", err)
 		}
 		if task.Pending {
 			finished, err := c.waitForKatelloTask(ctx, task.ID)
@@ -237,7 +237,7 @@ func (c *ForemanClient) waitForKatelloTask(ctx context.Context, taskID int) (*Fo
 	for i := 0; i < 10; i++ {
 		var task ForemanTask
 		if err := c.Get(ctx, endpoint, &task); err != nil {
-			return nil, fmt.Errorf("failed to poll task %d: %w", taskID, err)
+			return nil, fmt.Errorf("polling task %d: %w", taskID, err)
 		}
 		if !task.Pending {
 			return &task, nil

@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &imageResource{}
-	_ resource.ResourceWithImportState = &imageResource{}
-)
+var _ resource.Resource = &imageResource{}
+var _ resource.ResourceWithImportState = &imageResource{}
 
 func NewForemanImageResource() resource.Resource {
 	return &imageResource{}
@@ -47,50 +44,42 @@ func (r *imageResource) Metadata(_ context.Context, req resource.MetadataRequest
 }
 
 func (r *imageResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"username": schema.StringAttribute{
-				Required: true,
-			},
-			"uuid": schema.StringAttribute{
-				Required:    true,
-				Description: "Template ID in the compute resource",
-			},
-			"architecture_id": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "ID of architecture",
-			},
-			"compute_resource_id": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "ID of compute resource",
-			},
-			"operatingsystem_id": schema.Int64Attribute{
-				Required:    false,
-				Optional:    true,
-				Description: "ID of operating system",
-			},
-			"password": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"user_data": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Whether or not the image supports user data",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"architecture_id": schema.StringAttribute{
+			Description: "ID of architecture",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"compute_resource_id": schema.StringAttribute{
+			Description: "ID of compute resource",
+			Optional:    true,
+			Required:    false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{Required: true},
+		"operatingsystem_id": schema.Int64Attribute{
+			Description: "ID of operating system",
+			Optional:    true,
+			Required:    false,
+		},
+		"password": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"user_data": schema.BoolAttribute{
+			Description: "Whether or not the image supports user data",
+			Optional:    true,
+			Required:    false,
+		},
+		"username": schema.StringAttribute{Required: true},
+		"uuid": schema.StringAttribute{
+			Description: "Template ID in the compute resource",
+			Required:    true,
+		},
+	}}
 }
 
 func (r *imageResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -104,6 +93,7 @@ func (r *imageResource) Configure(_ context.Context, req resource.ConfigureReque
 	}
 	r.client = client
 }
+
 func (r *imageResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan imageResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -112,15 +102,16 @@ func (r *imageResource) Create(ctx context.Context, req resource.CreateRequest, 
 	}
 
 	body := &generated.ForemanImageRequest{
-		Name:              plan.Name.ValueString(),
-		Username:          plan.Username.ValueString(),
-		UUID:              plan.UUID.ValueString(),
 		ArchitectureID:    plan.ArchitectureID.ValueString(),
 		ComputeResourceID: plan.ComputeResourceID.ValueString(),
+		Name:              plan.Name.ValueString(),
 		OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
 		Password:          plan.Password.ValueString(),
+		UUID:              plan.UUID.ValueString(),
 		UserData:          plan.UserData.ValueBool(),
+		Username:          plan.Username.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanImage(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create image, got error: %s", err))
@@ -153,6 +144,7 @@ func (r *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanImage(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -162,6 +154,7 @@ func (r *imageResource) Read(ctx context.Context, req resource.ReadRequest, resp
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read image, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Username = types.StringValue(result.Username)
 	state.UUID = types.StringValue(result.UUID)
@@ -188,20 +181,22 @@ func (r *imageResource) Update(ctx context.Context, req resource.UpdateRequest, 
 	}
 
 	body := &generated.ForemanImageRequest{
-		Name:              plan.Name.ValueString(),
-		Username:          plan.Username.ValueString(),
-		UUID:              plan.UUID.ValueString(),
 		ArchitectureID:    plan.ArchitectureID.ValueString(),
 		ComputeResourceID: plan.ComputeResourceID.ValueString(),
+		Name:              plan.Name.ValueString(),
 		OperatingsystemID: plan.OperatingsystemID.ValueInt64(),
 		Password:          plan.Password.ValueString(),
+		UUID:              plan.UUID.ValueString(),
 		UserData:          plan.UserData.ValueBool(),
+		Username:          plan.Username.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanImage(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update image, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Username = types.StringValue(result.Username)
 	plan.UUID = types.StringValue(result.UUID)
@@ -213,6 +208,7 @@ func (r *imageResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *imageResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state imageResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -225,6 +221,7 @@ func (r *imageResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanImage(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete image, got error: %s", err))

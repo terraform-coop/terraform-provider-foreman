@@ -4,27 +4,29 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanTemplateInput_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanTemplateInput{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		InputType:     "test_input_type",
-		Name:          "test_name",
-		Advanced:      true,
-		Default:       "test_default",
-		Description:   "test_description",
-		FactName:      "test_fact_name",
-		HiddenValue:   true,
-		Required:      true,
-		ResourceType:  "test_resource_type",
-		ValueType:     "test_value_type",
-		VariableName:  "test_variable_name",
+		Advanced:    true,
+		Default:     "test_default",
+		Description: "test_description",
+		FactName:    "test_fact_name",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		HiddenValue:  true,
+		InputType:    "test_input_type",
+		Name:         "test_name",
+		Required:     true,
+		ResourceType: "test_resource_type",
+		ValueType:    "test_value_type",
+		VariableName: "test_variable_name",
 	}
 
 	data, err := json.Marshal(original)
@@ -78,13 +80,13 @@ func TestForemanTemplateInput_RoundTripZeroValues(t *testing.T) {
 func TestForemanTemplateInput_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanTemplateInputRequest{
-		InputType:    "test_input_type",
-		Name:         "test_name",
 		Advanced:     true,
 		Default:      "test_default",
 		Description:  "test_description",
 		FactName:     "test_fact_name",
 		HiddenValue:  true,
+		InputType:    "test_input_type",
+		Name:         "test_name",
 		Required:     true,
 		ResourceType: "test_resource_type",
 		ValueType:    "test_value_type",
@@ -97,6 +99,7 @@ func TestForemanTemplateInput_RoundTripRequest(t *testing.T) {
 	var decoded ForemanTemplateInputRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.InputType, decoded.InputType)
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Advanced, decoded.Advanced)
@@ -120,6 +123,7 @@ func TestForemanTemplateInput_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanTemplateInputRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.InputType, decoded.InputType)
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Advanced, decoded.Advanced)

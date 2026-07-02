@@ -9,14 +9,12 @@ import (
 	"net/url"
 )
 
-// ForemanRealmRequest is the request payload.
 type ForemanRealmRequest struct {
 	Name         string `json:"name,omitempty"`
 	RealmProxyID int64  `json:"realm_proxy_id,omitempty"`
 	RealmType    string `json:"realm_type,omitempty"`
 }
 
-// ForemanRealm is the entity type.
 type ForemanRealm struct {
 	ForemanObject
 	Name         string `json:"name"`
@@ -24,7 +22,6 @@ type ForemanRealm struct {
 	RealmType    string `json:"realm_type"`
 }
 
-// CreateForemanRealm creates a new ForemanRealm.
 func (c *ForemanClient) CreateForemanRealm(ctx context.Context, req *ForemanRealmRequest) (*ForemanRealm, error) {
 	var resp ForemanRealm
 	err := c.Post(ctx, "realms", "realm", req, &resp)
@@ -34,7 +31,6 @@ func (c *ForemanClient) CreateForemanRealm(ctx context.Context, req *ForemanReal
 	return &resp, nil
 }
 
-// ReadForemanRealm reads a ForemanRealm by ID.
 func (c *ForemanClient) ReadForemanRealm(ctx context.Context, id int) (*ForemanRealm, error) {
 	var resp ForemanRealm
 	err := c.Get(ctx, fmt.Sprintf("realms/%d", id), &resp)
@@ -44,7 +40,6 @@ func (c *ForemanClient) ReadForemanRealm(ctx context.Context, id int) (*ForemanR
 	return &resp, nil
 }
 
-// UpdateForemanRealm updates a ForemanRealm by ID.
 func (c *ForemanClient) UpdateForemanRealm(ctx context.Context, id int, req *ForemanRealmRequest) (*ForemanRealm, error) {
 	var resp ForemanRealm
 	err := c.Put(ctx, fmt.Sprintf("realms/%d", id), "realm", req, &resp)
@@ -54,12 +49,10 @@ func (c *ForemanClient) UpdateForemanRealm(ctx context.Context, id int, req *For
 	return &resp, nil
 }
 
-// DeleteForemanRealm deletes a ForemanRealm by ID.
 func (c *ForemanClient) DeleteForemanRealm(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("realms/%d", id))
 }
 
-// QueryForemanRealm queries ForemanRealm by name.
 func (c *ForemanClient) QueryForemanRealm(ctx context.Context, name string) (*ForemanRealm, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("realms?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -70,7 +63,7 @@ func (c *ForemanClient) QueryForemanRealm(ctx context.Context, name string) (*Fo
 		return nil, nil
 	}
 	var obj ForemanRealm
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

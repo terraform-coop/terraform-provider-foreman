@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanPartitionTableRequest is the request payload.
 type ForemanPartitionTableRequest struct {
 	Layout             string  `json:"layout,omitempty"`
 	Name               string  `json:"name,omitempty"`
@@ -23,7 +22,6 @@ type ForemanPartitionTableRequest struct {
 	Snippet            bool    `json:"snippet,omitempty"`
 }
 
-// ForemanPartitionTable is the entity type.
 type ForemanPartitionTable struct {
 	ForemanObject
 	Layout             string  `json:"layout"`
@@ -38,7 +36,6 @@ type ForemanPartitionTable struct {
 	Snippet            bool    `json:"snippet"`
 }
 
-// CreateForemanPartitionTable creates a new ForemanPartitionTable.
 func (c *ForemanClient) CreateForemanPartitionTable(ctx context.Context, req *ForemanPartitionTableRequest) (*ForemanPartitionTable, error) {
 	var resp ForemanPartitionTable
 	err := c.Post(ctx, "ptables", "ptable", req, &resp)
@@ -48,7 +45,6 @@ func (c *ForemanClient) CreateForemanPartitionTable(ctx context.Context, req *Fo
 	return &resp, nil
 }
 
-// ReadForemanPartitionTable reads a ForemanPartitionTable by ID.
 func (c *ForemanClient) ReadForemanPartitionTable(ctx context.Context, id int) (*ForemanPartitionTable, error) {
 	var resp ForemanPartitionTable
 	err := c.Get(ctx, fmt.Sprintf("ptables/%d", id), &resp)
@@ -58,7 +54,6 @@ func (c *ForemanClient) ReadForemanPartitionTable(ctx context.Context, id int) (
 	return &resp, nil
 }
 
-// UpdateForemanPartitionTable updates a ForemanPartitionTable by ID.
 func (c *ForemanClient) UpdateForemanPartitionTable(ctx context.Context, id int, req *ForemanPartitionTableRequest) (*ForemanPartitionTable, error) {
 	var resp ForemanPartitionTable
 	err := c.Put(ctx, fmt.Sprintf("ptables/%d", id), "ptable", req, &resp)
@@ -68,12 +63,10 @@ func (c *ForemanClient) UpdateForemanPartitionTable(ctx context.Context, id int,
 	return &resp, nil
 }
 
-// DeleteForemanPartitionTable deletes a ForemanPartitionTable by ID.
 func (c *ForemanClient) DeleteForemanPartitionTable(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("ptables/%d", id))
 }
 
-// QueryForemanPartitionTable queries ForemanPartitionTable by name.
 func (c *ForemanClient) QueryForemanPartitionTable(ctx context.Context, name string) (*ForemanPartitionTable, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("ptables?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -84,7 +77,7 @@ func (c *ForemanClient) QueryForemanPartitionTable(ctx context.Context, name str
 		return nil, nil
 	}
 	var obj ForemanPartitionTable
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

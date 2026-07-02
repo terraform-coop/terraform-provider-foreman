@@ -4,22 +4,24 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanSmartClassParameter_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSmartClassParameter{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
+		DefaultValue: "test_default_value",
+		Description:  "test_description",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		HiddenValue:   true,
+		Override:      true,
 		Parameter:     "test_parameter",
 		PuppetclassID: 42,
-		Override:      true,
-		Description:   "test_description",
-		DefaultValue:  "test_default_value",
-		HiddenValue:   true,
 	}
 
 	data, err := json.Marshal(original)
@@ -70,6 +72,7 @@ func TestForemanSmartClassParameter_RoundTripRequest(t *testing.T) {
 	var decoded ForemanSmartClassParameterRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 }
 
 func TestForemanSmartClassParameter_RoundTripRequestZeroValues(t *testing.T) {
@@ -82,4 +85,5 @@ func TestForemanSmartClassParameter_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanSmartClassParameterRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 }

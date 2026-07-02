@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanWebhookTemplateRequest is the request payload.
 type ForemanWebhookTemplateRequest struct {
 	Name         string `json:"name,omitempty"`
 	Template     string `json:"template,omitempty"`
@@ -20,7 +19,6 @@ type ForemanWebhookTemplateRequest struct {
 	Description  string `json:"description,omitempty"`
 }
 
-// ForemanWebhookTemplate is the entity type.
 type ForemanWebhookTemplate struct {
 	ForemanObject
 	Name         string `json:"name"`
@@ -32,7 +30,6 @@ type ForemanWebhookTemplate struct {
 	Description  string `json:"description"`
 }
 
-// CreateForemanWebhookTemplate creates a new ForemanWebhookTemplate.
 func (c *ForemanClient) CreateForemanWebhookTemplate(ctx context.Context, req *ForemanWebhookTemplateRequest) (*ForemanWebhookTemplate, error) {
 	var resp ForemanWebhookTemplate
 	err := c.Post(ctx, "webhook_templates", "webhook_template", req, &resp)
@@ -42,7 +39,6 @@ func (c *ForemanClient) CreateForemanWebhookTemplate(ctx context.Context, req *F
 	return &resp, nil
 }
 
-// ReadForemanWebhookTemplate reads a ForemanWebhookTemplate by ID.
 func (c *ForemanClient) ReadForemanWebhookTemplate(ctx context.Context, id int) (*ForemanWebhookTemplate, error) {
 	var resp ForemanWebhookTemplate
 	err := c.Get(ctx, fmt.Sprintf("webhook_templates/%d", id), &resp)
@@ -52,7 +48,6 @@ func (c *ForemanClient) ReadForemanWebhookTemplate(ctx context.Context, id int) 
 	return &resp, nil
 }
 
-// UpdateForemanWebhookTemplate updates a ForemanWebhookTemplate by ID.
 func (c *ForemanClient) UpdateForemanWebhookTemplate(ctx context.Context, id int, req *ForemanWebhookTemplateRequest) (*ForemanWebhookTemplate, error) {
 	var resp ForemanWebhookTemplate
 	err := c.Put(ctx, fmt.Sprintf("webhook_templates/%d", id), "webhook_template", req, &resp)
@@ -62,12 +57,10 @@ func (c *ForemanClient) UpdateForemanWebhookTemplate(ctx context.Context, id int
 	return &resp, nil
 }
 
-// DeleteForemanWebhookTemplate deletes a ForemanWebhookTemplate by ID.
 func (c *ForemanClient) DeleteForemanWebhookTemplate(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("webhook_templates/%d", id))
 }
 
-// QueryForemanWebhookTemplate queries ForemanWebhookTemplate by name.
 func (c *ForemanClient) QueryForemanWebhookTemplate(ctx context.Context, name string) (*ForemanWebhookTemplate, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("webhook_templates?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -78,7 +71,7 @@ func (c *ForemanClient) QueryForemanWebhookTemplate(ctx context.Context, name st
 		return nil, nil
 	}
 	var obj ForemanWebhookTemplate
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

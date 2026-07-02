@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanOperatingSystemRequest is the request payload.
 type ForemanOperatingSystemRequest struct {
 	Major                   string  `json:"major,omitempty"`
 	Name                    string  `json:"name,omitempty"`
@@ -24,7 +23,6 @@ type ForemanOperatingSystemRequest struct {
 	ReleaseName             string  `json:"release_name,omitempty"`
 }
 
-// ForemanOperatingSystem is the entity type.
 type ForemanOperatingSystem struct {
 	ForemanObject
 	Major                   string  `json:"major"`
@@ -40,7 +38,6 @@ type ForemanOperatingSystem struct {
 	ReleaseName             string  `json:"release_name"`
 }
 
-// CreateForemanOperatingSystem creates a new ForemanOperatingSystem.
 func (c *ForemanClient) CreateForemanOperatingSystem(ctx context.Context, req *ForemanOperatingSystemRequest) (*ForemanOperatingSystem, error) {
 	var resp ForemanOperatingSystem
 	err := c.Post(ctx, "operatingsystems", "operatingsystem", req, &resp)
@@ -50,7 +47,6 @@ func (c *ForemanClient) CreateForemanOperatingSystem(ctx context.Context, req *F
 	return &resp, nil
 }
 
-// ReadForemanOperatingSystem reads a ForemanOperatingSystem by ID.
 func (c *ForemanClient) ReadForemanOperatingSystem(ctx context.Context, id int) (*ForemanOperatingSystem, error) {
 	var resp ForemanOperatingSystem
 	err := c.Get(ctx, fmt.Sprintf("operatingsystems/%d", id), &resp)
@@ -60,7 +56,6 @@ func (c *ForemanClient) ReadForemanOperatingSystem(ctx context.Context, id int) 
 	return &resp, nil
 }
 
-// UpdateForemanOperatingSystem updates a ForemanOperatingSystem by ID.
 func (c *ForemanClient) UpdateForemanOperatingSystem(ctx context.Context, id int, req *ForemanOperatingSystemRequest) (*ForemanOperatingSystem, error) {
 	var resp ForemanOperatingSystem
 	err := c.Put(ctx, fmt.Sprintf("operatingsystems/%d", id), "operatingsystem", req, &resp)
@@ -70,12 +65,10 @@ func (c *ForemanClient) UpdateForemanOperatingSystem(ctx context.Context, id int
 	return &resp, nil
 }
 
-// DeleteForemanOperatingSystem deletes a ForemanOperatingSystem by ID.
 func (c *ForemanClient) DeleteForemanOperatingSystem(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("operatingsystems/%d", id))
 }
 
-// QueryForemanOperatingSystem queries ForemanOperatingSystem by name.
 func (c *ForemanClient) QueryForemanOperatingSystem(ctx context.Context, name string) (*ForemanOperatingSystem, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("operatingsystems?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -86,7 +79,7 @@ func (c *ForemanClient) QueryForemanOperatingSystem(ctx context.Context, name st
 		return nil, nil
 	}
 	var obj ForemanOperatingSystem
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

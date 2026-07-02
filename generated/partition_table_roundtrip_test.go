@@ -4,23 +4,25 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanPartitionTable_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanPartitionTable{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Layout:        "test_layout",
-		Name:          "test_name",
-		AuditComment:  "test_audit_comment",
-		Description:   "test_description",
-		Locked:        true,
-		OsFamily:      "test_os_family",
-		Snippet:       true,
+		AuditComment: "test_audit_comment",
+		Description:  "test_description",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Layout:   "test_layout",
+		Locked:   true,
+		Name:     "test_name",
+		OsFamily: "test_os_family",
+		Snippet:  true,
 	}
 
 	data, err := json.Marshal(original)
@@ -66,11 +68,11 @@ func TestForemanPartitionTable_RoundTripZeroValues(t *testing.T) {
 func TestForemanPartitionTable_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanPartitionTableRequest{
-		Layout:       "test_layout",
-		Name:         "test_name",
 		AuditComment: "test_audit_comment",
 		Description:  "test_description",
+		Layout:       "test_layout",
 		Locked:       true,
+		Name:         "test_name",
 		OsFamily:     "test_os_family",
 		Snippet:      true,
 	}
@@ -81,6 +83,7 @@ func TestForemanPartitionTable_RoundTripRequest(t *testing.T) {
 	var decoded ForemanPartitionTableRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Layout, decoded.Layout)
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.AuditComment, decoded.AuditComment)
@@ -100,6 +103,7 @@ func TestForemanPartitionTable_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanPartitionTableRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Layout, decoded.Layout)
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.AuditComment, decoded.AuditComment)

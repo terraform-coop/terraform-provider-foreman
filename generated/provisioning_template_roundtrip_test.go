@@ -4,22 +4,24 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanProvisioningTemplate_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanProvisioningTemplate{
-		ForemanObject:  ForemanObject{ID: 1, Name: "test"},
-		Name:           "test_name",
-		Template:       "test_template",
-		AuditComment:   "test_audit_comment",
-		Description:    "test_description",
+		AuditComment: "test_audit_comment",
+		Description:  "test_description",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
 		Locked:         true,
+		Name:           "test_name",
 		Snippet:        true,
+		Template:       "test_template",
 		TemplateKindID: 42,
 	}
 
@@ -66,12 +68,12 @@ func TestForemanProvisioningTemplate_RoundTripZeroValues(t *testing.T) {
 func TestForemanProvisioningTemplate_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanProvisioningTemplateRequest{
-		Name:           "test_name",
-		Template:       "test_template",
 		AuditComment:   "test_audit_comment",
 		Description:    "test_description",
 		Locked:         true,
+		Name:           "test_name",
 		Snippet:        true,
+		Template:       "test_template",
 		TemplateKindID: 42,
 	}
 
@@ -81,6 +83,7 @@ func TestForemanProvisioningTemplate_RoundTripRequest(t *testing.T) {
 	var decoded ForemanProvisioningTemplateRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Template, decoded.Template)
 	assert.Equal(t, original.AuditComment, decoded.AuditComment)
@@ -100,6 +103,7 @@ func TestForemanProvisioningTemplate_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanProvisioningTemplateRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Template, decoded.Template)
 	assert.Equal(t, original.AuditComment, decoded.AuditComment)

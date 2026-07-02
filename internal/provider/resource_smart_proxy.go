@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &smartproxyResource{}
-	_ resource.ResourceWithImportState = &smartproxyResource{}
-)
+var _ resource.Resource = &smartproxyResource{}
+var _ resource.ResourceWithImportState = &smartproxyResource{}
 
 func NewForemanSmartProxyResource() resource.Resource {
 	return &smartproxyResource{}
@@ -41,22 +38,14 @@ func (r *smartproxyResource) Metadata(_ context.Context, req resource.MetadataRe
 }
 
 func (r *smartproxyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"url": schema.StringAttribute{
-				Required: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"name": schema.StringAttribute{Required: true},
+		"url":  schema.StringAttribute{Required: true},
+	}}
 }
 
 func (r *smartproxyResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -70,6 +59,7 @@ func (r *smartproxyResource) Configure(_ context.Context, req resource.Configure
 	}
 	r.client = client
 }
+
 func (r *smartproxyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan smartproxyResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -81,6 +71,7 @@ func (r *smartproxyResource) Create(ctx context.Context, req resource.CreateRequ
 		Name: plan.Name.ValueString(),
 		URL:  plan.URL.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanSmartProxy(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create smartproxy, got error: %s", err))
@@ -107,6 +98,7 @@ func (r *smartproxyResource) Read(ctx context.Context, req resource.ReadRequest,
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanSmartProxy(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -116,6 +108,7 @@ func (r *smartproxyResource) Read(ctx context.Context, req resource.ReadRequest,
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read smartproxy, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.URL = types.StringValue(result.URL)
 
@@ -139,16 +132,19 @@ func (r *smartproxyResource) Update(ctx context.Context, req resource.UpdateRequ
 		Name: plan.Name.ValueString(),
 		URL:  plan.URL.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanSmartProxy(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update smartproxy, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.URL = types.StringValue(result.URL)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *smartproxyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state smartproxyResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -161,6 +157,7 @@ func (r *smartproxyResource) Delete(ctx context.Context, req resource.DeleteRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanSmartProxy(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete smartproxy, got error: %s", err))

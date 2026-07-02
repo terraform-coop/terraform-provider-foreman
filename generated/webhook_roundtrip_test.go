@@ -4,26 +4,28 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanWebhook_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanWebhook{
-		ForemanObject:      ForemanObject{ID: 1, Name: "test"},
-		Name:               "test_name",
-		TargetURL:          "test_target_url",
-		HTTPMethod:         "test_http_method",
+		Enabled: true,
+		Event:   "test_event",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
 		HTTPContentType:    "test_http_content_type",
 		HTTPHeaders:        "test_http_headers",
-		Event:              "test_event",
-		Enabled:            true,
-		VerifySSL:          true,
-		SSLCACerts:         "test_ssl_ca_certs",
+		HTTPMethod:         "test_http_method",
+		Name:               "test_name",
 		ProxyAuthorization: true,
+		SSLCACerts:         "test_ssl_ca_certs",
+		TargetURL:          "test_target_url",
+		VerifySSL:          true,
 		WebhookTemplateID:  42,
 	}
 
@@ -78,18 +80,18 @@ func TestForemanWebhook_RoundTripZeroValues(t *testing.T) {
 func TestForemanWebhook_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanWebhookRequest{
-		Name:               "test_name",
-		TargetURL:          "test_target_url",
-		HTTPMethod:         "test_http_method",
+		Enabled:            true,
+		Event:              "test_event",
 		HTTPContentType:    "test_http_content_type",
 		HTTPHeaders:        "test_http_headers",
-		Event:              "test_event",
-		Enabled:            true,
-		VerifySSL:          true,
-		SSLCACerts:         "test_ssl_ca_certs",
-		ProxyAuthorization: true,
-		User:               "test_user",
+		HTTPMethod:         "test_http_method",
+		Name:               "test_name",
 		Password:           "test_password",
+		ProxyAuthorization: true,
+		SSLCACerts:         "test_ssl_ca_certs",
+		TargetURL:          "test_target_url",
+		User:               "test_user",
+		VerifySSL:          true,
 		WebhookTemplateID:  42,
 	}
 
@@ -99,6 +101,7 @@ func TestForemanWebhook_RoundTripRequest(t *testing.T) {
 	var decoded ForemanWebhookRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.TargetURL, decoded.TargetURL)
 	assert.Equal(t, original.HTTPMethod, decoded.HTTPMethod)
@@ -124,6 +127,7 @@ func TestForemanWebhook_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanWebhookRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.TargetURL, decoded.TargetURL)
 	assert.Equal(t, original.HTTPMethod, decoded.HTTPMethod)

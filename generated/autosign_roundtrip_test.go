@@ -4,17 +4,17 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanAutosign_RoundTrip(t *testing.T) {
 	t.Parallel()
-	original := &ForemanAutosign{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-	}
+	original := &ForemanAutosign{ForemanObject: ForemanObject{
+		ID:   1,
+		Name: "test",
+	}}
 
 	data, err := json.Marshal(original)
 	require.NoError(t, err)
@@ -52,6 +52,7 @@ func TestForemanAutosign_RoundTripRequest(t *testing.T) {
 	var decoded ForemanAutosignRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 }
 
 func TestForemanAutosign_RoundTripRequestZeroValues(t *testing.T) {
@@ -64,4 +65,5 @@ func TestForemanAutosign_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanAutosignRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 }

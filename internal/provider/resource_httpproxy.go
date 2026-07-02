@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &httpproxyResource{}
-	_ resource.ResourceWithImportState = &httpproxyResource{}
-)
+var _ resource.Resource = &httpproxyResource{}
+var _ resource.ResourceWithImportState = &httpproxyResource{}
 
 func NewForemanHTTPProxyResource() resource.Resource {
 	return &httpproxyResource{}
@@ -43,34 +40,30 @@ func (r *httpproxyResource) Metadata(_ context.Context, req resource.MetadataReq
 }
 
 func (r *httpproxyResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required:    true,
-				Description: "The HTTP Proxy name",
-			},
-			"url": schema.StringAttribute{
-				Required:    true,
-				Description: "URL of the HTTP Proxy",
-			},
-			"password": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Password used to authenticate with the HTTP Proxy",
-			},
-			"username": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Username used to authenticate with the HTTP Proxy",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"name": schema.StringAttribute{
+			Description: "The HTTP Proxy name",
+			Required:    true,
+		},
+		"password": schema.StringAttribute{
+			Description: "Password used to authenticate with the HTTP Proxy",
+			Optional:    true,
+			Required:    false,
+		},
+		"url": schema.StringAttribute{
+			Description: "URL of the HTTP Proxy",
+			Required:    true,
+		},
+		"username": schema.StringAttribute{
+			Description: "Username used to authenticate with the HTTP Proxy",
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *httpproxyResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -84,6 +77,7 @@ func (r *httpproxyResource) Configure(_ context.Context, req resource.ConfigureR
 	}
 	r.client = client
 }
+
 func (r *httpproxyResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan httpproxyResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -93,10 +87,11 @@ func (r *httpproxyResource) Create(ctx context.Context, req resource.CreateReque
 
 	body := &generated.ForemanHTTPProxyRequest{
 		Name:     plan.Name.ValueString(),
-		URL:      plan.URL.ValueString(),
 		Password: plan.Password.ValueString(),
+		URL:      plan.URL.ValueString(),
 		Username: plan.Username.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanHTTPProxy(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create httpproxy, got error: %s", err))
@@ -125,6 +120,7 @@ func (r *httpproxyResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanHTTPProxy(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -134,6 +130,7 @@ func (r *httpproxyResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read httpproxy, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.URL = types.StringValue(result.URL)
 	state.Password = types.StringValue(result.Password)
@@ -157,15 +154,17 @@ func (r *httpproxyResource) Update(ctx context.Context, req resource.UpdateReque
 
 	body := &generated.ForemanHTTPProxyRequest{
 		Name:     plan.Name.ValueString(),
-		URL:      plan.URL.ValueString(),
 		Password: plan.Password.ValueString(),
+		URL:      plan.URL.ValueString(),
 		Username: plan.Username.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanHTTPProxy(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update httpproxy, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.URL = types.StringValue(result.URL)
 	plan.Password = types.StringValue(result.Password)
@@ -173,6 +172,7 @@ func (r *httpproxyResource) Update(ctx context.Context, req resource.UpdateReque
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *httpproxyResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state httpproxyResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -185,6 +185,7 @@ func (r *httpproxyResource) Delete(ctx context.Context, req resource.DeleteReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanHTTPProxy(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete httpproxy, got error: %s", err))

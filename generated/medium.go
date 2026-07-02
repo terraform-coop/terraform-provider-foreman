@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanMediumRequest is the request payload.
 type ForemanMediumRequest struct {
 	Name               string  `json:"name,omitempty"`
 	Path               string  `json:"path,omitempty"`
@@ -17,7 +16,6 @@ type ForemanMediumRequest struct {
 	OsFamily           string  `json:"os_family,omitempty"`
 }
 
-// ForemanMedium is the entity type.
 type ForemanMedium struct {
 	ForemanObject
 	Name               string  `json:"name"`
@@ -26,7 +24,6 @@ type ForemanMedium struct {
 	OsFamily           string  `json:"os_family"`
 }
 
-// CreateForemanMedium creates a new ForemanMedium.
 func (c *ForemanClient) CreateForemanMedium(ctx context.Context, req *ForemanMediumRequest) (*ForemanMedium, error) {
 	var resp ForemanMedium
 	err := c.Post(ctx, "media", "medium", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanMedium(ctx context.Context, req *ForemanMed
 	return &resp, nil
 }
 
-// ReadForemanMedium reads a ForemanMedium by ID.
 func (c *ForemanClient) ReadForemanMedium(ctx context.Context, id int) (*ForemanMedium, error) {
 	var resp ForemanMedium
 	err := c.Get(ctx, fmt.Sprintf("media/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanMedium(ctx context.Context, id int) (*Foreman
 	return &resp, nil
 }
 
-// UpdateForemanMedium updates a ForemanMedium by ID.
 func (c *ForemanClient) UpdateForemanMedium(ctx context.Context, id int, req *ForemanMediumRequest) (*ForemanMedium, error) {
 	var resp ForemanMedium
 	err := c.Put(ctx, fmt.Sprintf("media/%d", id), "medium", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanMedium(ctx context.Context, id int, req *Fo
 	return &resp, nil
 }
 
-// DeleteForemanMedium deletes a ForemanMedium by ID.
 func (c *ForemanClient) DeleteForemanMedium(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("media/%d", id))
 }
 
-// QueryForemanMedium queries ForemanMedium by name.
 func (c *ForemanClient) QueryForemanMedium(ctx context.Context, name string) (*ForemanMedium, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("media?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanMedium(ctx context.Context, name string) (*F
 		return nil, nil
 	}
 	var obj ForemanMedium
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -5,29 +5,25 @@ package provider
 import (
 	"context"
 	"fmt"
+	datasource "github.com/hashicorp/terraform-plugin-framework/datasource"
+	schema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
-
-	"github.com/hashicorp/terraform-plugin-framework/datasource"
-	dsdchema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource = &job_templateDataSource{}
-)
+var _ datasource.DataSource = &jobtemplateDataSource{}
 
 func NewForemanJobTemplateDataSource() datasource.DataSource {
-	return &job_templateDataSource{}
+	return &jobtemplateDataSource{}
 }
 
-type job_templateDataSource struct {
+type jobtemplateDataSource struct {
 	client *generated.ForemanClient
 }
 
-type job_templateDataSourceModel struct {
+type jobtemplateDataSourceModel struct {
 	ID           types.String `tfsdk:"id"`
 	Name         types.String `tfsdk:"name"`
 	Description  types.String `tfsdk:"description"`
@@ -35,34 +31,21 @@ type job_templateDataSourceModel struct {
 	ProviderType types.String `tfsdk:"provider_type"`
 }
 
-func (d *job_templateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_job_template"
+func (d *jobtemplateDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_jobtemplate"
 }
 
-func (d *job_templateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
-	resp.Schema = dsdchema.Schema{
-		Attributes: map[string]dsdchema.Attribute{
-			"id": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"name": dsdchema.StringAttribute{
-				Required:    true,
-				Description: "The name of the job_template to look up.",
-			},
-			"description": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"job_category": dsdchema.StringAttribute{
-				Computed: true,
-			},
-			"provider_type": dsdchema.StringAttribute{
-				Computed: true,
-			},
+func (d *jobtemplateDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the jobtemplate to look up.",
+			Required:    true,
 		},
-	}
+	}}
 }
 
-func (d *job_templateDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *jobtemplateDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -74,8 +57,8 @@ func (d *job_templateDataSource) Configure(_ context.Context, req datasource.Con
 	d.client = client
 }
 
-func (d *job_templateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	var data job_templateDataSourceModel
+func (d *jobtemplateDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data jobtemplateDataSourceModel
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -84,7 +67,7 @@ func (d *job_templateDataSource) Read(ctx context.Context, req datasource.ReadRe
 	name := data.Name.ValueString()
 	result, err := d.client.QueryForemanJobTemplate(ctx, name)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read job_template, got error: %s", err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read jobtemplate, got error: %s", err))
 		return
 	}
 	if result == nil {
@@ -97,6 +80,6 @@ func (d *job_templateDataSource) Read(ctx context.Context, req datasource.ReadRe
 	data.JobCategory = types.StringValue(result.JobCategory)
 	data.ProviderType = types.StringValue(result.ProviderType)
 
-	tflog.Trace(ctx, "read job_template data source", map[string]interface{}{"id": data.ID.ValueString()})
+	tflog.Trace(ctx, "read jobtemplate data source", map[string]interface{}{"id": data.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }

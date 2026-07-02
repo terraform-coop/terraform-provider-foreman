@@ -4,16 +4,14 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanHost_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanHost{
-		ForemanObject:           ForemanObject{ID: 1, Name: "test"},
 		ArchitectureID:          42,
 		BmcAvailable:            true,
 		Build:                   true,
@@ -30,29 +28,33 @@ func TestForemanHost_RoundTrip(t *testing.T) {
 		DisplayName:             "test_display_name",
 		DomainID:                42,
 		Enabled:                 true,
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
 		GlobalStatus:            42,
 		GlobalStatusLabel:       "test_global_status_label",
 		HostgroupID:             42,
+		IP:                      "test_ip",
+		IP6:                     "test_ip6",
 		ImageID:                 "test_image_id",
 		InitiatedAt:             "test_initiated_at",
 		InstalledAt:             "test_installed_at",
-		IP:                      "test_ip",
-		IP6:                     "test_ip6",
 		LastCompile:             "test_last_compile",
 		LastReport:              "test_last_report",
 		MAC:                     "test_mac",
 		Managed:                 true,
 		MediumID:                42,
 		ModelID:                 "test_model_id",
-		OperatingsystemIcon:     "test_operatingsystem_icon",
 		OperatingsystemID:       42,
+		OperatingsystemIcon:     "test_operatingsystem_icon",
 		OwnerID:                 42,
 		OwnerType:               "test_owner_type",
+		PXELoader:               "test_pxe_loader",
 		ProvisionMethod:         "test_provision_method",
 		PtableID:                42,
 		PuppetCaProxyID:         "test_puppet_ca_proxy_id",
 		PuppetProxyID:           "test_puppet_proxy_id",
-		PXELoader:               "test_pxe_loader",
 		RealmID:                 "test_realm_id",
 		RebuildRequiresPoweroff: true,
 		SpIP:                    "test_sp_ip",
@@ -191,7 +193,6 @@ func TestForemanHost_RoundTripZeroValues(t *testing.T) {
 func TestForemanHost_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanHostRequest{
-		Name:              "test_name",
 		ArchitectureID:    42,
 		Build:             true,
 		Comment:           "test_comment",
@@ -200,22 +201,23 @@ func TestForemanHost_RoundTripRequest(t *testing.T) {
 		DomainID:          42,
 		Enabled:           true,
 		HostgroupID:       42,
-		ImageID:           42,
 		IP:                "test_ip",
+		ImageID:           42,
 		MAC:               "test_mac",
 		Managed:           true,
 		MediumID:          42,
 		ModelID:           42,
+		Name:              "test_name",
 		OperatingsystemID: 42,
 		Overwrite:         true,
 		OwnerID:           42,
 		OwnerType:         "test_owner_type",
+		PXELoader:         "test_pxe_loader",
 		ProgressReportID:  "test_progress_report_id",
 		ProvisionMethod:   "test_provision_method",
 		PtableID:          42,
 		PuppetCaProxyID:   42,
 		PuppetProxyID:     42,
-		PXELoader:         "test_pxe_loader",
 		RealmID:           42,
 		RootPass:          "test_root_pass",
 		SubnetID:          42,
@@ -227,6 +229,7 @@ func TestForemanHost_RoundTripRequest(t *testing.T) {
 	var decoded ForemanHostRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.ArchitectureID, decoded.ArchitectureID)
 	assert.Equal(t, original.Build, decoded.Build)
@@ -267,6 +270,7 @@ func TestForemanHost_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanHostRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.ArchitectureID, decoded.ArchitectureID)
 	assert.Equal(t, original.Build, decoded.Build)

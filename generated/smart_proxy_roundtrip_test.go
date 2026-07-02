@@ -4,18 +4,20 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanSmartProxy_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSmartProxy{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
-		Name:          "test_name",
-		URL:           "test_url",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Name: "test_name",
+		URL:  "test_url",
 	}
 
 	data, err := json.Marshal(original)
@@ -61,6 +63,7 @@ func TestForemanSmartProxy_RoundTripRequest(t *testing.T) {
 	var decoded ForemanSmartProxyRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.URL, decoded.URL)
 }
@@ -75,6 +78,7 @@ func TestForemanSmartProxy_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanSmartProxyRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.URL, decoded.URL)
 }

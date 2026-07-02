@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanDiscoveryRuleRequest is the request payload.
 type ForemanDiscoveryRuleRequest struct {
 	Name               string `json:"name,omitempty"`
 	Search             string `json:"search,omitempty"`
@@ -20,7 +19,6 @@ type ForemanDiscoveryRuleRequest struct {
 	Enabled            bool   `json:"enabled,omitempty"`
 }
 
-// ForemanDiscoveryRule is the entity type.
 type ForemanDiscoveryRule struct {
 	ForemanObject
 	Name               string `json:"name"`
@@ -32,7 +30,6 @@ type ForemanDiscoveryRule struct {
 	Enabled            bool   `json:"enabled"`
 }
 
-// CreateForemanDiscoveryRule creates a new ForemanDiscoveryRule.
 func (c *ForemanClient) CreateForemanDiscoveryRule(ctx context.Context, req *ForemanDiscoveryRuleRequest) (*ForemanDiscoveryRule, error) {
 	var resp ForemanDiscoveryRule
 	err := c.Post(ctx, "discovery_rules", "discovery_rule", req, &resp)
@@ -42,7 +39,6 @@ func (c *ForemanClient) CreateForemanDiscoveryRule(ctx context.Context, req *For
 	return &resp, nil
 }
 
-// ReadForemanDiscoveryRule reads a ForemanDiscoveryRule by ID.
 func (c *ForemanClient) ReadForemanDiscoveryRule(ctx context.Context, id int) (*ForemanDiscoveryRule, error) {
 	var resp ForemanDiscoveryRule
 	err := c.Get(ctx, fmt.Sprintf("discovery_rules/%d", id), &resp)
@@ -52,7 +48,6 @@ func (c *ForemanClient) ReadForemanDiscoveryRule(ctx context.Context, id int) (*
 	return &resp, nil
 }
 
-// UpdateForemanDiscoveryRule updates a ForemanDiscoveryRule by ID.
 func (c *ForemanClient) UpdateForemanDiscoveryRule(ctx context.Context, id int, req *ForemanDiscoveryRuleRequest) (*ForemanDiscoveryRule, error) {
 	var resp ForemanDiscoveryRule
 	err := c.Put(ctx, fmt.Sprintf("discovery_rules/%d", id), "discovery_rule", req, &resp)
@@ -62,12 +57,10 @@ func (c *ForemanClient) UpdateForemanDiscoveryRule(ctx context.Context, id int, 
 	return &resp, nil
 }
 
-// DeleteForemanDiscoveryRule deletes a ForemanDiscoveryRule by ID.
 func (c *ForemanClient) DeleteForemanDiscoveryRule(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("discovery_rules/%d", id))
 }
 
-// QueryForemanDiscoveryRule queries ForemanDiscoveryRule by name.
 func (c *ForemanClient) QueryForemanDiscoveryRule(ctx context.Context, name string) (*ForemanDiscoveryRule, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("discovery_rules?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -78,7 +71,7 @@ func (c *ForemanClient) QueryForemanDiscoveryRule(ctx context.Context, name stri
 		return nil, nil
 	}
 	var obj ForemanDiscoveryRule
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

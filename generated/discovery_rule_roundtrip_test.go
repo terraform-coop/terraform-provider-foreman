@@ -4,23 +4,25 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanDiscoveryRule_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanDiscoveryRule{
-		ForemanObject:      ForemanObject{ID: 1, Name: "test"},
-		Name:               "test_name",
-		Search:             "test_search",
+		Enabled: true,
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
 		HostgroupID:        42,
 		Hostname:           "test_hostname",
 		HostsLimitMaxCount: 42,
+		Name:               "test_name",
 		Priority:           42,
-		Enabled:            true,
+		Search:             "test_search",
 	}
 
 	data, err := json.Marshal(original)
@@ -66,13 +68,13 @@ func TestForemanDiscoveryRule_RoundTripZeroValues(t *testing.T) {
 func TestForemanDiscoveryRule_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanDiscoveryRuleRequest{
-		Name:               "test_name",
-		Search:             "test_search",
+		Enabled:            true,
 		HostgroupID:        42,
 		Hostname:           "test_hostname",
 		HostsLimitMaxCount: 42,
+		Name:               "test_name",
 		Priority:           42,
-		Enabled:            true,
+		Search:             "test_search",
 	}
 
 	data, err := json.Marshal(original)
@@ -81,6 +83,7 @@ func TestForemanDiscoveryRule_RoundTripRequest(t *testing.T) {
 	var decoded ForemanDiscoveryRuleRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Search, decoded.Search)
 	assert.Equal(t, original.HostgroupID, decoded.HostgroupID)
@@ -100,6 +103,7 @@ func TestForemanDiscoveryRule_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanDiscoveryRuleRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Search, decoded.Search)
 	assert.Equal(t, original.HostgroupID, decoded.HostgroupID)

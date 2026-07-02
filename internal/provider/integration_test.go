@@ -17,6 +17,10 @@ import (
 func testClient(t *testing.T) *generated.ForemanClient {
 	t.Helper()
 
+	if os.Getenv("FOREMAN_INTEGRATION_TESTS") == "" {
+		t.Skip("Set FOREMAN_INTEGRATION_TESTS=1 to run integration tests")
+	}
+
 	hostname := os.Getenv("FOREMAN_SERVER_HOSTNAME")
 	if hostname == "" {
 		hostname = "localhost"
@@ -29,7 +33,7 @@ func testClient(t *testing.T) *generated.ForemanClient {
 	if password == "" {
 		password = "changeme"
 	}
-	tlsInsecure := os.Getenv("FOREMAN_CLIENT_TLS_INSECURE") == "true" || os.Getenv("FOREMAN_CLIENT_TLS_INSECURE") == ""
+	tlsInsecure := os.Getenv("FOREMAN_CLIENT_TLS_INSECURE") == "true"
 
 	scheme := "https"
 	if os.Getenv("FOREMAN_CLIENT_SCHEME") == "http" {

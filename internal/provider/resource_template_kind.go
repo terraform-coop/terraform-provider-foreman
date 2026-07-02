@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &templatekindResource{}
-	_ resource.ResourceWithImportState = &templatekindResource{}
-)
+var _ resource.Resource = &templatekindResource{}
+var _ resource.ResourceWithImportState = &templatekindResource{}
 
 func NewForemanTemplateKindResource() resource.Resource {
 	return &templatekindResource{}
@@ -40,19 +37,13 @@ func (r *templatekindResource) Metadata(_ context.Context, req resource.Metadata
 }
 
 func (r *templatekindResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Computed: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"name": schema.StringAttribute{Computed: true},
+	}}
 }
 
 func (r *templatekindResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -66,6 +57,7 @@ func (r *templatekindResource) Configure(_ context.Context, req resource.Configu
 	}
 	r.client = client
 }
+
 func (r *templatekindResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	tflog.Warn(ctx, "Create is not supported for templatekind")
 	resp.Diagnostics.AddError("Not Supported", "Create is not supported for this resource")
@@ -83,6 +75,7 @@ func (r *templatekindResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanTemplateKind(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -92,6 +85,7 @@ func (r *templatekindResource) Read(ctx context.Context, req resource.ReadReques
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read templatekind, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -101,6 +95,7 @@ func (r *templatekindResource) Update(ctx context.Context, req resource.UpdateRe
 	tflog.Warn(ctx, "Update is not supported for templatekind")
 	resp.Diagnostics.AddError("Not Supported", "Update is not supported for this resource")
 }
+
 func (r *templatekindResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	tflog.Warn(ctx, "Delete is not supported for templatekind")
 	resp.Diagnostics.AddError("Not Supported", "Delete is not supported for this resource")

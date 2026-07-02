@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &userResource{}
-	_ resource.ResourceWithImportState = &userResource{}
-)
+var _ resource.Resource = &userResource{}
+var _ resource.ResourceWithImportState = &userResource{}
 
 func NewForemanUserResource() resource.Resource {
 	return &userResource{}
@@ -56,84 +53,74 @@ func (r *userResource) Metadata(_ context.Context, req resource.MetadataRequest,
 }
 
 func (r *userResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"auth_source_id": schema.Int64Attribute{
-				Required: true,
-			},
-			"login": schema.StringAttribute{
-				Required: true,
-			},
-			"mail": schema.StringAttribute{
-				Required: true,
-			},
-			"admin": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "is an admin account",
-			},
-			"default_location_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
-			"default_organization_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
-			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"disabled": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"firstname": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"lastname": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"locale": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "User&#39;s preferred locale",
-			},
-			"mail_enabled": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Enable user&#39;s email",
-			},
-			"password": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Required unless user is in an external authentication source",
-			},
-			"role_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				ElementType: types.Int64Type,
-			},
-			"timezone": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "User&#39;s timezone",
-			},
-			"ui_compact_mode": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Use compact UI",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"admin": schema.BoolAttribute{
+			Description: "is an admin account",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"auth_source_id": schema.Int64Attribute{Required: true},
+		"default_location_id": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+		"default_organization_id": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+		"description": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"disabled": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"firstname": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"lastname": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"locale": schema.StringAttribute{
+			Description: "User&#39;s preferred locale",
+			Optional:    true,
+			Required:    false,
+		},
+		"login": schema.StringAttribute{Required: true},
+		"mail":  schema.StringAttribute{Required: true},
+		"mail_enabled": schema.BoolAttribute{
+			Description: "Enable user&#39;s email",
+			Optional:    true,
+			Required:    false,
+		},
+		"password": schema.StringAttribute{
+			Description: "Required unless user is in an external authentication source",
+			Optional:    true,
+			Required:    false,
+		},
+		"role_ids": schema.ListAttribute{
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"timezone": schema.StringAttribute{
+			Description: "User&#39;s timezone",
+			Optional:    true,
+			Required:    false,
+		},
+		"ui_compact_mode": schema.BoolAttribute{
+			Description: "Use compact UI",
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *userResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -147,6 +134,7 @@ func (r *userResource) Configure(_ context.Context, req resource.ConfigureReques
 	}
 	r.client = client
 }
+
 func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan userResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -155,10 +143,8 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	body := &generated.ForemanUserRequest{
-		AuthSourceID:          plan.AuthSourceID.ValueInt64(),
-		Login:                 plan.Login.ValueString(),
-		Mail:                  plan.Mail.ValueString(),
 		Admin:                 plan.Admin.ValueBool(),
+		AuthSourceID:          plan.AuthSourceID.ValueInt64(),
 		DefaultLocationID:     plan.DefaultLocationID.ValueInt64(),
 		DefaultOrganizationID: plan.DefaultOrganizationID.ValueInt64(),
 		Description:           plan.Description.ValueString(),
@@ -166,6 +152,8 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Firstname:             plan.Firstname.ValueString(),
 		Lastname:              plan.Lastname.ValueString(),
 		Locale:                plan.Locale.ValueString(),
+		Login:                 plan.Login.ValueString(),
+		Mail:                  plan.Mail.ValueString(),
 		MailEnabled:           plan.MailEnabled.ValueBool(),
 		Password:              plan.Password.ValueString(),
 		RoleIDs: func() []int64 {
@@ -183,6 +171,7 @@ func (r *userResource) Create(ctx context.Context, req resource.CreateRequest, r
 		Timezone:      plan.Timezone.ValueString(),
 		UiCompactMode: plan.UiCompactMode.ValueBool(),
 	}
+
 	result, err := r.client.CreateForemanUser(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create user, got error: %s", err))
@@ -222,6 +211,7 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanUser(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -231,6 +221,7 @@ func (r *userResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read user, got error: %s", err))
 		return
 	}
+
 	state.AuthSourceID = types.Int64Value(int64(result.AuthSourceID))
 	state.Login = types.StringValue(result.Login)
 	state.Mail = types.StringValue(result.Mail)
@@ -273,10 +264,8 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	body := &generated.ForemanUserRequest{
-		AuthSourceID:          plan.AuthSourceID.ValueInt64(),
-		Login:                 plan.Login.ValueString(),
-		Mail:                  plan.Mail.ValueString(),
 		Admin:                 plan.Admin.ValueBool(),
+		AuthSourceID:          plan.AuthSourceID.ValueInt64(),
 		DefaultLocationID:     plan.DefaultLocationID.ValueInt64(),
 		DefaultOrganizationID: plan.DefaultOrganizationID.ValueInt64(),
 		Description:           plan.Description.ValueString(),
@@ -284,6 +273,8 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		Firstname:             plan.Firstname.ValueString(),
 		Lastname:              plan.Lastname.ValueString(),
 		Locale:                plan.Locale.ValueString(),
+		Login:                 plan.Login.ValueString(),
+		Mail:                  plan.Mail.ValueString(),
 		MailEnabled:           plan.MailEnabled.ValueBool(),
 		Password:              plan.Password.ValueString(),
 		RoleIDs: func() []int64 {
@@ -301,11 +292,13 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		Timezone:      plan.Timezone.ValueString(),
 		UiCompactMode: plan.UiCompactMode.ValueBool(),
 	}
+
 	result, err := r.client.UpdateForemanUser(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update user, got error: %s", err))
 		return
 	}
+
 	plan.AuthSourceID = types.Int64Value(int64(result.AuthSourceID))
 	plan.Login = types.StringValue(result.Login)
 	plan.Mail = types.StringValue(result.Mail)
@@ -324,6 +317,7 @@ func (r *userResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state userResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -336,6 +330,7 @@ func (r *userResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanUser(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete user, got error: %s", err))

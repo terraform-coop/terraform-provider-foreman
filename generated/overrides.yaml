@@ -113,6 +113,10 @@ resources:
       # --- COMPLEX NESTED TYPES (need custom bridging) ---
       - parameters                  # Hand-written resource handles via UnmarshalJSON
       - template_combinations       # Managed via provisioning_template_ids
+  media:
+    short_name: media
+  template_inputs:
+    short_name: templateinput
   compute_resources:
     field_types:
       id: int

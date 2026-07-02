@@ -4,22 +4,24 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanComputeResource_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanComputeResource{
-		ForemanObject:      ForemanObject{ID: 1, Name: "test"},
+		CachingEnabled: true,
+		Datacenter:     "test_datacenter",
+		Description:    "test_description",
+		DisplayType:    "test_display_type",
+		Domain:         "test_domain",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
 		Name:               "test_name",
-		CachingEnabled:     true,
-		Datacenter:         "test_datacenter",
-		Description:        "test_description",
-		DisplayType:        "test_display_type",
-		Domain:             "test_domain",
 		Password:           "test_password",
 		ProjectDomainID:    "test_project_domain_id",
 		ProjectDomainName:  "test_project_domain_name",
@@ -93,12 +95,12 @@ func TestForemanComputeResource_RoundTripZeroValues(t *testing.T) {
 func TestForemanComputeResource_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanComputeResourceRequest{
-		Name:               "test_name",
 		CachingEnabled:     true,
 		Datacenter:         "test_datacenter",
 		Description:        "test_description",
 		DisplayType:        "test_display_type",
 		Domain:             "test_domain",
+		Name:               "test_name",
 		Password:           "test_password",
 		ProjectDomainID:    "test_project_domain_id",
 		ProjectDomainName:  "test_project_domain_name",
@@ -117,6 +119,7 @@ func TestForemanComputeResource_RoundTripRequest(t *testing.T) {
 	var decoded ForemanComputeResourceRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.CachingEnabled, decoded.CachingEnabled)
 	assert.Equal(t, original.Datacenter, decoded.Datacenter)
@@ -145,6 +148,7 @@ func TestForemanComputeResource_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanComputeResourceRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.CachingEnabled, decoded.CachingEnabled)
 	assert.Equal(t, original.Datacenter, decoded.Datacenter)

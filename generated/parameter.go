@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanParameterRequest is the request payload.
 type ForemanParameterRequest struct {
 	Name          string `json:"name,omitempty"`
 	ParameterType string `json:"parameter_type,omitempty"`
@@ -17,7 +16,6 @@ type ForemanParameterRequest struct {
 	HiddenValue   bool   `json:"hidden_value,omitempty"`
 }
 
-// ForemanParameter is the entity type.
 type ForemanParameter struct {
 	ForemanObject
 	Name          string `json:"name"`
@@ -26,7 +24,6 @@ type ForemanParameter struct {
 	HiddenValue   bool   `json:"hidden_value"`
 }
 
-// CreateForemanParameter creates a new ForemanParameter.
 func (c *ForemanClient) CreateForemanParameter(ctx context.Context, req *ForemanParameterRequest) (*ForemanParameter, error) {
 	var resp ForemanParameter
 	err := c.Post(ctx, "parameters", "parameter", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanParameter(ctx context.Context, req *Foreman
 	return &resp, nil
 }
 
-// ReadForemanParameter reads a ForemanParameter by ID.
 func (c *ForemanClient) ReadForemanParameter(ctx context.Context, id int) (*ForemanParameter, error) {
 	var resp ForemanParameter
 	err := c.Get(ctx, fmt.Sprintf("parameters/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanParameter(ctx context.Context, id int) (*Fore
 	return &resp, nil
 }
 
-// UpdateForemanParameter updates a ForemanParameter by ID.
 func (c *ForemanClient) UpdateForemanParameter(ctx context.Context, id int, req *ForemanParameterRequest) (*ForemanParameter, error) {
 	var resp ForemanParameter
 	err := c.Put(ctx, fmt.Sprintf("parameters/%d", id), "parameter", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanParameter(ctx context.Context, id int, req 
 	return &resp, nil
 }
 
-// DeleteForemanParameter deletes a ForemanParameter by ID.
 func (c *ForemanClient) DeleteForemanParameter(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("parameters/%d", id))
 }
 
-// QueryForemanParameter queries ForemanParameter by name.
 func (c *ForemanClient) QueryForemanParameter(ctx context.Context, name string) (*ForemanParameter, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("parameters?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanParameter(ctx context.Context, name string) 
 		return nil, nil
 	}
 	var obj ForemanParameter
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

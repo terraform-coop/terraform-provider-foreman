@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanModelRequest is the request payload.
 type ForemanModelRequest struct {
 	Name          string `json:"name,omitempty"`
 	HardwareModel string `json:"hardware_model,omitempty"`
@@ -17,7 +16,6 @@ type ForemanModelRequest struct {
 	VendorClass   string `json:"vendor_class,omitempty"`
 }
 
-// ForemanModel is the entity type.
 type ForemanModel struct {
 	ForemanObject
 	HardwareModel string `json:"hardware_model"`
@@ -26,7 +24,6 @@ type ForemanModel struct {
 	VendorClass   string `json:"vendor_class"`
 }
 
-// CreateForemanModel creates a new ForemanModel.
 func (c *ForemanClient) CreateForemanModel(ctx context.Context, req *ForemanModelRequest) (*ForemanModel, error) {
 	var resp ForemanModel
 	err := c.Post(ctx, "models", "model", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanModel(ctx context.Context, req *ForemanMode
 	return &resp, nil
 }
 
-// ReadForemanModel reads a ForemanModel by ID.
 func (c *ForemanClient) ReadForemanModel(ctx context.Context, id int) (*ForemanModel, error) {
 	var resp ForemanModel
 	err := c.Get(ctx, fmt.Sprintf("models/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanModel(ctx context.Context, id int) (*ForemanM
 	return &resp, nil
 }
 
-// UpdateForemanModel updates a ForemanModel by ID.
 func (c *ForemanClient) UpdateForemanModel(ctx context.Context, id int, req *ForemanModelRequest) (*ForemanModel, error) {
 	var resp ForemanModel
 	err := c.Put(ctx, fmt.Sprintf("models/%d", id), "model", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanModel(ctx context.Context, id int, req *For
 	return &resp, nil
 }
 
-// DeleteForemanModel deletes a ForemanModel by ID.
 func (c *ForemanClient) DeleteForemanModel(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("models/%d", id))
 }
 
-// QueryForemanModel queries ForemanModel by name.
 func (c *ForemanClient) QueryForemanModel(ctx context.Context, name string) (*ForemanModel, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("models?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanModel(ctx context.Context, name string) (*Fo
 		return nil, nil
 	}
 	var obj ForemanModel
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -19,8 +21,9 @@ import (
 )
 
 var (
-	_ resource.Resource                = &hostResource{}
-	_ resource.ResourceWithImportState = &hostResource{}
+	_ resource.Resource                 = &hostResource{}
+	_ resource.ResourceWithImportState  = &hostResource{}
+	_ resource.ResourceWithUpgradeState = &hostResource{}
 )
 
 func NewForemanHostResource() resource.Resource {
@@ -34,6 +37,8 @@ type hostResource struct {
 type hostResourceModel struct {
 	ID                       types.String `tfsdk:"id"`
 	Name                     types.String `tfsdk:"name"`
+	Shortname                types.String `tfsdk:"shortname"`
+	DomainName               types.String `tfsdk:"domain_name"`
 	ArchitectureID           types.Int64  `tfsdk:"architecture_id"`
 	BmcAvailable             types.Bool   `tfsdk:"bmc_available"`
 	Build                    types.Bool   `tfsdk:"build"`
@@ -95,6 +100,7 @@ func (r *hostResource) Metadata(_ context.Context, req resource.MetadataRequest,
 
 func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
+		Version: 1,
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Computed: true,
@@ -104,9 +110,29 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"name": schema.StringAttribute{
 				Required: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+					suppressDomainSuffixDiff{},
+				},
+			},
+			"shortname": schema.StringAttribute{
+				Optional: true,
+				Computed: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+				Description: "The short name of the host (without the domain suffix).",
+			},
+			"domain_name": schema.StringAttribute{
+				Optional:    true,
+				Computed:    true,
+				Description: "The domain name of the host.",
 			},
 			"architecture_id": schema.Int64Attribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"bmc_available": schema.BoolAttribute{
 				Computed: true,
@@ -131,6 +157,9 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"compute_resource_id": schema.Int64Attribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"compute_resource_provider": schema.StringAttribute{
 				Computed: true,
@@ -149,6 +178,9 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"domain_id": schema.Int64Attribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"enabled": schema.BoolAttribute{
 				Optional: true,
@@ -195,6 +227,9 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"medium_id": schema.Int64Attribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"model_id": schema.StringAttribute{
 				Optional: true,
@@ -204,6 +239,9 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"operatingsystem_id": schema.Int64Attribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.Int64{
+					int64planmodifier.RequiresReplace(),
+				},
 			},
 			"owner_id": schema.Int64Attribute{
 				Optional: true,
@@ -216,6 +254,9 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"provision_method": schema.StringAttribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"ptable_id": schema.Int64Attribute{
 				Optional: true,
@@ -252,6 +293,9 @@ func (r *hostResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"subnet_id": schema.StringAttribute{
 				Optional: true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"use_image": schema.StringAttribute{
 				Computed: true,
@@ -425,11 +469,54 @@ func (r *hostResource) ImportState(ctx context.Context, req resource.ImportState
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
 }
 
+func (r *hostResource) UpgradeState(ctx context.Context) map[int64]resource.StateUpgrader {
+	return map[int64]resource.StateUpgrader{
+		0: {
+			StateUpgrader: func(ctx context.Context, req resource.UpgradeStateRequest, resp *resource.UpgradeStateResponse) {
+				var oldState map[string]interface{}
+				resp.Diagnostics.Append(req.State.Get(ctx, &oldState)...)
+				if resp.Diagnostics.HasError() {
+					return
+				}
+
+				// Migrate method → build
+				if method, ok := oldState["method"].(string); ok {
+					oldState["build"] = method == "build"
+				} else {
+					oldState["build"] = false
+				}
+				delete(oldState, "method")
+
+				// Migrate manage_build → managed
+				if manageBuild, ok := oldState["manage_build"].(bool); ok {
+					oldState["managed"] = manageBuild
+				}
+				delete(oldState, "manage_build")
+
+				resp.Diagnostics.Append(resp.State.Set(ctx, oldState)...)
+			},
+		},
+	}
+}
+
 // buildHostRequest builds the full API request body from the Terraform plan.
 func buildHostRequest(plan hostResourceModel, diags *diag.Diagnostics) *foremanHostFullRequest {
+	name := plan.Name.ValueString()
+
+	// If shortname is set, construct FQDN from shortname + domain_name
+	if !plan.Shortname.IsNull() && !plan.Shortname.IsUnknown() && plan.Shortname.ValueString() != "" {
+		shortname := plan.Shortname.ValueString()
+		domainName := plan.DomainName.ValueString()
+		if domainName != "" {
+			name = shortname + "." + domainName
+		} else {
+			name = shortname
+		}
+	}
+
 	return &foremanHostFullRequest{
 		ForemanHostRequest: generated.ForemanHostRequest{
-			Name:              plan.Name.ValueString(),
+			Name:              name,
 			ArchitectureID:    plan.ArchitectureID.ValueInt64(),
 			Build:             plan.Build.ValueBool(),
 			Comment:           plan.Comment.ValueString(),
@@ -465,6 +552,16 @@ func buildHostRequest(plan hostResourceModel, diags *diag.Diagnostics) *foremanH
 func marshalHostResultToState(result *foremanHostFullResponse, state *hostResourceModel, diags *diag.Diagnostics) {
 	state.ID = types.StringValue(strconv.Itoa(result.ID))
 	state.Name = types.StringValue(result.Name)
+
+	// Split FQDN into shortname and domain_name
+	if idx := strings.Index(result.Name, "."); idx >= 0 {
+		state.Shortname = types.StringValue(result.Name[:idx])
+		state.DomainName = types.StringValue(result.Name[idx+1:])
+	} else {
+		state.Shortname = types.StringValue(result.Name)
+		state.DomainName = types.StringNull()
+	}
+
 	state.ArchitectureID = types.Int64Value(result.ArchitectureID)
 	state.BmcAvailable = types.BoolValue(result.BmcAvailable)
 	state.Build = types.BoolValue(result.Build)

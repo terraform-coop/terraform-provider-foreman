@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanTemplateInputRequest is the request payload.
 type ForemanTemplateInputRequest struct {
 	InputType    string  `json:"input_type,omitempty"`
 	Name         string  `json:"name,omitempty"`
@@ -25,7 +24,6 @@ type ForemanTemplateInputRequest struct {
 	VariableName string  `json:"variable_name,omitempty"`
 }
 
-// ForemanTemplateInput is the entity type.
 type ForemanTemplateInput struct {
 	ForemanObject
 	InputType    string  `json:"input_type"`
@@ -42,7 +40,6 @@ type ForemanTemplateInput struct {
 	VariableName string  `json:"variable_name"`
 }
 
-// CreateForemanTemplateInput creates a new ForemanTemplateInput.
 func (c *ForemanClient) CreateForemanTemplateInput(ctx context.Context, req *ForemanTemplateInputRequest) (*ForemanTemplateInput, error) {
 	var resp ForemanTemplateInput
 	err := c.Post(ctx, "template_inputs", "template_input", req, &resp)
@@ -52,7 +49,6 @@ func (c *ForemanClient) CreateForemanTemplateInput(ctx context.Context, req *For
 	return &resp, nil
 }
 
-// ReadForemanTemplateInput reads a ForemanTemplateInput by ID.
 func (c *ForemanClient) ReadForemanTemplateInput(ctx context.Context, id int) (*ForemanTemplateInput, error) {
 	var resp ForemanTemplateInput
 	err := c.Get(ctx, fmt.Sprintf("template_inputs/%d", id), &resp)
@@ -62,7 +58,6 @@ func (c *ForemanClient) ReadForemanTemplateInput(ctx context.Context, id int) (*
 	return &resp, nil
 }
 
-// UpdateForemanTemplateInput updates a ForemanTemplateInput by ID.
 func (c *ForemanClient) UpdateForemanTemplateInput(ctx context.Context, id int, req *ForemanTemplateInputRequest) (*ForemanTemplateInput, error) {
 	var resp ForemanTemplateInput
 	err := c.Put(ctx, fmt.Sprintf("template_inputs/%d", id), "template_input", req, &resp)
@@ -72,12 +67,10 @@ func (c *ForemanClient) UpdateForemanTemplateInput(ctx context.Context, id int, 
 	return &resp, nil
 }
 
-// DeleteForemanTemplateInput deletes a ForemanTemplateInput by ID.
 func (c *ForemanClient) DeleteForemanTemplateInput(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("template_inputs/%d", id))
 }
 
-// QueryForemanTemplateInput queries ForemanTemplateInput by name.
 func (c *ForemanClient) QueryForemanTemplateInput(ctx context.Context, name string) (*ForemanTemplateInput, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("template_inputs?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -88,7 +81,7 @@ func (c *ForemanClient) QueryForemanTemplateInput(ctx context.Context, name stri
 		return nil, nil
 	}
 	var obj ForemanTemplateInput
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

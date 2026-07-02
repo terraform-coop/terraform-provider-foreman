@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanUserRequest is the request payload.
 type ForemanUserRequest struct {
 	AuthSourceID          int64   `json:"auth_source_id,omitempty"`
 	Login                 string  `json:"login,omitempty"`
@@ -29,7 +28,6 @@ type ForemanUserRequest struct {
 	UiCompactMode         bool    `json:"ui_compact_mode,omitempty"`
 }
 
-// ForemanUser is the entity type.
 type ForemanUser struct {
 	ForemanObject
 	AuthSourceID          int64   `json:"auth_source_id"`
@@ -50,7 +48,6 @@ type ForemanUser struct {
 	UiCompactMode         bool    `json:"ui_compact_mode"`
 }
 
-// CreateForemanUser creates a new ForemanUser.
 func (c *ForemanClient) CreateForemanUser(ctx context.Context, req *ForemanUserRequest) (*ForemanUser, error) {
 	var resp ForemanUser
 	err := c.Post(ctx, "users", "user", req, &resp)
@@ -60,7 +57,6 @@ func (c *ForemanClient) CreateForemanUser(ctx context.Context, req *ForemanUserR
 	return &resp, nil
 }
 
-// ReadForemanUser reads a ForemanUser by ID.
 func (c *ForemanClient) ReadForemanUser(ctx context.Context, id int) (*ForemanUser, error) {
 	var resp ForemanUser
 	err := c.Get(ctx, fmt.Sprintf("users/%d", id), &resp)
@@ -70,7 +66,6 @@ func (c *ForemanClient) ReadForemanUser(ctx context.Context, id int) (*ForemanUs
 	return &resp, nil
 }
 
-// UpdateForemanUser updates a ForemanUser by ID.
 func (c *ForemanClient) UpdateForemanUser(ctx context.Context, id int, req *ForemanUserRequest) (*ForemanUser, error) {
 	var resp ForemanUser
 	err := c.Put(ctx, fmt.Sprintf("users/%d", id), "user", req, &resp)
@@ -80,12 +75,10 @@ func (c *ForemanClient) UpdateForemanUser(ctx context.Context, id int, req *Fore
 	return &resp, nil
 }
 
-// DeleteForemanUser deletes a ForemanUser by ID.
 func (c *ForemanClient) DeleteForemanUser(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("users/%d", id))
 }
 
-// QueryForemanUser queries ForemanUser by name.
 func (c *ForemanClient) QueryForemanUser(ctx context.Context, name string) (*ForemanUser, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("users?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -96,7 +89,7 @@ func (c *ForemanClient) QueryForemanUser(ctx context.Context, name string) (*For
 		return nil, nil
 	}
 	var obj ForemanUser
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

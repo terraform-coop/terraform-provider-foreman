@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &override_valueResource{}
-	_ resource.ResourceWithImportState = &override_valueResource{}
-)
+var _ resource.Resource = &override_valueResource{}
+var _ resource.ResourceWithImportState = &override_valueResource{}
 
 func NewForemanOverrideValueResource() resource.Resource {
 	return &override_valueResource{}
@@ -43,32 +40,28 @@ func (r *override_valueResource) Metadata(_ context.Context, req resource.Metada
 }
 
 func (r *override_valueResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"parent_id": schema.Int64Attribute{
-				Required:    true,
-				Description: "ID of the parent resource.",
-			},
-			"match": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"value": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"omit": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 		},
-	}
+		"match": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"omit": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"parent_id": schema.Int64Attribute{
+			Description: "ID of the parent resource.",
+			Required:    true,
+		},
+		"value": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *override_valueResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -82,6 +75,7 @@ func (r *override_valueResource) Configure(_ context.Context, req resource.Confi
 	}
 	r.client = client
 }
+
 func (r *override_valueResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan override_valueResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -91,9 +85,10 @@ func (r *override_valueResource) Create(ctx context.Context, req resource.Create
 
 	body := &generated.ForemanOverrideValueRequest{
 		Match: plan.Match.ValueString(),
-		Value: plan.Value.ValueString(),
 		Omit:  plan.Omit.ValueBool(),
+		Value: plan.Value.ValueString(),
 	}
+
 	parentID := int(plan.ParentID.ValueInt64())
 	result, err := r.client.CreateForemanOverrideValue(ctx, parentID, body)
 	if err != nil {
@@ -122,6 +117,7 @@ func (r *override_valueResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	parentID := int(state.ParentID.ValueInt64())
 	result, err := r.client.ReadForemanOverrideValue(ctx, parentID, id)
 	if err != nil {
@@ -132,6 +128,7 @@ func (r *override_valueResource) Read(ctx context.Context, req resource.ReadRequ
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read override_value, got error: %s", err))
 		return
 	}
+
 	state.Match = types.StringValue(result.Match)
 	state.Value = types.StringValue(result.Value)
 	state.Omit = types.BoolValue(result.Omit)
@@ -154,21 +151,24 @@ func (r *override_valueResource) Update(ctx context.Context, req resource.Update
 
 	body := &generated.ForemanOverrideValueRequest{
 		Match: plan.Match.ValueString(),
-		Value: plan.Value.ValueString(),
 		Omit:  plan.Omit.ValueBool(),
+		Value: plan.Value.ValueString(),
 	}
+
 	parentID := int(plan.ParentID.ValueInt64())
 	result, err := r.client.UpdateForemanOverrideValue(ctx, parentID, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update override_value, got error: %s", err))
 		return
 	}
+
 	plan.Match = types.StringValue(result.Match)
 	plan.Value = types.StringValue(result.Value)
 	plan.Omit = types.BoolValue(result.Omit)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *override_valueResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state override_valueResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -181,6 +181,7 @@ func (r *override_valueResource) Delete(ctx context.Context, req resource.Delete
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	parentID := int(state.ParentID.ValueInt64())
 	err = r.client.DeleteForemanOverrideValue(ctx, parentID, id)
 	if err != nil && !generated.IsNotFoundError(err) {

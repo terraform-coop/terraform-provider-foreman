@@ -4,31 +4,33 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanUser_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanUser{
-		ForemanObject:         ForemanObject{ID: 1, Name: "test"},
-		AuthSourceID:          42,
-		Login:                 "test_login",
-		Mail:                  "test_mail",
 		Admin:                 true,
+		AuthSourceID:          42,
 		DefaultLocationID:     42,
 		DefaultOrganizationID: 42,
 		Description:           "test_description",
 		Disabled:              true,
 		Firstname:             "test_firstname",
-		Lastname:              "test_lastname",
-		Locale:                "test_locale",
-		MailEnabled:           true,
-		Password:              "test_password",
-		Timezone:              "test_timezone",
-		UiCompactMode:         true,
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		Lastname:      "test_lastname",
+		Locale:        "test_locale",
+		Login:         "test_login",
+		Mail:          "test_mail",
+		MailEnabled:   true,
+		Password:      "test_password",
+		Timezone:      "test_timezone",
+		UiCompactMode: true,
 	}
 
 	data, err := json.Marshal(original)
@@ -90,10 +92,8 @@ func TestForemanUser_RoundTripZeroValues(t *testing.T) {
 func TestForemanUser_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanUserRequest{
-		AuthSourceID:          42,
-		Login:                 "test_login",
-		Mail:                  "test_mail",
 		Admin:                 true,
+		AuthSourceID:          42,
 		DefaultLocationID:     42,
 		DefaultOrganizationID: 42,
 		Description:           "test_description",
@@ -101,6 +101,8 @@ func TestForemanUser_RoundTripRequest(t *testing.T) {
 		Firstname:             "test_firstname",
 		Lastname:              "test_lastname",
 		Locale:                "test_locale",
+		Login:                 "test_login",
+		Mail:                  "test_mail",
 		MailEnabled:           true,
 		Password:              "test_password",
 		Timezone:              "test_timezone",
@@ -113,6 +115,7 @@ func TestForemanUser_RoundTripRequest(t *testing.T) {
 	var decoded ForemanUserRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.AuthSourceID, decoded.AuthSourceID)
 	assert.Equal(t, original.Login, decoded.Login)
 	assert.Equal(t, original.Mail, decoded.Mail)
@@ -140,6 +143,7 @@ func TestForemanUser_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanUserRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.AuthSourceID, decoded.AuthSourceID)
 	assert.Equal(t, original.Login, decoded.Login)
 	assert.Equal(t, original.Mail, decoded.Mail)

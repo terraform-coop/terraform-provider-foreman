@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanCommonParameterRequest is the request payload.
 type ForemanCommonParameterRequest struct {
 	Name          string `json:"name,omitempty"`
 	ParameterType string `json:"parameter_type,omitempty"`
@@ -17,7 +16,6 @@ type ForemanCommonParameterRequest struct {
 	HiddenValue   bool   `json:"hidden_value,omitempty"`
 }
 
-// ForemanCommonParameter is the entity type.
 type ForemanCommonParameter struct {
 	ForemanObject
 	Name          string `json:"name"`
@@ -26,7 +24,6 @@ type ForemanCommonParameter struct {
 	HiddenValue   bool   `json:"hidden_value"`
 }
 
-// CreateForemanCommonParameter creates a new ForemanCommonParameter.
 func (c *ForemanClient) CreateForemanCommonParameter(ctx context.Context, req *ForemanCommonParameterRequest) (*ForemanCommonParameter, error) {
 	var resp ForemanCommonParameter
 	err := c.Post(ctx, "common_parameters", "common_parameter", req, &resp)
@@ -36,7 +33,6 @@ func (c *ForemanClient) CreateForemanCommonParameter(ctx context.Context, req *F
 	return &resp, nil
 }
 
-// ReadForemanCommonParameter reads a ForemanCommonParameter by ID.
 func (c *ForemanClient) ReadForemanCommonParameter(ctx context.Context, id int) (*ForemanCommonParameter, error) {
 	var resp ForemanCommonParameter
 	err := c.Get(ctx, fmt.Sprintf("common_parameters/%d", id), &resp)
@@ -46,7 +42,6 @@ func (c *ForemanClient) ReadForemanCommonParameter(ctx context.Context, id int) 
 	return &resp, nil
 }
 
-// UpdateForemanCommonParameter updates a ForemanCommonParameter by ID.
 func (c *ForemanClient) UpdateForemanCommonParameter(ctx context.Context, id int, req *ForemanCommonParameterRequest) (*ForemanCommonParameter, error) {
 	var resp ForemanCommonParameter
 	err := c.Put(ctx, fmt.Sprintf("common_parameters/%d", id), "common_parameter", req, &resp)
@@ -56,12 +51,10 @@ func (c *ForemanClient) UpdateForemanCommonParameter(ctx context.Context, id int
 	return &resp, nil
 }
 
-// DeleteForemanCommonParameter deletes a ForemanCommonParameter by ID.
 func (c *ForemanClient) DeleteForemanCommonParameter(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("common_parameters/%d", id))
 }
 
-// QueryForemanCommonParameter queries ForemanCommonParameter by name.
 func (c *ForemanClient) QueryForemanCommonParameter(ctx context.Context, name string) (*ForemanCommonParameter, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("common_parameters?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -72,7 +65,7 @@ func (c *ForemanClient) QueryForemanCommonParameter(ctx context.Context, name st
 		return nil, nil
 	}
 	var obj ForemanCommonParameter
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

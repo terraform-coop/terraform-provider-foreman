@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &webhookResource{}
-	_ resource.ResourceWithImportState = &webhookResource{}
-)
+var _ resource.Resource = &webhookResource{}
+var _ resource.ResourceWithImportState = &webhookResource{}
 
 func NewForemanWebhookResource() resource.Resource {
 	return &webhookResource{}
@@ -50,60 +47,56 @@ func (r *webhookResource) Metadata(_ context.Context, req resource.MetadataReque
 }
 
 func (r *webhookResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"target_url": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"http_method": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"http_content_type": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"http_headers": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"event": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"enabled": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"verify_ssl": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"ssl_ca_certs": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"proxy_authorization": schema.BoolAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"webhook_template_id": schema.Int64Attribute{
-				Required: false,
-				Optional: true,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"enabled": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
 		},
-	}
+		"event": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"http_content_type": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"http_headers": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"http_method": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"proxy_authorization": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"ssl_ca_certs": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"target_url": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"verify_ssl": schema.BoolAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"webhook_template_id": schema.Int64Attribute{
+			Optional: true,
+			Required: false,
+		},
+	}}
 }
 
 func (r *webhookResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -117,6 +110,7 @@ func (r *webhookResource) Configure(_ context.Context, req resource.ConfigureReq
 	}
 	r.client = client
 }
+
 func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan webhookResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -125,18 +119,19 @@ func (r *webhookResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	body := &generated.ForemanWebhookRequest{
-		Name:               plan.Name.ValueString(),
-		TargetURL:          plan.TargetURL.ValueString(),
-		HTTPMethod:         plan.HTTPMethod.ValueString(),
+		Enabled:            plan.Enabled.ValueBool(),
+		Event:              plan.Event.ValueString(),
 		HTTPContentType:    plan.HTTPContentType.ValueString(),
 		HTTPHeaders:        plan.HTTPHeaders.ValueString(),
-		Event:              plan.Event.ValueString(),
-		Enabled:            plan.Enabled.ValueBool(),
-		VerifySSL:          plan.VerifySSL.ValueBool(),
-		SSLCACerts:         plan.SSLCACerts.ValueString(),
+		HTTPMethod:         plan.HTTPMethod.ValueString(),
+		Name:               plan.Name.ValueString(),
 		ProxyAuthorization: plan.ProxyAuthorization.ValueBool(),
+		SSLCACerts:         plan.SSLCACerts.ValueString(),
+		TargetURL:          plan.TargetURL.ValueString(),
+		VerifySSL:          plan.VerifySSL.ValueBool(),
 		WebhookTemplateID:  plan.WebhookTemplateID.ValueInt64(),
 	}
+
 	result, err := r.client.CreateForemanWebhook(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create webhook, got error: %s", err))
@@ -172,6 +167,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanWebhook(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -181,6 +177,7 @@ func (r *webhookResource) Read(ctx context.Context, req resource.ReadRequest, re
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read webhook, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.TargetURL = types.StringValue(result.TargetURL)
 	state.HTTPMethod = types.StringValue(result.HTTPMethod)
@@ -210,23 +207,25 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	body := &generated.ForemanWebhookRequest{
-		Name:               plan.Name.ValueString(),
-		TargetURL:          plan.TargetURL.ValueString(),
-		HTTPMethod:         plan.HTTPMethod.ValueString(),
+		Enabled:            plan.Enabled.ValueBool(),
+		Event:              plan.Event.ValueString(),
 		HTTPContentType:    plan.HTTPContentType.ValueString(),
 		HTTPHeaders:        plan.HTTPHeaders.ValueString(),
-		Event:              plan.Event.ValueString(),
-		Enabled:            plan.Enabled.ValueBool(),
-		VerifySSL:          plan.VerifySSL.ValueBool(),
-		SSLCACerts:         plan.SSLCACerts.ValueString(),
+		HTTPMethod:         plan.HTTPMethod.ValueString(),
+		Name:               plan.Name.ValueString(),
 		ProxyAuthorization: plan.ProxyAuthorization.ValueBool(),
+		SSLCACerts:         plan.SSLCACerts.ValueString(),
+		TargetURL:          plan.TargetURL.ValueString(),
+		VerifySSL:          plan.VerifySSL.ValueBool(),
 		WebhookTemplateID:  plan.WebhookTemplateID.ValueInt64(),
 	}
+
 	result, err := r.client.UpdateForemanWebhook(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update webhook, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.TargetURL = types.StringValue(result.TargetURL)
 	plan.HTTPMethod = types.StringValue(result.HTTPMethod)
@@ -241,6 +240,7 @@ func (r *webhookResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state webhookResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -253,6 +253,7 @@ func (r *webhookResource) Delete(ctx context.Context, req resource.DeleteRequest
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanWebhook(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete webhook, got error: %s", err))

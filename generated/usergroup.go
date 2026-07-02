@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanUsergroupRequest is the request payload.
 type ForemanUsergroupRequest struct {
 	Name         string  `json:"name,omitempty"`
 	Admin        bool    `json:"admin,omitempty"`
@@ -18,7 +17,6 @@ type ForemanUsergroupRequest struct {
 	UsergroupIDs []int64 `json:"usergroup_ids,omitempty"`
 }
 
-// ForemanUsergroup is the entity type.
 type ForemanUsergroup struct {
 	ForemanObject
 	Name         string  `json:"name"`
@@ -28,7 +26,6 @@ type ForemanUsergroup struct {
 	UsergroupIDs []int64 `json:"usergroup_ids"`
 }
 
-// CreateForemanUsergroup creates a new ForemanUsergroup.
 func (c *ForemanClient) CreateForemanUsergroup(ctx context.Context, req *ForemanUsergroupRequest) (*ForemanUsergroup, error) {
 	var resp ForemanUsergroup
 	err := c.Post(ctx, "usergroups", "usergroup", req, &resp)
@@ -38,7 +35,6 @@ func (c *ForemanClient) CreateForemanUsergroup(ctx context.Context, req *Foreman
 	return &resp, nil
 }
 
-// ReadForemanUsergroup reads a ForemanUsergroup by ID.
 func (c *ForemanClient) ReadForemanUsergroup(ctx context.Context, id int) (*ForemanUsergroup, error) {
 	var resp ForemanUsergroup
 	err := c.Get(ctx, fmt.Sprintf("usergroups/%d", id), &resp)
@@ -48,7 +44,6 @@ func (c *ForemanClient) ReadForemanUsergroup(ctx context.Context, id int) (*Fore
 	return &resp, nil
 }
 
-// UpdateForemanUsergroup updates a ForemanUsergroup by ID.
 func (c *ForemanClient) UpdateForemanUsergroup(ctx context.Context, id int, req *ForemanUsergroupRequest) (*ForemanUsergroup, error) {
 	var resp ForemanUsergroup
 	err := c.Put(ctx, fmt.Sprintf("usergroups/%d", id), "usergroup", req, &resp)
@@ -58,12 +53,10 @@ func (c *ForemanClient) UpdateForemanUsergroup(ctx context.Context, id int, req 
 	return &resp, nil
 }
 
-// DeleteForemanUsergroup deletes a ForemanUsergroup by ID.
 func (c *ForemanClient) DeleteForemanUsergroup(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("usergroups/%d", id))
 }
 
-// QueryForemanUsergroup queries ForemanUsergroup by name.
 func (c *ForemanClient) QueryForemanUsergroup(ctx context.Context, name string) (*ForemanUsergroup, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("usergroups?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -74,7 +67,7 @@ func (c *ForemanClient) QueryForemanUsergroup(ctx context.Context, name string) 
 		return nil, nil
 	}
 	var obj ForemanUsergroup
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

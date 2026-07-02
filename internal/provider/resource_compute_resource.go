@@ -5,22 +5,19 @@ package provider
 import (
 	"context"
 	"fmt"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &computeresourceResource{}
-	_ resource.ResourceWithImportState = &computeresourceResource{}
-)
+var _ resource.Resource = &computeresourceResource{}
+var _ resource.ResourceWithImportState = &computeresourceResource{}
 
 func NewForemanComputeResourceResource() resource.Resource {
 	return &computeresourceResource{}
@@ -55,93 +52,87 @@ func (r *computeresourceResource) Metadata(_ context.Context, req resource.Metad
 }
 
 func (r *computeresourceResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"caching_enabled": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "enable caching, for VMware only",
-			},
-			"datacenter": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for VMware Datacenter",
-			},
-			"description": schema.StringAttribute{
-				Required: false,
-				Optional: true,
-			},
-			"display_type": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for Libvirt only",
-			},
-			"domain": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for OpenStack (v3) only",
-			},
-			"password": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Password for EC2, VMware, OpenStack. Secret key for EC2",
-			},
-			"project_domain_id": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for OpenStack (v3) only",
-			},
-			"project_domain_name": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for OpenStack (v3) only",
-			},
-			"provider": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Providers include Libvirt, EC2, Vmware, Openstack",
-			},
-			"region": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for AzureRm eg. &#39;eastus&#39; and for EC2 only. Use &#39;us-gov-west-1&#39; for EC2 GovCloud region",
-			},
-			"server": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for VMware",
-			},
-			"set_console_password": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for Libvirt and VMware only",
-			},
-			"tenant": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "for OpenStack and AzureRm only",
-			},
-			"url": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "URL for Libvirt and OpenStack",
-			},
-			"user": schema.StringAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "Username for EC2, VMware, OpenStack. Access Key for EC2.",
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"caching_enabled": schema.BoolAttribute{
+			Description: "enable caching, for VMware only",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"datacenter": schema.StringAttribute{
+			Description: "for VMware Datacenter",
+			Optional:    true,
+			Required:    false,
+		},
+		"description": schema.StringAttribute{
+			Optional: true,
+			Required: false,
+		},
+		"display_type": schema.StringAttribute{
+			Description: "for Libvirt only",
+			Optional:    true,
+			Required:    false,
+		},
+		"domain": schema.StringAttribute{
+			Description: "for OpenStack (v3) only",
+			Optional:    true,
+			Required:    false,
+		},
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{Required: true},
+		"password": schema.StringAttribute{
+			Description: "Password for EC2, VMware, OpenStack. Secret key for EC2",
+			Optional:    true,
+			Required:    false,
+		},
+		"project_domain_id": schema.StringAttribute{
+			Description: "for OpenStack (v3) only",
+			Optional:    true,
+			Required:    false,
+		},
+		"project_domain_name": schema.StringAttribute{
+			Description: "for OpenStack (v3) only",
+			Optional:    true,
+			Required:    false,
+		},
+		"provider": schema.StringAttribute{
+			Description: "Providers include Libvirt, EC2, Vmware, Openstack",
+			Optional:    true,
+			Required:    false,
+		},
+		"region": schema.StringAttribute{
+			Description: "for AzureRm eg. &#39;eastus&#39; and for EC2 only. Use &#39;us-gov-west-1&#39; for EC2 GovCloud region",
+			Optional:    true,
+			Required:    false,
+		},
+		"server": schema.StringAttribute{
+			Description: "for VMware",
+			Optional:    true,
+			Required:    false,
+		},
+		"set_console_password": schema.BoolAttribute{
+			Description: "for Libvirt and VMware only",
+			Optional:    true,
+			Required:    false,
+		},
+		"tenant": schema.StringAttribute{
+			Description: "for OpenStack and AzureRm only",
+			Optional:    true,
+			Required:    false,
+		},
+		"url": schema.StringAttribute{
+			Description: "URL for Libvirt and OpenStack",
+			Optional:    true,
+			Required:    false,
+		},
+		"user": schema.StringAttribute{
+			Description: "Username for EC2, VMware, OpenStack. Access Key for EC2.",
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *computeresourceResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -155,6 +146,7 @@ func (r *computeresourceResource) Configure(_ context.Context, req resource.Conf
 	}
 	r.client = client
 }
+
 func (r *computeresourceResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan computeresourceResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -163,12 +155,12 @@ func (r *computeresourceResource) Create(ctx context.Context, req resource.Creat
 	}
 
 	body := &generated.ForemanComputeResourceRequest{
-		Name:               plan.Name.ValueString(),
 		CachingEnabled:     plan.CachingEnabled.ValueBool(),
 		Datacenter:         plan.Datacenter.ValueString(),
 		Description:        plan.Description.ValueString(),
 		DisplayType:        plan.DisplayType.ValueString(),
 		Domain:             plan.Domain.ValueString(),
+		Name:               plan.Name.ValueString(),
 		Password:           plan.Password.ValueString(),
 		ProjectDomainID:    plan.ProjectDomainID.ValueString(),
 		ProjectDomainName:  plan.ProjectDomainName.ValueString(),
@@ -180,6 +172,7 @@ func (r *computeresourceResource) Create(ctx context.Context, req resource.Creat
 		URL:                plan.URL.ValueString(),
 		User:               plan.User.ValueString(),
 	}
+
 	result, err := r.client.CreateForemanComputeResource(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create computeresource, got error: %s", err))
@@ -220,6 +213,7 @@ func (r *computeresourceResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanComputeResource(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -229,6 +223,7 @@ func (r *computeresourceResource) Read(ctx context.Context, req resource.ReadReq
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read computeresource, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.CachingEnabled = types.BoolValue(result.CachingEnabled)
 	state.Datacenter = types.StringValue(result.Datacenter)
@@ -263,12 +258,12 @@ func (r *computeresourceResource) Update(ctx context.Context, req resource.Updat
 	}
 
 	body := &generated.ForemanComputeResourceRequest{
-		Name:               plan.Name.ValueString(),
 		CachingEnabled:     plan.CachingEnabled.ValueBool(),
 		Datacenter:         plan.Datacenter.ValueString(),
 		Description:        plan.Description.ValueString(),
 		DisplayType:        plan.DisplayType.ValueString(),
 		Domain:             plan.Domain.ValueString(),
+		Name:               plan.Name.ValueString(),
 		Password:           plan.Password.ValueString(),
 		ProjectDomainID:    plan.ProjectDomainID.ValueString(),
 		ProjectDomainName:  plan.ProjectDomainName.ValueString(),
@@ -280,11 +275,13 @@ func (r *computeresourceResource) Update(ctx context.Context, req resource.Updat
 		URL:                plan.URL.ValueString(),
 		User:               plan.User.ValueString(),
 	}
+
 	result, err := r.client.UpdateForemanComputeResource(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update computeresource, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.CachingEnabled = types.BoolValue(result.CachingEnabled)
 	plan.Datacenter = types.StringValue(result.Datacenter)
@@ -304,6 +301,7 @@ func (r *computeresourceResource) Update(ctx context.Context, req resource.Updat
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *computeresourceResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state computeresourceResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -316,6 +314,7 @@ func (r *computeresourceResource) Delete(ctx context.Context, req resource.Delet
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanComputeResource(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeresource, got error: %s", err))

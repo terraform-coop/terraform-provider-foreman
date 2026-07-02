@@ -5,23 +5,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	attr "github.com/hashicorp/terraform-plugin-framework/attr"
+	path "github.com/hashicorp/terraform-plugin-framework/path"
+	resource "github.com/hashicorp/terraform-plugin-framework/resource"
+	schema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	planmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	stringplanmodifier "github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	types "github.com/hashicorp/terraform-plugin-framework/types"
+	tflog "github.com/hashicorp/terraform-plugin-log/tflog"
+	generated "github.com/terraform-coop/terraform-provider-foreman/generated"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/path"
-	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"github.com/hashicorp/terraform-plugin-framework/types"
-	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
 )
 
-var (
-	_ resource.Resource                = &usergroupResource{}
-	_ resource.ResourceWithImportState = &usergroupResource{}
-)
+var _ resource.Resource = &usergroupResource{}
+var _ resource.ResourceWithImportState = &usergroupResource{}
 
 func NewForemanUsergroupResource() resource.Resource {
 	return &usergroupResource{}
@@ -45,39 +42,33 @@ func (r *usergroupResource) Metadata(_ context.Context, req resource.MetadataReq
 }
 
 func (r *usergroupResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
-	resp.Schema = schema.Schema{
-		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
-				Computed: true,
-				PlanModifiers: []planmodifier.String{
-					stringplanmodifier.UseStateForUnknown(),
-				},
-			},
-			"name": schema.StringAttribute{
-				Required: true,
-			},
-			"admin": schema.BoolAttribute{
-				Required:    false,
-				Optional:    true,
-				Description: "is an admin user group, can be modified by admins only",
-			},
-			"role_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				ElementType: types.Int64Type,
-			},
-			"user_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				ElementType: types.Int64Type,
-			},
-			"usergroup_ids": schema.ListAttribute{
-				Required:    false,
-				Optional:    true,
-				ElementType: types.Int64Type,
-			},
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"admin": schema.BoolAttribute{
+			Description: "is an admin user group, can be modified by admins only",
+			Optional:    true,
+			Required:    false,
 		},
-	}
+		"id": schema.StringAttribute{
+			Computed:      true,
+			PlanModifiers: []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+		},
+		"name": schema.StringAttribute{Required: true},
+		"role_ids": schema.ListAttribute{
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"user_ids": schema.ListAttribute{
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+		"usergroup_ids": schema.ListAttribute{
+			ElementType: types.Int64Type,
+			Optional:    true,
+			Required:    false,
+		},
+	}}
 }
 
 func (r *usergroupResource) Configure(_ context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
@@ -91,6 +82,7 @@ func (r *usergroupResource) Configure(_ context.Context, req resource.ConfigureR
 	}
 	r.client = client
 }
+
 func (r *usergroupResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan usergroupResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -99,8 +91,8 @@ func (r *usergroupResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	body := &generated.ForemanUsergroupRequest{
-		Name:  plan.Name.ValueString(),
 		Admin: plan.Admin.ValueBool(),
+		Name:  plan.Name.ValueString(),
 		RoleIDs: func() []int64 {
 			if plan.RoleIDs.IsNull() || plan.RoleIDs.IsUnknown() {
 				return nil
@@ -138,6 +130,7 @@ func (r *usergroupResource) Create(ctx context.Context, req resource.CreateReque
 			return ids
 		}(),
 	}
+
 	result, err := r.client.CreateForemanUsergroup(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create usergroup, got error: %s", err))
@@ -164,6 +157,7 @@ func (r *usergroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	result, err := r.client.ReadForemanUsergroup(ctx, id)
 	if err != nil {
 		if generated.IsNotFoundError(err) {
@@ -173,6 +167,7 @@ func (r *usergroupResource) Read(ctx context.Context, req resource.ReadRequest, 
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read usergroup, got error: %s", err))
 		return
 	}
+
 	state.Name = types.StringValue(result.Name)
 	state.Admin = types.BoolValue(result.Admin)
 	if result.RoleIDs != nil {
@@ -220,8 +215,8 @@ func (r *usergroupResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	body := &generated.ForemanUsergroupRequest{
-		Name:  plan.Name.ValueString(),
 		Admin: plan.Admin.ValueBool(),
+		Name:  plan.Name.ValueString(),
 		RoleIDs: func() []int64 {
 			if plan.RoleIDs.IsNull() || plan.RoleIDs.IsUnknown() {
 				return nil
@@ -259,16 +254,19 @@ func (r *usergroupResource) Update(ctx context.Context, req resource.UpdateReque
 			return ids
 		}(),
 	}
+
 	result, err := r.client.UpdateForemanUsergroup(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update usergroup, got error: %s", err))
 		return
 	}
+
 	plan.Name = types.StringValue(result.Name)
 	plan.Admin = types.BoolValue(result.Admin)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }
+
 func (r *usergroupResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	var state usergroupResourceModel
 	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
@@ -281,6 +279,7 @@ func (r *usergroupResource) Delete(ctx context.Context, req resource.DeleteReque
 		resp.Diagnostics.AddError("Invalid ID", fmt.Sprintf("Unable to parse ID: %s", err))
 		return
 	}
+
 	err = r.client.DeleteForemanUsergroup(ctx, id)
 	if err != nil && !generated.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete usergroup, got error: %s", err))

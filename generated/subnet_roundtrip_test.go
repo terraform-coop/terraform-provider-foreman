@@ -4,39 +4,41 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanSubnet_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSubnet{
-		ForemanObject:     ForemanObject{ID: 1, Name: "test"},
-		Name:              "test_name",
-		Network:           "test_network",
 		BmcID:             42,
 		BootMode:          "test_boot_mode",
 		Cidr:              "test_cidr",
-		Description:       "test_description",
-		DhcpID:            42,
 		DNSID:             42,
 		DNSPrimary:        "test_dns_primary",
 		DNSSecondary:      "test_dns_secondary",
+		Description:       "test_description",
+		DhcpID:            42,
 		ExternalipamGroup: "test_externalipam_group",
 		ExternalipamID:    42,
-		From:              "test_from",
-		Gateway:           "test_gateway",
-		HTTPbootID:        42,
-		IPam:              "test_ipam",
-		Mask:              "test_mask",
-		Mtu:               42,
-		NetworkType:       "test_network_type",
-		TemplateID:        42,
-		TftpID:            42,
-		To:                "test_to",
-		Vlanid:            "test_vlanid",
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		From:        "test_from",
+		Gateway:     "test_gateway",
+		HTTPbootID:  42,
+		IPam:        "test_ipam",
+		Mask:        "test_mask",
+		Mtu:         42,
+		Name:        "test_name",
+		Network:     "test_network",
+		NetworkType: "test_network_type",
+		TemplateID:  42,
+		TftpID:      42,
+		To:          "test_to",
+		Vlanid:      "test_vlanid",
 	}
 
 	data, err := json.Marshal(original)
@@ -114,16 +116,14 @@ func TestForemanSubnet_RoundTripZeroValues(t *testing.T) {
 func TestForemanSubnet_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanSubnetRequest{
-		Name:              "test_name",
-		Network:           "test_network",
 		BmcID:             42,
 		BootMode:          "test_boot_mode",
 		Cidr:              "test_cidr",
-		Description:       "test_description",
-		DhcpID:            42,
 		DNSID:             42,
 		DNSPrimary:        "test_dns_primary",
 		DNSSecondary:      "test_dns_secondary",
+		Description:       "test_description",
+		DhcpID:            42,
 		ExternalipamGroup: "test_externalipam_group",
 		ExternalipamID:    42,
 		From:              "test_from",
@@ -132,6 +132,8 @@ func TestForemanSubnet_RoundTripRequest(t *testing.T) {
 		IPam:              "test_ipam",
 		Mask:              "test_mask",
 		Mtu:               42,
+		Name:              "test_name",
+		Network:           "test_network",
 		NetworkType:       "test_network_type",
 		TemplateID:        42,
 		TftpID:            42,
@@ -145,6 +147,7 @@ func TestForemanSubnet_RoundTripRequest(t *testing.T) {
 	var decoded ForemanSubnetRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Network, decoded.Network)
 	assert.Equal(t, original.BmcID, decoded.BmcID)
@@ -180,6 +183,7 @@ func TestForemanSubnet_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanSubnetRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.Network, decoded.Network)
 	assert.Equal(t, original.BmcID, decoded.BmcID)

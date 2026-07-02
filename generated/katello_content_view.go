@@ -3,8 +3,11 @@ package generated
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type ForemanKatelloContentViewRequest struct {
@@ -68,6 +71,16 @@ func (c *ForemanClient) DeleteForemanKatelloContentView(ctx context.Context, id 
 	return c.Delete(ctx, fmt.Sprintf("/katello/api/content_views/%d", id))
 }
 
+// PublishContentView publishes a new version of a content view.
+func (c *ForemanClient) PublishContentView(ctx context.Context, id int) (*ForemanKatelloContentView, error) {
+	var resp ForemanKatelloContentView
+	err := c.Post(ctx, fmt.Sprintf("/katello/api/content_views/%d/publish", id), "", nil, &resp)
+	if err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
 func (c *ForemanClient) QueryForemanKatelloContentView(ctx context.Context, name string) (*ForemanKatelloContentView, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_views?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -111,18 +124,36 @@ func (c *ForemanClient) ReadContentViewFilters(ctx context.Context, cvID int) ([
 		return nil, err
 	}
 	var filters []ForemanKatelloContentViewFilter
+	var parseErrors []error
 	for _, raw := range response.Results {
 		var f ForemanKatelloContentViewFilter
 		if err := json.Unmarshal(raw, &f); err != nil {
+			parseErrors = append(parseErrors, fmt.Errorf("parsing filter: %w", err))
 			continue
-		}
-		// Read rules for each filter
-		rules, err := c.ReadContentViewFilterRules(ctx, f.ID)
-		if err == nil {
-			f.Rules = rules
 		}
 		filters = append(filters, f)
 	}
+	if len(parseErrors) > 0 {
+		return filters, fmt.Errorf("failed to parse %d filters: %w", len(parseErrors), errors.Join(parseErrors...))
+	}
+
+	// Fetch rules concurrently for all filters
+	g, gctx := errgroup.WithContext(ctx)
+	for i := range filters {
+		i := i
+		g.Go(func() error {
+			rules, err := c.ReadContentViewFilterRules(gctx, filters[i].ID)
+			if err != nil {
+				return fmt.Errorf("reading rules for filter %d: %w", filters[i].ID, err)
+			}
+			filters[i].Rules = rules
+			return nil
+		})
+	}
+	if err := g.Wait(); err != nil {
+		return filters, err
+	}
+
 	return filters, nil
 }
 
@@ -175,12 +206,17 @@ func (c *ForemanClient) ReadContentViewFilterRules(ctx context.Context, filterID
 		return nil, err
 	}
 	var rules []ForemanKatelloContentViewFilterRule
+	var parseErrors []error
 	for _, raw := range response.Results {
 		var r ForemanKatelloContentViewFilterRule
 		if err := json.Unmarshal(raw, &r); err != nil {
+			parseErrors = append(parseErrors, fmt.Errorf("parsing rule: %w", err))
 			continue
 		}
 		rules = append(rules, r)
+	}
+	if len(parseErrors) > 0 {
+		return rules, fmt.Errorf("failed to parse %d rules: %w", len(parseErrors), errors.Join(parseErrors...))
 	}
 	return rules, nil
 }

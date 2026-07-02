@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanHostgroupRequest is the request payload.
 type ForemanHostgroupRequest struct {
 	Name                      string          `json:"name,omitempty"`
 	ArchitectureID            int64           `json:"architecture_id,omitempty"`
@@ -31,7 +30,6 @@ type ForemanHostgroupRequest struct {
 	SubnetID                  int64           `json:"subnet_id,omitempty"`
 }
 
-// ForemanHostgroup is the entity type.
 type ForemanHostgroup struct {
 	ForemanObject
 	ArchitectureID    int64  `json:"architecture_id"`
@@ -51,7 +49,6 @@ type ForemanHostgroup struct {
 	SubnetID          int64  `json:"subnet_id"`
 }
 
-// CreateForemanHostgroup creates a new ForemanHostgroup.
 func (c *ForemanClient) CreateForemanHostgroup(ctx context.Context, req *ForemanHostgroupRequest) (*ForemanHostgroup, error) {
 	var resp ForemanHostgroup
 	err := c.Post(ctx, "hostgroups", "hostgroup", req, &resp)
@@ -61,7 +58,6 @@ func (c *ForemanClient) CreateForemanHostgroup(ctx context.Context, req *Foreman
 	return &resp, nil
 }
 
-// ReadForemanHostgroup reads a ForemanHostgroup by ID.
 func (c *ForemanClient) ReadForemanHostgroup(ctx context.Context, id int) (*ForemanHostgroup, error) {
 	var resp ForemanHostgroup
 	err := c.Get(ctx, fmt.Sprintf("hostgroups/%d", id), &resp)
@@ -71,7 +67,6 @@ func (c *ForemanClient) ReadForemanHostgroup(ctx context.Context, id int) (*Fore
 	return &resp, nil
 }
 
-// UpdateForemanHostgroup updates a ForemanHostgroup by ID.
 func (c *ForemanClient) UpdateForemanHostgroup(ctx context.Context, id int, req *ForemanHostgroupRequest) (*ForemanHostgroup, error) {
 	var resp ForemanHostgroup
 	err := c.Put(ctx, fmt.Sprintf("hostgroups/%d", id), "hostgroup", req, &resp)
@@ -81,12 +76,10 @@ func (c *ForemanClient) UpdateForemanHostgroup(ctx context.Context, id int, req 
 	return &resp, nil
 }
 
-// DeleteForemanHostgroup deletes a ForemanHostgroup by ID.
 func (c *ForemanClient) DeleteForemanHostgroup(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("hostgroups/%d", id))
 }
 
-// QueryForemanHostgroup queries ForemanHostgroup by name.
 func (c *ForemanClient) QueryForemanHostgroup(ctx context.Context, name string) (*ForemanHostgroup, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("hostgroups?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -97,7 +90,7 @@ func (c *ForemanClient) QueryForemanHostgroup(ctx context.Context, name string) 
 		return nil, nil
 	}
 	var obj ForemanHostgroup
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

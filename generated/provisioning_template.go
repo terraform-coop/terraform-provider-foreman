@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanProvisioningTemplateRequest is the request payload.
 type ForemanProvisioningTemplateRequest struct {
 	Name                           string  `json:"name,omitempty"`
 	Template                       string  `json:"template,omitempty"`
@@ -22,7 +21,6 @@ type ForemanProvisioningTemplateRequest struct {
 	TemplateKindID                 int64   `json:"template_kind_id,omitempty"`
 }
 
-// ForemanProvisioningTemplate is the entity type.
 type ForemanProvisioningTemplate struct {
 	ForemanObject
 	Name                           string  `json:"name"`
@@ -36,7 +34,6 @@ type ForemanProvisioningTemplate struct {
 	TemplateKindID                 int64   `json:"template_kind_id"`
 }
 
-// CreateForemanProvisioningTemplate creates a new ForemanProvisioningTemplate.
 func (c *ForemanClient) CreateForemanProvisioningTemplate(ctx context.Context, req *ForemanProvisioningTemplateRequest) (*ForemanProvisioningTemplate, error) {
 	var resp ForemanProvisioningTemplate
 	err := c.Post(ctx, "provisioning_templates", "provisioning_template", req, &resp)
@@ -46,7 +43,6 @@ func (c *ForemanClient) CreateForemanProvisioningTemplate(ctx context.Context, r
 	return &resp, nil
 }
 
-// ReadForemanProvisioningTemplate reads a ForemanProvisioningTemplate by ID.
 func (c *ForemanClient) ReadForemanProvisioningTemplate(ctx context.Context, id int) (*ForemanProvisioningTemplate, error) {
 	var resp ForemanProvisioningTemplate
 	err := c.Get(ctx, fmt.Sprintf("provisioning_templates/%d", id), &resp)
@@ -56,7 +52,6 @@ func (c *ForemanClient) ReadForemanProvisioningTemplate(ctx context.Context, id 
 	return &resp, nil
 }
 
-// UpdateForemanProvisioningTemplate updates a ForemanProvisioningTemplate by ID.
 func (c *ForemanClient) UpdateForemanProvisioningTemplate(ctx context.Context, id int, req *ForemanProvisioningTemplateRequest) (*ForemanProvisioningTemplate, error) {
 	var resp ForemanProvisioningTemplate
 	err := c.Put(ctx, fmt.Sprintf("provisioning_templates/%d", id), "provisioning_template", req, &resp)
@@ -66,12 +61,10 @@ func (c *ForemanClient) UpdateForemanProvisioningTemplate(ctx context.Context, i
 	return &resp, nil
 }
 
-// DeleteForemanProvisioningTemplate deletes a ForemanProvisioningTemplate by ID.
 func (c *ForemanClient) DeleteForemanProvisioningTemplate(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("provisioning_templates/%d", id))
 }
 
-// QueryForemanProvisioningTemplate queries ForemanProvisioningTemplate by name.
 func (c *ForemanClient) QueryForemanProvisioningTemplate(ctx context.Context, name string) (*ForemanProvisioningTemplate, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("provisioning_templates?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -82,7 +75,7 @@ func (c *ForemanClient) QueryForemanProvisioningTemplate(ctx context.Context, na
 		return nil, nil
 	}
 	var obj ForemanProvisioningTemplate
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

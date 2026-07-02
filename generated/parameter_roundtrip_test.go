@@ -4,20 +4,22 @@ package generated
 
 import (
 	"encoding/json"
+	assert "github.com/stretchr/testify/assert"
+	require "github.com/stretchr/testify/require"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestForemanParameter_RoundTrip(t *testing.T) {
 	t.Parallel()
 	original := &ForemanParameter{
-		ForemanObject: ForemanObject{ID: 1, Name: "test"},
+		ForemanObject: ForemanObject{
+			ID:   1,
+			Name: "test",
+		},
+		HiddenValue:   true,
 		Name:          "test_name",
 		ParameterType: "test_parameter_type",
 		Value:         "test_value",
-		HiddenValue:   true,
 	}
 
 	data, err := json.Marshal(original)
@@ -57,10 +59,10 @@ func TestForemanParameter_RoundTripZeroValues(t *testing.T) {
 func TestForemanParameter_RoundTripRequest(t *testing.T) {
 	t.Parallel()
 	original := &ForemanParameterRequest{
+		HiddenValue:   true,
 		Name:          "test_name",
 		ParameterType: "test_parameter_type",
 		Value:         "test_value",
-		HiddenValue:   true,
 	}
 
 	data, err := json.Marshal(original)
@@ -69,6 +71,7 @@ func TestForemanParameter_RoundTripRequest(t *testing.T) {
 	var decoded ForemanParameterRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.ParameterType, decoded.ParameterType)
 	assert.Equal(t, original.Value, decoded.Value)
@@ -85,6 +88,7 @@ func TestForemanParameter_RoundTripRequestZeroValues(t *testing.T) {
 	var decoded ForemanParameterRequest
 	err = json.Unmarshal(data, &decoded)
 	require.NoError(t, err)
+
 	assert.Equal(t, original.Name, decoded.Name)
 	assert.Equal(t, original.ParameterType, decoded.ParameterType)
 	assert.Equal(t, original.Value, decoded.Value)

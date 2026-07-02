@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanWebhookRequest is the request payload.
 type ForemanWebhookRequest struct {
 	Name               string `json:"name,omitempty"`
 	TargetURL          string `json:"target_url,omitempty"`
@@ -26,7 +25,6 @@ type ForemanWebhookRequest struct {
 	WebhookTemplateID  int64  `json:"webhook_template_id,omitempty"`
 }
 
-// ForemanWebhook is the entity type.
 type ForemanWebhook struct {
 	ForemanObject
 	Name               string `json:"name"`
@@ -42,7 +40,6 @@ type ForemanWebhook struct {
 	WebhookTemplateID  int64  `json:"webhook_template_id"`
 }
 
-// CreateForemanWebhook creates a new ForemanWebhook.
 func (c *ForemanClient) CreateForemanWebhook(ctx context.Context, req *ForemanWebhookRequest) (*ForemanWebhook, error) {
 	var resp ForemanWebhook
 	err := c.Post(ctx, "webhooks", "webhook", req, &resp)
@@ -52,7 +49,6 @@ func (c *ForemanClient) CreateForemanWebhook(ctx context.Context, req *ForemanWe
 	return &resp, nil
 }
 
-// ReadForemanWebhook reads a ForemanWebhook by ID.
 func (c *ForemanClient) ReadForemanWebhook(ctx context.Context, id int) (*ForemanWebhook, error) {
 	var resp ForemanWebhook
 	err := c.Get(ctx, fmt.Sprintf("webhooks/%d", id), &resp)
@@ -62,7 +58,6 @@ func (c *ForemanClient) ReadForemanWebhook(ctx context.Context, id int) (*Forema
 	return &resp, nil
 }
 
-// UpdateForemanWebhook updates a ForemanWebhook by ID.
 func (c *ForemanClient) UpdateForemanWebhook(ctx context.Context, id int, req *ForemanWebhookRequest) (*ForemanWebhook, error) {
 	var resp ForemanWebhook
 	err := c.Put(ctx, fmt.Sprintf("webhooks/%d", id), "webhook", req, &resp)
@@ -72,12 +67,10 @@ func (c *ForemanClient) UpdateForemanWebhook(ctx context.Context, id int, req *F
 	return &resp, nil
 }
 
-// DeleteForemanWebhook deletes a ForemanWebhook by ID.
 func (c *ForemanClient) DeleteForemanWebhook(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("webhooks/%d", id))
 }
 
-// QueryForemanWebhook queries ForemanWebhook by name.
 func (c *ForemanClient) QueryForemanWebhook(ctx context.Context, name string) (*ForemanWebhook, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("webhooks?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -88,7 +81,7 @@ func (c *ForemanClient) QueryForemanWebhook(ctx context.Context, name string) (*
 		return nil, nil
 	}
 	var obj ForemanWebhook
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil

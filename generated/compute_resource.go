@@ -9,7 +9,6 @@ import (
 	"net/url"
 )
 
-// ForemanComputeResourceRequest is the request payload.
 type ForemanComputeResourceRequest struct {
 	Name               string `json:"name,omitempty"`
 	CachingEnabled     bool   `json:"caching_enabled,omitempty"`
@@ -29,7 +28,6 @@ type ForemanComputeResourceRequest struct {
 	User               string `json:"user,omitempty"`
 }
 
-// ForemanComputeResource is the entity type.
 type ForemanComputeResource struct {
 	ForemanObject
 	Name               string `json:"name"`
@@ -50,7 +48,6 @@ type ForemanComputeResource struct {
 	User               string `json:"user"`
 }
 
-// CreateForemanComputeResource creates a new ForemanComputeResource.
 func (c *ForemanClient) CreateForemanComputeResource(ctx context.Context, req *ForemanComputeResourceRequest) (*ForemanComputeResource, error) {
 	var resp ForemanComputeResource
 	err := c.Post(ctx, "compute_resources", "compute_resource", req, &resp)
@@ -60,7 +57,6 @@ func (c *ForemanClient) CreateForemanComputeResource(ctx context.Context, req *F
 	return &resp, nil
 }
 
-// ReadForemanComputeResource reads a ForemanComputeResource by ID.
 func (c *ForemanClient) ReadForemanComputeResource(ctx context.Context, id int) (*ForemanComputeResource, error) {
 	var resp ForemanComputeResource
 	err := c.Get(ctx, fmt.Sprintf("compute_resources/%d", id), &resp)
@@ -70,7 +66,6 @@ func (c *ForemanClient) ReadForemanComputeResource(ctx context.Context, id int) 
 	return &resp, nil
 }
 
-// UpdateForemanComputeResource updates a ForemanComputeResource by ID.
 func (c *ForemanClient) UpdateForemanComputeResource(ctx context.Context, id int, req *ForemanComputeResourceRequest) (*ForemanComputeResource, error) {
 	var resp ForemanComputeResource
 	err := c.Put(ctx, fmt.Sprintf("compute_resources/%d", id), "compute_resource", req, &resp)
@@ -80,12 +75,10 @@ func (c *ForemanClient) UpdateForemanComputeResource(ctx context.Context, id int
 	return &resp, nil
 }
 
-// DeleteForemanComputeResource deletes a ForemanComputeResource by ID.
 func (c *ForemanClient) DeleteForemanComputeResource(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("compute_resources/%d", id))
 }
 
-// QueryForemanComputeResource queries ForemanComputeResource by name.
 func (c *ForemanClient) QueryForemanComputeResource(ctx context.Context, name string) (*ForemanComputeResource, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("compute_resources?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -96,7 +89,7 @@ func (c *ForemanClient) QueryForemanComputeResource(ctx context.Context, name st
 		return nil, nil
 	}
 	var obj ForemanComputeResource
-	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
+	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
 	return &obj, nil
