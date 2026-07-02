@@ -102,7 +102,7 @@ func (c *ForemanClient) send(req *http.Request) (int, []byte, error) {
 	if err != nil {
 		return -1, nil, fmt.Errorf("sending request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return resp.StatusCode, nil, fmt.Errorf("reading response: %w", err)
