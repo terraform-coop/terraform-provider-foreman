@@ -901,24 +901,6 @@ func generateProviderFileJen(resources []GenResource) *jen.File {
 
 // Helper functions for framework resource generation
 
-func hasList(fields []GenField) bool {
-	for _, f := range fields {
-		if f.IsList && f.GoType == "[]int64" {
-			return true
-		}
-	}
-	return false
-}
-
-func hasRawMessage(fields []GenField) bool {
-	for _, f := range fields {
-		if f.GoType == "json.RawMessage" {
-			return true
-		}
-	}
-	return false
-}
-
 func fieldInModel(fieldName string, entityFields []GenField) bool {
 	for _, f := range entityFields {
 		if f.GoName == fieldName {
