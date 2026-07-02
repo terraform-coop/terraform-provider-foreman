@@ -31,7 +31,7 @@ jobs:
   test:
     strategy:
       matrix:
-        opentofu: ['1.9.*', '1.10.*']
+        opentofu: ['1.11.*', '1.12.*']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
