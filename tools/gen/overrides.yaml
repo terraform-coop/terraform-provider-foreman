@@ -124,6 +124,12 @@ resources:
   compute_resources:
     field_types:
       id: int
+    attribute_renames:
+      # "provider" is a Terraform-reserved root attribute/block name; Foreman's
+      # compute resource backend type (EC2, Libvirt, VMware, ...) must be
+      # exposed under a different Terraform attribute name. The Foreman API
+      # wire field name ("provider") is unaffected.
+      provider: compute_resource_provider
   settings:
     exclude_fields:
       # --- READ-ONLY METADATA FIELDS ---

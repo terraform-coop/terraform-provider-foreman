@@ -15,8 +15,12 @@ lint: generate
 generate:
 	go generate ./...
 
-docs:
-	cd tools; go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
+docs: generate
+	go tool tfplugindocs generate
+
+docs-check: docs
+	@git diff --exit-code -- docs/ || \
+		(echo "docs/ is out of date, run 'make docs' and commit the result" && exit 1)
 
 test: generate
 	go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
@@ -48,4 +52,4 @@ cover: generate
 	go tool cover -func=coverage.out | grep total | awk '{print $$3}' | \
 	  xargs -I{} sh -c 'test "$$(echo "{}" | tr -d %)" -ge 80'
 
-.PHONY: build install fmt lint generate docs test testacc testacc-parallel cover
+.PHONY: build install fmt lint generate docs docs-check test testacc testacc-parallel cover

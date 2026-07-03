@@ -1,0 +1,12 @@
+resource "foreman_katello_sync_plan" "daily" {
+  name        = "daily"
+  description = "Daily sync of all subscribed products"
+  interval    = "daily"
+  enabled     = true
+
+  # Run the first sync on Jan 1st 2024 at 05:10 UTC. When 'interval' is set,
+  # only the time-of-day portion of 'sync_date' is used to schedule future runs.
+  sync_date = "2024-01-01 05:10:00 +0000"
+
+  # cron_expression = "*/5 * * * *" # alternative: run every 5 minutes
+}

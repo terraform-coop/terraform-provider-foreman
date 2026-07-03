@@ -9,9 +9,9 @@ Use the provider from the official **Terraform registry**:
 This is a fork of the project previously developed, owned, and maintained by
 the SRE - Orchestration pod at Wayfair.
 
-This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation and
-Go modules for dependency management.  Dependencies are tracked as part of the
-repository.
+Resource/data-source documentation is rendered directly by the Terraform
+Registry from the `docs/` directory in this repository — see the
+[registry listing](https://registry.terraform.io/providers/terraform-coop/foreman/latest/docs).
 
 **Example use-cases** of this provider are included in this repository under `./examples`.
 See the examples for more information.
@@ -109,36 +109,23 @@ section:
 
 ## Documentation
 
-The rendered documentation is available at
-[terraform-coop.github.io/terraform-provider-foreman](https://terraform-coop.github.io/terraform-provider-foreman/).
+Rendered documentation is available on the
+[Terraform Registry](https://registry.terraform.io/providers/terraform-coop/foreman/latest/docs),
+which renders it directly from the `docs/` directory committed to this
+repository — no separate hosting or build step is required to view it.
 
-This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation.
-Follow the installation instructions on
-[`mkdocs`](https://www.mkdocs.org/#installation) to get started or use the
-auto-generated documentation available on the Github Pages for this project.
-
-The `mkdocs` configuration and associated markdown is auto-generated for the
-provider using the `autodoc` package from the utility repository. The
-`autodoc` tool uses text templates defined in `templates` and the schema
-definitions in the provider to generate all the necessary `mkdocs` files and
-resources. The `autodoc` command is located in `cmd/autodoc/main.go`.
-
-To generate and view the entire repository and in-depth provider documentation:
+`docs/` is generated from the provider's schema plus the real `.tf` examples
+under `examples/` using [`terraform-plugin-docs`](https://github.com/hashicorp/terraform-plugin-docs)
+(`tfplugindocs`). After changing a resource/data-source schema or its
+example, regenerate the docs and commit the result:
 
 ```
-$> go build -v -o autodoc $(go list ./cmd/autodoc)
-$> mkdir -p docs/{data-sources,resources}
-$> ./autodoc
-$> mkdocs serve
-INFO    -  Building documentation...
-INFO    -  Cleaning site directory
-[I 160402 15:50:43 server:271] Serving on http://127.0.0.1:8000
-[I 160402 15:50:43 handlers:58] Start watching changes
-[I 160402 15:50:43 handlers:60] Start detecting changes
+$> make docs
 ```
 
-The documentation can then be viewed by accessing localhost in your favorite
-browser or viewport.
+CI (`docs` job in `.github/workflows/test.yml`) fails the build if `docs/`
+is out of date, so this must be run and committed alongside any schema
+change.
 
 ## Logging
 

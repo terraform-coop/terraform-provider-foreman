@@ -1,0 +1,1 @@
+terraform import foreman_templateinput.os_major_version <templateinput_id>

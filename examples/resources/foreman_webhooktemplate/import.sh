@@ -1,0 +1,1 @@
+terraform import foreman_webhooktemplate.payload <webhooktemplate_id>

@@ -1,0 +1,1 @@
+terraform import foreman_operatingsystem.centos7 <operatingsystem_id>

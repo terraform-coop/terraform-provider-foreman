@@ -1,0 +1,1 @@
+terraform import foreman_katello_content_credential.rpm_gpg_key_centos7 <content_credential_id>

@@ -1,0 +1,1 @@
+terraform import foreman_smartclassparameter.ntp_servers <smartclassparameter_id>

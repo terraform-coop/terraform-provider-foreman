@@ -114,6 +114,12 @@ type ResourceOverride struct {
 	// from the read key (e.g. hostgroups: request "group_parameters_attributes"
 	// reads back as "parameters").
 	FieldAliases map[string]string `yaml:"field_aliases"`
+	// AttributeRenames overrides the Terraform-facing schema attribute key
+	// (and tfsdk struct tag) for a field, keyed by JSONName, without
+	// changing the Foreman API wire name. Needed for fields whose JSON name
+	// collides with a Terraform-reserved root attribute name, e.g.
+	// compute_resources' "provider" field.
+	AttributeRenames map[string]string `yaml:"attribute_renames"`
 }
 
 type Overrides struct {
@@ -174,6 +180,19 @@ type GenField struct {
 	IsNestedList  bool
 	NestedRequest []GenField
 	NestedEntity  []GenField
+	// TFName, when set, overrides JSONName as the Terraform-facing schema
+	// attribute key and tfsdk struct tag (see ResourceOverride.AttributeRenames).
+	// The Foreman API wire name (JSONName) is left untouched.
+	TFName string
+}
+
+// tfKey returns the Terraform-facing schema attribute key/tfsdk tag for a
+// field: TFName if overridden, otherwise the API's own JSONName.
+func tfKey(f GenField) string {
+	if f.TFName != "" {
+		return f.TFName
+	}
+	return f.JSONName
 }
 
 // nestednGenResource wraps a nested object's request/entity field pair so
@@ -1055,11 +1074,11 @@ func applyFieldOverrides(res *GenResource, ov ResourceOverride) {
 		exclude[n] = true
 	}
 
-	res.Fields = filterFields(res.Fields, exclude, ov.FieldTypes)
-	res.EntityFields = filterFields(res.EntityFields, exclude, ov.FieldTypes)
+	res.Fields = filterFields(res.Fields, exclude, ov.FieldTypes, ov.AttributeRenames)
+	res.EntityFields = filterFields(res.EntityFields, exclude, ov.FieldTypes, ov.AttributeRenames)
 }
 
-func filterFields(fields []GenField, exclude map[string]bool, types map[string]string) []GenField {
+func filterFields(fields []GenField, exclude map[string]bool, types map[string]string, renames map[string]string) []GenField {
 	var result []GenField
 	for _, f := range fields {
 		if exclude[f.JSONName] {
@@ -1074,6 +1093,9 @@ func filterFields(fields []GenField, exclude map[string]bool, types map[string]s
 				f.TFType = goTypeToTFType(t)
 				f.TFGoType = goTypeToTFGoType(t)
 			}
+		}
+		if n, ok := renames[f.JSONName]; ok {
+			f.TFName = n
 		}
 		result = append(result, f)
 	}

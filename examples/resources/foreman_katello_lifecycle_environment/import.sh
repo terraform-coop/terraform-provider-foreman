@@ -1,0 +1,1 @@
+terraform import foreman_katello_lifecycle_environment.dev <lifecycle_environment_id>

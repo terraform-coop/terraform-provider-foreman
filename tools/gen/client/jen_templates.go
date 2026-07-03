@@ -628,7 +628,7 @@ func generateDataSourceFile(res GenResource) *jen.File {
 			if field.IsList || field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
 				continue
 			}
-			g.Id(field.GoName).Id(field.TFGoType).Tag(map[string]string{"tfsdk": field.JSONName})
+			g.Id(field.GoName).Id(field.TFGoType).Tag(map[string]string{"tfsdk": tfKey(field)})
 		}
 	})
 	f.Line()
@@ -675,7 +675,7 @@ func generateDataSourceFile(res GenResource) *jen.File {
 					if field.Sensitive {
 						attrs[jen.Id("Sensitive")] = jen.True()
 					}
-					d[jen.Lit(field.JSONName)] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/datasource/schema", field.TFType+"Attribute").Values(attrs)
+					d[jen.Lit(tfKey(field))] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/datasource/schema", field.TFType+"Attribute").Values(attrs)
 				}
 			})),
 		})
@@ -1402,7 +1402,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			g.Id("ParentID").Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64").Tag(map[string]string{"tfsdk": "parent_id"})
 		}
 		for _, field := range modelFields(res) {
-			g.Id(field.GoName).Id(field.TFGoType).Tag(map[string]string{"tfsdk": field.JSONName})
+			g.Id(field.GoName).Id(field.TFGoType).Tag(map[string]string{"tfsdk": tfKey(field)})
 		}
 	})
 	f.Line()
@@ -1450,7 +1450,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 						if field.Description != "" {
 							attrs[jen.Id("Description")] = jen.Lit(field.Description)
 						}
-						d[jen.Lit(field.JSONName)] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", "ListNestedAttribute").Values(attrs)
+						d[jen.Lit(tfKey(field))] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", "ListNestedAttribute").Values(attrs)
 						continue
 					}
 					attrs := jen.Dict{}
@@ -1479,7 +1479,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 					if field.Sensitive {
 						attrs[jen.Id("Sensitive")] = jen.True()
 					}
-					d[jen.Lit(field.JSONName)] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", field.TFType+"Attribute").Values(attrs)
+					d[jen.Lit(tfKey(field))] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", field.TFType+"Attribute").Values(attrs)
 				}
 			})),
 		})
