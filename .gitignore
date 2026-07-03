@@ -31,3 +31,37 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Generated client/provider code (see main.go's //go:generate directive).
+# Regenerated from apidoc/v2.json by `make generate` / `go generate ./...`.
+# Hand-written files (no "Code generated" header) are excluded below and stay tracked.
+generated/*.go
+!generated/client.go
+!generated/client_regression_test.go
+!generated/foreman_object.go
+!generated/katello_content_credential.go
+!generated/katello_content_view.go
+!generated/katello_lifecycle_environment.go
+!generated/katello_product.go
+!generated/katello_repository.go
+!generated/katello_sync_plan.go
+!generated/test_helpers_test.go
+
+internal/provider/resource_*.go
+!internal/provider/resource_katello_content_view.go
+!internal/provider/resource_katello_lifecycle_environment.go
+!internal/provider/resource_katello_repository.go
+!internal/provider/resource_katello_content_credential.go
+!internal/provider/resource_katello_product.go
+!internal/provider/resource_katello_sync_plan.go
+
+internal/provider/datasource_*.go
+!internal/provider/datasource_katello_content_credential.go
+!internal/provider/datasource_katello_content_view.go
+!internal/provider/datasource_katello_lifecycle_environment.go
+!internal/provider/datasource_katello_product.go
+!internal/provider/datasource_katello_repository.go
+!internal/provider/datasource_katello_sync_plan.go
+
+internal/provider/provider.go
+internal/provider/acceptance_test.go

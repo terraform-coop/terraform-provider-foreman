@@ -15,6 +15,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26'
+      - run: go generate ./...
       - run: go build -v .
 
   lint:
@@ -24,6 +25,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26'
+      - run: go generate ./...
       - uses: golangci/golangci-lint-action@v7
         with:
           version: v2.12.2
@@ -42,20 +44,11 @@ jobs:
         with:
           tofu_version: ${{ matrix.opentofu }}
           tofu_wrapper: false
+      - run: go generate ./...
       - run: go test -race -count=1 -coverprofile=coverage.out ./internal/... ./generated/...
       # Coverage gate is intentionally low while the rewrite's test suite is
       # being built back up. Raise this threshold as tests are added.
       - run: "go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%' | awk '{exit ($1 >= 5.0) ? 0 : 1}'"
-
-  generate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.26'
-      - run: go generate ./...
-      - run: git diff --compact-summary --exit-code
 
   integration:
     runs-on: ubuntu-latest
@@ -64,6 +57,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.26'
+      - run: go generate ./...
       - name: Start Foreman
         run: docker compose up -d
       - name: Wait for Foreman
@@ -85,11 +79,11 @@ jobs:
       - name: Run integration tests
         run: go test -v -tags=integration -count=1 -timeout=300s -race ./internal/provider/...
         env:
+          FOREMAN_INTEGRATION_TESTS: "1"
           FOREMAN_SERVER_HOSTNAME: localhost:3000
+          FOREMAN_CLIENT_SCHEME: http
           FOREMAN_CLIENT_USERNAME: admin
           FOREMAN_CLIENT_PASSWORD: changeme
-          FOREMAN_CLIENT_TLS_INSECURE: "true"
-          FOREMAN_CLIENT_SCHEME: http
       - name: Tear down
         if: always()
         run: docker compose down -v

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
-	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -97,196 +96,101 @@ func TestExpandParameters(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
-// flattenComputeAttributes
+// maybeInt64 / maybeBool / maybeString / maybeJSON
 // ---------------------------------------------------------------------------
 
-func TestFlattenComputeAttributes(t *testing.T) {
-	t.Run("valid json string", func(t *testing.T) {
-		s := types.StringValue(`{"cpus":2,"memory":1024}`)
-		result := flattenComputeAttributes(s)
-		if result == nil {
-			t.Fatal("expected non-nil map")
-		}
-		if result["cpus"] != float64(2) {
-			t.Fatalf("cpus mismatch: %v", result["cpus"])
-		}
-		if result["memory"] != float64(1024) {
-			t.Fatalf("memory mismatch: %v", result["memory"])
-		}
-	})
+func TestMaybeInt64(t *testing.T) {
+	if v := maybeInt64(types.Int64Value(42)); v != 42 {
+		t.Fatalf("expected 42, got %d", v)
+	}
+	if v := maybeInt64(types.Int64Null()); v != 0 {
+		t.Fatalf("expected 0 for null, got %d", v)
+	}
+	if v := maybeInt64(types.StringValue("nope")); v != 0 {
+		t.Fatalf("expected 0 for wrong type, got %d", v)
+	}
+}
 
-	t.Run("empty string", func(t *testing.T) {
-		s := types.StringValue("")
-		result := flattenComputeAttributes(s)
-		if result != nil {
-			t.Fatalf("expected nil, got %v", result)
-		}
-	})
+func TestMaybeBool(t *testing.T) {
+	if v := maybeBool(types.BoolValue(true)); !v {
+		t.Fatal("expected true")
+	}
+	if v := maybeBool(types.BoolNull()); v {
+		t.Fatal("expected false for null")
+	}
+	if v := maybeBool(types.StringValue("nope")); v {
+		t.Fatal("expected false for wrong type")
+	}
+}
 
-	t.Run("null string", func(t *testing.T) {
-		s := types.StringNull()
-		result := flattenComputeAttributes(s)
-		if result != nil {
-			t.Fatalf("expected nil, got %v", result)
-		}
-	})
+func TestMaybeString(t *testing.T) {
+	if v := maybeString(types.StringValue("hi")); v != "hi" {
+		t.Fatalf("expected hi, got %s", v)
+	}
+	if v := maybeString(types.StringNull()); v != "" {
+		t.Fatalf("expected empty for null, got %s", v)
+	}
+	if v := maybeString(types.BoolValue(true)); v != "" {
+		t.Fatalf("expected empty for wrong type, got %s", v)
+	}
+}
 
-	t.Run("invalid json", func(t *testing.T) {
-		s := types.StringValue("not-json")
-		result := flattenComputeAttributes(s)
-		if result != nil {
-			t.Fatalf("expected nil for invalid json, got %v", result)
-		}
-	})
+func TestMaybeJSON(t *testing.T) {
+	m := maybeJSON(types.StringValue(`{"cpus":2}`))
+	if m == nil || m["cpus"] != float64(2) {
+		t.Fatalf("unexpected result: %v", m)
+	}
+	if m := maybeJSON(types.StringNull()); m != nil {
+		t.Fatalf("expected nil for null, got %v", m)
+	}
+	if m := maybeJSON(types.StringValue("not-json")); m != nil {
+		t.Fatalf("expected nil for invalid json, got %v", m)
+	}
 }
 
 // ---------------------------------------------------------------------------
-// expandComputeAttributes
+// maybeStringList / stringListValue
 // ---------------------------------------------------------------------------
 
-func TestExpandComputeAttributes(t *testing.T) {
-	t.Run("valid json", func(t *testing.T) {
-		raw := json.RawMessage(`{"cpus":4}`)
-		s := expandComputeAttributes(raw)
-		if s.IsNull() {
-			t.Fatal("expected non-null string")
-		}
-		if s.ValueString() != `{"cpus":4}` {
-			t.Fatalf("unexpected value: %s", s.ValueString())
-		}
-	})
+func TestMaybeStringList(t *testing.T) {
+	l := types.ListValueMust(types.StringType, []attr.Value{types.StringValue("a"), types.StringValue("b")})
+	result := maybeStringList(l)
+	if len(result) != 2 || result[0] != "a" || result[1] != "b" {
+		t.Fatalf("unexpected result: %v", result)
+	}
+	if result := maybeStringList(types.ListNull(types.StringType)); result != nil {
+		t.Fatalf("expected nil for null list, got %v", result)
+	}
+	if result := maybeStringList(types.StringValue("nope")); result != nil {
+		t.Fatalf("expected nil for wrong type, got %v", result)
+	}
+}
 
-	t.Run("empty bytes", func(t *testing.T) {
-		s := expandComputeAttributes(json.RawMessage{})
-		if !s.IsNull() {
-			t.Fatal("expected null string for empty bytes")
-		}
-	})
-
-	t.Run("null", func(t *testing.T) {
-		s := expandComputeAttributes(json.RawMessage(`null`))
-		if !s.IsNull() {
-			t.Fatal("expected null string for null input")
-		}
-	})
+func TestStringListValue(t *testing.T) {
+	l := stringListValue([]interface{}{"a", "b"})
+	if l.IsNull() || len(l.Elements()) != 2 {
+		t.Fatalf("unexpected result: %v", l)
+	}
+	if l := stringListValue(nil); !l.IsNull() {
+		t.Fatal("expected null list for non-array input")
+	}
 }
 
 // ---------------------------------------------------------------------------
-// flattenInterfacesAttributes
+// mapToJSONString
 // ---------------------------------------------------------------------------
 
-func TestFlattenInterfacesAttributes(t *testing.T) {
-	t.Run("list with objects", func(t *testing.T) {
-		obj := types.ObjectValueMust(interfaceAttrTypes, map[string]attr.Value{
-			"id":                 types.Int64Value(1),
-			"primary":            types.BoolValue(true),
-			"ip":                 types.StringValue("10.0.0.1"),
-			"mac":                types.StringValue("aa:bb:cc:dd:ee:ff"),
-			"name":               types.StringValue("eth0"),
-			"subnet_id":          types.Int64Value(5),
-			"identifier":         types.StringValue("eth0"),
-			"managed":            types.BoolValue(true),
-			"provision":          types.BoolValue(true),
-			"virtual":            types.BoolValue(false),
-			"type":               types.StringValue("interface"),
-			"bmc_provider":       types.StringValue("ipmitool"),
-			"username":           types.StringValue("admin"),
-			"password":           types.StringValue("secret"),
-			"domain_id":          types.Int64Value(3),
-			"attached_to":        types.StringValue(""),
-			"attached_devices":   types.StringValue(""),
-			"compute_attributes": types.StringValue(`{"type":"bridge"}`),
-		})
-		l := types.ListValueMust(types.ObjectType{AttrTypes: interfaceAttrTypes}, []attr.Value{obj})
-		result := flattenInterfacesAttributes(l)
-		if len(result) != 1 {
-			t.Fatalf("expected 1 entry, got %d", len(result))
-		}
-		m := result[0]
-		if m["ip"] != "10.0.0.1" {
-			t.Fatalf("ip mismatch: %v", m["ip"])
-		}
-		if m["mac"] != "aa:bb:cc:dd:ee:ff" {
-			t.Fatalf("mac mismatch: %v", m["mac"])
-		}
-		if m["provider"] != "ipmitool" {
-			t.Fatalf("provider mismatch: %v", m["provider"])
-		}
-		ca, ok := m["compute_attributes"].(map[string]interface{})
-		if !ok || ca["type"] != "bridge" {
-			t.Fatalf("compute_attributes mismatch: %v", m["compute_attributes"])
-		}
-	})
-
-	t.Run("empty list", func(t *testing.T) {
-		l := types.ListValueMust(types.ObjectType{AttrTypes: interfaceAttrTypes}, []attr.Value{})
-		result := flattenInterfacesAttributes(l)
-		if result != nil {
-			t.Fatalf("expected nil for empty list, got %v", result)
-		}
-	})
-
-	t.Run("null list", func(t *testing.T) {
-		l := types.ListNull(types.ObjectType{AttrTypes: interfaceAttrTypes})
-		result := flattenInterfacesAttributes(l)
-		if result != nil {
-			t.Fatalf("expected nil for null list, got %v", result)
-		}
-	})
-}
-
-// ---------------------------------------------------------------------------
-// expandInterfacesAttributes
-// ---------------------------------------------------------------------------
-
-func TestExpandInterfacesAttributes(t *testing.T) {
-	t.Run("valid json array", func(t *testing.T) {
-		raw := json.RawMessage(`[{"id":1,"primary":true,"ip":"10.0.0.1","mac":"aa:bb:cc:dd:ee:ff","name":"eth0","subnet_id":5,"identifier":"eth0","managed":true,"provision":true,"virtual":false,"type":"interface","bmc_provider":"ipmitool","username":"admin","password":"secret","domain_id":3,"attached_to":"","attached_devices":"","compute_attributes":"{\"type\":\"bridge\"}"}]`)
-		var diags diag.Diagnostics
-		l := expandInterfacesAttributes(raw, &diags)
-		if l.IsNull() {
-			t.Fatal("expected non-null list")
-		}
-		if len(l.Elements()) != 1 {
-			t.Fatalf("expected 1 element, got %d", len(l.Elements()))
-		}
-		obj := l.Elements()[0].(types.Object)
-		attrs := obj.Attributes()
-		if attrs["ip"].(types.String).ValueString() != "10.0.0.1" {
-			t.Fatalf("ip mismatch")
-		}
-		if attrs["bmc_provider"].(types.String).ValueString() != "ipmitool" {
-			t.Fatalf("bmc_provider mismatch")
-		}
-	})
-
-	t.Run("empty array", func(t *testing.T) {
-		raw := json.RawMessage(`[]`)
-		var diags diag.Diagnostics
-		l := expandInterfacesAttributes(raw, &diags)
-		if l.IsNull() {
-			t.Fatal("expected non-null list for empty array")
-		}
-		if len(l.Elements()) != 0 {
-			t.Fatalf("expected 0 elements, got %d", len(l.Elements()))
-		}
-	})
-
-	t.Run("null", func(t *testing.T) {
-		var diags diag.Diagnostics
-		l := expandInterfacesAttributes(json.RawMessage(`null`), &diags)
-		if !l.IsNull() {
-			t.Fatal("expected null list")
-		}
-	})
-
-	t.Run("empty bytes", func(t *testing.T) {
-		var diags diag.Diagnostics
-		l := expandInterfacesAttributes(json.RawMessage{}, &diags)
-		if !l.IsNull() {
-			t.Fatal("expected null list for empty bytes")
-		}
-	})
+func TestMapToJSONString(t *testing.T) {
+	s := mapToJSONString(map[string]interface{}{"type": "bridge"})
+	if s.IsNull() || s.ValueString() != `{"type":"bridge"}` {
+		t.Fatalf("unexpected result: %v", s)
+	}
+	if s := mapToJSONString(nil); !s.IsNull() {
+		t.Fatal("expected null for nil input")
+	}
+	if s := mapToJSONString("not-a-map"); !s.IsNull() {
+		t.Fatal("expected null for wrong type")
+	}
 }
 
 // ---------------------------------------------------------------------------

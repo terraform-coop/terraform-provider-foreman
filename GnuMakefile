@@ -1,15 +1,15 @@
 default: build
 
-build:
+build: generate
 	go build -v .
 
-install:
+install: generate
 	go install -v .
 
 fmt:
 	gofmt -s -w -e .
 
-lint:
+lint: generate
 	golangci-lint run
 
 generate:
@@ -18,10 +18,10 @@ generate:
 docs:
 	cd tools; go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate
 
-test:
+test: generate
 	go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
 
-testacc:
+testacc: generate
 	@echo "Starting Foreman (docker compose up -d)..."
 	docker compose up -d
 	@echo "Waiting for Foreman to be ready..."
@@ -31,19 +31,19 @@ testacc:
 		fi; \
 		echo "  waiting... ($$i/30)"; sleep 10; \
 	done
+	FOREMAN_INTEGRATION_TESTS=1 \
 	FOREMAN_SERVER_HOSTNAME=localhost:3000 \
+	FOREMAN_CLIENT_SCHEME=http \
 	FOREMAN_CLIENT_USERNAME=admin \
 	FOREMAN_CLIENT_PASSWORD=changeme \
-	FOREMAN_CLIENT_TLS_INSECURE=true \
-	FOREMAN_CLIENT_SCHEME=http \
 	go test -v -cover -timeout=300s -tags=integration -count=1 ./internal/provider/...
 	@echo "Tearing down Foreman..."
 	docker compose down -v
 
-testacc-parallel:
+testacc-parallel: generate
 	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 -parallel=20 ./...
 
-cover:
+cover: generate
 	go test -coverprofile=coverage.out -covermode=atomic ./...
 	go tool cover -func=coverage.out | grep total | awk '{print $$3}' | \
 	  xargs -I{} sh -c 'test "$$(echo "{}" | tr -d %)" -ge 80'

@@ -92,27 +92,79 @@ func int64SliceToList(ids []int64, diags *diag.Diagnostics) types.List {
 	return list
 }
 
-// Compute attributes bridging — types.String (JSON) ↔ map for API.
-// Used by: host (compute_attributes).
-
-// flattenComputeAttributes converts types.String (JSON) → map for API request body.
-func flattenComputeAttributes(s types.String) map[string]interface{} {
-	if s.IsNull() || s.IsUnknown() || s.ValueString() == "" {
+// maybeStringList extracts a []string from a types.List attr.Value, for
+// string-list fields nested inside an object (e.g. an interface's
+// attached_devices).
+func maybeStringList(v attr.Value) []string {
+	l, ok := v.(types.List)
+	if !ok || l.IsNull() || l.IsUnknown() {
 		return nil
 	}
-	var attrs map[string]interface{}
-	if err := json.Unmarshal([]byte(s.ValueString()), &attrs); err != nil {
-		return nil
+	elements := l.Elements()
+	out := make([]string, 0, len(elements))
+	for _, e := range elements {
+		if s, ok := e.(types.String); ok {
+			out = append(out, s.ValueString())
+		}
 	}
-	return attrs
+	return out
 }
 
-// expandComputeAttributes converts API response → types.String (JSON).
-func expandComputeAttributes(raw json.RawMessage) types.String {
-	if len(raw) == 0 || string(raw) == "null" {
-		return types.StringNull()
+// stringListValue builds a types.List of strings from a raw decoded JSON
+// array, for string-list fields nested inside an object.
+func stringListValue(v interface{}) types.List {
+	arr, ok := v.([]interface{})
+	if !ok {
+		return types.ListNull(types.StringType)
 	}
-	return types.StringValue(string(raw))
+	elems := make([]attr.Value, 0, len(arr))
+	for _, item := range arr {
+		if s, ok := item.(string); ok {
+			elems = append(elems, types.StringValue(s))
+		}
+	}
+	list, diags := types.ListValue(types.StringType, elems)
+	if diags.HasError() {
+		return types.ListNull(types.StringType)
+	}
+	return list
+}
+
+// maybeInt64 extracts int64 from attr.Value, returns 0 if null.
+func maybeInt64(v attr.Value) int64 {
+	if iv, ok := v.(types.Int64); ok && !iv.IsNull() {
+		return iv.ValueInt64()
+	}
+	return 0
+}
+
+// maybeBool extracts bool from attr.Value, returns false if null.
+func maybeBool(v attr.Value) bool {
+	if bv, ok := v.(types.Bool); ok && !bv.IsNull() {
+		return bv.ValueBool()
+	}
+	return false
+}
+
+// maybeString extracts string from attr.Value, returns "" if null.
+func maybeString(v attr.Value) string {
+	if sv, ok := v.(types.String); ok && !sv.IsNull() {
+		return sv.ValueString()
+	}
+	return ""
+}
+
+// maybeJSON extracts a JSON string from attr.Value, unmarshals to map.
+func maybeJSON(v attr.Value) map[string]interface{} {
+	sv, ok := v.(types.String)
+	if !ok || sv.IsNull() {
+		return nil
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal([]byte(sv.ValueString()), &m); err != nil {
+		return nil
+	}
+	return m
 }
 
 // parseStringToInt64 parses a string representation of an int64 and appends a
@@ -167,4 +219,19 @@ func boolValue(v interface{}) types.Bool {
 		return types.BoolValue(b)
 	}
 	return types.BoolNull()
+}
+
+// mapToJSONString re-serializes a decoded JSON object (e.g. a nested
+// interface's compute_attributes) back into a JSON string attr.Value, for
+// free-form hash sub-fields exposed as opaque JSON strings.
+func mapToJSONString(v interface{}) types.String {
+	m, ok := v.(map[string]interface{})
+	if !ok || m == nil {
+		return types.StringNull()
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return types.StringNull()
+	}
+	return types.StringValue(string(b))
 }

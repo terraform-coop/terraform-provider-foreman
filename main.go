@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run ./tools/gen/client -input apidoc/v2.json -output ./generated/ -provider ./internal/provider/ -overrides ./tools/gen/overrides.yaml
+
 import (
 	"context"
 	"log"

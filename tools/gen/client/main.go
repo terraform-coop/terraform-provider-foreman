@@ -27,7 +27,7 @@ func main() {
 	inputPath := flag.String("input", "apidoc/v2.json", "Path to apidoc/v2.json")
 	outputDir := flag.String("output", "generated/", "Output directory for generated client files")
 	providerDir := flag.String("provider", "internal/provider/", "Output directory for generated provider files")
-	overridesPath := flag.String("overrides", "generated/overrides.yaml", "Path to type overrides file")
+	overridesPath := flag.String("overrides", "tools/gen/overrides.yaml", "Path to type overrides file")
 	verboseFlag := flag.Bool("verbose", false, "Log skipped resources and generation details")
 	flag.Parse()
 	verbose = *verboseFlag
@@ -108,6 +108,12 @@ type ResourceOverride struct {
 	Endpoint      string            `yaml:"endpoint"`
 	ExcludeFields []string          `yaml:"exclude_fields"`
 	FieldTypes    map[string]string `yaml:"field_types"`
+	// FieldAliases maps an entity/response JSON field name to the request JSON
+	// field name that represents the same logical attribute, for Rails
+	// accepts_nested_attributes_for style APIs where the write key differs
+	// from the read key (e.g. hostgroups: request "group_parameters_attributes"
+	// reads back as "parameters").
+	FieldAliases map[string]string `yaml:"field_aliases"`
 }
 
 type Overrides struct {
@@ -144,6 +150,47 @@ type GenField struct {
 	Description  string
 	IsList       bool
 	ListElemType string // for lists: "types.StringType", "types.Int64Type"
+	// IsParametersMap marks a field that follows Foreman's standard
+	// [{"name": ..., "value": ...}] convention (e.g. host_parameters_attributes,
+	// group_parameters_attributes, os_parameters_attributes). Such fields are
+	// exposed as types.Map (string->string) and bridged via the shared
+	// flattenParameters/expandParameters helpers instead of an opaque JSON blob.
+	IsParametersMap bool
+	// ModelGoName, when set on a request Fields entry, names the EntityFields
+	// GoName that the Terraform model actually uses for this logical
+	// attribute (see FieldAliases). Codegen reads plan.<ModelGoName> instead
+	// of plan.<GoName> when building the request body for such fields.
+	ModelGoName string
+	// Sensitive marks fields whose JSON name looks like a secret (password,
+	// pass, secret), rendered with Sensitive: true in the framework schema.
+	Sensitive bool
+	// IsNestedList marks a field that is an array of objects with a real,
+	// multi-field sub-schema (e.g. host's interfaces_attributes), as opposed
+	// to the [{name,value}] convention (IsParametersMap) or an opaque single
+	// hash. Such fields are exposed as a types.List of types.Object and
+	// bridged via generated flatten/expand helper functions. NestedRequest
+	// and NestedEntity describe the sub-object's own request/entity fields,
+	// exactly like GenResource.Fields/EntityFields one level down.
+	IsNestedList  bool
+	NestedRequest []GenField
+	NestedEntity  []GenField
+}
+
+// nestednGenResource wraps a nested object's request/entity field pair so
+// the same modelFields/writeOnlyFields/fieldInModel/fieldIsComputed helpers
+// used for top-level resources can be reused one level down.
+func nestedGenResource(f GenField) GenResource {
+	return GenResource{Fields: f.NestedRequest, EntityFields: f.NestedEntity}
+}
+
+// looksSensitive reports whether a JSON field name looks like it holds a
+// secret value (password, pass suffix, secret) that should be marked
+// Sensitive in the generated Terraform schema.
+func looksSensitive(jsonName string) bool {
+	lower := strings.ToLower(jsonName)
+	return strings.Contains(lower, "password") ||
+		strings.HasSuffix(lower, "_pass") ||
+		strings.Contains(lower, "secret")
 }
 
 // ---------------------------------------------------------------------------
@@ -287,6 +334,7 @@ func buildResources(doc *ApipieDoc, overrides Overrides) []GenResource {
 		res.EntityFields = normalizeEntityFieldTypes(res.Fields, res.EntityFields)
 
 		applyFieldOverrides(&res, override)
+		applyFieldAliases(&res, override)
 
 		resources = append(resources, res)
 	}
@@ -469,14 +517,16 @@ func entityFromRequest(fields []GenField) []GenField {
 	result := make([]GenField, len(fields))
 	for i, f := range fields {
 		result[i] = GenField{
-			JSONName:     f.JSONName,
-			GoName:       f.GoName,
-			GoType:       f.GoType,
-			TFType:       f.TFType,
-			TFGoType:     f.TFGoType,
-			Description:  f.Description,
-			IsList:       f.IsList,
-			ListElemType: f.ListElemType,
+			JSONName:        f.JSONName,
+			GoName:          f.GoName,
+			GoType:          f.GoType,
+			TFType:          f.TFType,
+			TFGoType:        f.TFGoType,
+			Description:     f.Description,
+			IsList:          f.IsList,
+			ListElemType:    f.ListElemType,
+			IsParametersMap: f.IsParametersMap,
+			Sensitive:       f.Sensitive,
 		}
 	}
 	return result
@@ -528,8 +578,9 @@ func buildEntityFields(methods []ApipieRawMethod) []GenField {
 					continue
 				}
 				f := GenField{
-					JSONName: k,
-					GoName:   toPascal(k),
+					JSONName:  k,
+					GoName:    toPascal(k),
+					Sensitive: looksSensitive(k),
 				}
 				setInferredType(&f, v)
 				fields = append(fields, f)
@@ -544,6 +595,74 @@ func buildEntityFields(methods []ApipieRawMethod) []GenField {
 	return buildFields(methods)
 }
 
+// nestedEntitySkipKeys lists keys that show up inside nested response
+// objects (e.g. one element of host's "interfaces" array) but are never
+// useful as their own Terraform attribute: timestamps, and the parent
+// resource's own id/name/fqdn echoed back on each child element.
+var nestedEntitySkipKeys = map[string]bool{
+	"created_at": true, "updated_at": true,
+	"host_id": true, "host_name": true, "fqdn": true,
+}
+
+// buildNestedEntityFields builds the entity-side field schema for one
+// element of a nested object array (e.g. host's "interfaces"), from the
+// union of every example element's keys. "_name" keys that duplicate a
+// sibling "_id" key are dropped, mirroring the top-level exclude_fields
+// convention for read-only display duplicates.
+func buildNestedEntityFields(arr []interface{}) []GenField {
+	values := make(map[string]interface{})
+	var order []string
+	for _, elem := range arr {
+		obj, ok := elem.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		for k, v := range obj {
+			if existing, seen := values[k]; !seen {
+				order = append(order, k)
+				values[k] = v
+			} else if existing == nil && v != nil {
+				values[k] = v
+			}
+		}
+	}
+
+	// "id" is legitimate and useful on a nested object (e.g. an interface's
+	// own id), unlike the top-level resource id which is handled separately.
+	var fields []GenField
+	for _, k := range order {
+		if k == "created_at" || k == "updated_at" || nestedEntitySkipKeys[k] {
+			continue
+		}
+		if strings.HasSuffix(k, "_name") {
+			base := strings.TrimSuffix(k, "_name")
+			if _, hasID := values[base+"_id"]; hasID {
+				continue
+			}
+		}
+		f := GenField{
+			JSONName:  k,
+			GoName:    toPascal(k),
+			Sensitive: looksSensitive(k),
+		}
+		if values[k] == nil {
+			// A null example value carries no real type information, and
+			// "string" (setInferredType's nil default) is often wrong for
+			// something like a foreign-key id that just happens to be unset
+			// in the example. Leave GoType empty so reconcileFieldPair
+			// unconditionally trusts the request-side type instead of
+			// requiring isCompatibleType to agree with this guess.
+			f.TFType = "String"
+			f.TFGoType = "types.String"
+		} else {
+			setInferredType(&f, values[k])
+		}
+		fields = append(fields, f)
+	}
+	sortFields(fields)
+	return fields
+}
+
 // normalizeEntityFieldTypes normalizes entity field types to match request field types
 // where they exist in both. This reduces type mismatches between request and response structs.
 // Fields that are genuinely dynamic (e.g., compute_profile_id which is string in response
@@ -553,25 +672,63 @@ func normalizeEntityFieldTypes(fields []GenField, entityFields []GenField) []Gen
 		return entityFields
 	}
 
-	// Build a map of request field types by JSON name
-	fieldTypeMap := make(map[string]string)
+	// Build a map of request fields by JSON name
+	fieldByName := make(map[string]GenField)
 	for _, f := range fields {
-		fieldTypeMap[f.JSONName] = f.GoType
+		fieldByName[f.JSONName] = f
 	}
 
 	result := make([]GenField, len(entityFields))
 	for i, ef := range entityFields {
 		result[i] = ef
-		if reqType, ok := fieldTypeMap[ef.JSONName]; ok {
-			// Only normalize if the types are compatible (both numeric or both string-like)
-			if isCompatibleType(ef.GoType, reqType) {
-				result[i].GoType = reqType
-				result[i].TFType = goTypeToTFType(reqType)
-				result[i].TFGoType = goTypeToTFGoType(reqType)
-			}
+		reqField, ok := fieldByName[ef.JSONName]
+		if !ok {
+			continue
 		}
+		reconcileFieldPair(&reqField, &result[i])
 	}
 	return result
+}
+
+// reconcileFieldPair aligns an entity field's shape/type with the request
+// field representing the same logical attribute (matched either because
+// their JSON names are identical, or via a field_alias in applyFieldAliases).
+// The request side is trusted as the source of truth for shape detection
+// (IsParametersMap/IsNestedList) because it comes from apidoc's declared
+// param schema, while the entity side is inferred from example JSON that is
+// frequently empty or missing.
+func reconcileFieldPair(reqField *GenField, entityField *GenField) {
+	switch {
+	case reqField.IsParametersMap:
+		entityField.IsParametersMap = true
+		entityField.IsList = false
+		entityField.GoType = "json.RawMessage"
+		entityField.TFType = "Map"
+		entityField.TFGoType = "types.Map"
+	case reqField.IsNestedList:
+		entityField.IsNestedList = true
+		entityField.IsList = false
+		entityField.GoType = "json.RawMessage"
+		entityField.TFType = "ListNested"
+		entityField.TFGoType = "types.List"
+		entityField.NestedRequest = reqField.NestedRequest
+		if len(entityField.NestedEntity) == 0 {
+			// No usable response example for this field; fall back to the
+			// request shape so the resource still has a schema for it.
+			entityField.NestedEntity = entityFromRequest(reqField.NestedRequest)
+		}
+		entityField.NestedEntity = normalizeEntityFieldTypes(reqField.NestedRequest, entityField.NestedEntity)
+	default:
+		// entityField.GoType == "" means the entity side never actually
+		// observed a non-null example value (see buildNestedEntityFields),
+		// so there is no real signal to conflict with the request type -
+		// trust it unconditionally instead of requiring isCompatibleType.
+		if entityField.GoType == "" || isCompatibleType(entityField.GoType, reqField.GoType) {
+			entityField.GoType = reqField.GoType
+			entityField.TFType = goTypeToTFType(reqField.GoType)
+			entityField.TFGoType = goTypeToTFGoType(reqField.GoType)
+		}
+	}
 }
 
 // isCompatibleType returns true if two Go types can be safely normalized.
@@ -644,9 +801,13 @@ func setInferredType(f *GenField, v interface{}) {
 			f.TFGoType = "types.Int64"
 		}
 	case map[string]interface{}:
-		f.GoType = "map[string]interface{}"
-		f.TFType = "Map"
-		f.TFGoType = "types.Map"
+		// Free-form/heterogeneous nested object (e.g. host's permissions,
+		// compute_attributes). Expose as an opaque JSON string rather than a
+		// typed Map, since Map requires uniform value types and these
+		// objects' value types vary per key/resource.
+		f.GoType = "json.RawMessage"
+		f.TFType = "String"
+		f.TFGoType = "types.String"
 	case []interface{}:
 		f.IsList = true
 		if len(val) > 0 {
@@ -658,10 +819,23 @@ func setInferredType(f *GenField, v interface{}) {
 				f.GoType = "[]string"
 				f.ListElemType = "types.StringType"
 			case map[string]interface{}:
-				// Array of objects - use JSON string, resource handles conversion
+				if isNameValueArrayExample(val) {
+					// Foreman's standard [{"name": ..., "value": ...}] convention.
+					f.IsParametersMap = true
+					f.GoType = "json.RawMessage"
+					f.TFType = "Map"
+					f.TFGoType = "types.Map"
+					f.IsList = false
+					return
+				}
+				// Array of objects with a real multi-field sub-schema (e.g.
+				// host's "interfaces"). Build the nested entity schema from
+				// the union of every element's keys.
+				f.IsNestedList = true
+				f.NestedEntity = buildNestedEntityFields(val)
 				f.GoType = "json.RawMessage"
-				f.TFType = "String"
-				f.TFGoType = "types.String"
+				f.TFType = "ListNested"
+				f.TFGoType = "types.List"
 				f.IsList = false
 				return
 			default:
@@ -679,6 +853,41 @@ func setInferredType(f *GenField, v interface{}) {
 		f.TFType = "String"
 		f.TFGoType = "types.String"
 	}
+}
+
+// isNameValueParams reports whether a declared apipie array param's nested
+// schema matches Foreman's standard [{"name": ..., "value": ...}] convention
+// (used for host/hostgroup/os "parameters" style attributes). Extra optional
+// sub-params (e.g. parameter_type, hidden_value) are allowed.
+func isNameValueParams(params []ApipieParam) bool {
+	hasName, hasValue := false, false
+	for _, p := range params {
+		switch strings.ToLower(p.Name) {
+		case "name":
+			hasName = true
+		case "value":
+			hasValue = true
+		}
+	}
+	return hasName && hasValue
+}
+
+// isNameValueArrayExample reports whether every object element in a response
+// example array matches Foreman's standard [{"name": ..., "value": ...}]
+// convention.
+func isNameValueArrayExample(arr []interface{}) bool {
+	for _, elem := range arr {
+		obj, ok := elem.(map[string]interface{})
+		if !ok {
+			return false
+		}
+		_, hasName := obj["name"]
+		_, hasValue := obj["value"]
+		if !hasName || !hasValue {
+			return false
+		}
+	}
+	return true
 }
 
 func extractParamKey(methods []ApipieRawMethod) string {
@@ -719,6 +928,7 @@ func paramToGenField(p ApipieParam) GenField {
 		GoName:      toPascal(p.Name),
 		Required:    p.Required,
 		Description: cleanDesc(p.Description),
+		Sensitive:   looksSensitive(p.Name),
 	}
 
 	switch p.ExpectedType {
@@ -734,13 +944,44 @@ func paramToGenField(p ApipieParam) GenField {
 		f.GoType = "bool"
 		f.TFType = "Bool"
 		f.TFGoType = "types.Bool"
+	case "hash":
+		// Free-form/heterogeneous nested object (e.g. host's compute_attributes,
+		// whose shape varies per compute resource type). Expose as an opaque
+		// JSON string rather than a typed Map, since Map requires uniform
+		// value types.
+		f.GoType = "json.RawMessage"
+		f.TFType = "String"
+		f.TFGoType = "types.String"
 	case "array":
-		if len(p.Params) > 0 {
-			// Array of objects - use JSON string, resource handles conversion
-			f.GoType = "json.RawMessage"
-			f.TFType = "String"
-			f.TFGoType = "types.String"
-		} else if strings.Contains(p.Validator, "String") {
+		if len(p.Params) > 0 && isNameValueParams(p.Params) {
+			// Foreman's standard [{"name": ..., "value": ...}] convention.
+			// The request wire type matches flattenParameters' return type;
+			// the entity/response side stays json.RawMessage for
+			// expandParameters (see setInferredType/normalizeEntityFieldTypes).
+			f.IsParametersMap = true
+			f.GoType = "[]map[string]interface{}"
+			f.TFType = "Map"
+			f.TFGoType = "types.Map"
+		} else if len(p.Params) > 0 {
+			// Array of objects with a real multi-field sub-schema (e.g.
+			// host's interfaces_attributes). Recurse to build the nested
+			// request schema. Wire type matches the flatten helper's return
+			// type (see reconcileFieldPair/addNestedListHelpers); the
+			// entity/response side stays json.RawMessage for expand.
+			f.IsNestedList = true
+			for _, sp := range p.Params {
+				f.NestedRequest = append(f.NestedRequest, paramToGenField(sp))
+			}
+			f.GoType = "[]map[string]interface{}"
+			f.TFType = "ListNested"
+			f.TFGoType = "types.List"
+		} else if strings.Contains(p.Validator, "String") || (!strings.HasSuffix(p.Name, "_ids") && !strings.Contains(p.Validator, "number")) {
+			// Foreman's apidoc frequently reports array params as the
+			// generic "Must be an array of any type" regardless of actual
+			// element type. The "_ids" suffix is Rails' overwhelmingly
+			// consistent convention for integer FK arrays; anything else
+			// ambiguous (e.g. attached_devices, logs) is far more likely to
+			// be a list of identifiers/strings than integers.
 			f.IsList = true
 			f.GoType = "[]string"
 			f.TFType = "List"
@@ -826,10 +1067,48 @@ func filterFields(fields []GenField, exclude map[string]bool, types map[string]s
 		}
 		if t, ok := types[f.JSONName]; ok {
 			f.GoType = t
+			// Keep the framework schema type consistent with the Go type
+			// override for canonical types; leave non-canonical overrides
+			// (e.g. "int" used purely for the wire struct) untouched.
+			if t == "string" || t == "int64" || t == "float64" || t == "bool" {
+				f.TFType = goTypeToTFType(t)
+				f.TFGoType = goTypeToTFGoType(t)
+			}
 		}
 		result = append(result, f)
 	}
 	return result
+}
+
+// applyFieldAliases reconciles request/response fields that represent the
+// same logical Terraform attribute but use different JSON keys (Rails
+// accepts_nested_attributes_for convention, e.g. hostgroups' request key
+// "group_parameters_attributes" reads back as "parameters"). The entity
+// field is treated as canonical for the Terraform model; the request field
+// is tagged with ModelGoName so codegen knows to read the plan value from
+// the entity field's Go name instead of its own.
+func applyFieldAliases(res *GenResource, ov ResourceOverride) {
+	for entityName, requestName := range ov.FieldAliases {
+		var entityField *GenField
+		for i := range res.EntityFields {
+			if res.EntityFields[i].JSONName == entityName {
+				entityField = &res.EntityFields[i]
+				break
+			}
+		}
+		var reqField *GenField
+		for i := range res.Fields {
+			if res.Fields[i].JSONName == requestName {
+				reqField = &res.Fields[i]
+				break
+			}
+		}
+		if entityField == nil || reqField == nil {
+			continue
+		}
+		reconcileFieldPair(reqField, entityField)
+		reqField.ModelGoName = entityField.GoName
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -857,7 +1136,9 @@ func generateFrameworkResources(resources []GenResource, providerDir string, ove
 	}
 
 	for _, res := range resources {
-		// Check if this resource is in the skip list
+		// skip_resources means "the resource file is hand-written" (e.g. custom
+		// parameter bridging); it does not imply the data source is hand-written
+		// too, so only the resource_*.go write is skipped here.
 		skip := false
 		for _, s := range overrides.SkipResources {
 			if s == res.ShortName || s == res.EndpointBase {
@@ -867,14 +1148,13 @@ func generateFrameworkResources(resources []GenResource, providerDir string, ove
 		}
 		if skip {
 			if verbose {
-				log.Printf("Skipping %s (in skip_resources)", res.ShortName)
+				log.Printf("Skipping resource %s (in skip_resources, hand-written)", res.ShortName)
 			}
-			continue
-		}
-
-		resPath := filepath.Join(providerDir, "resource_"+snakeCase(res.GoName)+".go")
-		if err := writeGeneratedFileJen(resPath, generateFrameworkResourceFile(res)); err != nil {
-			return fmt.Errorf("generating framework resource %s: %w", res.GoName, err)
+		} else {
+			resPath := filepath.Join(providerDir, "resource_"+snakeCase(res.GoName)+".go")
+			if err := writeGeneratedFileJen(resPath, generateFrameworkResourceFile(res)); err != nil {
+				return fmt.Errorf("generating framework resource %s: %w", res.GoName, err)
+			}
 		}
 		if res.HasIndex {
 			dsPath := filepath.Join(providerDir, "datasource_"+snakeCase(res.GoName)+".go")

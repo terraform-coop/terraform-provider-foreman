@@ -11,7 +11,8 @@ const (
 	// Provider name for acceptance tests
 	providerConfig = `
 provider "foreman" {
-  server_hostname     = "localhost"
+  server_hostname     = "localhost:3000"
+  server_protocol     = "http"
   client_username     = "admin"
   client_password     = "changeme"
   client_tls_insecure = true

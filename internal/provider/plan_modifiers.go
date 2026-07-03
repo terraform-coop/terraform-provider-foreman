@@ -8,45 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 )
 
-// suppressDomainSuffixDiff suppresses diffs when only the domain suffix changed.
-// For host.name: "host.example.com" vs "host" should not diff if domain is "example.com".
-type suppressDomainSuffixDiff struct{}
-
-func (m suppressDomainSuffixDiff) Description(_ context.Context) string {
-	return "Suppresses diff when only the domain suffix changed"
-}
-
-func (m suppressDomainSuffixDiff) MarkdownDescription(ctx context.Context) string {
-	return m.Description(ctx)
-}
-
-func (m suppressDomainSuffixDiff) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
-	if req.StateValue.IsNull() || req.StateValue.IsUnknown() || req.PlanValue.IsNull() || req.PlanValue.IsUnknown() {
-		return
-	}
-
-	old := req.StateValue.ValueString()
-	new := req.PlanValue.ValueString()
-
-	if old == new {
-		return
-	}
-
-	// We can't access other attributes directly in a plan modifier, so we treat
-	// the diff as a domain-suffix change only when one value is the other value
-	// plus a domain suffix (e.g. "host" <-> "host.example.com"). This avoids
-	// incorrectly suppressing "host.example.com" <-> "host.malicious.com".
-	if old == "" || new == "" {
-		if strings.HasPrefix(new, old+".") || strings.HasPrefix(old, new+".") {
-			resp.PlanValue = req.StateValue
-		}
-		return
-	}
-	if strings.HasPrefix(old, new+".") || strings.HasPrefix(new, old+".") {
-		resp.PlanValue = req.StateValue
-	}
-}
-
 // suppressSyncDateDiff normalizes sync_date times (UTC → +0000).
 type suppressSyncDateDiff struct{}
 
@@ -171,7 +132,6 @@ func shouldSuppressDownloadConcurrency(old, new int64) bool {
 
 // Ensure interface compliance
 var (
-	_ planmodifier.String = suppressDomainSuffixDiff{}
 	_ planmodifier.String = suppressSyncDateDiff{}
 	_ planmodifier.String = suppressValueTypeDiff{}
 	_ planmodifier.Int64  = suppressDownloadConcurrencyDiff{}
