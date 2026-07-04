@@ -1204,9 +1204,21 @@ func generateFrameworkResources(resources []GenResource, providerDir string, ove
 				break
 			}
 		}
+		// A resource with no create/update/delete has nothing for Terraform
+		// to manage - it's a pure lookup, so it should only exist as a data
+		// source (e.g. template_kinds: a fixed system enum, not even
+		// updatable). Generating an empty-shell resource type for it would
+		// just be a worse-UX alias for the data source (needs `terraform
+		// import`, participates in plan/apply, but can never actually
+		// change anything).
+		hasAnyMutation := res.HasCreate || res.HasUpdate || res.HasDelete
 		if skip {
 			if verbose {
 				log.Printf("Skipping resource %s (in skip_resources, hand-written)", res.ShortName)
+			}
+		} else if !hasAnyMutation {
+			if verbose {
+				log.Printf("Skipping resource %s (no create/update/delete, data-source-only)", res.ShortName)
 			}
 		} else {
 			resPath := filepath.Join(providerDir, "resource_"+snakeCase(res.GoName)+".go")

@@ -290,6 +290,15 @@ func generateAcceptanceTestFile(resources []GenResource) *jen.File {
 			jen.Id("config").String(),
 		).ValuesFunc(func(g *jen.Group) {
 			for _, res := range resources {
+				// This test only exercises the generic "set name, create,
+				// import" shape - skip anything without a real Create (no
+				// resource type exists at all for HasCreate==false &&
+				// HasUpdate==false && HasDelete==false; the others, e.g.
+				// setting/smart_class_parameter, have Update-only semantics
+				// this generic shape doesn't fit either).
+				if !res.HasCreate {
+					continue
+				}
 				g.Values(jen.Dict{
 					jen.Id("resourceType"): jen.Lit("foreman_" + res.ShortName),
 					jen.Id("config"): jen.Id("providerConfig").Op("+").Lit(fmt.Sprintf(`
@@ -929,7 +938,9 @@ func generateProviderFileJen(resources []GenResource) *jen.File {
 		g.Comment("are registered explicitly here. Keep in sync with generated/katello_*.go.")
 		g.Return(jen.Index().Func().Params().Qual("github.com/hashicorp/terraform-plugin-framework/resource", "Resource").ValuesFunc(func(g *jen.Group) {
 			for _, res := range resources {
-				g.Id("New" + res.GoName + "Resource")
+				if res.HasCreate || res.HasUpdate || res.HasDelete {
+					g.Id("New" + res.GoName + "Resource")
+				}
 			}
 			g.Id("NewKatelloContentCredentialResource")
 			g.Id("NewKatelloContentViewResource")
