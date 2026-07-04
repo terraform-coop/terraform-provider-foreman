@@ -58,7 +58,7 @@ resource "foreman_katello_repository" "debian_12_base" {
 - `gpg_key_id` (Number)
 - `http_proxy_id` (Number)
 - `http_proxy_policy` (String)
-- `ignorable_content` (String)
+- `ignorable_content` (List of String) List of content units to ignore while syncing a yum repository. Must be subset of rpm,drpm,srpm,distribution,erratum
 - `ignore_global_proxy` (Boolean)
 - `label` (String)
 - `mirror_on_sync` (Boolean)

@@ -7,6 +7,8 @@ import (
 
 	"github.com/terraform-coop/terraform-provider-foreman/generated"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -47,7 +49,7 @@ type katelloRepositoryResourceModel struct {
 	HttpProxyPolicy               types.String `tfsdk:"http_proxy_policy"`
 	HttpProxyID                   types.Int64  `tfsdk:"http_proxy_id"`
 	IgnoreGlobalProxy             types.Bool   `tfsdk:"ignore_global_proxy"`
-	IgnorableContent              types.String `tfsdk:"ignorable_content"`
+	IgnorableContent              types.List   `tfsdk:"ignorable_content"`
 	VerifySslOnSync               types.Bool   `tfsdk:"verify_ssl_on_sync"`
 	UpstreamUsername              types.String `tfsdk:"upstream_username"`
 	UpstreamPassword              types.String `tfsdk:"upstream_password"`
@@ -137,8 +139,11 @@ func (r *katelloRepositoryResource) Schema(_ context.Context, _ resource.SchemaR
 			"ignore_global_proxy": schema.BoolAttribute{
 				Optional: true,
 			},
-			"ignorable_content": schema.StringAttribute{
-				Optional: true,
+			"ignorable_content": schema.ListAttribute{
+				ElementType: types.StringType,
+				Optional:    true,
+				Description: "List of content units to ignore while syncing a yum repository. " +
+					"Must be subset of rpm,drpm,srpm,distribution,erratum",
 			},
 			"verify_ssl_on_sync": schema.BoolAttribute{
 				Optional: true,
@@ -208,7 +213,7 @@ func (r *katelloRepositoryResource) Create(ctx context.Context, req resource.Cre
 		HttpProxyPolicy:               plan.HttpProxyPolicy.ValueString(),
 		HttpProxyID:                   int(plan.HttpProxyID.ValueInt64()),
 		IgnoreGlobalProxy:             plan.IgnoreGlobalProxy.ValueBool(),
-		IgnorableContent:              plan.IgnorableContent.ValueString(),
+		IgnorableContent:              stringListToSlice(plan.IgnorableContent),
 		VerifySslOnSync:               plan.VerifySslOnSync.ValueBool(),
 		UpstreamUsername:              plan.UpstreamUsername.ValueString(),
 		UpstreamPassword:              plan.UpstreamPassword.ValueString(),
@@ -243,7 +248,7 @@ func (r *katelloRepositoryResource) Create(ctx context.Context, req resource.Cre
 	plan.HttpProxyPolicy = types.StringValue(result.HttpProxyPolicy)
 	plan.HttpProxyID = types.Int64Value(int64(result.HttpProxyID))
 	plan.IgnoreGlobalProxy = types.BoolValue(result.IgnoreGlobalProxy)
-	plan.IgnorableContent = types.StringValue(result.IgnorableContent)
+	plan.IgnorableContent = stringSliceToList(result.IgnorableContent, &resp.Diagnostics)
 	plan.VerifySslOnSync = types.BoolValue(result.VerifySslOnSync)
 	plan.UpstreamUsername = types.StringValue(result.UpstreamUsername)
 	plan.UpstreamPassword = types.StringValue(result.UpstreamPassword)
@@ -296,7 +301,7 @@ func (r *katelloRepositoryResource) Read(ctx context.Context, req resource.ReadR
 	state.HttpProxyPolicy = types.StringValue(result.HttpProxyPolicy)
 	state.HttpProxyID = types.Int64Value(int64(result.HttpProxyID))
 	state.IgnoreGlobalProxy = types.BoolValue(result.IgnoreGlobalProxy)
-	state.IgnorableContent = types.StringValue(result.IgnorableContent)
+	state.IgnorableContent = stringSliceToList(result.IgnorableContent, &resp.Diagnostics)
 	state.VerifySslOnSync = types.BoolValue(result.VerifySslOnSync)
 	state.UpstreamUsername = types.StringValue(result.UpstreamUsername)
 	state.UpstreamPassword = types.StringValue(result.UpstreamPassword)
@@ -340,7 +345,7 @@ func (r *katelloRepositoryResource) Update(ctx context.Context, req resource.Upd
 		HttpProxyPolicy:               plan.HttpProxyPolicy.ValueString(),
 		HttpProxyID:                   int(plan.HttpProxyID.ValueInt64()),
 		IgnoreGlobalProxy:             plan.IgnoreGlobalProxy.ValueBool(),
-		IgnorableContent:              plan.IgnorableContent.ValueString(),
+		IgnorableContent:              stringListToSlice(plan.IgnorableContent),
 		VerifySslOnSync:               plan.VerifySslOnSync.ValueBool(),
 		UpstreamUsername:              plan.UpstreamUsername.ValueString(),
 		UpstreamPassword:              plan.UpstreamPassword.ValueString(),
@@ -373,7 +378,7 @@ func (r *katelloRepositoryResource) Update(ctx context.Context, req resource.Upd
 	plan.HttpProxyPolicy = types.StringValue(result.HttpProxyPolicy)
 	plan.HttpProxyID = types.Int64Value(int64(result.HttpProxyID))
 	plan.IgnoreGlobalProxy = types.BoolValue(result.IgnoreGlobalProxy)
-	plan.IgnorableContent = types.StringValue(result.IgnorableContent)
+	plan.IgnorableContent = stringSliceToList(result.IgnorableContent, &resp.Diagnostics)
 	plan.VerifySslOnSync = types.BoolValue(result.VerifySslOnSync)
 	plan.UpstreamUsername = types.StringValue(result.UpstreamUsername)
 	plan.UpstreamPassword = types.StringValue(result.UpstreamPassword)
@@ -409,4 +414,36 @@ func (r *katelloRepositoryResource) Delete(ctx context.Context, req resource.Del
 
 func (r *katelloRepositoryResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+}
+
+// stringListToSlice converts a types.List of strings to a []string for the API
+// request body. See issue #164: ignorable_content must be a list of content
+// unit types (e.g. rpm, drpm, srpm), not a single string.
+func stringListToSlice(l types.List) []string {
+	if l.IsNull() || l.IsUnknown() {
+		return nil
+	}
+	elements := l.Elements()
+	out := make([]string, 0, len(elements))
+	for _, e := range elements {
+		if s, ok := e.(types.String); ok {
+			out = append(out, s.ValueString())
+		}
+	}
+	return out
+}
+
+// stringSliceToList converts a []string from the API response to a types.List
+// of strings.
+func stringSliceToList(ss []string, diags *diag.Diagnostics) types.List {
+	if ss == nil {
+		return types.ListNull(types.StringType)
+	}
+	elems := make([]attr.Value, len(ss))
+	for i, s := range ss {
+		elems[i] = types.StringValue(s)
+	}
+	list, d := types.ListValue(types.StringType, elems)
+	diags.Append(d...)
+	return list
 }
