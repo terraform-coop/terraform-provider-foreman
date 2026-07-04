@@ -224,6 +224,31 @@ func looksSensitive(jsonName string) bool {
 		strings.Contains(lower, "secret")
 }
 
+// nonNumericIDFields lists "_id"-suffixed fields confirmed to be genuinely
+// non-numeric identifiers, not Foreman database primary keys, so they must
+// be excluded from looksLikeNumericIDField's naming-convention override:
+//   - cluster_id, storage_domain_id, storage_pod_id, project_domain_id,
+//     vm_id (compute_resources): passthrough identifiers assigned by the
+//     underlying hypervisor/cloud API (vSphere MOIDs, oVirt/OpenStack
+//     UUIDs, AWS instance IDs, ...), not Foreman itself.
+//   - progress_report_id (hosts): apidoc's own description says
+//     "UUID to track orchestration tasks status".
+var nonNumericIDFields = map[string]bool{
+	"cluster_id":         true,
+	"storage_domain_id":  true,
+	"storage_pod_id":     true,
+	"project_domain_id":  true,
+	"vm_id":              true,
+	"progress_report_id": true,
+}
+
+// looksLikeNumericIDField reports whether a singular "_id" field should be
+// trusted as a plain integer FK despite apidoc declaring it a string (see
+// nonNumericIDFields for the confirmed exceptions).
+func looksLikeNumericIDField(jsonName string) bool {
+	return strings.HasSuffix(jsonName, "_id") && !nonNumericIDFields[jsonName]
+}
+
 // ---------------------------------------------------------------------------
 // Parsing
 // ---------------------------------------------------------------------------
@@ -754,7 +779,15 @@ func reconcileFieldPair(reqField *GenField, entityField *GenField) {
 		// observed a non-null example value (see buildNestedEntityFields),
 		// so there is no real signal to conflict with the request type -
 		// trust it unconditionally instead of requiring isCompatibleType.
-		if entityField.GoType == "" || isCompatibleType(entityField.GoType, reqField.GoType) {
+		// Likewise, a "_id" field's response example is sometimes
+		// serialized as a JSON string even though the real attribute is a
+		// plain integer FK (the same Rails string-ification apidoc's
+		// request-side docs already show) - trust looksLikeNumericIDField
+		// over whatever the entity side happened to observe.
+		trustRequest := entityField.GoType == "" ||
+			isCompatibleType(entityField.GoType, reqField.GoType) ||
+			(reqField.GoType == "int64" && looksLikeNumericIDField(reqField.JSONName))
+		if trustRequest {
 			entityField.GoType = reqField.GoType
 			entityField.TFType = goTypeToTFType(reqField.GoType)
 			entityField.TFGoType = goTypeToTFGoType(reqField.GoType)
@@ -812,6 +845,15 @@ func goTypeToTFGoType(goType string) string {
 func setInferredType(f *GenField, v interface{}) {
 	switch val := v.(type) {
 	case string:
+		if looksLikeNumericIDField(f.JSONName) {
+			// Same Rails route-string effect as paramToGenField's request-side
+			// case: a response example can show a "_id" field as a quoted
+			// string even though the real attribute is a plain integer FK.
+			f.GoType = "int64"
+			f.TFType = "Int64"
+			f.TFGoType = "types.Int64"
+			return
+		}
 		f.GoType = "string"
 		f.TFType = "String"
 		f.TFGoType = "types.String"
@@ -880,6 +922,13 @@ func setInferredType(f *GenField, v interface{}) {
 		f.TFType = "List"
 		f.TFGoType = "types.List"
 	default:
+		// Typically a null example value with no other type signal.
+		if looksLikeNumericIDField(f.JSONName) {
+			f.GoType = "int64"
+			f.TFType = "Int64"
+			f.TFGoType = "types.Int64"
+			return
+		}
 		f.GoType = "string"
 		f.TFType = "String"
 		f.TFGoType = "types.String"
@@ -964,9 +1013,23 @@ func paramToGenField(p ApipieParam) GenField {
 
 	switch p.ExpectedType {
 	case "string":
-		f.GoType = "string"
-		f.TFType = "String"
-		f.TFGoType = "types.String"
+		if looksLikeNumericIDField(p.Name) {
+			// apidoc reports almost every "_id" field as a plain string,
+			// regardless of the underlying column type: Rails route/path
+			// segments are lexically strings even when the attribute is a
+			// plain integer FK, and apipie-rails' introspection appears to
+			// surface that route-level type rather than the real one. Trust
+			// the naming convention instead, except for the known handful of
+			// genuinely non-numeric external identifiers (see
+			// nonNumericIDFields).
+			f.GoType = "int64"
+			f.TFType = "Int64"
+			f.TFGoType = "types.Int64"
+		} else {
+			f.GoType = "string"
+			f.TFType = "String"
+			f.TFGoType = "types.String"
+		}
 	case "numeric":
 		f.GoType = "int64"
 		f.TFType = "Int64"

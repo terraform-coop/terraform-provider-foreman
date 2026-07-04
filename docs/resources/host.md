@@ -62,7 +62,7 @@ resource "foreman_host" "web" {
     }
   })
 
-  interfaces = [
+  interfaces_attributes = [
     {
       type       = "interface"
       primary    = true
@@ -91,18 +91,18 @@ resource "foreman_host" "web" {
 - `build` (Boolean)
 - `comment` (String)
 - `compute_attributes` (String) Additional compute resource specific attributes.
-- `compute_profile_id` (String)
+- `compute_profile_id` (Number)
 - `compute_resource_id` (Number)
 - `domain_id` (Number)
 - `enabled` (Boolean)
 - `hostgroup_id` (Number)
-- `image_id` (String)
-- `interfaces` (Attributes List) (see [below for nested schema](#nestedatt--interfaces))
+- `image_id` (Number)
+- `interfaces_attributes` (Attributes List) (see [below for nested schema](#nestedatt--interfaces_attributes))
 - `ip` (String)
 - `mac` (String)
 - `managed` (Boolean)
 - `medium_id` (Number)
-- `model_id` (String)
+- `model_id` (Number)
 - `operatingsystem_id` (Number)
 - `overwrite` (Boolean) Overwrite existing host (true by default)
 - `owner_id` (Number)
@@ -111,12 +111,12 @@ resource "foreman_host" "web" {
 - `progress_report_id` (String) UUID to track orchestration tasks status, GET /api/orchestration/:UUID/tasks
 - `provision_method` (String)
 - `ptable_id` (Number)
-- `puppet_ca_proxy_id` (String)
-- `puppet_proxy_id` (String)
+- `puppet_ca_proxy_id` (Number)
+- `puppet_proxy_id` (Number)
 - `pxe_loader` (String)
-- `realm_id` (String)
+- `realm_id` (Number)
 - `root_pass` (String, Sensitive) required if host is managed and value is not inherited from host group or default password in settings
-- `subnet_id` (String)
+- `subnet_id` (Number)
 
 ### Read-Only
 
@@ -144,12 +144,12 @@ resource "foreman_host" "web" {
 - `sp_ip` (String)
 - `sp_mac` (String)
 - `sp_name` (String)
-- `sp_subnet_id` (String)
-- `subnet6_id` (String)
+- `sp_subnet_id` (Number)
+- `subnet6_id` (Number)
 - `use_image` (String)
 
-<a id="nestedatt--interfaces"></a>
-### Nested Schema for `interfaces`
+<a id="nestedatt--interfaces_attributes"></a>
+### Nested Schema for `interfaces_attributes`
 
 Optional:
 

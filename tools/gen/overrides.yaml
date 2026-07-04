@@ -86,14 +86,19 @@ resources:
       # --- COMPLEX NESTED TYPES ---
       - template_combinations        # Managed via provisioning_template_ids
       - all_parameters               # Read-only aggregation
-    field_types:
-      medium_id: int64
     field_aliases:
       # Foreman returns host parameters under "parameters" but accepts them
       # for write under "host_parameters_attributes".
       parameters: host_parameters_attributes
       # Foreman returns network interfaces under "interfaces" but accepts
       # them for write under "interfaces_attributes".
+      interfaces: interfaces_attributes
+    attribute_renames:
+      # Match the old provider's attribute name (and Foreman's own write-side
+      # wire name) instead of the read-side "interfaces" - purely a naming
+      # choice (the field_aliases entry above still does the actual
+      # read/write reconciliation either way), but this is the one place our
+      # naming diverged from the old provider for no reason.
       interfaces: interfaces_attributes
   hostgroups:
     exclude_fields:
@@ -136,8 +141,6 @@ resources:
       - organizations
       # --- COMPLEX NESTED TYPES (need custom bridging) ---
       - template_combinations       # Managed via provisioning_template_ids
-    field_types:
-      compute_resource_id: int64
     field_aliases:
       # Foreman returns hostgroup parameters under "parameters" but accepts
       # them for write under "group_parameters_attributes".

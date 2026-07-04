@@ -36,8 +36,8 @@ resource "foreman_image" "centos7" {
 
 ### Optional
 
-- `architecture_id` (String) ID of architecture
-- `compute_resource_id` (String) ID of compute resource
+- `architecture_id` (Number) ID of architecture
+- `compute_resource_id` (Number) ID of compute resource
 - `operatingsystem_id` (Number) ID of operating system
 - `password` (String, Sensitive)
 - `user_data` (Boolean) Whether or not the image supports user data

@@ -27,8 +27,8 @@ data "foreman_image" "centos7" {
 
 ### Read-Only
 
-- `architecture_id` (String) ID of architecture
-- `compute_resource_id` (String) ID of compute resource
+- `architecture_id` (Number) ID of architecture
+- `compute_resource_id` (Number) ID of compute resource
 - `id` (String) The ID of this resource.
 - `operatingsystem_id` (Number) ID of operating system
 - `password` (String, Sensitive)

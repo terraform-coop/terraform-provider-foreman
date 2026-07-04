@@ -47,7 +47,7 @@ resource "foreman_host" "web" {
     }
   })
 
-  interfaces = [
+  interfaces_attributes = [
     {
       type       = "interface"
       primary    = true
