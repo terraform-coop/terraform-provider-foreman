@@ -169,3 +169,21 @@ Every other provider-block argument (`server_hostname`, `server_protocol`,
 `client_username`/`FOREMAN_CLIENT_USERNAME`,
 `client_password`/`FOREMAN_CLIENT_PASSWORD`, `client_tls_insecure`,
 `client_auth_negotiate`, `organization_id`, `location_id`) is unchanged.
+
+## Known limitations
+
+**Creating many `foreman_host` resources at once can hit a Foreman-side race
+condition.** ([#192](https://github.com/terraform-coop/terraform-provider-foreman/issues/192))
+Under Terraform's default parallelism, some hosts in a large batch may fail
+to create with no logged error, and a subsequent `terraform apply` then
+fails with `Name has already been taken` for those hosts even though they
+don't appear in the Foreman web UI or `hammer` — the host row was partially
+created before something in Foreman's own request handling (most likely
+contention in its orchestration providers: DHCP/DNS/TFTP record creation)
+failed. `POST /api/hosts` is a plain synchronous call with no async task to
+wait on (confirmed against `apidoc/v2.json` and this provider's client code),
+so this isn't a case of the provider returning before Foreman has actually
+finished — the race is on Foreman's side under concurrent host creation. If
+you hit this, apply with a lower parallelism for the hosts in question, e.g.
+`terraform apply -parallelism=1`, or `-parallelism=<N>` tuned to what your
+Foreman instance can handle concurrently.
