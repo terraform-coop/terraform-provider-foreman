@@ -46,6 +46,7 @@ data "foreman_subnet" "dc1_vlan24" {
 - `mtu` (Number) MTU for this subnet
 - `network` (String) Subnet network
 - `network_type` (String) Type or protocol, IPv4 or IPv6, defaults to IPv4
+- `subnet_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `template_id` (Number) Template HTTP(S) Proxy ID to use within this subnet
 - `tftp_id` (Number) TFTP Proxy ID to use within this subnet
 - `to` (String) Ending IP Address for IP auto suggestion

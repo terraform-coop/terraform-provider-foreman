@@ -3,7 +3,7 @@ resource "foreman_domain" "example" {
   fullname = "Example Development Domain"
   dns_id   = 1
 
-  domain_parameters_attributes = [
-    "mtu=1500",
-  ]
+  domain_parameters_attributes = {
+    mtu = "1500"
+  }
 }

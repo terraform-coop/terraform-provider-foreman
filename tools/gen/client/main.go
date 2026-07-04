@@ -984,8 +984,13 @@ func paramToGenField(p ApipieParam) GenField {
 		f.TFType = "String"
 		f.TFGoType = "types.String"
 	case "array":
-		if len(p.Params) > 0 && isNameValueParams(p.Params) {
+		if strings.HasSuffix(p.Name, "_parameters_attributes") || (len(p.Params) > 0 && isNameValueParams(p.Params)) {
 			// Foreman's standard [{"name": ..., "value": ...}] convention.
+			// The "_parameters_attributes" suffix alone is enough to trust
+			// this even when apidoc declares no sub-params at all (true for
+			// domains/subnets - an apidoc documentation gap, not a real
+			// difference from hosts/hostgroups/operatingsystems, which
+			// happen to have their sub-params fully declared).
 			// The request wire type matches flattenParameters' return type;
 			// the entity/response side stays json.RawMessage for
 			// expandParameters (see setInferredType/normalizeEntityFieldTypes).

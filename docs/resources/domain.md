@@ -18,9 +18,9 @@ resource "foreman_domain" "example" {
   fullname = "Example Development Domain"
   dns_id   = 1
 
-  domain_parameters_attributes = [
-    "mtu=1500",
-  ]
+  domain_parameters_attributes = {
+    mtu = "1500"
+  }
 }
 ```
 
@@ -34,7 +34,7 @@ resource "foreman_domain" "example" {
 ### Optional
 
 - `dns_id` (Number) DNS proxy ID to use within this domain
-- `domain_parameters_attributes` (List of String) Array of parameters (name, value)
+- `domain_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `fullname` (String) Description of the domain
 
 ### Read-Only

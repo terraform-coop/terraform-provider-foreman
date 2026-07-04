@@ -17,4 +17,8 @@ resource "foreman_subnet" "dc1_vlan24" {
   dhcp_id    = data.foreman_smartproxy.dc1_proxy.id
   dns_id     = data.foreman_smartproxy.dc1_proxy.id
   domain_ids = [data.foreman_domain.dc1.id]
+
+  subnet_parameters_attributes = {
+    role = "vlan24"
+  }
 }

@@ -32,6 +32,10 @@ resource "foreman_subnet" "dc1_vlan24" {
   dhcp_id    = data.foreman_smartproxy.dc1_proxy.id
   dns_id     = data.foreman_smartproxy.dc1_proxy.id
   domain_ids = [data.foreman_domain.dc1.id]
+
+  subnet_parameters_attributes = {
+    role = "vlan24"
+  }
 }
 ```
 
@@ -63,7 +67,7 @@ resource "foreman_subnet" "dc1_vlan24" {
 - `mask` (String) Netmask for this subnet
 - `mtu` (Number) MTU for this subnet
 - `network_type` (String) Type or protocol, IPv4 or IPv6, defaults to IPv4
-- `subnet_parameters_attributes` (List of String) Array of parameters (name, value)
+- `subnet_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `template_id` (Number) Template HTTP(S) Proxy ID to use within this subnet
 - `tftp_id` (Number) TFTP Proxy ID to use within this subnet
 - `to` (String) Ending IP Address for IP auto suggestion
