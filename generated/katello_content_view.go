@@ -6,8 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
-
-	"golang.org/x/sync/errgroup"
 )
 
 type ForemanKatelloContentViewRequest struct {
@@ -137,21 +135,12 @@ func (c *ForemanClient) ReadContentViewFilters(ctx context.Context, cvID int) ([
 		return filters, fmt.Errorf("failed to parse %d filters: %w", len(parseErrors), errors.Join(parseErrors...))
 	}
 
-	// Fetch rules concurrently for all filters
-	g, gctx := errgroup.WithContext(ctx)
 	for i := range filters {
-		i := i
-		g.Go(func() error {
-			rules, err := c.ReadContentViewFilterRules(gctx, filters[i].ID)
-			if err != nil {
-				return fmt.Errorf("reading rules for filter %d: %w", filters[i].ID, err)
-			}
-			filters[i].Rules = rules
-			return nil
-		})
-	}
-	if err := g.Wait(); err != nil {
-		return filters, err
+		rules, err := c.ReadContentViewFilterRules(ctx, filters[i].ID)
+		if err != nil {
+			return filters, fmt.Errorf("reading rules for filter %d: %w", filters[i].ID, err)
+		}
+		filters[i].Rules = rules
 	}
 
 	return filters, nil

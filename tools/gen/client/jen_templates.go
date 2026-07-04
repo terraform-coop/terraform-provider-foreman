@@ -482,7 +482,8 @@ func generateResourceFile(res GenResource) *jen.File {
 			g.Id("req").Op("*").Id(res.GoName + "Request")
 		}).Params(jen.Op("*").Id(res.GoName), jen.Id("error")).BlockFunc(func(g *jen.Group) {
 			g.Var().Id("resp").Id(res.GoName)
-			if res.ParentEndpoint != "" {
+			switch {
+			case res.ParentEndpoint != "":
 				g.Err().Op(":=").Id("c").Dot("Post").Call(
 					jen.Id("ctx"),
 					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.ParentEndpoint+"/%d/"+res.EndpointBase), jen.Id("parentID")),
@@ -490,7 +491,15 @@ func generateResourceFile(res GenResource) *jen.File {
 					jen.Id("req"),
 					jen.Op("&").Id("resp"),
 				)
-			} else {
+			case res.OrgScopedQuery:
+				g.Err().Op(":=").Id("c").Dot("Post").Call(
+					jen.Id("ctx"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?organization_id=%d"), jen.Id("c").Dot("config").Dot("OrganizationID")),
+					jen.Lit(res.ParamKey),
+					jen.Id("req"),
+					jen.Op("&").Id("resp"),
+				)
+			default:
 				g.Err().Op(":=").Id("c").Dot("Post").Call(
 					jen.Id("ctx"),
 					jen.Lit(res.EndpointBase),
@@ -517,13 +526,20 @@ func generateResourceFile(res GenResource) *jen.File {
 			g.Id("id").Int()
 		}).Params(jen.Op("*").Id(res.GoName), jen.Id("error")).BlockFunc(func(g *jen.Group) {
 			g.Var().Id("resp").Id(res.GoName)
-			if res.ParentEndpoint != "" {
+			switch {
+			case res.ParentEndpoint != "":
 				g.Err().Op(":=").Id("c").Dot("Get").Call(
 					jen.Id("ctx"),
 					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.ParentEndpoint+"/%d/"+res.EndpointBase+"/%d"), jen.Id("parentID"), jen.Id("id")),
 					jen.Op("&").Id("resp"),
 				)
-			} else {
+			case res.OrgScopedQuery:
+				g.Err().Op(":=").Id("c").Dot("Get").Call(
+					jen.Id("ctx"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"/%d?organization_id=%d"), jen.Id("id"), jen.Id("c").Dot("config").Dot("OrganizationID")),
+					jen.Op("&").Id("resp"),
+				)
+			default:
 				g.Err().Op(":=").Id("c").Dot("Get").Call(
 					jen.Id("ctx"),
 					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"/%d"), jen.Id("id")),
@@ -608,11 +624,19 @@ func generateResourceFile(res GenResource) *jen.File {
 			jen.Id("name").String(),
 		).Params(jen.Op("*").Id(res.GoName), jen.Id("error")).BlockFunc(func(g *jen.Group) {
 			g.Var().Id("response").Id("QueryResponse")
-			g.Err().Op(":=").Id("c").Dot("Get").Call(
-				jen.Id("ctx"),
-				jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search=name=\"%s\""), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name"))),
-				jen.Op("&").Id("response"),
-			)
+			if res.OrgScopedQuery {
+				g.Err().Op(":=").Id("c").Dot("Get").Call(
+					jen.Id("ctx"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search=name=\"%s\"&organization_id=%d"), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name")), jen.Id("c").Dot("config").Dot("OrganizationID")),
+					jen.Op("&").Id("response"),
+				)
+			} else {
+				g.Err().Op(":=").Id("c").Dot("Get").Call(
+					jen.Id("ctx"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search=name=\"%s\""), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name"))),
+					jen.Op("&").Id("response"),
+				)
+			}
 			g.If(jen.Err().Op("!=").Nil()).Block(
 				jen.Return(jen.Nil(), jen.Err()),
 			)
@@ -953,18 +977,16 @@ func generateProviderFileJen(resources []GenResource) *jen.File {
 	f.Func().Params(jen.Id("p").Op("*").Id("ForemanProvider")).Id("Resources").Params(
 		jen.Id("_").Qual("context", "Context"),
 	).Params(jen.Index().Func().Params().Qual("github.com/hashicorp/terraform-plugin-framework/resource", "Resource")).BlockFunc(func(g *jen.Group) {
-		g.Comment("Katello resources are not in the pinned core apidoc/v2.json, so they")
-		g.Comment("are registered explicitly here. Keep in sync with generated/katello_*.go.")
+		g.Comment("Hand-written Katello resources are not in the pinned core apidoc/v2.json,")
+		g.Comment("so they are registered explicitly here. Keep in sync with generated/katello_*.go.")
 		g.Return(jen.Index().Func().Params().Qual("github.com/hashicorp/terraform-plugin-framework/resource", "Resource").ValuesFunc(func(g *jen.Group) {
 			for _, res := range resources {
 				if res.HasCreate || res.HasUpdate || res.HasDelete {
 					g.Id("New" + res.GoName + "Resource")
 				}
 			}
-			g.Id("NewKatelloContentCredentialResource")
 			g.Id("NewKatelloContentViewResource")
 			g.Id("NewKatelloLifecycleEnvironmentResource")
-			g.Id("NewKatelloProductResource")
 			g.Id("NewKatelloRepositoryResource")
 			g.Id("NewKatelloSyncPlanResource")
 		}))
@@ -975,17 +997,15 @@ func generateProviderFileJen(resources []GenResource) *jen.File {
 	f.Func().Params(jen.Id("p").Op("*").Id("ForemanProvider")).Id("DataSources").Params(
 		jen.Id("_").Qual("context", "Context"),
 	).Params(jen.Index().Func().Params().Qual("github.com/hashicorp/terraform-plugin-framework/datasource", "DataSource")).BlockFunc(func(g *jen.Group) {
-		g.Comment("Katello data sources are not in the pinned core apidoc/v2.json.")
+		g.Comment("Hand-written Katello data sources are not in the pinned core apidoc/v2.json.")
 		g.Return(jen.Index().Func().Params().Qual("github.com/hashicorp/terraform-plugin-framework/datasource", "DataSource").ValuesFunc(func(g *jen.Group) {
 			for _, res := range resources {
 				if res.HasIndex && res.ParentEndpoint == "" {
 					g.Id("New" + res.GoName + "DataSource")
 				}
 			}
-			g.Id("NewKatelloContentCredentialDataSource")
 			g.Id("NewKatelloContentViewDataSource")
 			g.Id("NewKatelloLifecycleEnvironmentDataSource")
-			g.Id("NewKatelloProductDataSource")
 			g.Id("NewKatelloRepositoryDataSource")
 			g.Id("NewKatelloSyncPlanDataSource")
 		}))
@@ -1124,11 +1144,10 @@ func nestedObjectSchema(nested GenResource) jen.Code {
 				attrs := jen.Dict{}
 				if fieldIsComputed(nf.GoName, nested.Fields, nested.EntityFields) {
 					attrs[jen.Id("Computed")] = jen.True()
+				} else if nf.Required {
+					attrs[jen.Id("Required")] = jen.True()
 				} else {
-					attrs[jen.Id("Required")] = jen.Lit(nf.Required)
-					if !nf.Required {
-						attrs[jen.Id("Optional")] = jen.True()
-					}
+					attrs[jen.Id("Optional")] = jen.True()
 				}
 				if nf.Description != "" {
 					attrs[jen.Id("Description")] = jen.Lit(nf.Description)
@@ -1586,8 +1605,9 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 						// Fields (e.g. hand-written EntityFields, or a real
 						// response-example parse).
 						required := fieldRequired(field, res.Fields)
-						attrs[jen.Id("Required")] = jen.Lit(required)
-						if !required {
+						if required {
+							attrs[jen.Id("Required")] = jen.True()
+						} else {
 							attrs[jen.Id("Optional")] = jen.True()
 						}
 					}

@@ -67,31 +67,24 @@ func (r *katelloContentViewResource) Schema(_ context.Context, _ resource.Schema
 				Required: true,
 			},
 			"description": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"label": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"organization_id": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 			},
 			"composite": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"auto_publish": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"solve_dependencies": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"filtered": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"filters": schema.ListNestedAttribute{
@@ -138,22 +131,18 @@ func (r *katelloContentViewResource) Schema(_ context.Context, _ resource.Schema
 				},
 			},
 			"latest_version_id": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 				Computed: true,
 			},
 			"latest_version": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 				Computed: true,
 			},
 			"content_host_count": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 				Computed: true,
 			},
 			"version_count": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 				Computed: true,
 			},

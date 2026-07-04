@@ -103,9 +103,7 @@ type ApipieParam struct {
 }
 
 type ResourceOverride struct {
-	Name          string            `yaml:"name"`
 	ShortName     string            `yaml:"short_name"`
-	Endpoint      string            `yaml:"endpoint"`
 	ExcludeFields []string          `yaml:"exclude_fields"`
 	FieldTypes    map[string]string `yaml:"field_types"`
 	// ParentEndpoint marks a resource nested under a single numeric parent
@@ -149,6 +147,11 @@ type GenResource struct {
 	EndpointBase   string
 	ParamKey       string
 	ParentEndpoint string // e.g. "smart_class_parameters/%d" for nested endpoints
+	// OrgScopedQuery marks a Katello resource whose Create/Read/Query
+	// endpoints (but not Update/Delete, which address the resource
+	// directly by ID) require the provider-configured organization_id as
+	// a "?organization_id=%d" query parameter, e.g. katello/products.
+	OrgScopedQuery bool
 	HasCreate      bool
 	HasUpdate      bool
 	HasDelete      bool
@@ -348,15 +351,8 @@ func buildResources(doc *ApipieDoc, overrides Overrides) []GenResource {
 
 		override := overrides.Resources[rawID]
 
-		epBase := override.Endpoint
-		if epBase == "" {
-			epBase = rawID
-		}
-
-		typeName := override.Name
-		if typeName == "" {
-			typeName = singularizePascal(rawID)
-		}
+		epBase := rawID
+		typeName := singularizePascal(rawID)
 
 		shortName := override.ShortName
 		if shortName == "" {
@@ -560,6 +556,45 @@ func hardcodedResources() []GenResource {
 				{JSONName: "match", GoName: "Match", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
 				{JSONName: "value", GoName: "Value", GoType: "string", TFType: "String", TFGoType: "types.String"},
 				{JSONName: "omit", GoName: "Omit", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
+			},
+			// EntityFields derived from Fields via entityFromRequest in buildResources
+		},
+		// Katello resources not in the pinned core apidoc/v2.json. Only the
+		// plain-CRUD ones fit here: content_view (publish + filter sync),
+		// lifecycle_environment (flattens nested prior/successor objects),
+		// repository (suppressDownloadConcurrencyDiff plan modifier), and
+		// sync_plan (org id is part of the URL path, not a query param) all
+		// need logic this generic pipeline doesn't express, and stay
+		// hand-written in generated/katello_*.go / internal/provider/*_katello_*.go.
+		{
+			GoName:         "ForemanKatelloContentCredential",
+			ShortName:      "katello_content_credential",
+			EndpointBase:   "katello/content_credentials",
+			ParamKey:       "content_credential",
+			OrgScopedQuery: false,
+			HasCreate:      true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
+			Fields: []GenField{
+				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
+				{JSONName: "content", GoName: "Content", GoType: "string", TFType: "String", TFGoType: "types.String"},
+			},
+			// EntityFields derived from Fields via entityFromRequest in buildResources
+		},
+		{
+			GoName:         "ForemanKatelloProduct",
+			ShortName:      "katello_product",
+			EndpointBase:   "katello/products",
+			ParamKey:       "product",
+			OrgScopedQuery: true,
+			HasCreate:      true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
+			Fields: []GenField{
+				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
+				{JSONName: "description", GoName: "Description", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				{JSONName: "label", GoName: "Label", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				{JSONName: "gpg_key_id", GoName: "GpgKeyID", GoType: "int64", TFType: "Int64", TFGoType: "types.Int64"},
+				{JSONName: "ssl_ca_cert_id", GoName: "SslCaCertID", GoType: "int64", TFType: "Int64", TFGoType: "types.Int64"},
+				{JSONName: "ssl_client_cert_id", GoName: "SslClientCertID", GoType: "int64", TFType: "Int64", TFGoType: "types.Int64"},
+				{JSONName: "ssl_client_key_id", GoName: "SslClientKeyID", GoType: "int64", TFType: "Int64", TFGoType: "types.Int64"},
+				{JSONName: "sync_plan_id", GoName: "SyncPlanID", GoType: "int64", TFType: "Int64", TFGoType: "types.Int64"},
 			},
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
@@ -1142,12 +1177,6 @@ func cleanDesc(s string) string {
 // ---------------------------------------------------------------------------
 
 func applyFieldOverrides(res *GenResource, ov ResourceOverride) {
-	if ov.Name != "" {
-		res.GoName = "Foreman" + ov.Name
-	}
-	if ov.Endpoint != "" {
-		res.EndpointBase = ov.Endpoint
-	}
 	if ov.ParentEndpoint != "" {
 		res.ParentEndpoint = ov.ParentEndpoint
 	}
@@ -1435,47 +1464,21 @@ func writeFileAtomic(path string, data []byte, perm os.FileMode) error {
 // Naming utilities
 // ---------------------------------------------------------------------------
 
+// singularizePascal converts an apidoc resource ID (snake_case, plural) to
+// the PascalCase singular used in generated type names.
 func singularizePascal(s string) string {
-	// Convert snake_case to PascalCase, then singularize
-	// Handle special multi-word names first
-	renameMap := map[string]string{
-		"operatingsystems":       "OperatingSystem",
-		"os_default_templates":   "DefaultTemplate",
-		"provisioning_templates": "ProvisioningTemplate",
-		"smart_proxies":          "SmartProxy",
-		"http_proxies":           "HTTPProxy",
-		"compute_profiles":       "ComputeProfile",
-		"compute_resources":      "ComputeResource",
-		"smart_class_parameters": "SmartClassParameter",
-		"common_parameters":      "CommonParameter",
-		"template_inputs":        "TemplateInput",
-		"partition_tables":       "PartitionTable",
-		"default_templates":      "DefaultTemplate",
-		"discovery_rules":        "DiscoveryRule",
-		"job_templates":          "JobTemplate",
-		"webhook_templates":      "WebhookTemplate",
-		"registration_commands":  "RegistrationCommand",
-		"template_kinds":         "TemplateKind",
-		"puppetclasses":          "PuppetClass",
-		"override_values":        "OverrideValue",
-		"config_reports":         "ConfigReport",
-		"fact_values":            "FactValue",
-		"auth_source_ldaps":      "AuthSourceLDAP",
-		"registration_tokens":    "RegistrationToken",
-		"host_statuses":          "HostStatus",
-		"hosts_bulk_actions":     "HostsBulkAction",
-		"table_preferences":      "TablePreference",
-		"template_combinations":  "TemplateCombination",
-		"mail_notifications":     "MailNotification",
-		"report_templates":       "ReportTemplate",
-		"external_usergroups":    "ExternalUsergroup",
-		"ssh_keys":               "SSHKey",
-		"personal_access_tokens": "PersonalAccessToken",
-		"smart_proxy_hosts":      "SmartProxyHost",
-		"compute_attributes":     "ComputeAttribute",
+	// Irregulars the generic rules below can't produce. Only IDs that
+	// actually reach this function (non-skipped apidoc resources) belong
+	// here; a wrong guess for a future apidoc addition shows up immediately
+	// as an odd generated type name.
+	irregular := map[string]string{
+		"http_proxies":         "HTTPProxy",
+		"media":                "Medium",
+		"operatingsystems":     "OperatingSystem",
+		"os_default_templates": "DefaultTemplate",
+		"ptables":              "PartitionTable",
 	}
-
-	if v, ok := renameMap[s]; ok {
+	if v, ok := irregular[s]; ok {
 		return v
 	}
 
@@ -1487,107 +1490,14 @@ func singularizePascal(s string) string {
 		parts[i] = strings.ToUpper(p[:1]) + p[1:]
 	}
 	result := strings.Join(parts, "")
-	return singularize(result)
-}
 
-func singularize(s string) string {
-	// Special cases
-	if s == "Os" {
-		return "OperatingSystem"
+	switch {
+	case strings.HasSuffix(result, "ies"):
+		return strings.TrimSuffix(result, "ies") + "y"
+	case strings.HasSuffix(result, "s") && !strings.HasSuffix(result, "ss"):
+		return strings.TrimSuffix(result, "s")
 	}
-	if s == "OsDefaultTemplates" {
-		return "DefaultTemplate"
-	}
-	if s == "Settings" {
-		return "Setting"
-	}
-	if strings.HasSuffix(s, "Statuses") {
-		return strings.TrimSuffix(s, "es")
-	}
-
-	// Use the resource ID convention for known mappings
-	singularMap := map[string]string{
-		"Architectures":         "Architecture",
-		"Domains":               "Domain",
-		"Environments":          "Environment",
-		"Hostgroups":            "Hostgroup",
-		"Hosts":                 "Host",
-		"Media":                 "Medium",
-		"Models":                "Model",
-		"Subnets":               "Subnet",
-		"Proxies":               "Proxy",
-		"Parameters":            "Parameter",
-		"Ptable":                "PartitionTable",
-		"Ptables":               "PartitionTable",
-		"Usergroups":            "Usergroup",
-		"Users":                 "User",
-		"Images":                "Image",
-		"Templates":             "Template",
-		"TemplateInputs":        "TemplateInput",
-		"ComputeResources":      "ComputeResource",
-		"ComputeProfiles":       "ComputeProfile",
-		"HttpProxies":           "HTTPProxy",
-		"SmartProxies":          "SmartProxy",
-		"Autosign":              "Autosign",
-		"CommonParameters":      "CommonParameter",
-		"OverrideValues":        "OverrideValue",
-		"OsDefaultTemplates":    "DefaultTemplate",
-		"ProvisioningTemplates": "ProvisioningTemplate",
-		"TemplateKinds":         "TemplateKind",
-		"Puppetclasses":         "PuppetClass",
-		"SmartClassParameters":  "SmartClassParameter",
-		"DiscoveryRules":        "DiscoveryRule",
-		"JobTemplates":          "JobTemplate",
-		"Webhooks":              "Webhook",
-		"WebhookTemplates":      "WebhookTemplate",
-		"DefaultTemplates":      "DefaultTemplate",
-		"RegistrationCommands":  "RegistrationCommand",
-		"Locations":             "Location",
-		"Organizations":         "Organization",
-		"Realms":                "Realm",
-		"Ping":                  "Ping",
-		"Plugins":               "Plugin",
-		"Bookmarks":             "Bookmark",
-		"Roles":                 "Role",
-		"Filters":               "Filter",
-		"Permissions":           "Permission",
-		"Audits":                "Audit",
-		"Tasks":                 "Task",
-		"Reports":               "Report",
-		"ConfigReports":         "ConfigReport",
-		"Settings":              "Setting",
-		"Facts":                 "Fact",
-		"FactValues":            "FactValue",
-	}
-
-	if v, ok := singularMap[s]; ok {
-		return v
-	}
-
-	// General rules
-	if strings.HasSuffix(s, "ies") {
-		return strings.TrimSuffix(s, "ies") + "y"
-	}
-	if strings.HasSuffix(s, "sses") {
-		return strings.TrimSuffix(s, "ses")
-	}
-	if strings.HasSuffix(s, "shes") {
-		return strings.TrimSuffix(s, "shes")
-	}
-	if strings.HasSuffix(s, "ches") {
-		return strings.TrimSuffix(s, "ches")
-	}
-	if strings.HasSuffix(s, "xes") {
-		return strings.TrimSuffix(s, "xes")
-	}
-	if strings.HasSuffix(s, "ses") {
-		return strings.TrimSuffix(s, "ses")
-	}
-	if strings.HasSuffix(s, "s") && !strings.HasSuffix(s, "ss") {
-		return strings.TrimSuffix(s, "s")
-	}
-
-	return s
+	return result
 }
 
 func snakeCase(s string) string {

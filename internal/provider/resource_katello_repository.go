@@ -78,62 +78,48 @@ func (r *katelloRepositoryResource) Schema(_ context.Context, _ resource.SchemaR
 				Required: true,
 			},
 			"description": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"label": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"product_id": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 			},
 			"content_type": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"url": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"gpg_key_id": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 			},
 			"unprotected": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"checksum_type": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"download_policy": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"download_concurrency": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 				PlanModifiers: []planmodifier.Int64{
 					suppressDownloadConcurrencyDiff{},
 				},
 			},
 			"mirror_on_sync": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"mirroring_policy": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"http_proxy_policy": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"http_proxy_id": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 			},
 			"ignore_global_proxy": schema.BoolAttribute{

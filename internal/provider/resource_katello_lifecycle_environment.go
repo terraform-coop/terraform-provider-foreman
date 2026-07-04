@@ -57,19 +57,15 @@ func (r *katelloLifecycleEnvironmentResource) Schema(_ context.Context, _ resour
 				Required: true,
 			},
 			"description": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"label": schema.StringAttribute{
-				Required: false,
 				Optional: true,
 			},
 			"organization_id": schema.Int64Attribute{
-				Required: false,
 				Optional: true,
 			},
 			"library": schema.BoolAttribute{
-				Required: false,
 				Optional: true,
 				Computed: true,
 			},
