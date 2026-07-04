@@ -60,6 +60,8 @@ internal/provider/resource_*.go
 !internal/provider/resource_katello_sync_plan.go
 !internal/provider/resource_autosign.go
 !internal/provider/resource_compute_profile.go
+!internal/provider/resource_host_validation.go
+!internal/provider/resource_host_validation_test.go
 
 internal/provider/datasource_*.go
 !internal/provider/datasource_katello_content_credential.go
