@@ -223,7 +223,7 @@ func generateStatusCodeTestFile(resources []GenResource) *jen.File {
 			jen.Id("fn").Func().Params(jen.Op("*").Id("ForemanClient"), jen.Qual("context", "Context")).Error(),
 		).ValuesFunc(func(g *jen.Group) {
 			for _, res := range resources {
-				if res.HasIndex {
+				if res.HasIndex && res.ParentEndpoint == "" {
 					g.Values(jen.Dict{
 						jen.Id("name"): jen.Lit(res.GoName),
 						jen.Id("fn"): jen.Func().Params(jen.Id("c").Op("*").Id("ForemanClient"), jen.Id("ctx").Qual("context", "Context")).Error().Block(
@@ -570,8 +570,11 @@ func generateResourceFile(res GenResource) *jen.File {
 		f.Line()
 	}
 
-	// Query method
-	if res.HasIndex {
+	// Query method (used by the data source's lookup-by-name). Skipped for
+	// parent-scoped resources: the generic "search by name" shape doesn't
+	// apply (no parent id to scope the search, and no guarantee of a "name"
+	// field), same as the pre-existing hardcoded override_value precedent.
+	if res.HasIndex && res.ParentEndpoint == "" {
 		f.Func().Params(jen.Id("c").Op("*").Id("ForemanClient")).Id("Query"+res.GoName).Params(
 			jen.Id("ctx").Qual("context", "Context"),
 			jen.Id("name").String(),
@@ -945,7 +948,7 @@ func generateProviderFileJen(resources []GenResource) *jen.File {
 		g.Comment("Katello data sources are not in the pinned core apidoc/v2.json.")
 		g.Return(jen.Index().Func().Params().Qual("github.com/hashicorp/terraform-plugin-framework/datasource", "DataSource").ValuesFunc(func(g *jen.Group) {
 			for _, res := range resources {
-				if res.HasIndex {
+				if res.HasIndex && res.ParentEndpoint == "" {
 					g.Id("New" + res.GoName + "DataSource")
 				}
 			}
@@ -1325,6 +1328,19 @@ func fieldIsComputed(fieldName string, requestFields []GenField, entityFields []
 	return true
 }
 
+// fieldRequired returns whether a model field is actually required at
+// create time, per its matching request-side field. Falls back to the
+// given field's own Required (correct for write-only fields, which come
+// straight from res.Fields already) if no request field matches.
+func fieldRequired(field GenField, requestFields []GenField) bool {
+	for _, f := range requestFields {
+		if f.GoName == field.GoName {
+			return f.Required
+		}
+	}
+	return field.Required
+}
+
 func fieldAccessor(fieldName string, fields []GenField, entityFields []GenField) jen.Code {
 	var reqType string
 	for _, f := range fields {
@@ -1462,8 +1478,19 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 							attrs[jen.Id("Optional")] = jen.True()
 						}
 					} else {
-						attrs[jen.Id("Required")] = jen.Lit(field.Required)
-						if !field.Required {
+						// field comes from modelFields(res), which prefers the
+						// EntityFields copy when a field exists on both sides -
+						// and EntityFields never carries Required (see
+						// entityFromRequest/reconcileFieldPair: requiredness is a
+						// write-side/create-time concept). Look it up from the
+						// actual request field instead of trusting field.Required,
+						// which would silently be false here for any resource
+						// whose EntityFields were populated independently of
+						// Fields (e.g. hand-written EntityFields, or a real
+						// response-example parse).
+						required := fieldRequired(field, res.Fields)
+						attrs[jen.Id("Required")] = jen.Lit(required)
+						if !required {
 							attrs[jen.Id("Optional")] = jen.True()
 						}
 					}
@@ -1688,19 +1715,48 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 	})
 	f.Line()
 
-	// ImportState method
-	f.Func().Params(jen.Id("r").Op("*").Id(res.ShortName+"Resource")).Id("ImportState").Params(
-		jen.Id("ctx").Qual("context", "Context"),
-		jen.Id("req").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStateRequest"),
-		jen.Id("resp").Op("*").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStateResponse"),
-	).Block(
-		jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStatePassthroughID").Call(
-			jen.Id("ctx"),
-			jen.Qual("github.com/hashicorp/terraform-plugin-framework/path", "Root").Call(jen.Lit("id")),
-			jen.Id("req"),
-			jen.Id("resp"),
-		),
-	)
+	// ImportState method. Parent-scoped resources need both the parent id
+	// and their own id, so they take a composite "parent_id/id" identifier
+	// instead of plain passthrough.
+	if res.ParentEndpoint != "" {
+		f.Func().Params(jen.Id("r").Op("*").Id(res.ShortName+"Resource")).Id("ImportState").Params(
+			jen.Id("ctx").Qual("context", "Context"),
+			jen.Id("req").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStateRequest"),
+			jen.Id("resp").Op("*").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStateResponse"),
+		).BlockFunc(func(g *jen.Group) {
+			g.Id("parts").Op(":=").Qual("strings", "SplitN").Call(jen.Id("req").Dot("ID"), jen.Lit("/"), jen.Lit(2))
+			g.If(jen.Len(jen.Id("parts")).Op("!=").Lit(2).Op("||").Id("parts").Index(jen.Lit(0)).Op("==").Lit("").Op("||").Id("parts").Index(jen.Lit(1)).Op("==").Lit("")).Block(
+				jen.Id("resp").Dot("Diagnostics").Dot("AddError").Call(
+					jen.Lit("Unexpected Import Identifier"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit("Expected import identifier of the form \"parent_id/id\", got: %s"), jen.Id("req").Dot("ID")),
+				),
+				jen.Return(),
+			)
+			g.List(jen.Id("parentID"), jen.Err()).Op(":=").Qual("strconv", "ParseInt").Call(jen.Id("parts").Index(jen.Lit(0)), jen.Lit(10), jen.Lit(64))
+			g.If(jen.Err().Op("!=").Nil()).Block(
+				jen.Id("resp").Dot("Diagnostics").Dot("AddError").Call(
+					jen.Lit("Unexpected Import Identifier"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit("parent_id must be numeric, got: %s"), jen.Id("parts").Index(jen.Lit(0))),
+				),
+				jen.Return(),
+			)
+			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("resp").Dot("State").Dot("SetAttribute").Call(jen.Id("ctx"), jen.Qual("github.com/hashicorp/terraform-plugin-framework/path", "Root").Call(jen.Lit("parent_id")), jen.Id("parentID")).Op("..."))
+			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("resp").Dot("State").Dot("SetAttribute").Call(jen.Id("ctx"), jen.Qual("github.com/hashicorp/terraform-plugin-framework/path", "Root").Call(jen.Lit("id")), jen.Id("parts").Index(jen.Lit(1))).Op("..."))
+		})
+	} else {
+		f.Func().Params(jen.Id("r").Op("*").Id(res.ShortName+"Resource")).Id("ImportState").Params(
+			jen.Id("ctx").Qual("context", "Context"),
+			jen.Id("req").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStateRequest"),
+			jen.Id("resp").Op("*").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStateResponse"),
+		).Block(
+			jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource", "ImportStatePassthroughID").Call(
+				jen.Id("ctx"),
+				jen.Qual("github.com/hashicorp/terraform-plugin-framework/path", "Root").Call(jen.Lit("id")),
+				jen.Id("req"),
+				jen.Id("resp"),
+			),
+		)
+	}
 	f.Line()
 
 	for _, field := range res.EntityFields {

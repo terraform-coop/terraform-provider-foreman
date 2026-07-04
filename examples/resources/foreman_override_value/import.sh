@@ -1,1 +1,1 @@
-terraform import foreman_override_value.webservers_ntp <override_value_id>
+terraform import foreman_override_value.webservers_ntp <smart_class_parameter_id>/<override_value_id>

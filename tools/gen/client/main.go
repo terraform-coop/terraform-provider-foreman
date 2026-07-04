@@ -108,6 +108,13 @@ type ResourceOverride struct {
 	Endpoint      string            `yaml:"endpoint"`
 	ExcludeFields []string          `yaml:"exclude_fields"`
 	FieldTypes    map[string]string `yaml:"field_types"`
+	// ParentEndpoint marks a resource nested under a single numeric parent
+	// (e.g. "operatingsystems" for os_default_templates, whose real endpoint
+	// is /api/operatingsystems/:operatingsystem_id/os_default_templates).
+	// Wires into the same ParentEndpoint mechanism already used by the
+	// hardcoded override_value resource: adds a Required "parent_id" int64
+	// attribute and threads it through every generated URL.
+	ParentEndpoint string `yaml:"parent_endpoint"`
 	// FieldAliases maps an entity/response JSON field name to the request JSON
 	// field name that represents the same logical attribute, for Rails
 	// accepts_nested_attributes_for style APIs where the write key differs
@@ -1073,6 +1080,9 @@ func applyFieldOverrides(res *GenResource, ov ResourceOverride) {
 	if ov.Endpoint != "" {
 		res.EndpointBase = ov.Endpoint
 	}
+	if ov.ParentEndpoint != "" {
+		res.ParentEndpoint = ov.ParentEndpoint
+	}
 
 	exclude := make(map[string]bool)
 	for _, n := range ov.ExcludeFields {
@@ -1210,7 +1220,7 @@ func generateFrameworkResources(resources []GenResource, providerDir string, ove
 			if verbose {
 				log.Printf("Skipping data source %s (in skip_data_sources, hand-written)", res.ShortName)
 			}
-		} else if res.HasIndex {
+		} else if res.HasIndex && res.ParentEndpoint == "" {
 			dsPath := filepath.Join(providerDir, "datasource_"+snakeCase(res.GoName)+".go")
 			if err := writeGeneratedFileJen(dsPath, generateDataSourceFile(res)); err != nil {
 				return fmt.Errorf("generating framework data source %s: %w", res.GoName, err)

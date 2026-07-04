@@ -31,11 +31,11 @@ resource "foreman_override_value" "webservers_ntp" {
 
 ### Required
 
+- `match` (String)
 - `parent_id` (Number) ID of the parent resource.
 
 ### Optional
 
-- `match` (String)
 - `omit` (Boolean)
 - `value` (String)
 
@@ -50,5 +50,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import foreman_override_value.webservers_ntp <override_value_id>
+terraform import foreman_override_value.webservers_ntp <smart_class_parameter_id>/<override_value_id>
 ```

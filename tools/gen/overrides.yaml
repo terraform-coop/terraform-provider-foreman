@@ -146,6 +146,12 @@ resources:
     short_name: media
   template_inputs:
     short_name: templateinput
+  os_default_templates:
+    # Real endpoint is /api/operatingsystems/:operatingsystem_id/os_default_templates -
+    # nested under a single numeric parent that the generic pipeline previously
+    # dropped entirely (every CRUD call hit the un-scoped, wrong URL and would
+    # 404 against a real server).
+    parent_endpoint: operatingsystems
   compute_resources:
     field_types:
       id: int
