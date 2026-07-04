@@ -226,7 +226,7 @@ foreman/
 │           └── main.go                  # Code generator
 ├── .golangci.yml                        # Linter config
 ├── .pre-commit-config.yaml
-├── GnuMakefile
+├── GNUmakefile
 ├── main.go
 ├── go.mod
 └── version/VERSION                      # Single version source
@@ -576,7 +576,7 @@ jobs:
           FOREMAN_CLIENT_TLS_INSECURE: true
 ```
 
-### Local workflow (`GnuMakefile`)
+### Local workflow (`GNUmakefile`)
 
 ```makefile
 default: build
