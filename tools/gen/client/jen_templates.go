@@ -1644,6 +1644,9 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			}
 			g.If(jen.Id("err").Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
 				g.If(jen.Qual("github.com/terraform-coop/terraform-provider-foreman/generated", "IsNotFoundError").Call(jen.Id("err"))).Block(
+					jen.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit(res.ShortName+" not found, removing from state"), jen.Map(jen.String()).Interface().Values(jen.Dict{
+						jen.Lit("id"): jen.Id("state").Dot("ID").Dot("ValueString").Call(),
+					})),
 					jen.Id("resp").Dot("State").Dot("RemoveResource").Call(jen.Id("ctx")),
 					jen.Return(),
 				)
@@ -1656,6 +1659,9 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			assignEntityFieldsFromResult(g, res, "state")
 			g.Line()
 
+			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Trace").Call(jen.Id("ctx"), jen.Lit("read "+res.ShortName), jen.Map(jen.String()).Interface().Values(jen.Dict{
+				jen.Lit("id"): jen.Id("state").Dot("ID").Dot("ValueString").Call(),
+			}))
 			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("resp").Dot("State").Dot("Set").Call(jen.Id("ctx"), jen.Op("&").Id("state")).Op("..."))
 		} else {
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit("Read is not supported for "+res.ShortName))
@@ -1706,6 +1712,9 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			assignEntityFieldsFromResult(g, res, "plan")
 			g.Line()
 
+			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Trace").Call(jen.Id("ctx"), jen.Lit("updated "+res.ShortName), jen.Map(jen.String()).Interface().Values(jen.Dict{
+				jen.Lit("id"): jen.Id("plan").Dot("ID").Dot("ValueString").Call(),
+			}))
 			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("resp").Dot("State").Dot("Set").Call(jen.Id("ctx"), jen.Op("&").Id("plan")).Op("..."))
 		} else {
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit("Update is not supported for "+res.ShortName))
@@ -1745,6 +1754,9 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 				jen.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Client Error"), jen.Qual("fmt", "Sprintf").Call(jen.Lit("Unable to delete "+res.ShortName+", got error: %s"), jen.Id("err"))),
 				jen.Return(),
 			)
+			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Trace").Call(jen.Id("ctx"), jen.Lit("deleted "+res.ShortName), jen.Map(jen.String()).Interface().Values(jen.Dict{
+				jen.Lit("id"): jen.Id("state").Dot("ID").Dot("ValueString").Call(),
+			}))
 		} else {
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit("Delete is not supported for "+res.ShortName))
 			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit(fmt.Sprintf("Foreman does not support deleting %s entries via the API; run 'terraform state rm' to stop managing it instead.", res.ShortName)))

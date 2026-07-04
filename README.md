@@ -144,59 +144,28 @@ Windows
 > $env:TF_LOG = "DEBUG"
 ```
 
-The provider is set to log to the file `terraform-provider-foreman.log` with
-all Foreman provider specific log messages sent to this file.  When the
-provider is executed, it will create the provider log file in the current
-working directory (if it does not exist).  If the log file already exists,
-then the logs are *appended* to the existing file.  In the case the
-provider cannot create/open the desired log file, the provider defaults to
-sending log messages to `stderr`.
+The provider logs through [`tflog`](https://developer.hashicorp.com/terraform/plugin/log/writing),
+the standard Terraform Plugin Framework logging library. Log output is
+controlled entirely by Terraform's own `TF_LOG`/`TF_LOG_PROVIDER` environment
+variables (see the link above) and goes to Terraform's normal log stream —
+there is no separate provider-specific log file to configure.
 
-The provider uses a level-based logging module that extends the golang
-stdlib `log` package.  When the log level is set to a verbosity threshold,
-only log messages of that verbosity and higher are sent to the output file.
+## Migrating from the pre-rewrite provider
 
-From most verbose to least verbose:
+The `provider_loglevel` and `provider_logfile` provider-block arguments (and
+their `FOREMAN_PROVIDER_LOGLEVEL`/`FOREMAN_PROVIDER_LOGFILE` environment
+variable equivalents) from the old custom file-based logger no longer exist.
+Remove them from your provider block if present — `terraform plan`/`apply`
+will otherwise fail with an "Unsupported argument" error — and use `TF_LOG`
+as described above instead.
 
-| Log Level | Description |
-| :--- | :--- |
-| DEBUG | Intermediate calculations, values. Useful when debugging. |
-| TRACE | Function enter/exit notifications |
-| INFO | Notifications - not related to suspicious behavior or errors |
-| WARNING | Suspcious or error behavior, but the system was able to recover or default/degrade gracefully |
-| ERROR | Behavior that causes the program execution to stop |
-| NONE | Do not log any output |
+The `foreman_global_parameter` resource and data source were renamed to
+`foreman_commonparameter`. Update your configuration's resource/data source
+type accordingly; existing state can be migrated with
+[`terraform state mv`](https://developer.hashicorp.com/terraform/cli/commands/state/mv),
+e.g. `terraform state mv foreman_global_parameter.example foreman_commonparameter.example`.
 
-The provider's log level defaults to `INFO`, meaning `INFO`, `WARNING`, and
-`ERROR` messages are committed to the log file, `DEBUG` and `TRACE` are
-ignored.  The log level can be overridden by either setting the
-`provider_loglevel` attribute in the provider block of the Terraform module,
-or by setting the environment variable `FOREMAN_PROVIDER_LOGLEVEL`.  If both
-values are set, `provider_loglevel` takes precedence. You can also override
-the Foreman provider's log file using the `FOREMAN_PROVIDER_LOGFILE`
-environment variable. A value of `-` preserves the stdlib `log` behavior
-and outputs to the `stdlog` stream.
-
-Ex:
-
-Terraform module
-```
-provider "foreman" {
-  ...
-  provider_loglevel = "DEBUG"
-  provider_logfile  = "terraform-provider-foreman.log"
-  ...
-}
-```
-
-MacOS / Linux
-```shell
-$> export FOREMAN_PROVIDER_LOGLEVEL="DEBUG"
-$> export FOREMAN_PROVIDER_LOGFILE="terraform-provider-foreman.log"
-```
-
-Windows
-```powershell
-> $env:FOREMAN_PROVIDER_LOGLEVEL = "DEBUG"
-> $env:FOREMAN_PROVIDER_LOGFILE = "terraform-provider-foreman.log"
-```
+Every other provider-block argument (`server_hostname`, `server_protocol`,
+`client_username`/`FOREMAN_CLIENT_USERNAME`,
+`client_password`/`FOREMAN_CLIENT_PASSWORD`, `client_tls_insecure`,
+`client_auth_negotiate`, `organization_id`, `location_id`) is unchanged.
