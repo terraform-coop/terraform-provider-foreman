@@ -4,7 +4,21 @@
 # RULE: Only exclude fields that are TRULY read-only, taxonomy-managed,
 # or nested object duplications. Never exclude fields the old provider supported.
 # "manage in UI" is NEVER an acceptable reason.
-skip_resources: []
+skip_resources:
+  # autosign entries don't fit the generic pipeline's assumptions: the
+  # entity's own "id" is a user-supplied hostname/wildcard pattern (a
+  # string), not a server-assigned integer; the API is nested under
+  # /api/smart_proxies/:smart_proxy_id/autosign (parent scoping the
+  # generic apidoc-driven path doesn't support); create params aren't
+  # wrapped in a hash (so the field detector finds nothing); and there is
+  # no "show" endpoint at all. Hand-written in generated/autosign.go,
+  # resource_autosign.go, datasource_autosign.go.
+  - autosign
+skip_data_sources:
+  # autosign's data source is also hand-written (see skip_resources above) -
+  # the generic shape (lookup-by-"name") doesn't apply since autosign has no
+  # "name" field and needs a smart_proxy_id to look anything up.
+  - autosign
 resources:
   hosts:
     exclude_fields:

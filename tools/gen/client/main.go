@@ -49,7 +49,7 @@ func main() {
 	}
 	resources = append(resources, hardcoded...)
 
-	if err := generateAll(resources, *outputDir); err != nil {
+	if err := generateAll(resources, *outputDir, overrides); err != nil {
 		log.Fatalf("Failed to generate client code: %v", err)
 	}
 
@@ -123,8 +123,13 @@ type ResourceOverride struct {
 }
 
 type Overrides struct {
-	SkipResources []string                    `yaml:"skip_resources"`
-	Resources     map[string]ResourceOverride `yaml:"resources"`
+	SkipResources []string `yaml:"skip_resources"`
+	// SkipDataSources marks a resource whose data source is ALSO
+	// hand-written, unlike a plain SkipResources entry (which only means the
+	// resource_*.go file is hand-written; the data source is still assumed
+	// to fit the generic shape unless listed here too).
+	SkipDataSources []string                    `yaml:"skip_data_sources"`
+	Resources       map[string]ResourceOverride `yaml:"resources"`
 }
 
 // ---------------------------------------------------------------------------
@@ -1137,12 +1142,28 @@ func applyFieldAliases(res *GenResource, ov ResourceOverride) {
 // Code generation
 // ---------------------------------------------------------------------------
 
-func generateAll(resources []GenResource, outputDir string) error {
+func generateAll(resources []GenResource, outputDir string, overrides Overrides) error {
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("creating output dir: %w", err)
 	}
 
 	for _, res := range resources {
+		// skip_resources means the client file is hand-written too (e.g. a
+		// resource whose shape the generic pipeline can't express, such as
+		// autosign's string-typed, parent-scoped, no-show entity).
+		skip := false
+		for _, s := range overrides.SkipResources {
+			if s == res.ShortName || s == res.EndpointBase {
+				skip = true
+				break
+			}
+		}
+		if skip {
+			if verbose {
+				log.Printf("Skipping client file %s (in skip_resources, hand-written)", res.ShortName)
+			}
+			continue
+		}
 		path := filepath.Join(outputDir, snakeCase(res.GoName)+".go")
 		if err := writeGeneratedFileJen(path, generateResourceFile(res)); err != nil {
 			return fmt.Errorf("generating %s: %w", res.GoName, err)
@@ -1178,7 +1199,18 @@ func generateFrameworkResources(resources []GenResource, providerDir string, ove
 				return fmt.Errorf("generating framework resource %s: %w", res.GoName, err)
 			}
 		}
-		if res.HasIndex {
+		skipDS := false
+		for _, s := range overrides.SkipDataSources {
+			if s == res.ShortName || s == res.EndpointBase {
+				skipDS = true
+				break
+			}
+		}
+		if skipDS {
+			if verbose {
+				log.Printf("Skipping data source %s (in skip_data_sources, hand-written)", res.ShortName)
+			}
+		} else if res.HasIndex {
 			dsPath := filepath.Join(providerDir, "datasource_"+snakeCase(res.GoName)+".go")
 			if err := writeGeneratedFileJen(dsPath, generateDataSourceFile(res)); err != nil {
 				return fmt.Errorf("generating framework data source %s: %w", res.GoName, err)
@@ -1195,6 +1227,7 @@ func generateFrameworkResources(resources []GenResource, providerDir string, ove
 }
 
 func generateTestFiles(resources []GenResource, outputDir, providerDir string, overrides Overrides) error {
+	var kept []GenResource
 	for _, res := range resources {
 		// Check if this resource is in the skip list
 		skip := false
@@ -1210,6 +1243,7 @@ func generateTestFiles(resources []GenResource, outputDir, providerDir string, o
 			}
 			continue
 		}
+		kept = append(kept, res)
 
 		// Round-trip JSON test in generated/
 		path := filepath.Join(outputDir, snakeCase(res.GoName)+"_roundtrip_test.go")
@@ -1218,18 +1252,22 @@ func generateTestFiles(resources []GenResource, outputDir, providerDir string, o
 		}
 	}
 
+	// The consolidated test files below assume every resource follows the
+	// generic Request/Query shape, which skip_resources entries (hand-written
+	// client code) don't - so they're built from `kept`, not `resources`.
+
 	// Consolidated fuzz test in generated/
-	if err := writeGeneratedFileJen(filepath.Join(outputDir, "fuzz_test.go"), generateFuzzTestFile(resources)); err != nil {
+	if err := writeGeneratedFileJen(filepath.Join(outputDir, "fuzz_test.go"), generateFuzzTestFile(kept)); err != nil {
 		return fmt.Errorf("generating fuzz test: %w", err)
 	}
 
 	// Consolidated status-code test in generated/
-	if err := writeGeneratedFileJen(filepath.Join(outputDir, "statuscode_test.go"), generateStatusCodeTestFile(resources)); err != nil {
+	if err := writeGeneratedFileJen(filepath.Join(outputDir, "statuscode_test.go"), generateStatusCodeTestFile(kept)); err != nil {
 		return fmt.Errorf("generating status code test: %w", err)
 	}
 
 	// Consolidated acceptance test in internal/provider/
-	if err := writeGeneratedFileJen(filepath.Join(providerDir, "acceptance_test.go"), generateAcceptanceTestFile(resources)); err != nil {
+	if err := writeGeneratedFileJen(filepath.Join(providerDir, "acceptance_test.go"), generateAcceptanceTestFile(kept)); err != nil {
 		return fmt.Errorf("generating acceptance test: %w", err)
 	}
 

@@ -13,8 +13,13 @@ description: |-
 ## Example Usage
 
 ```terraform
-data "foreman_autosign" "lab_subnet" {
-  name = "192.168.100.0/24"
+data "foreman_smartproxy" "puppet" {
+  name = "puppet.example.com"
+}
+
+data "foreman_autosign" "app_wildcard" {
+  smart_proxy_id = data.foreman_smartproxy.puppet.id
+  id             = "*.app.example.com"
 }
 ```
 
@@ -23,8 +28,5 @@ data "foreman_autosign" "lab_subnet" {
 
 ### Required
 
-- `name` (String) The name of the autosign to look up.
-
-### Read-Only
-
-- `id` (String) The ID of this resource.
+- `id` (String) The hostname or wildcard pattern to look up (e.g. "host.example.com" or "*.example.com").
+- `smart_proxy_id` (Number) ID of the smart proxy this autosign entry applies to.

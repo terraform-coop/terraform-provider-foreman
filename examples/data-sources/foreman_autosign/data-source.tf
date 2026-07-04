@@ -1,3 +1,8 @@
-data "foreman_autosign" "lab_subnet" {
-  name = "192.168.100.0/24"
+data "foreman_smartproxy" "puppet" {
+  name = "puppet.example.com"
+}
+
+data "foreman_autosign" "app_wildcard" {
+  smart_proxy_id = data.foreman_smartproxy.puppet.id
+  id             = "*.app.example.com"
 }
