@@ -1341,6 +1341,27 @@ func fieldRequired(field GenField, requestFields []GenField) bool {
 	return field.Required
 }
 
+// crudLimitationDescription returns a resource-level schema description
+// explaining a genuine Foreman API constraint (confirmed against apidoc,
+// not a generator gap) when one or more of create/update/delete aren't
+// supported, so the limitation shows up in `terraform plan`/docs instead of
+// only surfacing as a runtime "Not Supported" error. Returns "" for
+// resources with full CRUD.
+func crudLimitationDescription(res GenResource) string {
+	switch {
+	case !res.HasCreate && !res.HasUpdate && !res.HasDelete:
+		return fmt.Sprintf("This resource is read-only: Foreman does not support creating, updating, or deleting %s entries via the API. Use `terraform import` to bring an existing one into state so its attributes can be referenced.", res.ShortName)
+	case !res.HasCreate && !res.HasDelete:
+		return fmt.Sprintf("Foreman does not support creating or deleting %s entries via the API; only its existing attributes can be updated. Use `terraform import` to bring an existing one under management.", res.ShortName)
+	case !res.HasCreate:
+		return fmt.Sprintf("Foreman does not support creating %s entries via the API. Use `terraform import` to bring an existing one under management.", res.ShortName)
+	case !res.HasDelete:
+		return fmt.Sprintf("Foreman does not support deleting %s entries via the API; `terraform destroy` only removes it from state.", res.ShortName)
+	default:
+		return ""
+	}
+}
+
 func fieldAccessor(fieldName string, fields []GenField, entityFields []GenField) jen.Code {
 	var reqType string
 	for _, f := range fields {
@@ -1439,7 +1460,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 		jen.Id("_").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "SchemaRequest"),
 		jen.Id("resp").Op("*").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "SchemaResponse"),
 	).BlockFunc(func(g *jen.Group) {
-		g.Id("resp").Dot("Schema").Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", "Schema").Values(jen.Dict{
+		schemaValues := jen.Dict{
 			jen.Id("Attributes"): jen.Map(jen.String()).Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", "Attribute").Values(jen.DictFunc(func(d jen.Dict) {
 				// id attribute
 				d[jen.Lit("id")] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", "StringAttribute").Values(jen.Dict{
@@ -1509,7 +1530,12 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 					d[jen.Lit(tfKey(field))] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", field.TFType+"Attribute").Values(attrs)
 				}
 			})),
-		})
+		}
+		if desc := crudLimitationDescription(res); desc != "" {
+			schemaValues[jen.Id("Description")] = jen.Lit(desc)
+			schemaValues[jen.Id("MarkdownDescription")] = jen.Lit(desc)
+		}
+		g.Id("resp").Dot("Schema").Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/resource/schema", "Schema").Values(schemaValues)
 	})
 	f.Line()
 
@@ -1573,7 +1599,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("resp").Dot("State").Dot("Set").Call(jen.Id("ctx"), jen.Op("&").Id("plan")).Op("..."))
 		} else {
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit("Create is not supported for "+res.ShortName))
-			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit("Create is not supported for this resource"))
+			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit(fmt.Sprintf("Foreman does not support creating %s entries via the API; import an existing one instead (see this resource's Import Statement docs).", res.ShortName)))
 		}
 	})
 	f.Line()
@@ -1672,7 +1698,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("resp").Dot("State").Dot("Set").Call(jen.Id("ctx"), jen.Op("&").Id("plan")).Op("..."))
 		} else {
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit("Update is not supported for "+res.ShortName))
-			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit("Update is not supported for this resource"))
+			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit(fmt.Sprintf("Foreman does not support updating %s entries via the API; every attribute is read-only.", res.ShortName)))
 		}
 	})
 	f.Line()
@@ -1710,7 +1736,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			)
 		} else {
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit("Delete is not supported for "+res.ShortName))
-			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit("Delete is not supported for this resource"))
+			g.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Not Supported"), jen.Lit(fmt.Sprintf("Foreman does not support deleting %s entries via the API; run 'terraform state rm' to stop managing it instead.", res.ShortName)))
 		}
 	})
 	f.Line()

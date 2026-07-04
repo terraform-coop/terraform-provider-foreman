@@ -3,12 +3,12 @@
 page_title: "foreman_templatekind Resource - terraform-provider-foreman"
 subcategory: ""
 description: |-
-  
+  This resource is read-only: Foreman does not support creating, updating, or deleting templatekind entries via the API. Use terraform import to bring an existing one into state so its attributes can be referenced.
 ---
 
 # foreman_templatekind (Resource)
 
-
+This resource is read-only: Foreman does not support creating, updating, or deleting templatekind entries via the API. Use `terraform import` to bring an existing one into state so its attributes can be referenced.
 
 ## Example Usage
 

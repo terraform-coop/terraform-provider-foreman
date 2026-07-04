@@ -3,12 +3,12 @@
 page_title: "foreman_smartclassparameter Resource - terraform-provider-foreman"
 subcategory: ""
 description: |-
-  
+  Foreman does not support creating or deleting smartclassparameter entries via the API; only its existing attributes can be updated. Use terraform import to bring an existing one under management.
 ---
 
 # foreman_smartclassparameter (Resource)
 
-
+Foreman does not support creating or deleting smartclassparameter entries via the API; only its existing attributes can be updated. Use `terraform import` to bring an existing one under management.
 
 ## Example Usage
 
