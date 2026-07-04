@@ -93,6 +93,56 @@ func TestExpandParameters(t *testing.T) {
 			t.Fatal("expected null map for empty bytes")
 		}
 	})
+
+	t.Run("mixed value types", func(t *testing.T) {
+		// Foreman parameters are user-typeable (parameter_type: boolean,
+		// integer, array, hash, ...) - "value" is not always a JSON string.
+		// See issues #129, #136.
+		raw := json.RawMessage(`[
+			{"name":"str","value":"hello"},
+			{"name":"bool","value":true},
+			{"name":"num","value":42},
+			{"name":"arr","value":["a","b"]},
+			{"name":"obj","value":{"x":1}}
+		]`)
+		m := expandParameters(raw)
+		if m.IsNull() {
+			t.Fatal("expected non-null map")
+		}
+		elems := m.Elements()
+		cases := map[string]string{
+			"str":  "hello",
+			"bool": "true",
+			"num":  "42",
+			"arr":  `["a","b"]`,
+			"obj":  `{"x":1}`,
+		}
+		for k, want := range cases {
+			got := elems[k].(types.String).ValueString()
+			if got != want {
+				t.Fatalf("%s: got %q, want %q", k, got, want)
+			}
+		}
+	})
+}
+
+func TestParameterValueToString(t *testing.T) {
+	cases := []struct {
+		raw  string
+		want string
+	}{
+		{`"hello"`, "hello"},
+		{`true`, "true"},
+		{`42`, "42"},
+		{`null`, ""},
+		{`["a","b"]`, `["a","b"]`},
+	}
+	for _, tc := range cases {
+		got := parameterValueToString(json.RawMessage(tc.raw))
+		if got != tc.want {
+			t.Errorf("parameterValueToString(%s) = %q, want %q", tc.raw, got, tc.want)
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------

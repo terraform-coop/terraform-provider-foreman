@@ -37,26 +37,49 @@ func flattenParameters(m types.Map) []map[string]interface{} {
 }
 
 // expandParameters converts API response [{name,value}] → types.Map.
+//
+// Foreman parameters are user-typeable (parameter_type: string, boolean,
+// integer, real, array, hash, yaml, or json), so "value" is not always a
+// JSON string - decoding it into a plain Go string unconditionally makes
+// json.Unmarshal fail for the whole parameter list the moment any single
+// parameter has a non-string type, which previously surfaced as e.g. host
+// or hostgroup parameters silently disappearing (or erroring) on import/read
+// (see issues #129, #136). Decode "value" as raw JSON per-element instead,
+// and render it as text for storage in this provider's Map<String>
+// representation.
 func expandParameters(raw json.RawMessage) types.Map {
 	if len(raw) == 0 || string(raw) == "null" {
 		return types.MapNull(types.StringType)
 	}
 	var params []struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
+		Name  string          `json:"name"`
+		Value json.RawMessage `json:"value"`
 	}
 	if err := json.Unmarshal(raw, &params); err != nil {
 		return types.MapNull(types.StringType)
 	}
 	elements := make(map[string]attr.Value, len(params))
 	for _, p := range params {
-		elements[p.Name] = types.StringValue(p.Value)
+		elements[p.Name] = types.StringValue(parameterValueToString(p.Value))
 	}
 	m, diags := types.MapValue(types.StringType, elements)
 	if diags.HasError() {
 		return types.MapNull(types.StringType)
 	}
 	return m
+}
+
+// parameterValueToString renders a Foreman parameter's raw JSON "value" as
+// plain text: a JSON string decodes to its unquoted contents (the common
+// case), while a boolean/number/array/object's JSON text is used as-is
+// (e.g. "true", "123", ["a","b"]) so the value round-trips losslessly
+// through this provider's string representation instead of crashing.
+func parameterValueToString(raw json.RawMessage) string {
+	var s string
+	if err := json.Unmarshal(raw, &s); err == nil {
+		return s
+	}
+	return string(raw)
 }
 
 // List bridging — types.List of int64 → []int64 for API.
