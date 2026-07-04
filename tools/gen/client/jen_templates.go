@@ -107,6 +107,13 @@ func generateRoundTripTestFile(res GenResource) *jen.File {
 				if field.IsList {
 					continue
 				}
+				if isOptionalIntPointerField(field, res.Fields) {
+					d[jen.Id(field.GoName)] = jen.Func().Params().Op("*").Int64().Block(
+						jen.Id("v").Op(":=").Int64().Call(jen.Lit(42)),
+						jen.Return(jen.Op("&").Id("v")),
+					).Call()
+					continue
+				}
 				switch field.GoType {
 				case "string":
 					d[jen.Id(field.GoName)] = jen.Lit("test_" + field.JSONName)
@@ -432,6 +439,18 @@ func generateResourceFile(res GenResource) *jen.File {
 	// Request struct
 	f.Type().Id(res.GoName + "Request").StructFunc(func(g *jen.Group) {
 		for _, field := range res.Fields {
+			if isOptionalIntPointerField(field, res.Fields) {
+				// Optional int64 fields (e.g. FK references like
+				// compute_resource_id) use a pointer with no "omitempty": a
+				// nil pointer marshals to explicit JSON null, distinguishing
+				// "the user cleared this back to unset" from "0". With a
+				// plain int64+omitempty, both cases marshal to nothing at
+				// all, so an update that removes the attribute from config
+				// silently fails to clear it server-side - Foreman never
+				// sees any signal to do so. See issue #185.
+				g.Id(field.GoName).Op("*").Int64().Tag(map[string]string{"json": field.JSONName})
+				continue
+			}
 			g.Id(field.GoName).Id(field.GoType).Tag(map[string]string{"json": field.JSONName + ",omitempty"})
 		}
 	})
@@ -1313,6 +1332,14 @@ func requestBodyDictFunc(res GenResource) func(d jen.Dict) {
 					),
 					jen.Return(jen.Qual("encoding/json", "RawMessage").Call(accessor().Dot("ValueString").Call())),
 				).Call()
+			} else if isOptionalIntPointerField(field, res.Fields) {
+				d[jen.Id(field.GoName)] = jen.Func().Params().Op("*").Int64().Block(
+					jen.If(accessor().Dot("IsNull").Call().Op("||").Add(accessor()).Dot("IsUnknown").Call()).Block(
+						jen.Return(jen.Nil()),
+					),
+					jen.Id("v").Op(":=").Add(accessor()).Dot("ValueInt64").Call(),
+					jen.Return(jen.Op("&").Id("v")),
+				).Call()
 			} else {
 				d[jen.Id(field.GoName)] = fieldAccessor(name, res.Fields, res.EntityFields)
 			}
@@ -1337,6 +1364,44 @@ func fieldIsComputed(fieldName string, requestFields []GenField, entityFields []
 		}
 	}
 	return true
+}
+
+// isOptionalIntPointerField reports whether a request field is a plain
+// scalar optional int64 that should use pointer semantics on the wire (see
+// the Request struct comment in generateResourceFile for why). Excludes
+// lists, nested objects, and parameters-map fields, which have their own
+// null handling already, and excludes polymorphic-association "_id" halves
+// (see hasTypeCompanion).
+func isOptionalIntPointerField(field GenField, siblings []GenField) bool {
+	return field.GoType == "int64" && !field.Required &&
+		!field.IsList && !field.IsNestedList && !field.IsParametersMap &&
+		!hasTypeCompanion(field, siblings)
+}
+
+// hasTypeCompanion reports whether field is the "_id" half of a Rails
+// polymorphic association (e.g. owner_id + owner_type). Foreman validates
+// such pairs together (e.g. host: "If owner type is specified, owner must
+// be specified too") - sending an explicit null for one half while the
+// other is silently left at its previous value (still using plain
+// omitempty) fails that cross-field validation. Confirmed live against
+// issue #185's fix: unlike the standalone FK fields it targets (e.g.
+// hostgroup's compute_resource_id), owner_id/owner_type broke
+// TestIntegration_Host the moment owner_id got pointer/explicit-null
+// treatment while owner_type did not. Detecting the pattern generically
+// (rather than hardcoding "owner_id") protects any other such pair in the
+// schema, present or future.
+func hasTypeCompanion(field GenField, siblings []GenField) bool {
+	base, ok := strings.CutSuffix(field.JSONName, "_id")
+	if !ok {
+		return false
+	}
+	typeField := base + "_type"
+	for _, f := range siblings {
+		if f.JSONName == typeField {
+			return true
+		}
+	}
+	return false
 }
 
 // fieldRequired returns whether a model field is actually required at

@@ -56,6 +56,13 @@ func uniqueName(prefix string) string {
 	return fmt.Sprintf("%s-%d", prefix, time.Now().UnixNano())
 }
 
+// ptr returns a pointer to v, for constructing request structs whose
+// optional int64 fields use pointer semantics (nil vs. explicit value) -
+// see issue #185.
+func ptr[T any](v T) *T {
+	return &v
+}
+
 func TestIntegration_Domain(t *testing.T) {
 	t.Parallel()
 
@@ -282,9 +289,9 @@ func TestIntegration_Hostgroup(t *testing.T) {
 	name := uniqueName("intg-hg")
 	hg, err := c.CreateForemanHostgroup(ctx, &generated.ForemanHostgroupRequest{
 		Name:              name,
-		ArchitectureID:    int64(arch.ID),
-		DomainID:          int64(domain.ID),
-		OperatingsystemID: int64(osObj.ID),
+		ArchitectureID:    ptr(int64(arch.ID)),
+		DomainID:          ptr(int64(domain.ID)),
+		OperatingsystemID: ptr(int64(osObj.ID)),
 	})
 	if err != nil {
 		t.Fatalf("create hostgroup: %v", err)
@@ -314,9 +321,15 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Errorf("read hostgroup ID: got %d, want %d", read.ID, hg.ID)
 	}
 
+	// Terraform's Update always resends the resource's complete desired
+	// state (not a partial patch), so a real update call re-sends every
+	// attribute the plan still has set, not just the one that changed.
 	newDesc := "Updated Integration Hostgroup"
 	updated, err := c.UpdateForemanHostgroup(ctx, hg.ID, &generated.ForemanHostgroupRequest{
-		Description: newDesc,
+		Description:       newDesc,
+		ArchitectureID:    ptr(int64(arch.ID)),
+		DomainID:          ptr(int64(domain.ID)),
+		OperatingsystemID: ptr(int64(osObj.ID)),
 	})
 	if err != nil {
 		t.Fatalf("update hostgroup: %v", err)
@@ -331,6 +344,33 @@ func TestIntegration_Hostgroup(t *testing.T) {
 	}
 	if read2.Description != newDesc {
 		t.Errorf("read2 description: got %q, want %q", read2.Description, newDesc)
+	}
+	if read2.DomainID != int64(domain.ID) {
+		t.Errorf("read2 domain_id: got %d, want %d (should be unchanged)", read2.DomainID, domain.ID)
+	}
+
+	// Issue #185: omitting an optional FK field from the update request
+	// (nil pointer, explicit JSON null) must actually clear it server-side,
+	// not silently leave the previous association in place.
+	cleared, err := c.UpdateForemanHostgroup(ctx, hg.ID, &generated.ForemanHostgroupRequest{
+		Description:       newDesc,
+		ArchitectureID:    ptr(int64(arch.ID)),
+		OperatingsystemID: ptr(int64(osObj.ID)),
+		// DomainID intentionally omitted (nil) to clear it.
+	})
+	if err != nil {
+		t.Fatalf("update hostgroup clearing domain_id: %v", err)
+	}
+	if cleared.DomainID != 0 {
+		t.Errorf("cleared domain_id: got %d, want 0", cleared.DomainID)
+	}
+
+	read3, err := c.ReadForemanHostgroup(ctx, hg.ID)
+	if err != nil {
+		t.Fatalf("read hostgroup after clearing domain_id: %v", err)
+	}
+	if read3.DomainID != 0 {
+		t.Errorf("read3 domain_id: got %d, want 0 (should have been cleared)", read3.DomainID)
 	}
 
 	if err := c.DeleteForemanHostgroup(ctx, hg.ID); err != nil {
@@ -382,9 +422,9 @@ func TestIntegration_Host(t *testing.T) {
 
 	hg, err := c.CreateForemanHostgroup(ctx, &generated.ForemanHostgroupRequest{
 		Name:              uniqueName("intg-host-hg"),
-		ArchitectureID:    int64(arch.ID),
-		DomainID:          int64(domain.ID),
-		OperatingsystemID: int64(osObj.ID),
+		ArchitectureID:    ptr(int64(arch.ID)),
+		DomainID:          ptr(int64(domain.ID)),
+		OperatingsystemID: ptr(int64(osObj.ID)),
 	})
 	if err != nil {
 		t.Fatalf("create prerequisite hostgroup: %v", err)
