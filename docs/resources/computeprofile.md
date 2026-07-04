@@ -13,8 +13,22 @@ description: |-
 ## Example Usage
 
 ```terraform
+data "foreman_computeresource" "vcenter" {
+  name = "VCenter"
+}
+
 resource "foreman_computeprofile" "small_vm" {
   name = "1-CPU 2GB"
+
+  compute_attributes = [
+    {
+      compute_resource_id = data.foreman_computeresource.vcenter.id
+      vm_attrs = jsonencode({
+        cpus      = 1
+        memory_mb = 2048
+      })
+    }
+  ]
 }
 ```
 
@@ -25,9 +39,28 @@ resource "foreman_computeprofile" "small_vm" {
 
 - `name` (String)
 
+### Optional
+
+- `compute_attributes` (Attributes List) Per-compute-resource VM sizing attributes (cpus, memory, disks, ...). One entry per compute resource this profile is configured for. (see [below for nested schema](#nestedatt--compute_attributes))
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+
+<a id="nestedatt--compute_attributes"></a>
+### Nested Schema for `compute_attributes`
+
+Required:
+
+- `compute_resource_id` (Number) ID of the compute resource this VM sizing applies to.
+
+Optional:
+
+- `vm_attrs` (String) Compute-resource-provider-specific VM sizing attributes (e.g. cpus, memory_mb, volumes_attributes for VMware) as a JSON-encoded string. Use jsonencode({...}).
+
+Read-Only:
+
+- `id` (Number)
 
 ## Import
 

@@ -27,4 +27,14 @@ data "foreman_computeprofile" "small_vm" {
 
 ### Read-Only
 
+- `compute_attributes` (Attributes List) Per-compute-resource VM sizing attributes for this profile. (see [below for nested schema](#nestedatt--compute_attributes))
 - `id` (String) The ID of this resource.
+
+<a id="nestedatt--compute_attributes"></a>
+### Nested Schema for `compute_attributes`
+
+Read-Only:
+
+- `compute_resource_id` (Number)
+- `id` (Number)
+- `vm_attrs` (String)

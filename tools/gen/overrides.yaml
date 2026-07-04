@@ -14,11 +14,22 @@ skip_resources:
   # no "show" endpoint at all. Hand-written in generated/autosign.go,
   # resource_autosign.go, datasource_autosign.go.
   - autosign
+  # compute_profiles' own create/update body only has "name" (confirmed
+  # against apidoc); its per-compute-resource VM sizing attributes are a
+  # separate resource scoped by BOTH compute_profile_id and
+  # compute_resource_id at once, which ParentEndpoint (single parent) can't
+  # express. Hand-written in generated/compute_profile.go,
+  # resource_compute_profile.go, datasource_compute_profile.go to restore
+  # the old provider's nested compute_attributes list behavior.
+  - compute_profiles
 skip_data_sources:
   # autosign's data source is also hand-written (see skip_resources above) -
   # the generic shape (lookup-by-"name") doesn't apply since autosign has no
   # "name" field and needs a smart_proxy_id to look anything up.
   - autosign
+  # compute_profiles' data source also needs the hand-written
+  # compute_attributes list (see skip_resources above).
+  - compute_profiles
 resources:
   hosts:
     exclude_fields:
