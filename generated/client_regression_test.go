@@ -34,7 +34,38 @@ func TestClient_TaxonomyWrapping(t *testing.T) {
 		&ForemanDomainRequest{Name: "test"}, &resp)
 	require.NoError(t, err)
 
-	// Check taxonomy was added to outer map (alongside wrapper key)
+	// Foreman only honors organization_id/location_id nested inside the
+	// resource's own wrapped hash, not as siblings of it - see issue #179.
+	domain, ok := receivedBody["domain"].(map[string]interface{})
+	require.True(t, ok, "expected 'domain' wrapper key in request body")
+	assert.Equal(t, float64(5), domain["organization_id"])
+	assert.Equal(t, float64(10), domain["location_id"])
+	assert.NotContains(t, receivedBody, "organization_id", "organization_id must not be a sibling of the wrapped hash")
+	assert.NotContains(t, receivedBody, "location_id", "location_id must not be a sibling of the wrapped hash")
+}
+
+func TestClient_TaxonomyWrapping_NoWrapperKey(t *testing.T) {
+	t.Parallel()
+
+	var receivedBody map[string]interface{}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&receivedBody))
+		w.WriteHeader(200)
+		require.NoError(t, json.NewEncoder(w).Encode(map[string]interface{}{"id": "test"}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(
+		parseURL(srv.URL),
+		ClientCredentials{},
+		ClientConfig{OrganizationID: 5, LocationID: 10},
+	)
+
+	// Some endpoints (e.g. autosign) take no wrapper key at all - taxonomy
+	// must still land in the one and only body map, not get dropped.
+	var resp map[string]interface{}
+	err := client.Post(context.Background(), "test-endpoint", "", map[string]string{"id": "test"}, &resp)
+	require.NoError(t, err)
 	assert.Equal(t, float64(5), receivedBody["organization_id"])
 	assert.Equal(t, float64(10), receivedBody["location_id"])
 }

@@ -165,10 +165,26 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 	return nil
 }
 
-func (c *ForemanClient) addTaxonomy(body interface{}) interface{} {
-	m, ok := body.(map[string]interface{})
-	if !ok {
-		return body
+// addTaxonomy injects organization_id/location_id directly into the
+// resource's own request body (reqBody - typically a *FooRequest struct
+// pointer, round-tripped through JSON to merge as a plain map). Foreman
+// only honors these fields as part of the resource's own permitted params
+// (e.g. {"host": {"organization_id": 1, ...}}); the same fields placed as
+// siblings of the wrapped hash (e.g. {"host": {...}, "organization_id": 1})
+// are silently ignored server-side and creation fails with "Organization
+// can't be blank" - confirmed against a real Foreman server, see
+// https://github.com/terraform-coop/terraform-provider-foreman/issues/179.
+func (c *ForemanClient) addTaxonomy(reqBody interface{}) interface{} {
+	if c.config.OrganizationID <= 0 && c.config.LocationID <= 0 {
+		return reqBody
+	}
+	data, err := json.Marshal(reqBody)
+	if err != nil {
+		return reqBody
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return reqBody
 	}
 	if c.config.OrganizationID > 0 {
 		m["organization_id"] = c.config.OrganizationID
@@ -184,15 +200,13 @@ func (c *ForemanClient) Get(ctx context.Context, endpoint string, respObj interf
 }
 
 func (c *ForemanClient) Post(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
-	wrapped := c.wrapRequestBody(wrapperKey, reqBody)
-	taxonomy := c.addTaxonomy(wrapped)
-	return c.do(ctx, http.MethodPost, endpoint, taxonomy, respObj)
+	wrapped := c.wrapRequestBody(wrapperKey, c.addTaxonomy(reqBody))
+	return c.do(ctx, http.MethodPost, endpoint, wrapped, respObj)
 }
 
 func (c *ForemanClient) Put(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
-	wrapped := c.wrapRequestBody(wrapperKey, reqBody)
-	taxonomy := c.addTaxonomy(wrapped)
-	return c.do(ctx, http.MethodPut, endpoint, taxonomy, respObj)
+	wrapped := c.wrapRequestBody(wrapperKey, c.addTaxonomy(reqBody))
+	return c.do(ctx, http.MethodPut, endpoint, wrapped, respObj)
 }
 
 func (c *ForemanClient) Delete(ctx context.Context, endpoint string) error {
