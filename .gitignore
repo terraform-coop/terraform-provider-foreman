@@ -47,6 +47,8 @@ generated/*.go
 !generated/katello_sync_plan.go
 !generated/test_helpers_test.go
 !generated/autosign.go
+!generated/autosign_test.go
+!generated/compute_profile_test.go
 !generated/compute_profile.go
 
 internal/provider/resource_*.go
