@@ -1,0 +1,35 @@
+{
+  "description": null,
+  "description_format": "Configure subscription manager to new content source",
+  "created_at": "2023-09-11 15:20:14 +0200",
+  "updated_at": "2023-09-11 15:20:14 +0200",
+  "template": "<% my_var %>",
+  "locked": true,
+  "id": 50,
+  "name": "Change content source",
+  "job_category": "Katello",
+  "provider_type": "script",
+  "snippet": false,
+  "template_inputs": [],
+  "effective_user": {
+    "value": null,
+    "current_user": false,
+    "overridable": true
+  },
+  "locations": [
+    {
+      "id": 1,
+      "name": "DC1",
+      "title": "DC1",
+      "description": null
+    }
+  ],
+  "organizations": [
+    {
+      "id": 1,
+      "name": "MockCompany",
+      "title": "MockCompany",
+      "description": null
+    }
+  ]
+}

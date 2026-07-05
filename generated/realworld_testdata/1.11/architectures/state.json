@@ -1,0 +1,39 @@
+{
+  "created_at": "2013-05-17 21:38:03 UTC",
+  "updated_at": "2013-05-17 21:38:03 UTC",
+  "name": "x64",
+  "id": 1,
+  "operatingsystems": [
+    {
+      "id": 26,
+      "name": "CentOS",
+      "title": "CentOS 6.9"
+    },
+    {
+      "id": 23,
+      "name": "CentOS",
+      "title": "CentOS 7.3"
+    },
+    {
+      "id": 30,
+      "name": "CentOS",
+      "title": "CentOS 7.4"
+    },
+    {
+      "id": 32,
+      "name": "CentOS",
+      "title": "CentOS 7.5"
+    },
+    {
+      "id": 16,
+      "name": "ESXi",
+      "title": "ESXi 6.0"
+    },
+    {
+      "id": 31,
+      "name": "windows",
+      "title": "windows 6.3"
+    }
+  ],
+  "images": []
+}

@@ -1,0 +1,48 @@
+{
+  "total": 45,
+  "subtotal": 5,
+  "page": 1,
+  "per_page": 100,
+  "search": "test",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "os_family": "Redhat",
+      "created_at": "2016-09-26 13:14:38 UTC",
+      "updated_at": "2016-09-26 13:14:45 UTC",
+      "name": "Centos Crypto Mining",
+      "id": 134
+    },
+    {
+      "os_family": "Redhat",
+      "created_at": "2018-04-05 18:15:39 UTC",
+      "updated_at": "2018-04-26 15:43:12 UTC",
+      "name": "DataScience",
+      "id": 159
+    },
+    {
+      "os_family": null,
+      "created_at": "2018-04-27 17:14:31 UTC",
+      "updated_at": "2018-04-27 17:14:31 UTC",
+      "name": "Terraform Test Partition Table",
+      "id": 171
+    },
+    {
+      "os_family": "Redhat",
+      "created_at": "2016-09-26 13:14:36 UTC",
+      "updated_at": "2016-09-26 13:14:45 UTC",
+      "name": "Default CentOS",
+      "id": 133
+    },
+    {
+      "os_family": "Redhat",
+      "created_at": "2016-09-26 13:14:26 UTC",
+      "updated_at": "2016-09-26 13:14:44 UTC",
+      "name": "Default CentOS 7",
+      "id": 117
+    }
+  ]
+}

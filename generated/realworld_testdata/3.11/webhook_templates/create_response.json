@@ -1,0 +1,27 @@
+{
+    "template": "<% host_info = {} -%>\n<% if @event_name == \"build_entered.event.foreman\" -%>\n<% load_hosts(search: \"id = #{@payload[:id]}\").each_record do |host|\n  host_info.update(hostname: host.name)\n  host_info.update(facts: host.facts)\nend -%>\n<% else -%>\n<% host_info = { hostname: @object.name, facts: @object.facts } -%>\n<% end -%>\n<%= payload(host_info, with_defaults: false) -%>",
+    "default": false,
+    "snippet": false,
+    "locked": false,
+    "description": "Test Template",
+    "created_at": "2025-01-24 12:52:02 UTC",
+    "updated_at": "2025-01-24 12:52:02 UTC",
+    "name": "create_test",
+    "id": 213,
+    "locations": [
+        {
+            "id": 2,
+            "name": "Default Location",
+            "title": "Default Location",
+            "description": null
+        }
+    ],
+    "organizations": [
+        {
+            "id": 3,
+            "name": "Foo Corp.",
+            "title": "Foo Corp.",
+            "description": ""
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+  "fullname": "",
+  "dns_id": 39,
+  "created_at": "2016-08-29 13:57:13 UTC",
+  "updated_at": "2018-05-29 18:16:22 UTC",
+  "id": 35,
+  "name": "dev.dc1.company.com",
+  "subnets": [],
+  "parameters": [],
+  "interfaces": []
+}

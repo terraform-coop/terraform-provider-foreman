@@ -1,0 +1,12 @@
+{
+    "total": 10,
+    "subtotal": 0,
+    "page": 1,
+    "per_page": 20,
+    "search": "name=unavailable",
+    "sort": {
+        "by": null,
+        "order": null
+    },
+    "results": []
+}

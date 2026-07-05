@@ -1,0 +1,21 @@
+{
+    "total": 2,
+    "subtotal": 1,
+    "page": 1,
+    "per_page": 20,
+    "search": "name=testing",
+    "sort": {
+      "by": null,
+      "order": null
+    },
+    "results": {
+      "testing": [
+        {
+          "id": 2,
+          "name": "testing",
+          "created_at": "2022-03-16T13:24:15.307Z",
+          "updated_at": "2022-03-16T13:24:15.307Z"
+        }
+      ]
+    }
+  }

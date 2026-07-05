@@ -1,0 +1,73 @@
+{
+  "total": 21,
+  "subtotal": 4,
+  "page": 1,
+  "per_page": 100,
+  "search": "dev",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "created_at": "2016-09-06 16:58:37 UTC",
+      "updated_at": "2017-07-27 14:27:26 UTC",
+      "name": "smartproxy01.dev.dc1.company.com",
+      "id": 38,
+      "url": "https://smartproxy01.dev.dc1.company.com:8443",
+      "features": [
+        {
+          "name": "TFTP",
+          "id": 1
+        },
+        {
+          "name": "DHCP",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "created_at": "2017-08-03 20:01:46 UTC",
+      "updated_at": "2017-08-03 20:01:46 UTC",
+      "name": "smartproxy02.dev.dc1.company.com",
+      "id": 51,
+      "url": "https://smartproxy02.dev.dc1.company.com:8443",
+      "features": [
+        {
+          "name": "TFTP",
+          "id": 1
+        },
+        {
+          "name": "DHCP",
+          "id": 3
+        }
+      ]
+    },
+    {
+      "created_at": "2017-02-21 22:31:51 UTC",
+      "updated_at": "2017-02-21 22:31:51 UTC",
+      "name": "dev puppet CA - DC1",
+      "id": 43,
+      "url": "https://puppetca.dev.dc1.company.com:8443",
+      "features": [
+        {
+          "name": "Puppet CA",
+          "id": 4
+        }
+      ]
+    },
+    {
+      "created_at": "2017-04-18 01:08:54 UTC",
+      "updated_at": "2017-04-18 01:08:54 UTC",
+      "name": "dev puppet CA - DC2",
+      "id": 45,
+      "url": "https://puppetca.dev.dc2.company.com:8443",
+      "features": [
+        {
+          "name": "Puppet CA",
+          "id": 4
+        }
+      ]
+    }
+  ]
+}

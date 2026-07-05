@@ -1,0 +1,19 @@
+{
+  "total": 8,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 100,
+  "search": "provision",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "created_at": "2013-05-17 18:43:46 UTC",
+      "updated_at": "2013-05-17 18:43:46 UTC",
+      "name": "provision",
+      "id": 3
+    }
+  ]
+}

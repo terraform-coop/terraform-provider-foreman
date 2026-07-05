@@ -1,0 +1,19 @@
+{
+  "created_at": "2013-05-17 21:38:03 UTC",
+  "updated_at": "2013-05-17 21:38:03 UTC",
+  "name": "x64",
+  "id": 1,
+  "operatingsystems": [
+    {
+      "id": 26,
+      "name": "CentOS",
+      "title": "CentOS 6.9"
+    },
+    {
+      "id": 23,
+      "name": "CentOS",
+      "title": "CentOS 7.3"
+    }
+  ],
+  "images": []
+}

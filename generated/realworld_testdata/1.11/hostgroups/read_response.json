@@ -1,0 +1,53 @@
+{
+  "subnet_id": null,
+  "subnet_name": null,
+  "operatingsystem_id": 27,
+  "operatingsystem_name": "Centos_SRE_7.3_test",
+  "domain_id": null,
+  "domain_name": null,
+  "environment_id": null,
+  "environment_name": null,
+  "compute_profile_id": null,
+  "compute_profile_name": null,
+  "ancestry": "97",
+  "parent_id": 97,
+  "parent_name": "DC1",
+  "puppet_proxy_id": null,
+  "puppet_ca_proxy_id": null,
+  "ptable_id": 122,
+  "ptable_name": "FC Soft Raid 1 (uefi)",
+  "medium_id": 29,
+  "medium_name": "Centosmirror01.dc1.company.com",
+  "architecture_id": null,
+  "architecture_name": null,
+  "realm_id": null,
+  "realm_name": null,
+  "created_at": "2017-10-31 21:19:25 UTC",
+  "updated_at": "2017-10-31 21:21:11 UTC",
+  "id": 151,
+  "name": "terraformtesthostgroup",
+  "title": "DC1/terraformtesthostgroup",
+  "parameters": [
+    {
+      "id": 697,
+      "name": "uefi",
+      "value": "true"
+    }
+  ],
+  "template_combinations": [
+    {
+      "id": 148,
+      "provisioning_template_id": 162,
+      "provisioning_template_name": "Terraform Test Template with Combination Attributes",
+      "hostgroup_id": 151,
+      "hostgroup_name": "DC1/dc1_web_test",
+      "environment_id": 6196,
+      "environment_name": "jsmith_test",
+      "config_template_id": 162,
+      "config_template_name": "Terraform Test Template with Combination Attributes"
+    }
+  ],
+  "puppetclasses": [],
+  "config_groups": [],
+  "all_puppetclasses": []
+}

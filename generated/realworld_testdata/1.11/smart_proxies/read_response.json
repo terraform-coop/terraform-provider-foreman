@@ -1,0 +1,13 @@
+{
+  "created_at": "2016-09-06 16:58:37 UTC",
+  "updated_at": "2017-07-27 14:27:26 UTC",
+  "name": "smartproxy01.dev.dc1.company.com",
+  "id": 38,
+  "url": "https://smartproxy01.dev.dc1.company.com:8443",
+  "features": [
+    {
+      "name": "DHCP",
+      "id": 3
+    }
+  ]
+}

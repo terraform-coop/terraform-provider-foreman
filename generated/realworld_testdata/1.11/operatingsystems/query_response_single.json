@@ -1,0 +1,26 @@
+{
+  "total": 28,
+  "subtotal": 1,
+  "page": 1,
+  "per_page": 100,
+  "search": "test",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "description": "Centos_SRE",
+      "major": "7",
+      "minor": "3",
+      "family": "Redhat",
+      "release_name": "",
+      "password_hash": "SHA256",
+      "created_at": "2017-10-31 21:11:54 UTC",
+      "updated_at": "2017-10-31 21:13:34 UTC",
+      "id": 27,
+      "name": "Centos_SRE",
+      "title": "Centos_SRE_7.3"
+    }
+  ]
+}

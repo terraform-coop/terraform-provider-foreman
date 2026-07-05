@@ -129,6 +129,15 @@ type ResourceOverride struct {
 	// create/update but never actually includes in its response body,
 	// confirmed against a real server (see GenField.NotReturnedOnRead).
 	NotReturnedOnRead []string `yaml:"not_returned_on_read"`
+	// PolymorphicValueFields lists fields (by JSONName) whose response-side
+	// JSON type doesn't match apidoc's declared type in practice (confirmed
+	// against a real server's response, e.g. subnets' "cidr" - documented as
+	// a string, actually returned as a number on Foreman 1.11). Manual
+	// escape hatch alongside the automatic "value"-sibling detection (see
+	// GenField.IsPolymorphicValue) for fields that need the same
+	// decode-as-json.RawMessage/render-as-string treatment but don't match
+	// that sibling pattern.
+	PolymorphicValueFields []string `yaml:"polymorphic_value_fields"`
 }
 
 type Overrides struct {
@@ -485,7 +494,12 @@ func hardcodedResources() []GenResource {
 			ShortName:    "puppetclass",
 			EndpointBase: "puppetclasses",
 			ParamKey:     "puppetclass",
-			HasCreate:    true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
+			// Read-only: matches the old provider (never had a resource for
+			// this, data source only) and apidoc (puppetclasses isn't in it
+			// at all - no source of truth for a real create/update/delete
+			// request shape). Puppet classes are normally populated by
+			// importing a Puppet environment, not created directly.
+			HasCreate: false, HasRead: true, HasUpdate: false, HasDelete: false, HasIndex: true,
 			Fields: []GenField{
 				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
 			},
@@ -643,7 +657,17 @@ func hardcodedResources() []GenResource {
 				{JSONName: "value", GoName: "Value", GoType: "string", TFType: "String", TFGoType: "types.String"},
 				{JSONName: "omit", GoName: "Omit", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
 			},
-			// EntityFields derived from Fields via entityFromRequest in buildResources
+			// EntityFields declared explicitly (not entityFromRequest):
+			// confirmed against a real Foreman 3.1.2 fixture, "value" comes
+			// back as a JSON object (it overrides a smart class parameter's
+			// own value, which can be any Foreman parameter type), not a
+			// string - same IsPolymorphicValue treatment as common_
+			// parameters/parameters' "value" field.
+			EntityFields: []GenField{
+				{JSONName: "match", GoName: "Match", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				{JSONName: "value", GoName: "Value", GoType: "json.RawMessage", TFType: "String", TFGoType: "types.String", IsPolymorphicValue: true},
+				{JSONName: "omit", GoName: "Omit", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
+			},
 		},
 		// Katello resources not in the pinned core apidoc/v2.json. Only the
 		// plain-CRUD ones fit here: content_view (publish + filter sync),
@@ -1336,6 +1360,21 @@ func applyFieldOverrides(res *GenResource, ov ResourceOverride) {
 		for i := range res.EntityFields {
 			if notReturned[res.EntityFields[i].JSONName] {
 				res.EntityFields[i].NotReturnedOnRead = true
+			}
+		}
+	}
+
+	if len(ov.PolymorphicValueFields) > 0 {
+		polymorphic := make(map[string]bool, len(ov.PolymorphicValueFields))
+		for _, n := range ov.PolymorphicValueFields {
+			polymorphic[n] = true
+		}
+		for i := range res.EntityFields {
+			if polymorphic[res.EntityFields[i].JSONName] {
+				res.EntityFields[i].IsPolymorphicValue = true
+				res.EntityFields[i].GoType = "json.RawMessage"
+				res.EntityFields[i].TFType = "String"
+				res.EntityFields[i].TFGoType = "types.String"
 			}
 		}
 	}

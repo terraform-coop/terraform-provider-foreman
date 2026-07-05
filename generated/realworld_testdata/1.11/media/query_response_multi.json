@@ -1,0 +1,29 @@
+{
+  "total": 24,
+  "subtotal": 2,
+  "page": 1,
+  "per_page": 100,
+  "search": "dev",
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "path": "http://centosmirror01.dev.dc1.company.com/pulp/repos/centos-$major/$major.$minor/os/x86_64/",
+      "os_family": "Redhat",
+      "created_at": "2015-03-24 01:11:35 UTC",
+      "updated_at": "2017-03-10 20:15:05 UTC",
+      "id": 19,
+      "name": "centosmirror01.dev.dc1.company.com"
+    },
+    {
+      "path": "http://esximirror01.company.com/vmware/esxi-6.0/",
+      "os_family": "Redhat",
+      "created_at": "2015-04-23 14:49:13 UTC",
+      "updated_at": "2016-02-05 21:34:23 UTC",
+      "id": 20,
+      "name": "ESXi 6"
+    }
+  ]
+}

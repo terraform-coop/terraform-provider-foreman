@@ -1,0 +1,41 @@
+{
+  "total": 2,
+  "subtotal": 2,
+  "page": 1,
+  "per_page": 20,
+  "search": null,
+  "sort": {
+    "by": null,
+    "order": null
+  },
+  "results": [
+    {
+      "description": "",
+      "url": "vsphere.company",
+      "created_at": "2018-07-04T15:51:16.493Z",
+      "updated_at": "2018-07-12T15:17:45.095Z",
+      "id": 13,
+      "name": "esx",
+      "provider": "Vmware",
+      "provider_friendly_name": "VMware",
+      "user": "vsphere.local\\foreman-dev",
+      "datacenter": "DC01",
+      "server": "test01.company",
+      "set_console_password": true,
+      "caching_enabled": true,
+      "display_type": "vmrc"
+    },
+    {
+      "description": "",
+      "url": "qemu+ssh://root@dev.company/system",
+      "created_at": "2017-10-24T16:57:23.105Z",
+      "updated_at": "2017-11-22T14:41:19.945Z",
+      "id": 9,
+      "name": "kvm-lab",
+      "provider": "Libvirt",
+      "provider_friendly_name": "Libvirt",
+      "display_type": "vnc",
+      "set_console_password": false
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "fullname": "",
+  "dns_id": 39,
+  "created_at": "2017-04-25 18:19:59 UTC",
+  "updated_at": "2018-05-08 20:01:37 UTC",
+  "id": 39,
+  "name": "dev.company.com",
+  "subnets": [
+  {
+    "id": 303,
+    "name": "10.228.192.0 DC1",
+    "network_address": "10.228.192.0/24"
+  },
+  {
+    "id": 304,
+    "name": "10.228.193.0 DC1",
+    "network_address": "10.228.193.0/24"
+  },
+  {
+    "id": 305,
+    "name": "10.228.194.0 DC1",
+    "network_address": "10.228.194.0/24"
+  },
+  {
+    "id": 306,
+    "name": "10.228.196.0 DC1",
+    "network_address": "10.228.196.0/24"
+  },
+  {
+    "id": 307,
+    "name": "10.228.197.0 DC1",
+    "network_address": "10.228.197.0/24"
+  },
+  {
+    "id": 308,
+    "name": "10.228.198.0 DC1",
+    "network_address": "10.228.198.0/24"
+  }
+  ],
+  "parameters": [
+    {
+      "id": 566,
+      "name": "install_server",
+      "value": "install.dev.dc1.company.com"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": 41771,
+      "name": "host00.dev.company.com",
+      "ip": null,
+      "mac": "c0:ff:ee:ba:be:00",
+      "identifier": "ens192",
+      "primary": true,
+      "provision": true,
+      "type": "interface"
+    },
+    {
+      "id": 41772,
+      "name": "host01.dev.company.com",
+      "ip": null,
+      "mac": "c0:ff:ee:ba:be:01",
+      "identifier": "ens192",
+      "primary": true,
+      "provision": true,
+      "type": "interface"
+    },
+    {
+      "id": 41773,
+      "name": "host02.dev.company.com",
+      "ip": null,
+      "mac": "c0:ff:ee:ba:be:02",
+      "identifier": "ens192",
+      "primary": true,
+      "provision": true,
+      "type": "interface"
+    }
+  ]
+}

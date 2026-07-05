@@ -44,6 +44,24 @@ skip_resources:
   # choice. Hand-written in generated/parameter.go, resource_parameter.go,
   # datasource_parameter.go.
   - parameters
+  # Confirmed against real Foreman 1.11 API response fixtures: a setting's
+  # own "id" is a string (the setting's key, e.g. "append_domain_name_for_
+  # hosts"), not a server-assigned integer - the generic pipeline
+  # unconditionally embeds ForemanObject (ID int) and builds "settings/%d"
+  # URLs, both wrong here. Same class of problem as autosign. Its "value"
+  # is also user-typed like common_parameters/parameters (this fixture
+  # shows a JSON boolean, not a string). Hand-written in generated/
+  # setting.go, resource_setting.go, datasource_setting.go.
+  - settings
+  # Confirmed against a real Foreman 3.1.2 API response fixture: the
+  # puppetclasses index/query endpoint groups results by Puppet
+  # environment name ({"testing": [...]}), not the standard flat
+  # {"results": [...]} array every other resource uses - the generic
+  # QueryResponse shape can't decode it at all (json.Unmarshal error on
+  # every search). Only the CLIENT file needs to be hand-written for
+  # this (generated/puppet_class.go); the data source stays generated,
+  # calling the hand-written Query function normally.
+  - puppetclasses
 skip_data_sources:
   # autosign's data source is also hand-written (see skip_resources above) -
   # the generic shape (lookup-by-"name") doesn't apply since autosign has no
@@ -55,6 +73,9 @@ skip_data_sources:
   # parameters' data source also needs the same hand-written parent-scoping
   # (see skip_resources above).
   - parameters
+  # settings' data source also needs the hand-written string-id/polymorphic
+  # value handling (see skip_resources above).
+  - settings
 resources:
   # KNOWN GAP (not an oversight): the old provider's hosts/hostgroups also
   # supported puppet_class_ids/config_group_ids (Puppet plugin) and, on
@@ -205,15 +226,6 @@ resources:
       # exposed under a different Terraform attribute name. The Foreman API
       # wire field name ("provider") is unaffected.
       provider: compute_resource_provider
-  settings:
-    exclude_fields:
-      # --- READ-ONLY METADATA FIELDS ---
-      - category
-      - settings_type
-      - default
-      - full_name
-      - select_values
-      - encrypt
   architectures:
     exclude_fields:
       # None currently excluded — ptables managed via operatingsystem.ptable_ids
@@ -231,3 +243,11 @@ resources:
       - hostgroup_ids
       - host_ids
       - description
+  subnets:
+    # Confirmed against real Foreman 1.11 API response fixtures (the old
+    # provider's test suite): "cidr" and "vlanid" are documented in apidoc
+    # as strings, but the server actually returns them as JSON numbers (or
+    # null for vlanid), crashing json.Unmarshal for every subnet read.
+    polymorphic_value_fields:
+      - cidr
+      - vlanid

@@ -481,6 +481,12 @@ func generateResourceFile(res GenResource) *jen.File {
 				// literal 4 bytes "null" and round-trips back as that
 				// string instead of nil.
 				jsonTag += ",omitempty"
+				// jen.Qual (not jen.Id) so the "encoding/json" import is
+				// added even when no other code in this file also
+				// references the package (e.g. a ParentEndpoint resource,
+				// which has no generated Query method to piggyback on).
+				g.Id(field.GoName).Qual("encoding/json", "RawMessage").Tag(map[string]string{"json": jsonTag})
+				continue
 			}
 			g.Id(field.GoName).Id(field.GoType).Tag(map[string]string{"json": jsonTag})
 		}

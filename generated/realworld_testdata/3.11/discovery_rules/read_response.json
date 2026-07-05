@@ -1,0 +1,28 @@
+{
+  "id": 1,
+  "name": "Example Discovery Rule (read_response.json)",
+  "search": "name ~ example2",
+  "hostname": "example-host-1",
+  "hostgroup_id": 2,
+  "hosts_limit": 200,
+  "priority": 10,
+  "enabled": false,
+  "created_at": "2023-10-01T12:00:00Z",
+  "updated_at": "2023-10-01T12:00:00Z",
+  "locations": [
+    {
+      "id": 1,
+      "name": "DC1",
+      "title": "DC1",
+      "description": null
+    }
+  ],
+  "organizations": [
+    {
+      "id": 1,
+      "name": "MockCompany",
+      "title": "MockCompany",
+      "description": null
+    }
+  ]
+}

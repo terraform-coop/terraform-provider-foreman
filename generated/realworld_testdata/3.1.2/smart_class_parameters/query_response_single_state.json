@@ -1,0 +1,22 @@
+{
+    "description": "",
+    "override": true,
+    "parameter_type": "hash",
+    "hidden_value?": false,
+    "omit": false,
+    "required": false,
+    "validator_type": "",
+    "validator_rule": null,
+    "merge_overrides": false,
+    "merge_default": false,
+    "avoid_duplicates": false,
+    "override_value_order": "fqdn\nhostgroup\nos\ndomain",
+    "created_at": "2022-03-18 10:01:02 UTC",
+    "updated_at": "2022-03-18 10:01:33 UTC",
+    "parameter": "red",
+    "id": 4,
+    "puppetclass_id": 2,
+    "override_values_count": 1,
+    "default_value": {},
+    "puppetclass_name": "testing"
+  }
