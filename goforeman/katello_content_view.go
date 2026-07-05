@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-type ForemanKatelloContentViewRequest struct {
+type KatelloContentViewRequest struct {
 	Name           string `json:"name,omitempty"`
 	Description    string `json:"description,omitempty"`
 	Label          string `json:"label,omitempty"`
@@ -30,8 +30,8 @@ type ForemanKatelloContentViewRequest struct {
 	ComponentIDs      []int `json:"component_ids,omitempty"`
 }
 
-type ForemanKatelloContentView struct {
-	ForemanObject
+type KatelloContentView struct {
+	Base
 	Description       string `json:"description"`
 	Label             string `json:"label"`
 	OrganizationID    int    `json:"organization_id"`
@@ -47,8 +47,8 @@ type ForemanKatelloContentView struct {
 	VersionCount      int    `json:"version_count"`
 }
 
-func (c *ForemanClient) CreateForemanKatelloContentView(ctx context.Context, req *ForemanKatelloContentViewRequest) (*ForemanKatelloContentView, error) {
-	var resp ForemanKatelloContentView
+func (c *Client) CreateKatelloContentView(ctx context.Context, req *KatelloContentViewRequest) (*KatelloContentView, error) {
+	var resp KatelloContentView
 	err := c.Post(ctx, "/katello/api/content_views", "content_view", req, &resp)
 	if err != nil {
 		return nil, err
@@ -56,8 +56,8 @@ func (c *ForemanClient) CreateForemanKatelloContentView(ctx context.Context, req
 	return &resp, nil
 }
 
-func (c *ForemanClient) ReadForemanKatelloContentView(ctx context.Context, id int) (*ForemanKatelloContentView, error) {
-	var resp ForemanKatelloContentView
+func (c *Client) ReadKatelloContentView(ctx context.Context, id int) (*KatelloContentView, error) {
+	var resp KatelloContentView
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_views/%d", id), &resp)
 	if err != nil {
 		return nil, err
@@ -65,8 +65,8 @@ func (c *ForemanClient) ReadForemanKatelloContentView(ctx context.Context, id in
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanKatelloContentView(ctx context.Context, id int, req *ForemanKatelloContentViewRequest) (*ForemanKatelloContentView, error) {
-	var resp ForemanKatelloContentView
+func (c *Client) UpdateKatelloContentView(ctx context.Context, id int, req *KatelloContentViewRequest) (*KatelloContentView, error) {
+	var resp KatelloContentView
 	err := c.Put(ctx, fmt.Sprintf("/katello/api/content_views/%d", id), "content_view", req, &resp)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (c *ForemanClient) UpdateForemanKatelloContentView(ctx context.Context, id 
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanKatelloContentView(ctx context.Context, id int) error {
+func (c *Client) DeleteKatelloContentView(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("/katello/api/content_views/%d", id))
 }
 
@@ -84,14 +84,14 @@ func (c *ForemanClient) DeleteForemanKatelloContentView(ctx context.Context, id 
 // do() misinterpreting the task JSON as the content view (wrong ID, every
 // other field blank), and the up-to-date content view is fetched
 // separately once the task completes.
-func (c *ForemanClient) PublishContentView(ctx context.Context, id int) (*ForemanKatelloContentView, error) {
+func (c *Client) PublishContentView(ctx context.Context, id int) (*KatelloContentView, error) {
 	if err := c.Post(ctx, fmt.Sprintf("/katello/api/content_views/%d/publish", id), "", nil, nil); err != nil {
 		return nil, err
 	}
-	return c.ReadForemanKatelloContentView(ctx, id)
+	return c.ReadKatelloContentView(ctx, id)
 }
 
-func (c *ForemanClient) QueryForemanKatelloContentView(ctx context.Context, name string) (*ForemanKatelloContentView, error) {
+func (c *Client) FindKatelloContentViewByName(ctx context.Context, name string) (*KatelloContentView, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_views?search=name=\"%s\"", url.QueryEscape(name)), &response)
 	if err != nil {
@@ -100,7 +100,7 @@ func (c *ForemanClient) QueryForemanKatelloContentView(ctx context.Context, name
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanKatelloContentView
+	var obj KatelloContentView
 	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
@@ -111,32 +111,32 @@ func (c *ForemanClient) QueryForemanKatelloContentView(ctx context.Context, name
 // Content View Filters — managed via separate API endpoints
 // ---------------------------------------------------------------------------
 
-type ForemanKatelloContentViewFilter struct {
-	ID          int                                   `json:"id"`
-	Name        string                                `json:"name"`
-	Type        string                                `json:"type"`
-	Inclusion   bool                                  `json:"inclusion"`
-	Description string                                `json:"description"`
-	Rules       []ForemanKatelloContentViewFilterRule `json:"rules"`
+type KatelloContentViewFilter struct {
+	ID          int                            `json:"id"`
+	Name        string                         `json:"name"`
+	Type        string                         `json:"type"`
+	Inclusion   bool                           `json:"inclusion"`
+	Description string                         `json:"description"`
+	Rules       []KatelloContentViewFilterRule `json:"rules"`
 }
 
-type ForemanKatelloContentViewFilterRule struct {
+type KatelloContentViewFilterRule struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Architecture string `json:"architecture,omitempty"`
 }
 
 // ReadContentViewFilters returns all filters (including rules) for a content view.
-func (c *ForemanClient) ReadContentViewFilters(ctx context.Context, cvID int) ([]ForemanKatelloContentViewFilter, error) {
+func (c *Client) ReadContentViewFilters(ctx context.Context, cvID int) ([]KatelloContentViewFilter, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters", cvID), &response)
 	if err != nil {
 		return nil, err
 	}
-	var filters []ForemanKatelloContentViewFilter
+	var filters []KatelloContentViewFilter
 	var parseErrors []error
 	for _, raw := range response.Results {
-		var f ForemanKatelloContentViewFilter
+		var f KatelloContentViewFilter
 		if err := json.Unmarshal(raw, &f); err != nil {
 			parseErrors = append(parseErrors, fmt.Errorf("parsing filter: %w", err))
 			continue
@@ -159,8 +159,8 @@ func (c *ForemanClient) ReadContentViewFilters(ctx context.Context, cvID int) ([
 }
 
 // CreateContentViewFilter creates a single filter on a content view, then creates its rules.
-func (c *ForemanClient) CreateContentViewFilter(ctx context.Context, cvID int, filter *ForemanKatelloContentViewFilter) (*ForemanKatelloContentViewFilter, error) {
-	var resp ForemanKatelloContentViewFilter
+func (c *Client) CreateContentViewFilter(ctx context.Context, cvID int, filter *KatelloContentViewFilter) (*KatelloContentViewFilter, error) {
+	var resp KatelloContentViewFilter
 	err := c.Post(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters", cvID), "content_view_filter", filter, &resp)
 	if err != nil {
 		return nil, err
@@ -177,8 +177,8 @@ func (c *ForemanClient) CreateContentViewFilter(ctx context.Context, cvID int, f
 }
 
 // UpdateContentViewFilter updates a single filter on a content view.
-func (c *ForemanClient) UpdateContentViewFilter(ctx context.Context, cvID int, filter *ForemanKatelloContentViewFilter) (*ForemanKatelloContentViewFilter, error) {
-	var resp ForemanKatelloContentViewFilter
+func (c *Client) UpdateContentViewFilter(ctx context.Context, cvID int, filter *KatelloContentViewFilter) (*KatelloContentViewFilter, error) {
+	var resp KatelloContentViewFilter
 	err := c.Put(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters/%d", cvID, filter.ID), "content_view_filter", filter, &resp)
 	if err != nil {
 		return nil, err
@@ -195,21 +195,21 @@ func (c *ForemanClient) UpdateContentViewFilter(ctx context.Context, cvID int, f
 }
 
 // DeleteContentViewFilter deletes a single filter from a content view.
-func (c *ForemanClient) DeleteContentViewFilter(ctx context.Context, cvID int, filterID int) error {
+func (c *Client) DeleteContentViewFilter(ctx context.Context, cvID int, filterID int) error {
 	return c.Delete(ctx, fmt.Sprintf("/katello/api/content_views/%d/filters/%d", cvID, filterID))
 }
 
 // ReadContentViewFilterRules returns all rules for a filter.
-func (c *ForemanClient) ReadContentViewFilterRules(ctx context.Context, filterID int) ([]ForemanKatelloContentViewFilterRule, error) {
+func (c *Client) ReadContentViewFilterRules(ctx context.Context, filterID int) ([]KatelloContentViewFilterRule, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_view_filters/%d/rules", filterID), &response)
 	if err != nil {
 		return nil, err
 	}
-	var rules []ForemanKatelloContentViewFilterRule
+	var rules []KatelloContentViewFilterRule
 	var parseErrors []error
 	for _, raw := range response.Results {
-		var r ForemanKatelloContentViewFilterRule
+		var r KatelloContentViewFilterRule
 		if err := json.Unmarshal(raw, &r); err != nil {
 			parseErrors = append(parseErrors, fmt.Errorf("parsing rule: %w", err))
 			continue
@@ -223,10 +223,10 @@ func (c *ForemanClient) ReadContentViewFilterRules(ctx context.Context, filterID
 }
 
 // CreateContentViewFilterRules creates rules on a filter.
-func (c *ForemanClient) CreateContentViewFilterRules(ctx context.Context, filterID int, rules []ForemanKatelloContentViewFilterRule) ([]ForemanKatelloContentViewFilterRule, error) {
-	var created []ForemanKatelloContentViewFilterRule
+func (c *Client) CreateContentViewFilterRules(ctx context.Context, filterID int, rules []KatelloContentViewFilterRule) ([]KatelloContentViewFilterRule, error) {
+	var created []KatelloContentViewFilterRule
 	for _, rule := range rules {
-		var resp ForemanKatelloContentViewFilterRule
+		var resp KatelloContentViewFilterRule
 		err := c.Post(ctx, fmt.Sprintf("/katello/api/content_view_filters/%d/rules", filterID), "content_view_filter_rule", &rule, &resp)
 		if err != nil {
 			return nil, err
@@ -237,10 +237,10 @@ func (c *ForemanClient) CreateContentViewFilterRules(ctx context.Context, filter
 }
 
 // UpdateContentViewFilterRules updates rules on a filter.
-func (c *ForemanClient) UpdateContentViewFilterRules(ctx context.Context, filterID int, rules []ForemanKatelloContentViewFilterRule) ([]ForemanKatelloContentViewFilterRule, error) {
-	var updated []ForemanKatelloContentViewFilterRule
+func (c *Client) UpdateContentViewFilterRules(ctx context.Context, filterID int, rules []KatelloContentViewFilterRule) ([]KatelloContentViewFilterRule, error) {
+	var updated []KatelloContentViewFilterRule
 	for _, rule := range rules {
-		var resp ForemanKatelloContentViewFilterRule
+		var resp KatelloContentViewFilterRule
 		err := c.Put(ctx, fmt.Sprintf("/katello/api/content_view_filters/%d/rules/%d", filterID, rule.ID), "content_view_filter_rule", &rule, &resp)
 		if err != nil {
 			return nil, err
@@ -251,18 +251,18 @@ func (c *ForemanClient) UpdateContentViewFilterRules(ctx context.Context, filter
 }
 
 // SyncContentViewFilters syncs filters for a content view: creates new, updates existing, deletes removed.
-func (c *ForemanClient) SyncContentViewFilters(ctx context.Context, cvID int, desired []ForemanKatelloContentViewFilter) error {
+func (c *Client) SyncContentViewFilters(ctx context.Context, cvID int, desired []KatelloContentViewFilter) error {
 	existing, err := c.ReadContentViewFilters(ctx, cvID)
 	if err != nil {
 		// If read fails (e.g., 404), treat as no existing filters
 		existing = nil
 	}
 
-	existingByID := make(map[int]ForemanKatelloContentViewFilter)
+	existingByID := make(map[int]KatelloContentViewFilter)
 	for _, f := range existing {
 		existingByID[f.ID] = f
 	}
-	desiredByID := make(map[int]ForemanKatelloContentViewFilter)
+	desiredByID := make(map[int]KatelloContentViewFilter)
 	for _, f := range desired {
 		if f.ID != 0 {
 			desiredByID[f.ID] = f

@@ -26,7 +26,7 @@ func NewKatelloLifecycleEnvironmentResource() resource.Resource {
 }
 
 type katelloLifecycleEnvironmentResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type katelloLifecycleEnvironmentResourceModel struct {
@@ -83,9 +83,9 @@ func (r *katelloLifecycleEnvironmentResource) Configure(_ context.Context, req r
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -98,7 +98,7 @@ func (r *katelloLifecycleEnvironmentResource) Create(ctx context.Context, req re
 		return
 	}
 
-	body := &goforeman.ForemanKatelloLifecycleEnvironmentRequest{
+	body := &goforeman.KatelloLifecycleEnvironmentRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Label:          plan.Label.ValueString(),
@@ -106,7 +106,7 @@ func (r *katelloLifecycleEnvironmentResource) Create(ctx context.Context, req re
 		PriorID:        int(plan.PriorID.ValueInt64()),
 	}
 
-	result, err := r.client.CreateForemanKatelloLifecycleEnvironment(ctx, body)
+	result, err := r.client.CreateKatelloLifecycleEnvironment(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create katello lifecycle environment, got error: %s", err))
 		return
@@ -138,7 +138,7 @@ func (r *katelloLifecycleEnvironmentResource) Read(ctx context.Context, req reso
 		return
 	}
 
-	result, err := r.client.ReadForemanKatelloLifecycleEnvironment(ctx, id)
+	result, err := r.client.ReadKatelloLifecycleEnvironment(ctx, id)
 	if err != nil {
 		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
@@ -171,7 +171,7 @@ func (r *katelloLifecycleEnvironmentResource) Update(ctx context.Context, req re
 		return
 	}
 
-	body := &goforeman.ForemanKatelloLifecycleEnvironmentRequest{
+	body := &goforeman.KatelloLifecycleEnvironmentRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Label:          plan.Label.ValueString(),
@@ -179,7 +179,7 @@ func (r *katelloLifecycleEnvironmentResource) Update(ctx context.Context, req re
 		PriorID:        int(plan.PriorID.ValueInt64()),
 	}
 
-	result, err := r.client.UpdateForemanKatelloLifecycleEnvironment(ctx, id, body)
+	result, err := r.client.UpdateKatelloLifecycleEnvironment(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update katello lifecycle environment, got error: %s", err))
 		return
@@ -208,7 +208,7 @@ func (r *katelloLifecycleEnvironmentResource) Delete(ctx context.Context, req re
 		return
 	}
 
-	err = r.client.DeleteForemanKatelloLifecycleEnvironment(ctx, id)
+	err = r.client.DeleteKatelloLifecycleEnvironment(ctx, id)
 	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello lifecycle environment, got error: %s", err))
 		return

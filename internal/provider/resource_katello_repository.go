@@ -28,7 +28,7 @@ func NewKatelloRepositoryResource() resource.Resource {
 }
 
 type katelloRepositoryResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type katelloRepositoryResourceModel struct {
@@ -167,9 +167,9 @@ func (r *katelloRepositoryResource) Configure(_ context.Context, req resource.Co
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -182,7 +182,7 @@ func (r *katelloRepositoryResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	body := &goforeman.ForemanKatelloRepositoryRequest{
+	body := &goforeman.KatelloRepositoryRequest{
 		Name:                          plan.Name.ValueString(),
 		Description:                   plan.Description.ValueString(),
 		Label:                         plan.Label.ValueString(),
@@ -211,7 +211,7 @@ func (r *katelloRepositoryResource) Create(ctx context.Context, req resource.Cre
 		AnsibleCollectionRequirements: plan.AnsibleCollectionRequirements.ValueString(),
 	}
 
-	result, err := r.client.CreateForemanKatelloRepository(ctx, body)
+	result, err := r.client.CreateKatelloRepository(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create katello repository, got error: %s", err))
 		return
@@ -262,7 +262,7 @@ func (r *katelloRepositoryResource) Read(ctx context.Context, req resource.ReadR
 		return
 	}
 
-	result, err := r.client.ReadForemanKatelloRepository(ctx, id)
+	result, err := r.client.ReadKatelloRepository(ctx, id)
 	if err != nil {
 		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
@@ -314,7 +314,7 @@ func (r *katelloRepositoryResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	body := &goforeman.ForemanKatelloRepositoryRequest{
+	body := &goforeman.KatelloRepositoryRequest{
 		Name:                          plan.Name.ValueString(),
 		Description:                   plan.Description.ValueString(),
 		Label:                         plan.Label.ValueString(),
@@ -343,7 +343,7 @@ func (r *katelloRepositoryResource) Update(ctx context.Context, req resource.Upd
 		AnsibleCollectionRequirements: plan.AnsibleCollectionRequirements.ValueString(),
 	}
 
-	result, err := r.client.UpdateForemanKatelloRepository(ctx, id, body)
+	result, err := r.client.UpdateKatelloRepository(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update katello repository, got error: %s", err))
 		return
@@ -391,7 +391,7 @@ func (r *katelloRepositoryResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	err = r.client.DeleteForemanKatelloRepository(ctx, id)
+	err = r.client.DeleteKatelloRepository(ctx, id)
 	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello repository, got error: %s", err))
 		return

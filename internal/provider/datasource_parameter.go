@@ -15,12 +15,12 @@ import (
 
 var _ datasource.DataSource = &parameterDataSource{}
 
-func NewForemanParameterDataSource() datasource.DataSource {
+func NewParameterDataSource() datasource.DataSource {
 	return &parameterDataSource{}
 }
 
 type parameterDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type parameterDataSourceModel struct {
@@ -71,9 +71,9 @@ func (d *parameterDataSource) Configure(_ context.Context, req datasource.Config
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -97,7 +97,7 @@ func (d *parameterDataSource) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	name := data.Name.ValueString()
-	result, err := d.client.QueryForemanParameter(ctx, parentType, int(parentID), name)
+	result, err := d.client.FindParameterByName(ctx, parentType, int(parentID), name)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read parameter, got error: %s", err))
 		return

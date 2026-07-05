@@ -17,12 +17,12 @@ import (
 
 var _ datasource.DataSource = &computeprofileDataSource{}
 
-func NewForemanComputeProfileDataSource() datasource.DataSource {
+func NewComputeProfileDataSource() datasource.DataSource {
 	return &computeprofileDataSource{}
 }
 
 type computeprofileDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type computeprofileDataSourceModel struct {
@@ -58,9 +58,9 @@ func (d *computeprofileDataSource) Configure(_ context.Context, req datasource.C
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -74,13 +74,13 @@ func (d *computeprofileDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	name := data.Name.ValueString()
-	result, err := d.client.QueryForemanComputeProfile(ctx, name)
+	result, err := d.client.FindComputeProfileByName(ctx, name)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read computeprofile, got error: %s", err))
 		return
 	}
 	if result == nil {
-		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("ForemanComputeProfile %q not found", name))
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("ComputeProfile %q not found", name))
 		return
 	}
 

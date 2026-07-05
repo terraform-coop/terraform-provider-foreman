@@ -6,13 +6,13 @@ import (
 	"net/url"
 )
 
-type ForemanPuppetClass struct {
-	ForemanObject
+type PuppetClass struct {
+	Base
 	Name string `json:"name"`
 }
 
-func (c *ForemanClient) ReadForemanPuppetClass(ctx context.Context, id int) (*ForemanPuppetClass, error) {
-	var resp ForemanPuppetClass
+func (c *Client) ReadPuppetClass(ctx context.Context, id int) (*PuppetClass, error) {
+	var resp PuppetClass
 	err := c.Get(ctx, fmt.Sprintf("puppetclasses/%d", id), &resp)
 	if err != nil {
 		return nil, err
@@ -20,14 +20,14 @@ func (c *ForemanClient) ReadForemanPuppetClass(ctx context.Context, id int) (*Fo
 	return &resp, nil
 }
 
-// QueryForemanPuppetClass looks up a puppet class by name. Unlike every
+// QueryPuppetClass looks up a puppet class by name. Unlike every
 // other Foreman resource's index endpoint, puppetclasses groups its
 // "results" by Puppet environment name (confirmed against a real server:
 // {"results": {"production": [{"id":1,"name":"foo"}, ...], ...}}), not a
 // flat array - the standard QueryResponse shape can't decode it at all.
-func (c *ForemanClient) QueryForemanPuppetClass(ctx context.Context, name string) (*ForemanPuppetClass, error) {
+func (c *Client) FindPuppetClassByName(ctx context.Context, name string) (*PuppetClass, error) {
 	var response struct {
-		Results map[string][]ForemanPuppetClass `json:"results"`
+		Results map[string][]PuppetClass `json:"results"`
 	}
 	err := c.Get(ctx, fmt.Sprintf("puppetclasses?search=name=\"%s\"", url.QueryEscape(name)), &response)
 	if err != nil {

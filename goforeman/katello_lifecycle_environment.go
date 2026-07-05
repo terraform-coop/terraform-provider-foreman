@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type ForemanKatelloLifecycleEnvironmentRequest struct {
+type KatelloLifecycleEnvironmentRequest struct {
 	Name           string `json:"name,omitempty"`
 	Description    string `json:"description,omitempty"`
 	Label          string `json:"label,omitempty"`
@@ -15,8 +15,8 @@ type ForemanKatelloLifecycleEnvironmentRequest struct {
 	PriorID        int    `json:"prior_id,omitempty"`
 }
 
-type ForemanKatelloLifecycleEnvironment struct {
-	ForemanObject
+type KatelloLifecycleEnvironment struct {
+	Base
 	Description    string `json:"description"`
 	Label          string `json:"label"`
 	OrganizationID int    `json:"organization_id"`
@@ -31,8 +31,8 @@ type ForemanKatelloLifecycleEnvironment struct {
 	} `json:"successor"`
 }
 
-func (c *ForemanClient) CreateForemanKatelloLifecycleEnvironment(ctx context.Context, req *ForemanKatelloLifecycleEnvironmentRequest) (*ForemanKatelloLifecycleEnvironment, error) {
-	var resp ForemanKatelloLifecycleEnvironment
+func (c *Client) CreateKatelloLifecycleEnvironment(ctx context.Context, req *KatelloLifecycleEnvironmentRequest) (*KatelloLifecycleEnvironment, error) {
+	var resp KatelloLifecycleEnvironment
 	err := c.Post(ctx, "/katello/api/environments", "environment", req, &resp)
 	if err != nil {
 		return nil, err
@@ -40,8 +40,8 @@ func (c *ForemanClient) CreateForemanKatelloLifecycleEnvironment(ctx context.Con
 	return &resp, nil
 }
 
-func (c *ForemanClient) ReadForemanKatelloLifecycleEnvironment(ctx context.Context, id int) (*ForemanKatelloLifecycleEnvironment, error) {
-	var resp ForemanKatelloLifecycleEnvironment
+func (c *Client) ReadKatelloLifecycleEnvironment(ctx context.Context, id int) (*KatelloLifecycleEnvironment, error) {
+	var resp KatelloLifecycleEnvironment
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/environments/%d", id), &resp)
 	if err != nil {
 		return nil, err
@@ -49,8 +49,8 @@ func (c *ForemanClient) ReadForemanKatelloLifecycleEnvironment(ctx context.Conte
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanKatelloLifecycleEnvironment(ctx context.Context, id int, req *ForemanKatelloLifecycleEnvironmentRequest) (*ForemanKatelloLifecycleEnvironment, error) {
-	var resp ForemanKatelloLifecycleEnvironment
+func (c *Client) UpdateKatelloLifecycleEnvironment(ctx context.Context, id int, req *KatelloLifecycleEnvironmentRequest) (*KatelloLifecycleEnvironment, error) {
+	var resp KatelloLifecycleEnvironment
 	err := c.Put(ctx, fmt.Sprintf("/katello/api/environments/%d", id), "environment", req, &resp)
 	if err != nil {
 		return nil, err
@@ -58,11 +58,11 @@ func (c *ForemanClient) UpdateForemanKatelloLifecycleEnvironment(ctx context.Con
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanKatelloLifecycleEnvironment(ctx context.Context, id int) error {
+func (c *Client) DeleteKatelloLifecycleEnvironment(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("/katello/api/environments/%d", id))
 }
 
-func (c *ForemanClient) QueryForemanKatelloLifecycleEnvironment(ctx context.Context, name string) (*ForemanKatelloLifecycleEnvironment, error) {
+func (c *Client) FindKatelloLifecycleEnvironmentByName(ctx context.Context, name string) (*KatelloLifecycleEnvironment, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/environments?search=name=\"%s\"", url.QueryEscape(name)), &response)
 	if err != nil {
@@ -71,7 +71,7 @@ func (c *ForemanClient) QueryForemanKatelloLifecycleEnvironment(ctx context.Cont
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanKatelloLifecycleEnvironment
+	var obj KatelloLifecycleEnvironment
 	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}

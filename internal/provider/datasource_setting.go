@@ -14,12 +14,12 @@ import (
 
 var _ datasource.DataSource = &settingDataSource{}
 
-func NewForemanSettingDataSource() datasource.DataSource {
+func NewSettingDataSource() datasource.DataSource {
 	return &settingDataSource{}
 }
 
 type settingDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type settingDataSourceModel struct {
@@ -47,9 +47,9 @@ func (d *settingDataSource) Configure(_ context.Context, req datasource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -63,13 +63,13 @@ func (d *settingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	name := data.Name.ValueString()
-	result, err := d.client.QueryForemanSetting(ctx, name)
+	result, err := d.client.FindSettingByName(ctx, name)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read setting, got error: %s", err))
 		return
 	}
 	if result == nil {
-		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("ForemanSetting %q not found", name))
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("Setting %q not found", name))
 		return
 	}
 

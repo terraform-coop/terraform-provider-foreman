@@ -17,16 +17,16 @@ import (
 )
 
 const (
-	ForemanAPIVersion       = "2"
-	ForemanAPIURLPrefix     = "/api"
-	ForemanKatelloURLPrefix = "/katello/api"
-	ForemanTasksURLPrefix   = "/foreman_tasks/api"
-	ForemanPuppetURLPrefix  = "/foreman_puppet/api"
+	APIVersion       = "2"
+	APIURLPrefix     = "/api"
+	KatelloURLPrefix = "/katello/api"
+	TasksURLPrefix   = "/foreman_tasks/api"
+	PuppetURLPrefix  = "/foreman_puppet/api"
 
 	defaultRequestTimeout = 60 * time.Second
 )
 
-type ForemanClient struct {
+type Client struct {
 	serverURL   url.URL
 	httpClient  *http.Client
 	credentials ClientCredentials
@@ -45,7 +45,7 @@ type ClientConfig struct {
 	LocationID     int
 }
 
-func NewClient(serverURL url.URL, creds ClientCredentials, cfg ClientConfig) *ForemanClient {
+func NewClient(serverURL url.URL, creds ClientCredentials, cfg ClientConfig) *Client {
 	tlsCfg := &tls.Config{
 		InsecureSkipVerify: cfg.TLSInsecure,
 	}
@@ -55,7 +55,7 @@ func NewClient(serverURL url.URL, creds ClientCredentials, cfg ClientConfig) *Fo
 	} else {
 		client.Transport = &http.Transport{TLSClientConfig: tlsCfg}
 	}
-	return &ForemanClient{
+	return &Client{
 		serverURL:   serverURL,
 		httpClient:  client,
 		credentials: creds,
@@ -63,7 +63,7 @@ func NewClient(serverURL url.URL, creds ClientCredentials, cfg ClientConfig) *Fo
 	}
 }
 
-func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string, body io.Reader) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, endpoint string, body io.Reader) (*http.Request, error) {
 	reqURL := c.serverURL
 	ep := endpoint
 
@@ -87,18 +87,18 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 	// misrouted it to the Puppet plugin's own URL prefix entirely -
 	// confirmed against a real server, every puppetclasses lookup 404'd.
 	case strings.HasPrefix(ep, "katello/"):
-		reqURL.Path = ForemanKatelloURLPrefix + strings.TrimPrefix(ep, "katello")
+		reqURL.Path = KatelloURLPrefix + strings.TrimPrefix(ep, "katello")
 	case strings.HasPrefix(ep, "/katello/api"):
 		reqURL.Path = ep
 	case strings.HasPrefix(ep, "puppet/"):
-		reqURL.Path = ForemanPuppetURLPrefix + strings.TrimPrefix(ep, "puppet")
+		reqURL.Path = PuppetURLPrefix + strings.TrimPrefix(ep, "puppet")
 	case strings.HasPrefix(ep, "foreman_tasks"):
 		reqURL.Path = ep
 	default:
 		if strings.HasPrefix(ep, "/") {
-			reqURL.Path = ForemanAPIURLPrefix + ep
+			reqURL.Path = APIURLPrefix + ep
 		} else {
-			reqURL.Path = ForemanAPIURLPrefix + "/" + ep
+			reqURL.Path = APIURLPrefix + "/" + ep
 		}
 	}
 	reqURL.RawQuery = rawQuery
@@ -108,7 +108,7 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 		return nil, fmt.Errorf("creating request: %w", err)
 	}
 	req.Header.Add("User-Agent", "terraform-provider-foreman")
-	req.Header.Add("Accept", "application/json,version="+ForemanAPIVersion)
+	req.Header.Add("Accept", "application/json,version="+APIVersion)
 	req.Header.Add("Content-Type", "application/json")
 	if !c.config.NegotiateAuth {
 		req.SetBasicAuth(c.credentials.Username, c.credentials.Password)
@@ -116,7 +116,7 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 	return req, nil
 }
 
-func (c *ForemanClient) send(req *http.Request) (int, []byte, error) {
+func (c *Client) send(req *http.Request) (int, []byte, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return -1, nil, fmt.Errorf("sending request: %w", err)
@@ -129,7 +129,7 @@ func (c *ForemanClient) send(req *http.Request) (int, []byte, error) {
 	return resp.StatusCode, body, nil
 }
 
-func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody, respObj interface{}) error {
+func (c *Client) do(ctx context.Context, method, endpoint string, reqBody, respObj interface{}) error {
 	var bodyReader io.Reader
 	if reqBody != nil {
 		payload, err := json.Marshal(reqBody)
@@ -150,7 +150,7 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 	}
 
 	if statusCode == 202 {
-		var task ForemanTask
+		var task Task
 		if err := json.Unmarshal(respBody, &task); err != nil {
 			return fmt.Errorf("parsing async task: %w", err)
 		}
@@ -193,7 +193,7 @@ func (c *ForemanClient) do(ctx context.Context, method, endpoint string, reqBody
 // are silently ignored server-side and creation fails with "Organization
 // can't be blank" - confirmed against a real Foreman server, see
 // https://github.com/terraform-coop/terraform-provider-foreman/issues/179.
-func (c *ForemanClient) addTaxonomy(reqBody interface{}) interface{} {
+func (c *Client) addTaxonomy(reqBody interface{}) interface{} {
 	if c.config.OrganizationID <= 0 && c.config.LocationID <= 0 {
 		return reqBody
 	}
@@ -214,21 +214,21 @@ func (c *ForemanClient) addTaxonomy(reqBody interface{}) interface{} {
 	return m
 }
 
-func (c *ForemanClient) Get(ctx context.Context, endpoint string, respObj interface{}) error {
+func (c *Client) Get(ctx context.Context, endpoint string, respObj interface{}) error {
 	return c.do(ctx, http.MethodGet, endpoint, nil, respObj)
 }
 
-func (c *ForemanClient) Post(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
+func (c *Client) Post(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
 	wrapped := c.wrapRequestBody(wrapperKey, c.addTaxonomy(reqBody))
 	return c.do(ctx, http.MethodPost, endpoint, wrapped, respObj)
 }
 
-func (c *ForemanClient) Put(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
+func (c *Client) Put(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
 	wrapped := c.wrapRequestBody(wrapperKey, c.addTaxonomy(reqBody))
 	return c.do(ctx, http.MethodPut, endpoint, wrapped, respObj)
 }
 
-func (c *ForemanClient) Delete(ctx context.Context, endpoint string) error {
+func (c *Client) Delete(ctx context.Context, endpoint string) error {
 	err := c.do(ctx, http.MethodDelete, endpoint, nil, nil)
 	if err != nil && IsNotFoundError(err) {
 		return nil // Already deleted is not an error
@@ -236,7 +236,7 @@ func (c *ForemanClient) Delete(ctx context.Context, endpoint string) error {
 	return err
 }
 
-func (c *ForemanClient) wrapRequestBody(wrapperKey string, reqBody interface{}) interface{} {
+func (c *Client) wrapRequestBody(wrapperKey string, reqBody interface{}) interface{} {
 	if wrapperKey == "" {
 		return reqBody
 	}
@@ -265,10 +265,10 @@ func IsNotFoundError(err error) bool {
 	return false
 }
 
-func (c *ForemanClient) waitForKatelloTask(ctx context.Context, taskID int) (*ForemanTask, error) {
+func (c *Client) waitForKatelloTask(ctx context.Context, taskID int) (*Task, error) {
 	endpoint := fmt.Sprintf("/foreman_tasks/api/tasks/%d", taskID)
 	for i := 0; i < 10; i++ {
-		var task ForemanTask
+		var task Task
 		if err := c.Get(ctx, endpoint, &task); err != nil {
 			return nil, fmt.Errorf("polling task %d: %w", taskID, err)
 		}

@@ -2,7 +2,7 @@ package goforeman
 
 import "encoding/json"
 
-type ForemanObject struct {
+type Base struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"created_at"`
@@ -24,7 +24,7 @@ type QueryResponseSort struct {
 	By    string `json:"by,omitempty"`
 }
 
-type ForemanTask struct {
+type Task struct {
 	ID        int         `json:"id"`
 	Pending   bool        `json:"pending"`
 	Label     string      `json:"label,omitempty"`

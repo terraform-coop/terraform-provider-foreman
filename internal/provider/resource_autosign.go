@@ -27,12 +27,12 @@ import (
 var _ resource.Resource = &autosignResource{}
 var _ resource.ResourceWithImportState = &autosignResource{}
 
-func NewForemanAutosignResource() resource.Resource {
+func NewAutosignResource() resource.Resource {
 	return &autosignResource{}
 }
 
 type autosignResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type autosignResourceModel struct {
@@ -67,9 +67,9 @@ func (r *autosignResource) Configure(_ context.Context, req resource.ConfigureRe
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -83,7 +83,7 @@ func (r *autosignResource) Create(ctx context.Context, req resource.CreateReques
 	}
 
 	smartProxyID := int(plan.SmartProxyID.ValueInt64())
-	result, err := r.client.CreateForemanAutosign(ctx, smartProxyID, plan.ID.ValueString())
+	result, err := r.client.CreateAutosign(ctx, smartProxyID, plan.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create autosign entry, got error: %s", err))
 		return
@@ -103,7 +103,7 @@ func (r *autosignResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	smartProxyID := int(state.SmartProxyID.ValueInt64())
-	result, err := r.client.ReadForemanAutosign(ctx, smartProxyID, state.ID.ValueString())
+	result, err := r.client.ReadAutosign(ctx, smartProxyID, state.ID.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read autosign entry, got error: %s", err))
 		return
@@ -133,7 +133,7 @@ func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	smartProxyID := int(state.SmartProxyID.ValueInt64())
-	err := r.client.DeleteForemanAutosign(ctx, smartProxyID, state.ID.ValueString())
+	err := r.client.DeleteAutosign(ctx, smartProxyID, state.ID.ValueString())
 	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete autosign entry, got error: %s", err))
 		return

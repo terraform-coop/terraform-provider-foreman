@@ -29,12 +29,12 @@ import (
 var _ resource.Resource = &computeprofileResource{}
 var _ resource.ResourceWithImportState = &computeprofileResource{}
 
-func NewForemanComputeProfileResource() resource.Resource {
+func NewComputeProfileResource() resource.Resource {
 	return &computeprofileResource{}
 }
 
 type computeprofileResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type computeAttributeModel struct {
@@ -85,9 +85,9 @@ func (r *computeprofileResource) Configure(_ context.Context, req resource.Confi
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -107,7 +107,7 @@ func vmAttrsFromRaw(raw json.RawMessage) types.String {
 	return types.StringValue(string(raw))
 }
 
-func computeAttributeFromResult(ca *goforeman.ForemanComputeAttribute) computeAttributeModel {
+func computeAttributeFromResult(ca *goforeman.ComputeAttribute) computeAttributeModel {
 	return computeAttributeModel{
 		ID:                types.Int64Value(int64(ca.ID)),
 		ComputeResourceID: types.Int64Value(int64(ca.ComputeResourceID)),
@@ -122,9 +122,9 @@ func (r *computeprofileResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	body := &goforeman.ForemanComputeProfileRequest{Name: plan.Name.ValueString()}
+	body := &goforeman.ComputeProfileRequest{Name: plan.Name.ValueString()}
 
-	result, err := r.client.CreateForemanComputeProfile(ctx, body)
+	result, err := r.client.CreateComputeProfile(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create computeprofile, got error: %s", err))
 		return
@@ -137,7 +137,7 @@ func (r *computeprofileResource) Create(ctx context.Context, req resource.Create
 	attrs := make([]computeAttributeModel, 0, len(plan.ComputeAttributes))
 	for _, ca := range plan.ComputeAttributes {
 		crID := int(ca.ComputeResourceID.ValueInt64())
-		created, err := r.client.CreateForemanComputeAttribute(ctx, profileID, crID, vmAttrsToRaw(ca.VMAttrs))
+		created, err := r.client.CreateComputeAttribute(ctx, profileID, crID, vmAttrsToRaw(ca.VMAttrs))
 		if err != nil {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create compute attribute for compute_resource_id %d, got error: %s", crID, err))
 			return
@@ -163,7 +163,7 @@ func (r *computeprofileResource) Read(ctx context.Context, req resource.ReadRequ
 		return
 	}
 
-	result, err := r.client.ReadForemanComputeProfile(ctx, id)
+	result, err := r.client.ReadComputeProfile(ctx, id)
 	if err != nil {
 		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
@@ -201,8 +201,8 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	body := &goforeman.ForemanComputeProfileRequest{Name: plan.Name.ValueString()}
-	result, err := r.client.UpdateForemanComputeProfile(ctx, id, body)
+	body := &goforeman.ComputeProfileRequest{Name: plan.Name.ValueString()}
+	result, err := r.client.UpdateComputeProfile(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update computeprofile, got error: %s", err))
 		return
@@ -223,14 +223,14 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 		crID := ca.ComputeResourceID.ValueInt64()
 		seen[crID] = true
 		if existing, ok := byComputeResource[crID]; ok {
-			updated, err := r.client.UpdateForemanComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64()), vmAttrsToRaw(ca.VMAttrs))
+			updated, err := r.client.UpdateComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64()), vmAttrsToRaw(ca.VMAttrs))
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update compute attribute for compute_resource_id %d, got error: %s", crID, err))
 				return
 			}
 			attrs = append(attrs, computeAttributeFromResult(updated))
 		} else {
-			created, err := r.client.CreateForemanComputeAttribute(ctx, id, int(crID), vmAttrsToRaw(ca.VMAttrs))
+			created, err := r.client.CreateComputeAttribute(ctx, id, int(crID), vmAttrsToRaw(ca.VMAttrs))
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create compute attribute for compute_resource_id %d, got error: %s", crID, err))
 				return
@@ -242,7 +242,7 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 		if seen[crID] {
 			continue
 		}
-		if err := r.client.DeleteForemanComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !goforeman.IsNotFoundError(err) {
+		if err := r.client.DeleteComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !goforeman.IsNotFoundError(err) {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete compute attribute for compute_resource_id %d, got error: %s", crID, err))
 			return
 		}
@@ -265,7 +265,7 @@ func (r *computeprofileResource) Delete(ctx context.Context, req resource.Delete
 		return
 	}
 
-	err = r.client.DeleteForemanComputeProfile(ctx, id)
+	err = r.client.DeleteComputeProfile(ctx, id)
 	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeprofile, got error: %s", err))
 		return

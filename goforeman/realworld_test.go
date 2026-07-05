@@ -23,29 +23,29 @@ type realworldFixture struct {
 }
 
 var realworldFixtures = []realworldFixture{
-	{"architectures", func() interface{} { return &ForemanArchitecture{} }},
-	{"computeresources", func() interface{} { return &ForemanComputeResource{} }},
-	{"domains", func() interface{} { return &ForemanDomain{} }},
-	{"environments", func() interface{} { return &ForemanEnvironment{} }},
-	{"hostgroups", func() interface{} { return &ForemanHostgroup{} }},
-	{"hosts", func() interface{} { return &ForemanHost{} }},
-	{"media", func() interface{} { return &ForemanMedium{} }},
-	{"models", func() interface{} { return &ForemanModel{} }},
-	{"operatingsystems", func() interface{} { return &ForemanOperatingSystem{} }},
-	{"provisioning_templates", func() interface{} { return &ForemanProvisioningTemplate{} }},
-	{"ptables", func() interface{} { return &ForemanPartitionTable{} }},
-	{"settings", func() interface{} { return &ForemanSetting{} }},
-	{"smart_proxies", func() interface{} { return &ForemanSmartProxy{} }},
-	{"subnets", func() interface{} { return &ForemanSubnet{} }},
-	{"template_kinds", func() interface{} { return &ForemanTemplateKind{} }},
-	{"image", func() interface{} { return &ForemanImage{} }},
-	{"override_values", func() interface{} { return &ForemanOverrideValue{} }},
-	{"puppet_classes", func() interface{} { return &ForemanPuppetClass{} }},
-	{"smart_class_parameters", func() interface{} { return &ForemanSmartClassParameter{} }},
-	{"discovery_rules", func() interface{} { return &ForemanDiscoveryRule{} }},
-	{"webhook_templates", func() interface{} { return &ForemanWebhookTemplate{} }},
-	{"webhooks", func() interface{} { return &ForemanWebhook{} }},
-	{"job_template", func() interface{} { return &ForemanJobTemplate{} }},
+	{"architectures", func() interface{} { return &Architecture{} }},
+	{"computeresources", func() interface{} { return &ComputeResource{} }},
+	{"domains", func() interface{} { return &Domain{} }},
+	{"environments", func() interface{} { return &Environment{} }},
+	{"hostgroups", func() interface{} { return &Hostgroup{} }},
+	{"hosts", func() interface{} { return &Host{} }},
+	{"media", func() interface{} { return &Medium{} }},
+	{"models", func() interface{} { return &Model{} }},
+	{"operatingsystems", func() interface{} { return &OperatingSystem{} }},
+	{"provisioning_templates", func() interface{} { return &ProvisioningTemplate{} }},
+	{"ptables", func() interface{} { return &PartitionTable{} }},
+	{"settings", func() interface{} { return &Setting{} }},
+	{"smart_proxies", func() interface{} { return &SmartProxy{} }},
+	{"subnets", func() interface{} { return &Subnet{} }},
+	{"template_kinds", func() interface{} { return &TemplateKind{} }},
+	{"image", func() interface{} { return &Image{} }},
+	{"override_values", func() interface{} { return &OverrideValue{} }},
+	{"puppet_classes", func() interface{} { return &PuppetClass{} }},
+	{"smart_class_parameters", func() interface{} { return &SmartClassParameter{} }},
+	{"discovery_rules", func() interface{} { return &DiscoveryRule{} }},
+	{"webhook_templates", func() interface{} { return &WebhookTemplate{} }},
+	{"webhooks", func() interface{} { return &Webhook{} }},
+	{"job_template", func() interface{} { return &JobTemplate{} }},
 }
 
 // singleObjectFiles unmarshal directly into the entity type.
@@ -116,9 +116,9 @@ func TestRealWorldFixtures_QueryResponse(t *testing.T) {
 	}
 }
 
-// TestRealWorldFixtures_PuppetClassGroupedQuery validates QueryForemanPuppetClass's
+// TestRealWorldFixtures_PuppetClassGroupedQuery validates QueryPuppetClass's
 // hand-written unmarshal of the real, environment-grouped response shape
-// (see generated/puppet_class.go), using the same fixture QueryForemanPuppetClass
+// (see generated/puppet_class.go), using the same fixture QueryPuppetClass
 // itself would receive from c.Get.
 func TestRealWorldFixtures_PuppetClassGroupedQuery(t *testing.T) {
 	matches, err := filepath.Glob(filepath.Join("realworld_testdata", "*", "puppet_classes", "query_response_single.json"))
@@ -131,7 +131,7 @@ func TestRealWorldFixtures_PuppetClassGroupedQuery(t *testing.T) {
 
 		t.Run(path, func(t *testing.T) {
 			var response struct {
-				Results map[string][]ForemanPuppetClass `json:"results"`
+				Results map[string][]PuppetClass `json:"results"`
 			}
 			require.NoError(t, json.Unmarshal(data, &response), "unmarshal %s", path)
 			require.NotEmpty(t, response.Results, "expected at least one environment group in %s", path)

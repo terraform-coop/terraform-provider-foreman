@@ -22,7 +22,7 @@ func NewKatelloRepositoryDataSource() datasource.DataSource {
 }
 
 type katelloRepositoryDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type katelloRepositoryDataSourceModel struct {
@@ -122,9 +122,9 @@ func (d *katelloRepositoryDataSource) Configure(_ context.Context, req datasourc
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -138,13 +138,13 @@ func (d *katelloRepositoryDataSource) Read(ctx context.Context, req datasource.R
 	}
 
 	name := data.Name.ValueString()
-	result, err := d.client.QueryForemanKatelloRepository(ctx, name)
+	result, err := d.client.FindKatelloRepositoryByName(ctx, name)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello repository, got error: %s", err))
 		return
 	}
 	if result == nil {
-		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("ForemanKatelloRepository %q not found", name))
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("KatelloRepository %q not found", name))
 		return
 	}
 

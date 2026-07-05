@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type ForemanKatelloSyncPlanRequest struct {
+type KatelloSyncPlanRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Interval    string `json:"interval,omitempty"`
@@ -25,8 +25,8 @@ type ForemanKatelloSyncPlanRequest struct {
 	CronExpression string `json:"cron_expression,omitempty"`
 }
 
-type ForemanKatelloSyncPlan struct {
-	ForemanObject
+type KatelloSyncPlan struct {
+	Base
 	Description    string `json:"description"`
 	Interval       string `json:"interval"`
 	SyncDate       string `json:"sync_date"`
@@ -34,8 +34,8 @@ type ForemanKatelloSyncPlan struct {
 	CronExpression string `json:"cron_expression"`
 }
 
-func (c *ForemanClient) CreateForemanKatelloSyncPlan(ctx context.Context, req *ForemanKatelloSyncPlanRequest) (*ForemanKatelloSyncPlan, error) {
-	var resp ForemanKatelloSyncPlan
+func (c *Client) CreateKatelloSyncPlan(ctx context.Context, req *KatelloSyncPlanRequest) (*KatelloSyncPlan, error) {
+	var resp KatelloSyncPlan
 	err := c.Post(ctx, fmt.Sprintf("katello/organizations/%d/sync_plans", c.config.OrganizationID), "sync_plan", req, &resp)
 	if err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (c *ForemanClient) CreateForemanKatelloSyncPlan(ctx context.Context, req *F
 	return &resp, nil
 }
 
-func (c *ForemanClient) ReadForemanKatelloSyncPlan(ctx context.Context, id int) (*ForemanKatelloSyncPlan, error) {
-	var resp ForemanKatelloSyncPlan
+func (c *Client) ReadKatelloSyncPlan(ctx context.Context, id int) (*KatelloSyncPlan, error) {
+	var resp KatelloSyncPlan
 	err := c.Get(ctx, fmt.Sprintf("katello/organizations/%d/sync_plans/%d", c.config.OrganizationID, id), &resp)
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (c *ForemanClient) ReadForemanKatelloSyncPlan(ctx context.Context, id int) 
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanKatelloSyncPlan(ctx context.Context, id int, req *ForemanKatelloSyncPlanRequest) (*ForemanKatelloSyncPlan, error) {
-	var resp ForemanKatelloSyncPlan
+func (c *Client) UpdateKatelloSyncPlan(ctx context.Context, id int, req *KatelloSyncPlanRequest) (*KatelloSyncPlan, error) {
+	var resp KatelloSyncPlan
 	err := c.Put(ctx, fmt.Sprintf("katello/organizations/%d/sync_plans/%d", c.config.OrganizationID, id), "sync_plan", req, &resp)
 	if err != nil {
 		return nil, err
@@ -61,11 +61,11 @@ func (c *ForemanClient) UpdateForemanKatelloSyncPlan(ctx context.Context, id int
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanKatelloSyncPlan(ctx context.Context, id int) error {
+func (c *Client) DeleteKatelloSyncPlan(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("katello/organizations/%d/sync_plans/%d", c.config.OrganizationID, id))
 }
 
-func (c *ForemanClient) QueryForemanKatelloSyncPlan(ctx context.Context, name string) (*ForemanKatelloSyncPlan, error) {
+func (c *Client) FindKatelloSyncPlanByName(ctx context.Context, name string) (*KatelloSyncPlan, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("katello/organizations/%d/sync_plans?search=name=\"%s\"", c.config.OrganizationID, url.QueryEscape(name)), &response)
 	if err != nil {
@@ -74,7 +74,7 @@ func (c *ForemanClient) QueryForemanKatelloSyncPlan(ctx context.Context, name st
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanKatelloSyncPlan
+	var obj KatelloSyncPlan
 	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}

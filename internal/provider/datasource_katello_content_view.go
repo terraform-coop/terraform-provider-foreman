@@ -22,7 +22,7 @@ func NewKatelloContentViewDataSource() datasource.DataSource {
 }
 
 type katelloContentViewDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type katelloContentViewDataSourceModel struct {
@@ -107,9 +107,9 @@ func (d *katelloContentViewDataSource) Configure(_ context.Context, req datasour
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -123,13 +123,13 @@ func (d *katelloContentViewDataSource) Read(ctx context.Context, req datasource.
 	}
 
 	name := data.Name.ValueString()
-	result, err := d.client.QueryForemanKatelloContentView(ctx, name)
+	result, err := d.client.FindKatelloContentViewByName(ctx, name)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello content view, got error: %s", err))
 		return
 	}
 	if result == nil {
-		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("ForemanKatelloContentView %q not found", name))
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("KatelloContentView %q not found", name))
 		return
 	}
 

@@ -20,12 +20,12 @@ var (
 	_ resource.ResourceWithImportState = &settingResource{}
 )
 
-func NewForemanSettingResource() resource.Resource {
+func NewSettingResource() resource.Resource {
 	return &settingResource{}
 }
 
 type settingResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type settingResourceModel struct {
@@ -58,9 +58,9 @@ func (r *settingResource) Configure(_ context.Context, req resource.ConfigureReq
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -78,7 +78,7 @@ func (r *settingResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	result, err := r.client.ReadForemanSetting(ctx, state.ID.ValueString())
+	result, err := r.client.ReadSetting(ctx, state.ID.ValueString())
 	if err != nil {
 		if goforeman.IsNotFoundError(err) {
 			tflog.Warn(ctx, "setting not found, removing from state", map[string]interface{}{"id": state.ID.ValueString()})
@@ -102,9 +102,9 @@ func (r *settingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	body := &goforeman.ForemanSettingRequest{Value: plan.Value.ValueString()}
+	body := &goforeman.SettingRequest{Value: plan.Value.ValueString()}
 
-	result, err := r.client.UpdateForemanSetting(ctx, plan.ID.ValueString(), body)
+	result, err := r.client.UpdateSetting(ctx, plan.ID.ValueString(), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update setting, got error: %s", err))
 		return

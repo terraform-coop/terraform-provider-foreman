@@ -23,7 +23,7 @@ var ParameterParentTypes = map[string]string{
 	"organization_id":    "organizations",
 }
 
-type ForemanParameterRequest struct {
+type ParameterRequest struct {
 	Name          string `json:"name,omitempty"`
 	Value         string `json:"value,omitempty"`
 	ParameterType string `json:"parameter_type,omitempty"`
@@ -34,8 +34,8 @@ type ForemanParameterRequest struct {
 	HiddenValue *bool `json:"hidden_value,omitempty"`
 }
 
-type ForemanParameter struct {
-	ForemanObject
+type Parameter struct {
+	Base
 	// Value is decoded as json.RawMessage, not string: Foreman parameters
 	// are user-typed (string/boolean/integer/array/hash/yaml/json), so a
 	// non-string value would otherwise fail json.Unmarshal for the whole
@@ -46,8 +46,8 @@ type ForemanParameter struct {
 	HiddenValue   bool            `json:"hidden_value"`
 }
 
-func (c *ForemanClient) CreateForemanParameter(ctx context.Context, parentType string, parentID int, req *ForemanParameterRequest) (*ForemanParameter, error) {
-	var resp ForemanParameter
+func (c *Client) CreateParameter(ctx context.Context, parentType string, parentID int, req *ParameterRequest) (*Parameter, error) {
+	var resp Parameter
 	err := c.Post(ctx, fmt.Sprintf("%s/%d/parameters", parentType, parentID), "parameter", req, &resp)
 	if err != nil {
 		return nil, err
@@ -55,8 +55,8 @@ func (c *ForemanClient) CreateForemanParameter(ctx context.Context, parentType s
 	return &resp, nil
 }
 
-func (c *ForemanClient) ReadForemanParameter(ctx context.Context, parentType string, parentID, id int) (*ForemanParameter, error) {
-	var resp ForemanParameter
+func (c *Client) ReadParameter(ctx context.Context, parentType string, parentID, id int) (*Parameter, error) {
+	var resp Parameter
 	err := c.Get(ctx, fmt.Sprintf("%s/%d/parameters/%d", parentType, parentID, id), &resp)
 	if err != nil {
 		return nil, err
@@ -64,8 +64,8 @@ func (c *ForemanClient) ReadForemanParameter(ctx context.Context, parentType str
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanParameter(ctx context.Context, parentType string, parentID, id int, req *ForemanParameterRequest) (*ForemanParameter, error) {
-	var resp ForemanParameter
+func (c *Client) UpdateParameter(ctx context.Context, parentType string, parentID, id int, req *ParameterRequest) (*Parameter, error) {
+	var resp Parameter
 	err := c.Put(ctx, fmt.Sprintf("%s/%d/parameters/%d", parentType, parentID, id), "parameter", req, &resp)
 	if err != nil {
 		return nil, err
@@ -73,11 +73,11 @@ func (c *ForemanClient) UpdateForemanParameter(ctx context.Context, parentType s
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanParameter(ctx context.Context, parentType string, parentID, id int) error {
+func (c *Client) DeleteParameter(ctx context.Context, parentType string, parentID, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("%s/%d/parameters/%d", parentType, parentID, id))
 }
 
-func (c *ForemanClient) QueryForemanParameter(ctx context.Context, parentType string, parentID int, name string) (*ForemanParameter, error) {
+func (c *Client) FindParameterByName(ctx context.Context, parentType string, parentID int, name string) (*Parameter, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("%s/%d/parameters?search=name=\"%s\"", parentType, parentID, url.QueryEscape(name)), &response)
 	if err != nil {
@@ -86,7 +86,7 @@ func (c *ForemanClient) QueryForemanParameter(ctx context.Context, parentType st
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanParameter
+	var obj Parameter
 	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}

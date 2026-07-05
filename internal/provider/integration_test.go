@@ -14,7 +14,7 @@ import (
 	generated "github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
-func testClient(t *testing.T) *goforeman.ForemanClient {
+func testClient(t *testing.T) *goforeman.Client {
 	t.Helper()
 
 	if os.Getenv("FOREMAN_INTEGRATION_TESTS") == "" {
@@ -70,7 +70,7 @@ func TestIntegration_Domain(t *testing.T) {
 	ctx := context.Background()
 	name := uniqueName("intg-domain") + ".test"
 
-	domain, err := c.CreateForemanDomain(ctx, &goforeman.ForemanDomainRequest{
+	domain, err := c.CreateDomain(ctx, &goforeman.DomainRequest{
 		Name:     name,
 		Fullname: "Integration Test Domain",
 	})
@@ -78,7 +78,7 @@ func TestIntegration_Domain(t *testing.T) {
 		t.Fatalf("create domain: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanDomain(context.Background(), domain.ID)
+		_ = c.DeleteDomain(context.Background(), domain.ID)
 	})
 
 	if domain.Name != name {
@@ -88,7 +88,7 @@ func TestIntegration_Domain(t *testing.T) {
 		t.Errorf("domain fullname: got %q, want %q", domain.Fullname, "Integration Test Domain")
 	}
 
-	read, err := c.ReadForemanDomain(ctx, domain.ID)
+	read, err := c.ReadDomain(ctx, domain.ID)
 	if err != nil {
 		t.Fatalf("read domain: %v", err)
 	}
@@ -96,7 +96,7 @@ func TestIntegration_Domain(t *testing.T) {
 		t.Errorf("read domain ID: got %d, want %d", read.ID, domain.ID)
 	}
 
-	updated, err := c.UpdateForemanDomain(ctx, domain.ID, &goforeman.ForemanDomainRequest{
+	updated, err := c.UpdateDomain(ctx, domain.ID, &goforeman.DomainRequest{
 		Fullname: "Updated Integration Domain",
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func TestIntegration_Domain(t *testing.T) {
 		t.Errorf("updated fullname: got %q, want %q", updated.Fullname, "Updated Integration Domain")
 	}
 
-	read2, err := c.ReadForemanDomain(ctx, domain.ID)
+	read2, err := c.ReadDomain(ctx, domain.ID)
 	if err != nil {
 		t.Fatalf("read updated domain: %v", err)
 	}
@@ -114,11 +114,11 @@ func TestIntegration_Domain(t *testing.T) {
 		t.Errorf("read2 fullname: got %q, want %q", read2.Fullname, "Updated Integration Domain")
 	}
 
-	if err := c.DeleteForemanDomain(ctx, domain.ID); err != nil {
+	if err := c.DeleteDomain(ctx, domain.ID); err != nil {
 		t.Fatalf("delete domain: %v", err)
 	}
 
-	_, err = c.ReadForemanDomain(ctx, domain.ID)
+	_, err = c.ReadDomain(ctx, domain.ID)
 	if !goforeman.IsNotFoundError(err) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
@@ -131,21 +131,21 @@ func TestIntegration_Architecture(t *testing.T) {
 	ctx := context.Background()
 	name := uniqueName("intg-arch")
 
-	arch, err := c.CreateForemanArchitecture(ctx, &goforeman.ForemanArchitectureRequest{
+	arch, err := c.CreateArchitecture(ctx, &goforeman.ArchitectureRequest{
 		Name: name,
 	})
 	if err != nil {
 		t.Fatalf("create architecture: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanArchitecture(context.Background(), arch.ID)
+		_ = c.DeleteArchitecture(context.Background(), arch.ID)
 	})
 
 	if arch.Name != name {
 		t.Errorf("arch name: got %q, want %q", arch.Name, name)
 	}
 
-	read, err := c.ReadForemanArchitecture(ctx, arch.ID)
+	read, err := c.ReadArchitecture(ctx, arch.ID)
 	if err != nil {
 		t.Fatalf("read architecture: %v", err)
 	}
@@ -154,7 +154,7 @@ func TestIntegration_Architecture(t *testing.T) {
 	}
 
 	newName := uniqueName("intg-arch-upd")
-	updated, err := c.UpdateForemanArchitecture(ctx, arch.ID, &goforeman.ForemanArchitectureRequest{
+	updated, err := c.UpdateArchitecture(ctx, arch.ID, &goforeman.ArchitectureRequest{
 		Name: newName,
 	})
 	if err != nil {
@@ -164,7 +164,7 @@ func TestIntegration_Architecture(t *testing.T) {
 		t.Errorf("updated name: got %q, want %q", updated.Name, newName)
 	}
 
-	read2, err := c.ReadForemanArchitecture(ctx, arch.ID)
+	read2, err := c.ReadArchitecture(ctx, arch.ID)
 	if err != nil {
 		t.Fatalf("read updated architecture: %v", err)
 	}
@@ -172,11 +172,11 @@ func TestIntegration_Architecture(t *testing.T) {
 		t.Errorf("read2 name: got %q, want %q", read2.Name, newName)
 	}
 
-	if err := c.DeleteForemanArchitecture(ctx, arch.ID); err != nil {
+	if err := c.DeleteArchitecture(ctx, arch.ID); err != nil {
 		t.Fatalf("delete architecture: %v", err)
 	}
 
-	_, err = c.ReadForemanArchitecture(ctx, arch.ID)
+	_, err = c.ReadArchitecture(ctx, arch.ID)
 	if !goforeman.IsNotFoundError(err) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
@@ -190,7 +190,7 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 	name := uniqueName("intg-os")
 	desc := "Integration Test OS"
 
-	osObj, err := c.CreateForemanOperatingSystem(ctx, &goforeman.ForemanOperatingSystemRequest{
+	osObj, err := c.CreateOperatingSystem(ctx, &goforeman.OperatingSystemRequest{
 		Name:        name,
 		Major:       "1",
 		Description: desc,
@@ -199,7 +199,7 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 		t.Fatalf("create operating system: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanOperatingSystem(context.Background(), osObj.ID)
+		_ = c.DeleteOperatingSystem(context.Background(), osObj.ID)
 	})
 
 	if osObj.Name != name {
@@ -212,7 +212,7 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 		t.Errorf("os description: got %q, want %q", osObj.Description, desc)
 	}
 
-	read, err := c.ReadForemanOperatingSystem(ctx, osObj.ID)
+	read, err := c.ReadOperatingSystem(ctx, osObj.ID)
 	if err != nil {
 		t.Fatalf("read operating system: %v", err)
 	}
@@ -221,7 +221,7 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 	}
 
 	newDesc := "Updated Integration OS"
-	updated, err := c.UpdateForemanOperatingSystem(ctx, osObj.ID, &goforeman.ForemanOperatingSystemRequest{
+	updated, err := c.UpdateOperatingSystem(ctx, osObj.ID, &goforeman.OperatingSystemRequest{
 		Description: newDesc,
 	})
 	if err != nil {
@@ -231,7 +231,7 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 		t.Errorf("updated description: got %q, want %q", updated.Description, newDesc)
 	}
 
-	read2, err := c.ReadForemanOperatingSystem(ctx, osObj.ID)
+	read2, err := c.ReadOperatingSystem(ctx, osObj.ID)
 	if err != nil {
 		t.Fatalf("read updated operating system: %v", err)
 	}
@@ -239,11 +239,11 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 		t.Errorf("read2 description: got %q, want %q", read2.Description, newDesc)
 	}
 
-	if err := c.DeleteForemanOperatingSystem(ctx, osObj.ID); err != nil {
+	if err := c.DeleteOperatingSystem(ctx, osObj.ID); err != nil {
 		t.Fatalf("delete operating system: %v", err)
 	}
 
-	_, err = c.ReadForemanOperatingSystem(ctx, osObj.ID)
+	_, err = c.ReadOperatingSystem(ctx, osObj.ID)
 	if !goforeman.IsNotFoundError(err) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
@@ -255,27 +255,27 @@ func TestIntegration_Hostgroup(t *testing.T) {
 	c := testClient(t)
 	ctx := context.Background()
 
-	arch, err := c.CreateForemanArchitecture(ctx, &goforeman.ForemanArchitectureRequest{
+	arch, err := c.CreateArchitecture(ctx, &goforeman.ArchitectureRequest{
 		Name: uniqueName("intg-hg-arch"),
 	})
 	if err != nil {
 		t.Fatalf("create prerequisite architecture: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanArchitecture(context.Background(), arch.ID)
+		_ = c.DeleteArchitecture(context.Background(), arch.ID)
 	})
 
-	domain, err := c.CreateForemanDomain(ctx, &goforeman.ForemanDomainRequest{
+	domain, err := c.CreateDomain(ctx, &goforeman.DomainRequest{
 		Name: uniqueName("intg-hg-domain") + ".test",
 	})
 	if err != nil {
 		t.Fatalf("create prerequisite domain: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanDomain(context.Background(), domain.ID)
+		_ = c.DeleteDomain(context.Background(), domain.ID)
 	})
 
-	osObj, err := c.CreateForemanOperatingSystem(ctx, &goforeman.ForemanOperatingSystemRequest{
+	osObj, err := c.CreateOperatingSystem(ctx, &goforeman.OperatingSystemRequest{
 		Name:  uniqueName("intg-hg-os"),
 		Major: "1",
 	})
@@ -283,11 +283,11 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Fatalf("create prerequisite operating system: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanOperatingSystem(context.Background(), osObj.ID)
+		_ = c.DeleteOperatingSystem(context.Background(), osObj.ID)
 	})
 
 	name := uniqueName("intg-hg")
-	hg, err := c.CreateForemanHostgroup(ctx, &goforeman.ForemanHostgroupRequest{
+	hg, err := c.CreateHostgroup(ctx, &goforeman.HostgroupRequest{
 		Name:              name,
 		ArchitectureID:    ptr(int64(arch.ID)),
 		DomainID:          ptr(int64(domain.ID)),
@@ -297,7 +297,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Fatalf("create hostgroup: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanHostgroup(context.Background(), hg.ID)
+		_ = c.DeleteHostgroup(context.Background(), hg.ID)
 	})
 
 	if hg.Name != name {
@@ -313,7 +313,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Errorf("hostgroup operatingsystem_id: got %d, want %d", hg.OperatingsystemID, osObj.ID)
 	}
 
-	read, err := c.ReadForemanHostgroup(ctx, hg.ID)
+	read, err := c.ReadHostgroup(ctx, hg.ID)
 	if err != nil {
 		t.Fatalf("read hostgroup: %v", err)
 	}
@@ -325,7 +325,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 	// state (not a partial patch), so a real update call re-sends every
 	// attribute the plan still has set, not just the one that changed.
 	newDesc := "Updated Integration Hostgroup"
-	updated, err := c.UpdateForemanHostgroup(ctx, hg.ID, &goforeman.ForemanHostgroupRequest{
+	updated, err := c.UpdateHostgroup(ctx, hg.ID, &goforeman.HostgroupRequest{
 		Description:       newDesc,
 		ArchitectureID:    ptr(int64(arch.ID)),
 		DomainID:          ptr(int64(domain.ID)),
@@ -338,7 +338,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Errorf("updated description: got %q, want %q", updated.Description, newDesc)
 	}
 
-	read2, err := c.ReadForemanHostgroup(ctx, hg.ID)
+	read2, err := c.ReadHostgroup(ctx, hg.ID)
 	if err != nil {
 		t.Fatalf("read updated hostgroup: %v", err)
 	}
@@ -352,7 +352,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 	// Issue #185: omitting an optional FK field from the update request
 	// (nil pointer, explicit JSON null) must actually clear it server-side,
 	// not silently leave the previous association in place.
-	cleared, err := c.UpdateForemanHostgroup(ctx, hg.ID, &goforeman.ForemanHostgroupRequest{
+	cleared, err := c.UpdateHostgroup(ctx, hg.ID, &goforeman.HostgroupRequest{
 		Description:       newDesc,
 		ArchitectureID:    ptr(int64(arch.ID)),
 		OperatingsystemID: ptr(int64(osObj.ID)),
@@ -365,7 +365,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Errorf("cleared domain_id: got %d, want 0", cleared.DomainID)
 	}
 
-	read3, err := c.ReadForemanHostgroup(ctx, hg.ID)
+	read3, err := c.ReadHostgroup(ctx, hg.ID)
 	if err != nil {
 		t.Fatalf("read hostgroup after clearing domain_id: %v", err)
 	}
@@ -373,11 +373,11 @@ func TestIntegration_Hostgroup(t *testing.T) {
 		t.Errorf("read3 domain_id: got %d, want 0 (should have been cleared)", read3.DomainID)
 	}
 
-	if err := c.DeleteForemanHostgroup(ctx, hg.ID); err != nil {
+	if err := c.DeleteHostgroup(ctx, hg.ID); err != nil {
 		t.Fatalf("delete hostgroup: %v", err)
 	}
 
-	_, err = c.ReadForemanHostgroup(ctx, hg.ID)
+	_, err = c.ReadHostgroup(ctx, hg.ID)
 	if !goforeman.IsNotFoundError(err) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
@@ -389,27 +389,27 @@ func TestIntegration_Host(t *testing.T) {
 	c := testClient(t)
 	ctx := context.Background()
 
-	arch, err := c.CreateForemanArchitecture(ctx, &goforeman.ForemanArchitectureRequest{
+	arch, err := c.CreateArchitecture(ctx, &goforeman.ArchitectureRequest{
 		Name: uniqueName("intg-host-arch"),
 	})
 	if err != nil {
 		t.Fatalf("create prerequisite architecture: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanArchitecture(context.Background(), arch.ID)
+		_ = c.DeleteArchitecture(context.Background(), arch.ID)
 	})
 
-	domain, err := c.CreateForemanDomain(ctx, &goforeman.ForemanDomainRequest{
+	domain, err := c.CreateDomain(ctx, &goforeman.DomainRequest{
 		Name: uniqueName("intg-host-domain") + ".test",
 	})
 	if err != nil {
 		t.Fatalf("create prerequisite domain: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanDomain(context.Background(), domain.ID)
+		_ = c.DeleteDomain(context.Background(), domain.ID)
 	})
 
-	osObj, err := c.CreateForemanOperatingSystem(ctx, &goforeman.ForemanOperatingSystemRequest{
+	osObj, err := c.CreateOperatingSystem(ctx, &goforeman.OperatingSystemRequest{
 		Name:  uniqueName("intg-host-os"),
 		Major: "1",
 	})
@@ -417,10 +417,10 @@ func TestIntegration_Host(t *testing.T) {
 		t.Fatalf("create prerequisite operating system: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanOperatingSystem(context.Background(), osObj.ID)
+		_ = c.DeleteOperatingSystem(context.Background(), osObj.ID)
 	})
 
-	hg, err := c.CreateForemanHostgroup(ctx, &goforeman.ForemanHostgroupRequest{
+	hg, err := c.CreateHostgroup(ctx, &goforeman.HostgroupRequest{
 		Name:              uniqueName("intg-host-hg"),
 		ArchitectureID:    ptr(int64(arch.ID)),
 		DomainID:          ptr(int64(domain.ID)),
@@ -430,7 +430,7 @@ func TestIntegration_Host(t *testing.T) {
 		t.Fatalf("create prerequisite hostgroup: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanHostgroup(context.Background(), hg.ID)
+		_ = c.DeleteHostgroup(context.Background(), hg.ID)
 	})
 
 	hostName := uniqueName("intg-host")
@@ -447,12 +447,12 @@ func TestIntegration_Host(t *testing.T) {
 		"hostgroup_id":       hg.ID,
 	}
 
-	var host goforeman.ForemanHost
+	var host goforeman.Host
 	if err := c.Post(ctx, "hosts", "host", hostReq, &host); err != nil {
 		t.Fatalf("create host: %v", err)
 	}
 	t.Cleanup(func() {
-		_ = c.DeleteForemanHost(context.Background(), host.ID)
+		_ = c.DeleteHost(context.Background(), host.ID)
 	})
 
 	if !strings.Contains(host.Name, hostName) {
@@ -477,7 +477,7 @@ func TestIntegration_Host(t *testing.T) {
 		t.Errorf("host hostgroup_id: got %d, want %d", host.HostgroupID, hg.ID)
 	}
 
-	read, err := c.ReadForemanHost(ctx, host.ID)
+	read, err := c.ReadHost(ctx, host.ID)
 	if err != nil {
 		t.Fatalf("read host: %v", err)
 	}
@@ -486,7 +486,7 @@ func TestIntegration_Host(t *testing.T) {
 	}
 
 	newComment := "updated by integration test"
-	updated, err := c.UpdateForemanHost(ctx, host.ID, &goforeman.ForemanHostRequest{
+	updated, err := c.UpdateHost(ctx, host.ID, &goforeman.HostRequest{
 		Comment: newComment,
 	})
 	if err != nil {
@@ -496,7 +496,7 @@ func TestIntegration_Host(t *testing.T) {
 		t.Errorf("updated comment: got %q, want %q", updated.Comment, newComment)
 	}
 
-	read2, err := c.ReadForemanHost(ctx, host.ID)
+	read2, err := c.ReadHost(ctx, host.ID)
 	if err != nil {
 		t.Fatalf("read updated host: %v", err)
 	}
@@ -504,11 +504,11 @@ func TestIntegration_Host(t *testing.T) {
 		t.Errorf("read2 comment: got %q, want %q", read2.Comment, newComment)
 	}
 
-	if err := c.DeleteForemanHost(ctx, host.ID); err != nil {
+	if err := c.DeleteHost(ctx, host.ID); err != nil {
 		t.Fatalf("delete host: %v", err)
 	}
 
-	_, err = c.ReadForemanHost(ctx, host.ID)
+	_, err = c.ReadHost(ctx, host.ID)
 	if !goforeman.IsNotFoundError(err) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}

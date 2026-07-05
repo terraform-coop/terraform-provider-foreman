@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-type ForemanKatelloRepositoryRequest struct {
+type KatelloRepositoryRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Label       string `json:"label,omitempty"`
@@ -45,8 +45,8 @@ type ForemanKatelloRepositoryRequest struct {
 	AnsibleCollectionRequirements string   `json:"ansible_collection_requirements,omitempty"`
 }
 
-type ForemanKatelloRepository struct {
-	ForemanObject
+type KatelloRepository struct {
+	Base
 	Description                   string   `json:"description"`
 	Label                         string   `json:"label"`
 	ProductID                     int      `json:"product_id"`
@@ -74,8 +74,8 @@ type ForemanKatelloRepository struct {
 	AnsibleCollectionRequirements string   `json:"ansible_collection_requirements"`
 }
 
-func (c *ForemanClient) CreateForemanKatelloRepository(ctx context.Context, req *ForemanKatelloRepositoryRequest) (*ForemanKatelloRepository, error) {
-	var resp ForemanKatelloRepository
+func (c *Client) CreateKatelloRepository(ctx context.Context, req *KatelloRepositoryRequest) (*KatelloRepository, error) {
+	var resp KatelloRepository
 	err := c.Post(ctx, "katello/repositories", "repository", req, &resp)
 	if err != nil {
 		return nil, err
@@ -83,8 +83,8 @@ func (c *ForemanClient) CreateForemanKatelloRepository(ctx context.Context, req 
 	return &resp, nil
 }
 
-func (c *ForemanClient) ReadForemanKatelloRepository(ctx context.Context, id int) (*ForemanKatelloRepository, error) {
-	var resp ForemanKatelloRepository
+func (c *Client) ReadKatelloRepository(ctx context.Context, id int) (*KatelloRepository, error) {
+	var resp KatelloRepository
 	err := c.Get(ctx, fmt.Sprintf("katello/repositories/%d", id), &resp)
 	if err != nil {
 		return nil, err
@@ -92,8 +92,8 @@ func (c *ForemanClient) ReadForemanKatelloRepository(ctx context.Context, id int
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanKatelloRepository(ctx context.Context, id int, req *ForemanKatelloRepositoryRequest) (*ForemanKatelloRepository, error) {
-	var resp ForemanKatelloRepository
+func (c *Client) UpdateKatelloRepository(ctx context.Context, id int, req *KatelloRepositoryRequest) (*KatelloRepository, error) {
+	var resp KatelloRepository
 	err := c.Put(ctx, fmt.Sprintf("katello/repositories/%d", id), "repository", req, &resp)
 	if err != nil {
 		return nil, err
@@ -101,11 +101,11 @@ func (c *ForemanClient) UpdateForemanKatelloRepository(ctx context.Context, id i
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanKatelloRepository(ctx context.Context, id int) error {
+func (c *Client) DeleteKatelloRepository(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("katello/repositories/%d", id))
 }
 
-func (c *ForemanClient) QueryForemanKatelloRepository(ctx context.Context, name string) (*ForemanKatelloRepository, error) {
+func (c *Client) FindKatelloRepositoryByName(ctx context.Context, name string) (*KatelloRepository, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("katello/repositories?search=name=\"%s\"", url.QueryEscape(name)), &response)
 	if err != nil {
@@ -114,7 +114,7 @@ func (c *ForemanClient) QueryForemanKatelloRepository(ctx context.Context, name 
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanKatelloRepository
+	var obj KatelloRepository
 	if err := json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}

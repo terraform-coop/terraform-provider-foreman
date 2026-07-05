@@ -7,7 +7,7 @@ import (
 	"net/url"
 )
 
-// ForemanComputeProfile is hand-written, not apidoc-driven: a compute
+// ComputeProfile is hand-written, not apidoc-driven: a compute
 // profile's own create/update body only ever has "name" (confirmed against
 // apidoc/v2.json), but each profile also owns a set of per-compute-resource
 // "compute attributes" (VM sizing: cpus, memory, disks, ...), which Foreman
@@ -19,28 +19,28 @@ import (
 // resource, orchestrating one API call per element; this hand-written file
 // restores that behavior.
 
-type ForemanComputeProfileRequest struct {
+type ComputeProfileRequest struct {
 	Name string `json:"name,omitempty"`
 }
 
-type ForemanComputeProfile struct {
-	ForemanObject
-	Name              string                     `json:"name"`
-	ComputeAttributes []*ForemanComputeAttribute `json:"compute_attributes,omitempty"`
+type ComputeProfile struct {
+	Base
+	Name              string              `json:"name"`
+	ComputeAttributes []*ComputeAttribute `json:"compute_attributes,omitempty"`
 }
 
-// ForemanComputeAttribute is one element of a compute profile's per-compute-resource
+// ComputeAttribute is one element of a compute profile's per-compute-resource
 // VM sizing attributes. VMAttrs is a free-form, compute-resource-provider-specific
 // hash (e.g. cpus/memory_mb for VMware, cpus/memory for Libvirt), carried as opaque
 // JSON.
-type ForemanComputeAttribute struct {
-	ForemanObject
+type ComputeAttribute struct {
+	Base
 	ComputeResourceID int             `json:"compute_resource_id"`
 	VMAttrs           json.RawMessage `json:"vm_attrs,omitempty"`
 }
 
-func (c *ForemanClient) CreateForemanComputeProfile(ctx context.Context, req *ForemanComputeProfileRequest) (*ForemanComputeProfile, error) {
-	var resp ForemanComputeProfile
+func (c *Client) CreateComputeProfile(ctx context.Context, req *ComputeProfileRequest) (*ComputeProfile, error) {
+	var resp ComputeProfile
 	err := c.Post(ctx, "compute_profiles", "compute_profile", req, &resp)
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (c *ForemanClient) CreateForemanComputeProfile(ctx context.Context, req *Fo
 	return &resp, nil
 }
 
-func (c *ForemanClient) ReadForemanComputeProfile(ctx context.Context, id int) (*ForemanComputeProfile, error) {
-	var resp ForemanComputeProfile
+func (c *Client) ReadComputeProfile(ctx context.Context, id int) (*ComputeProfile, error) {
+	var resp ComputeProfile
 	err := c.Get(ctx, fmt.Sprintf("compute_profiles/%d", id), &resp)
 	if err != nil {
 		return nil, err
@@ -57,8 +57,8 @@ func (c *ForemanClient) ReadForemanComputeProfile(ctx context.Context, id int) (
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanComputeProfile(ctx context.Context, id int, req *ForemanComputeProfileRequest) (*ForemanComputeProfile, error) {
-	var resp ForemanComputeProfile
+func (c *Client) UpdateComputeProfile(ctx context.Context, id int, req *ComputeProfileRequest) (*ComputeProfile, error) {
+	var resp ComputeProfile
 	err := c.Put(ctx, fmt.Sprintf("compute_profiles/%d", id), "compute_profile", req, &resp)
 	if err != nil {
 		return nil, err
@@ -66,11 +66,11 @@ func (c *ForemanClient) UpdateForemanComputeProfile(ctx context.Context, id int,
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanComputeProfile(ctx context.Context, id int) error {
+func (c *Client) DeleteComputeProfile(ctx context.Context, id int) error {
 	return c.Delete(ctx, fmt.Sprintf("compute_profiles/%d", id))
 }
 
-func (c *ForemanClient) QueryForemanComputeProfile(ctx context.Context, name string) (*ForemanComputeProfile, error) {
+func (c *Client) FindComputeProfileByName(ctx context.Context, name string) (*ComputeProfile, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("compute_profiles?search=name=\"%s\"", url.QueryEscape(name)), &response)
 	if err != nil {
@@ -79,7 +79,7 @@ func (c *ForemanClient) QueryForemanComputeProfile(ctx context.Context, name str
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanComputeProfile
+	var obj ComputeProfile
 	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}
@@ -90,27 +90,27 @@ type foremanComputeAttributeRequest struct {
 	VMAttrs json.RawMessage `json:"vm_attrs,omitempty"`
 }
 
-func (c *ForemanClient) CreateForemanComputeAttribute(ctx context.Context, profileID, computeResourceID int, vmAttrs json.RawMessage) (*ForemanComputeAttribute, error) {
+func (c *Client) CreateComputeAttribute(ctx context.Context, profileID, computeResourceID int, vmAttrs json.RawMessage) (*ComputeAttribute, error) {
 	endpoint := fmt.Sprintf("compute_profiles/%d/compute_resources/%d/compute_attributes", profileID, computeResourceID)
 	req := &foremanComputeAttributeRequest{VMAttrs: vmAttrs}
-	var resp ForemanComputeAttribute
+	var resp ComputeAttribute
 	if err := c.Post(ctx, endpoint, "compute_attribute", req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanComputeAttribute(ctx context.Context, profileID, computeResourceID, attributeID int, vmAttrs json.RawMessage) (*ForemanComputeAttribute, error) {
+func (c *Client) UpdateComputeAttribute(ctx context.Context, profileID, computeResourceID, attributeID int, vmAttrs json.RawMessage) (*ComputeAttribute, error) {
 	endpoint := fmt.Sprintf("compute_profiles/%d/compute_resources/%d/compute_attributes/%d", profileID, computeResourceID, attributeID)
 	req := &foremanComputeAttributeRequest{VMAttrs: vmAttrs}
-	var resp ForemanComputeAttribute
+	var resp ComputeAttribute
 	if err := c.Put(ctx, endpoint, "compute_attribute", req, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil
 }
 
-func (c *ForemanClient) DeleteForemanComputeAttribute(ctx context.Context, profileID, computeResourceID, attributeID int) error {
+func (c *Client) DeleteComputeAttribute(ctx context.Context, profileID, computeResourceID, attributeID int) error {
 	endpoint := fmt.Sprintf("compute_profiles/%d/compute_resources/%d/compute_attributes/%d", profileID, computeResourceID, attributeID)
 	return c.Delete(ctx, endpoint)
 }

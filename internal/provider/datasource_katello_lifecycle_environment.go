@@ -22,7 +22,7 @@ func NewKatelloLifecycleEnvironmentDataSource() datasource.DataSource {
 }
 
 type katelloLifecycleEnvironmentDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type katelloLifecycleEnvironmentDataSourceModel struct {
@@ -72,9 +72,9 @@ func (d *katelloLifecycleEnvironmentDataSource) Configure(_ context.Context, req
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -88,13 +88,13 @@ func (d *katelloLifecycleEnvironmentDataSource) Read(ctx context.Context, req da
 	}
 
 	name := data.Name.ValueString()
-	result, err := d.client.QueryForemanKatelloLifecycleEnvironment(ctx, name)
+	result, err := d.client.FindKatelloLifecycleEnvironmentByName(ctx, name)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello lifecycle environment, got error: %s", err))
 		return
 	}
 	if result == nil {
-		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("ForemanKatelloLifecycleEnvironment %q not found", name))
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("KatelloLifecycleEnvironment %q not found", name))
 		return
 	}
 

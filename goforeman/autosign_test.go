@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateForemanAutosign(t *testing.T) {
+func TestCreateAutosign(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/smart_proxies/5/autosign", r.URL.Path)
@@ -19,17 +19,17 @@ func TestCreateForemanAutosign(t *testing.T) {
 		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
 		assert.Equal(t, "*.example.com", body["id"])
 		w.WriteHeader(http.StatusCreated)
-		require.NoError(t, json.NewEncoder(w).Encode(ForemanAutosign{ID: "*.example.com"}))
+		require.NoError(t, json.NewEncoder(w).Encode(Autosign{ID: "*.example.com"}))
 	}))
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.CreateForemanAutosign(context.Background(), 5, "*.example.com")
+	result, err := client.CreateAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 	assert.Equal(t, "*.example.com", result.ID)
 }
 
-func TestDeleteForemanAutosign(t *testing.T) {
+func TestDeleteAutosign(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/smart_proxies/5/autosign/%2A.example.com", r.URL.Path)
@@ -38,11 +38,11 @@ func TestDeleteForemanAutosign(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	err := client.DeleteForemanAutosign(context.Background(), 5, "*.example.com")
+	err := client.DeleteAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 }
 
-func TestReadForemanAutosign_Found(t *testing.T) {
+func TestReadAutosign_Found(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/smart_proxies/5/autosign", r.URL.Path)
@@ -56,13 +56,13 @@ func TestReadForemanAutosign_Found(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.ReadForemanAutosign(context.Background(), 5, "*.example.com")
+	result, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	assert.Equal(t, "*.example.com", result.ID)
 }
 
-func TestReadForemanAutosign_NotFound(t *testing.T) {
+func TestReadAutosign_NotFound(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{Results: []json.RawMessage{}}))
@@ -70,12 +70,12 @@ func TestReadForemanAutosign_NotFound(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.ReadForemanAutosign(context.Background(), 5, "*.example.com")
+	result, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 	assert.Nil(t, result)
 }
 
-func TestReadForemanAutosign_Error(t *testing.T) {
+func TestReadAutosign_Error(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -83,6 +83,6 @@ func TestReadForemanAutosign_Error(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	_, err := client.ReadForemanAutosign(context.Background(), 5, "*.example.com")
+	_, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
 	assert.Error(t, err)
 }

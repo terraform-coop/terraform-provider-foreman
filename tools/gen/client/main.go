@@ -418,7 +418,7 @@ func buildResources(doc *ApipieDoc, overrides Overrides) []GenResource {
 		}
 
 		res := GenResource{
-			GoName:       "Foreman" + typeName,
+			GoName:       typeName,
 			ShortName:    shortName,
 			EndpointBase: epBase,
 			ParamKey:     extractParamKey(raw.Methods),
@@ -461,7 +461,7 @@ func buildResources(doc *ApipieDoc, overrides Overrides) []GenResource {
 func hardcodedResources() []GenResource {
 	return []GenResource{
 		{
-			GoName:       "ForemanEnvironment",
+			GoName:       "Environment",
 			ShortName:    "environment",
 			EndpointBase: "environments",
 			ParamKey:     "environment",
@@ -472,7 +472,7 @@ func hardcodedResources() []GenResource {
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
 		{
-			GoName:       "ForemanJobTemplate",
+			GoName:       "JobTemplate",
 			ShortName:    "jobtemplate",
 			EndpointBase: "job_templates",
 			ParamKey:     "job_template",
@@ -490,7 +490,7 @@ func hardcodedResources() []GenResource {
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
 		{
-			GoName:       "ForemanPuppetClass",
+			GoName:       "PuppetClass",
 			ShortName:    "puppetclass",
 			EndpointBase: "puppetclasses",
 			ParamKey:     "puppetclass",
@@ -506,7 +506,7 @@ func hardcodedResources() []GenResource {
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
 		{
-			GoName:       "ForemanSmartClassParameter",
+			GoName:       "SmartClassParameter",
 			ShortName:    "smartclassparameter",
 			EndpointBase: "smart_class_parameters",
 			ParamKey:     "smart_class_parameter",
@@ -544,7 +544,7 @@ func hardcodedResources() []GenResource {
 			},
 		},
 		{
-			GoName:       "ForemanTemplateKind",
+			GoName:       "TemplateKind",
 			ShortName:    "templatekind",
 			EndpointBase: "template_kinds",
 			ParamKey:     "template_kind",
@@ -566,7 +566,7 @@ func hardcodedResources() []GenResource {
 		// resource at all) so there's no source of truth to verify the exact
 		// shape against; left out rather than guessed.
 		{
-			GoName:       "ForemanDiscoveryRule",
+			GoName:       "DiscoveryRule",
 			ShortName:    "discovery_rule",
 			EndpointBase: "discovery_rules",
 			ParamKey:     "discovery_rule",
@@ -591,7 +591,7 @@ func hardcodedResources() []GenResource {
 			},
 		},
 		{
-			GoName:       "ForemanWebhook",
+			GoName:       "Webhook",
 			ShortName:    "webhook",
 			EndpointBase: "webhooks",
 			ParamKey:     "webhook",
@@ -629,7 +629,7 @@ func hardcodedResources() []GenResource {
 			},
 		},
 		{
-			GoName:       "ForemanWebhookTemplate",
+			GoName:       "WebhookTemplate",
 			ShortName:    "webhooktemplate",
 			EndpointBase: "webhook_templates",
 			ParamKey:     "webhook_template",
@@ -646,7 +646,7 @@ func hardcodedResources() []GenResource {
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
 		{
-			GoName:         "ForemanOverrideValue",
+			GoName:         "OverrideValue",
 			ShortName:      "override_value",
 			EndpointBase:   "override_values",
 			ParamKey:       "override_value",
@@ -677,7 +677,7 @@ func hardcodedResources() []GenResource {
 		// need logic this generic pipeline doesn't express, and stay
 		// hand-written in generated/katello_*.go / internal/provider/*_katello_*.go.
 		{
-			GoName:         "ForemanKatelloContentCredential",
+			GoName:         "KatelloContentCredential",
 			ShortName:      "katello_content_credential",
 			EndpointBase:   "katello/content_credentials",
 			ParamKey:       "content_credential",
@@ -690,7 +690,7 @@ func hardcodedResources() []GenResource {
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
 		{
-			GoName:         "ForemanKatelloProduct",
+			GoName:         "KatelloProduct",
 			ShortName:      "katello_product",
 			EndpointBase:   "katello/products",
 			ParamKey:       "product",
@@ -1694,7 +1694,6 @@ func snakeCase(s string) string {
 	if s == "" {
 		return ""
 	}
-	s = strings.TrimPrefix(s, "Foreman")
 	var result []rune
 	for i, r := range s {
 		if i > 0 && r >= 'A' && r <= 'Z' && s[i-1] >= 'a' && s[i-1] <= 'z' {

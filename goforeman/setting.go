@@ -7,11 +7,11 @@ import (
 	"net/url"
 )
 
-type ForemanSettingRequest struct {
+type SettingRequest struct {
 	Value string `json:"value,omitempty"`
 }
 
-// ForemanSetting does not embed ForemanObject: unlike most Foreman
+// Setting does not embed Base: unlike most Foreman
 // entities, a setting's own "id" is its key (e.g.
 // "append_domain_name_for_hosts"), not a server-assigned integer -
 // confirmed against a real Foreman 1.11 API response. Value is decoded as
@@ -19,7 +19,7 @@ type ForemanSettingRequest struct {
 // parameters' "value": settings are user-typed (that same fixture shows a
 // JSON boolean, not a string), so a plain string field fails
 // json.Unmarshal for the whole struct whenever the setting isn't a string.
-type ForemanSetting struct {
+type Setting struct {
 	ID        string          `json:"id"`
 	Name      string          `json:"name"`
 	CreatedAt string          `json:"created_at"`
@@ -27,8 +27,8 @@ type ForemanSetting struct {
 	Value     json.RawMessage `json:"value,omitempty"`
 }
 
-func (c *ForemanClient) ReadForemanSetting(ctx context.Context, id string) (*ForemanSetting, error) {
-	var resp ForemanSetting
+func (c *Client) ReadSetting(ctx context.Context, id string) (*Setting, error) {
+	var resp Setting
 	err := c.Get(ctx, fmt.Sprintf("settings/%s", url.PathEscape(id)), &resp)
 	if err != nil {
 		return nil, err
@@ -36,8 +36,8 @@ func (c *ForemanClient) ReadForemanSetting(ctx context.Context, id string) (*For
 	return &resp, nil
 }
 
-func (c *ForemanClient) UpdateForemanSetting(ctx context.Context, id string, req *ForemanSettingRequest) (*ForemanSetting, error) {
-	var resp ForemanSetting
+func (c *Client) UpdateSetting(ctx context.Context, id string, req *SettingRequest) (*Setting, error) {
+	var resp Setting
 	err := c.Put(ctx, fmt.Sprintf("settings/%s", url.PathEscape(id)), "setting", req, &resp)
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (c *ForemanClient) UpdateForemanSetting(ctx context.Context, id string, req
 	return &resp, nil
 }
 
-func (c *ForemanClient) QueryForemanSetting(ctx context.Context, name string) (*ForemanSetting, error) {
+func (c *Client) FindSettingByName(ctx context.Context, name string) (*Setting, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("settings?search=name=\"%s\"", url.QueryEscape(name)), &response)
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *ForemanClient) QueryForemanSetting(ctx context.Context, name string) (*
 	if len(response.Results) == 0 {
 		return nil, nil
 	}
-	var obj ForemanSetting
+	var obj Setting
 	if err = json.Unmarshal(response.Results[0], &obj); err != nil {
 		return nil, err
 	}

@@ -24,12 +24,12 @@ var (
 	_ resource.ResourceWithValidateConfig = &parameterResource{}
 )
 
-func NewForemanParameterResource() resource.Resource {
+func NewParameterResource() resource.Resource {
 	return &parameterResource{}
 }
 
 type parameterResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type parameterResourceModel struct {
@@ -102,9 +102,9 @@ func (r *parameterResource) Configure(_ context.Context, req resource.ConfigureR
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -168,7 +168,7 @@ func (r *parameterResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	body := &goforeman.ForemanParameterRequest{
+	body := &goforeman.ParameterRequest{
 		Name:          plan.Name.ValueString(),
 		Value:         plan.Value.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
@@ -178,7 +178,7 @@ func (r *parameterResource) Create(ctx context.Context, req resource.CreateReque
 		body.HiddenValue = &v
 	}
 
-	result, err := r.client.CreateForemanParameter(ctx, parentType, int(parentID), body)
+	result, err := r.client.CreateParameter(ctx, parentType, int(parentID), body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create parameter, got error: %s", err))
 		return
@@ -213,7 +213,7 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	result, err := r.client.ReadForemanParameter(ctx, parentType, int(parentID), id)
+	result, err := r.client.ReadParameter(ctx, parentType, int(parentID), id)
 	if err != nil {
 		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
@@ -249,7 +249,7 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	body := &goforeman.ForemanParameterRequest{
+	body := &goforeman.ParameterRequest{
 		Name:          plan.Name.ValueString(),
 		Value:         plan.Value.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
@@ -259,7 +259,7 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 		body.HiddenValue = &v
 	}
 
-	result, err := r.client.UpdateForemanParameter(ctx, parentType, int(parentID), id, body)
+	result, err := r.client.UpdateParameter(ctx, parentType, int(parentID), id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update parameter, got error: %s", err))
 		return
@@ -291,7 +291,7 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	err = r.client.DeleteForemanParameter(ctx, parentType, int(parentID), id)
+	err = r.client.DeleteParameter(ctx, parentType, int(parentID), id)
 	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete parameter, got error: %s", err))
 		return

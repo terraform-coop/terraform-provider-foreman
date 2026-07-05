@@ -26,7 +26,7 @@ func NewKatelloSyncPlanResource() resource.Resource {
 }
 
 type katelloSyncPlanResource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type katelloSyncPlanResourceModel struct {
@@ -78,9 +78,9 @@ func (r *katelloSyncPlanResource) Configure(_ context.Context, req resource.Conf
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	r.client = client
@@ -93,7 +93,7 @@ func (r *katelloSyncPlanResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	body := &goforeman.ForemanKatelloSyncPlanRequest{
+	body := &goforeman.KatelloSyncPlanRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Interval:       plan.Interval.ValueString(),
@@ -102,7 +102,7 @@ func (r *katelloSyncPlanResource) Create(ctx context.Context, req resource.Creat
 		CronExpression: plan.CronExpression.ValueString(),
 	}
 
-	result, err := r.client.CreateForemanKatelloSyncPlan(ctx, body)
+	result, err := r.client.CreateKatelloSyncPlan(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create katello sync plan, got error: %s", err))
 		return
@@ -133,7 +133,7 @@ func (r *katelloSyncPlanResource) Read(ctx context.Context, req resource.ReadReq
 		return
 	}
 
-	result, err := r.client.ReadForemanKatelloSyncPlan(ctx, id)
+	result, err := r.client.ReadKatelloSyncPlan(ctx, id)
 	if err != nil {
 		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
@@ -165,7 +165,7 @@ func (r *katelloSyncPlanResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	body := &goforeman.ForemanKatelloSyncPlanRequest{
+	body := &goforeman.KatelloSyncPlanRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Interval:       plan.Interval.ValueString(),
@@ -174,7 +174,7 @@ func (r *katelloSyncPlanResource) Update(ctx context.Context, req resource.Updat
 		CronExpression: plan.CronExpression.ValueString(),
 	}
 
-	result, err := r.client.UpdateForemanKatelloSyncPlan(ctx, id, body)
+	result, err := r.client.UpdateKatelloSyncPlan(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update katello sync plan, got error: %s", err))
 		return
@@ -202,7 +202,7 @@ func (r *katelloSyncPlanResource) Delete(ctx context.Context, req resource.Delet
 		return
 	}
 
-	err = r.client.DeleteForemanKatelloSyncPlan(ctx, id)
+	err = r.client.DeleteKatelloSyncPlan(ctx, id)
 	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello sync plan, got error: %s", err))
 		return

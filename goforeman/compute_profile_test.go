@@ -11,63 +11,63 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateForemanComputeProfile(t *testing.T) {
+func TestCreateComputeProfile(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles", r.URL.Path)
-		require.NoError(t, json.NewEncoder(w).Encode(ForemanComputeProfile{
-			ForemanObject: ForemanObject{ID: 1, Name: "small"},
-			Name:          "small",
+		require.NoError(t, json.NewEncoder(w).Encode(ComputeProfile{
+			Base: Base{ID: 1, Name: "small"},
+			Name: "small",
 		}))
 	}))
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.CreateForemanComputeProfile(context.Background(), &ForemanComputeProfileRequest{Name: "small"})
+	result, err := client.CreateComputeProfile(context.Background(), &ComputeProfileRequest{Name: "small"})
 	require.NoError(t, err)
 	assert.Equal(t, "small", result.Name)
 }
 
-func TestReadForemanComputeProfile(t *testing.T) {
+func TestReadComputeProfile(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles/1", r.URL.Path)
-		require.NoError(t, json.NewEncoder(w).Encode(ForemanComputeProfile{
-			ForemanObject: ForemanObject{ID: 1, Name: "small"},
-			Name:          "small",
-			ComputeAttributes: []*ForemanComputeAttribute{
-				{ForemanObject: ForemanObject{ID: 9}, ComputeResourceID: 3, VMAttrs: json.RawMessage(`{"cpus":1}`)},
+		require.NoError(t, json.NewEncoder(w).Encode(ComputeProfile{
+			Base: Base{ID: 1, Name: "small"},
+			Name: "small",
+			ComputeAttributes: []*ComputeAttribute{
+				{Base: Base{ID: 9}, ComputeResourceID: 3, VMAttrs: json.RawMessage(`{"cpus":1}`)},
 			},
 		}))
 	}))
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.ReadForemanComputeProfile(context.Background(), 1)
+	result, err := client.ReadComputeProfile(context.Background(), 1)
 	require.NoError(t, err)
 	require.Len(t, result.ComputeAttributes, 1)
 	assert.Equal(t, 3, result.ComputeAttributes[0].ComputeResourceID)
 }
 
-func TestUpdateForemanComputeProfile(t *testing.T) {
+func TestUpdateComputeProfile(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles/1", r.URL.Path)
 		assert.Equal(t, http.MethodPut, r.Method)
-		require.NoError(t, json.NewEncoder(w).Encode(ForemanComputeProfile{
-			ForemanObject: ForemanObject{ID: 1, Name: "renamed"},
-			Name:          "renamed",
+		require.NoError(t, json.NewEncoder(w).Encode(ComputeProfile{
+			Base: Base{ID: 1, Name: "renamed"},
+			Name: "renamed",
 		}))
 	}))
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.UpdateForemanComputeProfile(context.Background(), 1, &ForemanComputeProfileRequest{Name: "renamed"})
+	result, err := client.UpdateComputeProfile(context.Background(), 1, &ComputeProfileRequest{Name: "renamed"})
 	require.NoError(t, err)
 	assert.Equal(t, "renamed", result.Name)
 }
 
-func TestDeleteForemanComputeProfile(t *testing.T) {
+func TestDeleteComputeProfile(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles/1", r.URL.Path)
@@ -77,11 +77,11 @@ func TestDeleteForemanComputeProfile(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	err := client.DeleteForemanComputeProfile(context.Background(), 1)
+	err := client.DeleteComputeProfile(context.Background(), 1)
 	require.NoError(t, err)
 }
 
-func TestQueryForemanComputeProfile(t *testing.T) {
+func TestFindComputeProfileByName(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{
@@ -91,13 +91,13 @@ func TestQueryForemanComputeProfile(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.QueryForemanComputeProfile(context.Background(), "small")
+	result, err := client.FindComputeProfileByName(context.Background(), "small")
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	assert.Equal(t, "small", result.Name)
 }
 
-func TestQueryForemanComputeProfile_NotFound(t *testing.T) {
+func TestFindComputeProfileByName_NotFound(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{Results: []json.RawMessage{}}))
@@ -105,17 +105,17 @@ func TestQueryForemanComputeProfile_NotFound(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.QueryForemanComputeProfile(context.Background(), "missing")
+	result, err := client.FindComputeProfileByName(context.Background(), "missing")
 	require.NoError(t, err)
 	assert.Nil(t, result)
 }
 
-func TestCreateForemanComputeAttribute(t *testing.T) {
+func TestCreateComputeAttribute(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles/1/compute_resources/3/compute_attributes", r.URL.Path)
-		require.NoError(t, json.NewEncoder(w).Encode(ForemanComputeAttribute{
-			ForemanObject:     ForemanObject{ID: 9},
+		require.NoError(t, json.NewEncoder(w).Encode(ComputeAttribute{
+			Base:              Base{ID: 9},
 			ComputeResourceID: 3,
 			VMAttrs:           json.RawMessage(`{"cpus":1}`),
 		}))
@@ -123,18 +123,18 @@ func TestCreateForemanComputeAttribute(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.CreateForemanComputeAttribute(context.Background(), 1, 3, json.RawMessage(`{"cpus":1}`))
+	result, err := client.CreateComputeAttribute(context.Background(), 1, 3, json.RawMessage(`{"cpus":1}`))
 	require.NoError(t, err)
 	assert.Equal(t, 3, result.ComputeResourceID)
 }
 
-func TestUpdateForemanComputeAttribute(t *testing.T) {
+func TestUpdateComputeAttribute(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles/1/compute_resources/3/compute_attributes/9", r.URL.Path)
 		assert.Equal(t, http.MethodPut, r.Method)
-		require.NoError(t, json.NewEncoder(w).Encode(ForemanComputeAttribute{
-			ForemanObject:     ForemanObject{ID: 9},
+		require.NoError(t, json.NewEncoder(w).Encode(ComputeAttribute{
+			Base:              Base{ID: 9},
 			ComputeResourceID: 3,
 			VMAttrs:           json.RawMessage(`{"cpus":2}`),
 		}))
@@ -142,12 +142,12 @@ func TestUpdateForemanComputeAttribute(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	result, err := client.UpdateForemanComputeAttribute(context.Background(), 1, 3, 9, json.RawMessage(`{"cpus":2}`))
+	result, err := client.UpdateComputeAttribute(context.Background(), 1, 3, 9, json.RawMessage(`{"cpus":2}`))
 	require.NoError(t, err)
 	assert.Equal(t, json.RawMessage(`{"cpus":2}`), result.VMAttrs)
 }
 
-func TestDeleteForemanComputeAttribute(t *testing.T) {
+func TestDeleteComputeAttribute(t *testing.T) {
 	t.Parallel()
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/api/compute_profiles/1/compute_resources/3/compute_attributes/9", r.URL.Path)
@@ -157,6 +157,6 @@ func TestDeleteForemanComputeAttribute(t *testing.T) {
 	defer srv.Close()
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
-	err := client.DeleteForemanComputeAttribute(context.Background(), 1, 3, 9)
+	err := client.DeleteComputeAttribute(context.Background(), 1, 3, 9)
 	require.NoError(t, err)
 }

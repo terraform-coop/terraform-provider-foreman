@@ -29,9 +29,9 @@ func TestClient_TaxonomyWrapping(t *testing.T) {
 	)
 
 	// Post should add taxonomy to wrapped body
-	var resp ForemanDomain
+	var resp Domain
 	err := client.Post(context.Background(), "domains", "domain",
-		&ForemanDomainRequest{Name: "test"}, &resp)
+		&DomainRequest{Name: "test"}, &resp)
 	require.NoError(t, err)
 
 	// Foreman only honors organization_id/location_id nested inside the
@@ -83,9 +83,9 @@ func TestClient_WrapperKey(t *testing.T) {
 
 	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
 
-	var resp ForemanDomain
+	var resp Domain
 	err := client.Post(context.Background(), "domains", "domain",
-		&ForemanDomainRequest{Name: "test"}, &resp)
+		&DomainRequest{Name: "test"}, &resp)
 	require.NoError(t, err)
 
 	// Body should be wrapped in {"domain": {...}}
@@ -103,7 +103,7 @@ func TestClient_WrapperKey(t *testing.T) {
 
 	client2 := NewClient(parseURL(srv2.URL), ClientCredentials{}, ClientConfig{})
 	err = client2.Post(context.Background(), "/katello/api/products", "",
-		&ForemanKatelloProductRequest{Name: "test"}, &resp)
+		&KatelloProductRequest{Name: "test"}, &resp)
 	require.NoError(t, err)
 
 	// Body should NOT be wrapped when wrapperKey is empty

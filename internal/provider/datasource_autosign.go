@@ -17,12 +17,12 @@ import (
 
 var _ datasource.DataSource = &autosignDataSource{}
 
-func NewForemanAutosignDataSource() datasource.DataSource {
+func NewAutosignDataSource() datasource.DataSource {
 	return &autosignDataSource{}
 }
 
 type autosignDataSource struct {
-	client *goforeman.ForemanClient
+	client *goforeman.Client
 }
 
 type autosignDataSourceModel struct {
@@ -51,9 +51,9 @@ func (d *autosignDataSource) Configure(_ context.Context, req datasource.Configu
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*goforeman.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.Client)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
 		return
 	}
 	d.client = client
@@ -68,7 +68,7 @@ func (d *autosignDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	pattern := data.ID.ValueString()
 	smartProxyID := int(data.SmartProxyID.ValueInt64())
-	result, err := d.client.ReadForemanAutosign(ctx, smartProxyID, pattern)
+	result, err := d.client.ReadAutosign(ctx, smartProxyID, pattern)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read autosign entry, got error: %s", err))
 		return
