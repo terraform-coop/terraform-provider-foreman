@@ -178,3 +178,47 @@ func TestNewClient_Options(t *testing.T) {
 		assert.Same(t, hc, c.httpClient)
 	})
 }
+
+func TestListAll_Pagination(t *testing.T) {
+	t.Parallel()
+
+	// Two pages of results; assert both are collected and the loop stops.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "100", r.URL.Query().Get("per_page"))
+		var results []json.RawMessage
+		switch r.URL.Query().Get("page") {
+		case "1":
+			for i := 0; i < 100; i++ {
+				results = append(results, json.RawMessage(fmt.Sprintf(`{"id":%d}`, i)))
+			}
+		case "2":
+			results = []json.RawMessage{json.RawMessage(`{"id":100}`)}
+		default:
+			t.Errorf("unexpected page %q requested", r.URL.Query().Get("page"))
+		}
+		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{Subtotal: 101, Results: results}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	domains, err := client.ListDomains(context.Background())
+	require.NoError(t, err)
+	assert.Len(t, domains, 101)
+	assert.Equal(t, 100, domains[100].ID)
+}
+
+func TestListAll_EmptyPageGuard(t *testing.T) {
+	t.Parallel()
+
+	// A server reporting an inconsistent (too large) Subtotal with an empty
+	// results page must terminate, not loop forever.
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{Subtotal: 9999, Results: nil}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	domains, err := client.ListDomains(context.Background())
+	require.NoError(t, err)
+	assert.Empty(t, domains)
+}

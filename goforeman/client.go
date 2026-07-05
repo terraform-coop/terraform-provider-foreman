@@ -270,6 +270,31 @@ func (c *Client) Get(ctx context.Context, endpoint string, respObj interface{}) 
 	return c.do(ctx, http.MethodGet, endpoint, nil, respObj)
 }
 
+// listAll fetches every page of a list endpoint (which may already carry a
+// query string) and returns the concatenated raw results. per_page is
+// pinned explicitly because Foreman's server-side default is an admin
+// setting (typically 20) - behavior must not depend on server config.
+// Termination is len(all) >= Subtotal (the search-scoped count; Total is
+// the unscoped one), with an empty-page guard so a server reporting an
+// inconsistent Subtotal can't cause an infinite loop.
+func (c *Client) listAll(ctx context.Context, endpoint string) ([]json.RawMessage, error) {
+	sep := "?"
+	if strings.Contains(endpoint, "?") {
+		sep = "&"
+	}
+	var all []json.RawMessage
+	for page := 1; ; page++ {
+		var resp QueryResponse
+		if err := c.Get(ctx, fmt.Sprintf("%s%sper_page=100&page=%d", endpoint, sep, page), &resp); err != nil {
+			return nil, err
+		}
+		all = append(all, resp.Results...)
+		if len(resp.Results) == 0 || len(all) >= resp.Subtotal {
+			return all, nil
+		}
+	}
+}
+
 func (c *Client) Post(ctx context.Context, endpoint, wrapperKey string, reqBody, respObj interface{}) error {
 	wrapped := c.wrapRequestBody(wrapperKey, c.addTaxonomy(reqBody))
 	return c.do(ctx, http.MethodPost, endpoint, wrapped, respObj)

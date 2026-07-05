@@ -18,6 +18,17 @@ const (
 	clientPkgPath = "github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
+// pluralize forms the List<Resource> method-name plural. Only the rules the
+// current resource names actually need (consonant+y -> ies, e.g.
+// HTTPProxy -> HTTPProxies); everything else appends "s". A wrong guess for
+// a future resource shows up immediately as an odd generated method name.
+func pluralize(s string) string {
+	if strings.HasSuffix(s, "y") && len(s) >= 2 && !strings.ContainsRune("aeiouAEIOU", rune(s[len(s)-2])) {
+		return s[:len(s)-1] + "ies"
+	}
+	return s + "s"
+}
+
 // generateRoundTripTestFile generates a round-trip test file for a resource using jen.
 func generateRoundTripTestFile(res GenResource) *jen.File {
 	f := jen.NewFile(clientPkgName)
@@ -690,6 +701,32 @@ func generateResourceFile(res GenResource) *jen.File {
 				jen.Return(jen.Nil(), jen.Err()),
 			)
 			g.Return(jen.Op("&").Id("obj"), jen.Nil())
+		})
+		f.Line()
+
+		// List method: every record of the resource, transparently
+		// paginated (see Client.listAll).
+		f.Func().Params(jen.Id("c").Op("*").Id("Client")).Id("List"+pluralize(res.GoName)).Params(
+			jen.Id("ctx").Qual("context", "Context"),
+		).Params(jen.Index().Id(res.GoName), jen.Id("error")).BlockFunc(func(g *jen.Group) {
+			if res.OrgScopedQuery {
+				g.List(jen.Id("raw"), jen.Err()).Op(":=").Id("c").Dot("listAll").Call(
+					jen.Id("ctx"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?organization_id=%d"), jen.Id("c").Dot("config").Dot("OrganizationID")),
+				)
+			} else {
+				g.List(jen.Id("raw"), jen.Err()).Op(":=").Id("c").Dot("listAll").Call(jen.Id("ctx"), jen.Lit(res.EndpointBase))
+			}
+			g.If(jen.Err().Op("!=").Nil()).Block(
+				jen.Return(jen.Nil(), jen.Err()),
+			)
+			g.Id("out").Op(":=").Make(jen.Index().Id(res.GoName), jen.Len(jen.Id("raw")))
+			g.For(jen.List(jen.Id("i"), jen.Id("r")).Op(":=").Range().Id("raw")).Block(
+				jen.If(jen.Err().Op(":=").Qual("encoding/json", "Unmarshal").Call(jen.Id("r"), jen.Op("&").Id("out").Index(jen.Id("i"))), jen.Err().Op("!=").Nil()).Block(
+					jen.Return(jen.Nil(), jen.Err()),
+				),
+			)
+			g.Return(jen.Id("out"), jen.Nil())
 		})
 	}
 
