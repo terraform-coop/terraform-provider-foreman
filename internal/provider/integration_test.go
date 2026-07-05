@@ -4,6 +4,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -119,7 +120,7 @@ func TestIntegration_Domain(t *testing.T) {
 	}
 
 	_, err = c.ReadDomain(ctx, domain.ID)
-	if !goforeman.IsNotFoundError(err) {
+	if !errors.Is(err, goforeman.ErrNotFound) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
 }
@@ -177,7 +178,7 @@ func TestIntegration_Architecture(t *testing.T) {
 	}
 
 	_, err = c.ReadArchitecture(ctx, arch.ID)
-	if !goforeman.IsNotFoundError(err) {
+	if !errors.Is(err, goforeman.ErrNotFound) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
 }
@@ -244,7 +245,7 @@ func TestIntegration_OperatingSystem(t *testing.T) {
 	}
 
 	_, err = c.ReadOperatingSystem(ctx, osObj.ID)
-	if !goforeman.IsNotFoundError(err) {
+	if !errors.Is(err, goforeman.ErrNotFound) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
 }
@@ -378,7 +379,7 @@ func TestIntegration_Hostgroup(t *testing.T) {
 	}
 
 	_, err = c.ReadHostgroup(ctx, hg.ID)
-	if !goforeman.IsNotFoundError(err) {
+	if !errors.Is(err, goforeman.ErrNotFound) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
 }
@@ -509,7 +510,7 @@ func TestIntegration_Host(t *testing.T) {
 	}
 
 	_, err = c.ReadHost(ctx, host.ID)
-	if !goforeman.IsNotFoundError(err) {
+	if !errors.Is(err, goforeman.ErrNotFound) {
 		t.Errorf("expected 404 after delete, got: %v", err)
 	}
 }

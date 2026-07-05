@@ -230,7 +230,7 @@ func (c *Client) Put(ctx context.Context, endpoint, wrapperKey string, reqBody, 
 
 func (c *Client) Delete(ctx context.Context, endpoint string) error {
 	err := c.do(ctx, http.MethodDelete, endpoint, nil, nil)
-	if err != nil && IsNotFoundError(err) {
+	if err != nil && errors.Is(err, ErrNotFound) {
 		return nil // Already deleted is not an error
 	}
 	return err
@@ -243,6 +243,12 @@ func (c *Client) wrapRequestBody(wrapperKey string, reqBody interface{}) interfa
 	return map[string]interface{}{wrapperKey: reqBody}
 }
 
+// ErrNotFound is matched by errors.Is for any HTTPError with a 404 status,
+// so callers can distinguish "the resource is gone" from real failures:
+//
+//	if errors.Is(err, goforeman.ErrNotFound) { ... }
+var ErrNotFound = errors.New("not found")
+
 type HTTPError struct {
 	Endpoint   string
 	StatusCode int
@@ -253,16 +259,9 @@ func (e *HTTPError) Error() string {
 	return fmt.Sprintf("HTTP error: endpoint=%s status=%d body=%s", e.Endpoint, e.StatusCode, e.Body)
 }
 
-// IsNotFoundError returns true if the error is a 404 (resource not found).
-func IsNotFoundError(err error) bool {
-	if err == nil {
-		return false
-	}
-	var httpErr *HTTPError
-	if errors.As(err, &httpErr) {
-		return httpErr.StatusCode == http.StatusNotFound
-	}
-	return false
+// Is makes errors.Is(err, ErrNotFound) true for 404 responses.
+func (e *HTTPError) Is(target error) bool {
+	return target == ErrNotFound && e.StatusCode == http.StatusNotFound
 }
 
 func (c *Client) waitForKatelloTask(ctx context.Context, taskID int) (*Task, error) {

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -140,7 +141,7 @@ func (r *katelloLifecycleEnvironmentResource) Read(ctx context.Context, req reso
 
 	result, err := r.client.ReadKatelloLifecycleEnvironment(ctx, id)
 	if err != nil {
-		if goforeman.IsNotFoundError(err) {
+		if errors.Is(err, goforeman.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -209,7 +210,7 @@ func (r *katelloLifecycleEnvironmentResource) Delete(ctx context.Context, req re
 	}
 
 	err = r.client.DeleteKatelloLifecycleEnvironment(ctx, id)
-	if err != nil && !goforeman.IsNotFoundError(err) {
+	if err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello lifecycle environment, got error: %s", err))
 		return
 	}

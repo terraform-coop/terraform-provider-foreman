@@ -1902,7 +1902,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 				g.List(jen.Id("result"), jen.Id("err")).Op(":=").Id("r").Dot("client").Dot("Read"+res.GoName).Call(jen.Id("ctx"), jen.Id("id"))
 			}
 			g.If(jen.Id("err").Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
-				g.If(jen.Qual(clientPkgPath, "IsNotFoundError").Call(jen.Id("err"))).Block(
+				g.If(jen.Qual("errors", "Is").Call(jen.Id("err"), jen.Qual(clientPkgPath, "ErrNotFound"))).Block(
 					jen.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Warn").Call(jen.Id("ctx"), jen.Lit(res.ShortName+" not found, removing from state"), jen.Map(jen.String()).Interface().Values(jen.Dict{
 						jen.Lit("id"): jen.Id("state").Dot("ID").Dot("ValueString").Call(),
 					})),
@@ -2023,7 +2023,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			} else {
 				g.Err().Op("=").Id("r").Dot("client").Dot("Delete"+res.GoName).Call(jen.Id("ctx"), jen.Id("id"))
 			}
-			g.If(jen.Id("err").Op("!=").Nil().Op("&&").Op("!").Qual(clientPkgPath, "IsNotFoundError").Call(jen.Id("err"))).Block(
+			g.If(jen.Id("err").Op("!=").Nil().Op("&&").Op("!").Qual("errors", "Is").Call(jen.Id("err"), jen.Qual(clientPkgPath, "ErrNotFound"))).Block(
 				jen.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Client Error"), jen.Qual("fmt", "Sprintf").Call(jen.Lit("Unable to delete "+res.ShortName+", got error: %s"), jen.Id("err"))),
 				jen.Return(),
 			)

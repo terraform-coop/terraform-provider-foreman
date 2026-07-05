@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -135,7 +136,7 @@ func (r *katelloSyncPlanResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.ReadKatelloSyncPlan(ctx, id)
 	if err != nil {
-		if goforeman.IsNotFoundError(err) {
+		if errors.Is(err, goforeman.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -203,7 +204,7 @@ func (r *katelloSyncPlanResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.DeleteKatelloSyncPlan(ctx, id)
-	if err != nil && !goforeman.IsNotFoundError(err) {
+	if err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello sync plan, got error: %s", err))
 		return
 	}

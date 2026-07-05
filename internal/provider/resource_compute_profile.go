@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -165,7 +166,7 @@ func (r *computeprofileResource) Read(ctx context.Context, req resource.ReadRequ
 
 	result, err := r.client.ReadComputeProfile(ctx, id)
 	if err != nil {
-		if goforeman.IsNotFoundError(err) {
+		if errors.Is(err, goforeman.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -242,7 +243,7 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 		if seen[crID] {
 			continue
 		}
-		if err := r.client.DeleteComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !goforeman.IsNotFoundError(err) {
+		if err := r.client.DeleteComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete compute attribute for compute_resource_id %d, got error: %s", crID, err))
 			return
 		}
@@ -266,7 +267,7 @@ func (r *computeprofileResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	err = r.client.DeleteComputeProfile(ctx, id)
-	if err != nil && !goforeman.IsNotFoundError(err) {
+	if err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeprofile, got error: %s", err))
 		return
 	}

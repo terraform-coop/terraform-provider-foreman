@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -215,7 +216,7 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	result, err := r.client.ReadParameter(ctx, parentType, int(parentID), id)
 	if err != nil {
-		if goforeman.IsNotFoundError(err) {
+		if errors.Is(err, goforeman.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -292,7 +293,7 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	err = r.client.DeleteParameter(ctx, parentType, int(parentID), id)
-	if err != nil && !goforeman.IsNotFoundError(err) {
+	if err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete parameter, got error: %s", err))
 		return
 	}

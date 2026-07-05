@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -264,7 +265,7 @@ func (r *katelloRepositoryResource) Read(ctx context.Context, req resource.ReadR
 
 	result, err := r.client.ReadKatelloRepository(ctx, id)
 	if err != nil {
-		if goforeman.IsNotFoundError(err) {
+		if errors.Is(err, goforeman.ErrNotFound) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -392,7 +393,7 @@ func (r *katelloRepositoryResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	err = r.client.DeleteKatelloRepository(ctx, id)
-	if err != nil && !goforeman.IsNotFoundError(err) {
+	if err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello repository, got error: %s", err))
 		return
 	}

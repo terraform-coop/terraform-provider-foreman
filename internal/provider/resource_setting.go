@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
@@ -80,7 +81,7 @@ func (r *settingResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	result, err := r.client.ReadSetting(ctx, state.ID.ValueString())
 	if err != nil {
-		if goforeman.IsNotFoundError(err) {
+		if errors.Is(err, goforeman.ErrNotFound) {
 			tflog.Warn(ctx, "setting not found, removing from state", map[string]interface{}{"id": state.ID.ValueString()})
 			resp.State.RemoveResource(ctx)
 			return

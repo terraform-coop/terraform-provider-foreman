@@ -3,6 +3,8 @@ package goforeman
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -127,22 +129,20 @@ func TestClient_404Handling(t *testing.T) {
 	// Get should return HTTPError with IsNotFound=true
 	err := client.Get(context.Background(), "domains/999", nil)
 	require.Error(t, err)
-	assert.True(t, IsNotFoundError(err), "expected IsNotFoundError for 404")
+	assert.True(t, errors.Is(err, ErrNotFound), "expected ErrNotFound match for 404")
 
 	// Delete with 404 should NOT be an error (already deleted)
 	err = client.Delete(context.Background(), "domains/999")
 	assert.NoError(t, err, "404 on delete should not be an error")
 }
 
-func TestClient_IsNotFoundError(t *testing.T) {
+func TestErrNotFound_ErrorsIs(t *testing.T) {
 	t.Parallel()
 
-	assert.False(t, IsNotFoundError(nil))
-	assert.False(t, IsNotFoundError(assert.AnError))
-
-	httpErr := &HTTPError{StatusCode: 404}
-	assert.True(t, IsNotFoundError(httpErr))
-
-	httpErr2 := &HTTPError{StatusCode: 500}
-	assert.False(t, IsNotFoundError(httpErr2))
+	assert.False(t, errors.Is(nil, ErrNotFound))
+	assert.False(t, errors.Is(ErrNotFound, assert.AnError)) // unrelated errors never match
+	assert.True(t, errors.Is(&HTTPError{StatusCode: 404}, ErrNotFound))
+	assert.False(t, errors.Is(&HTTPError{StatusCode: 500}, ErrNotFound))
+	// wrapped errors still match
+	assert.True(t, errors.Is(fmt.Errorf("reading host: %w", &HTTPError{StatusCode: 404}), ErrNotFound))
 }

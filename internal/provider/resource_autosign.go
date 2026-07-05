@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -134,7 +135,7 @@ func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	smartProxyID := int(state.SmartProxyID.ValueInt64())
 	err := r.client.DeleteAutosign(ctx, smartProxyID, state.ID.ValueString())
-	if err != nil && !goforeman.IsNotFoundError(err) {
+	if err != nil && !errors.Is(err, goforeman.ErrNotFound) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete autosign entry, got error: %s", err))
 		return
 	}
