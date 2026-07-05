@@ -160,3 +160,42 @@ func TestDeleteComputeAttribute(t *testing.T) {
 	err := client.DeleteComputeAttribute(context.Background(), 1, 3, 9)
 	require.NoError(t, err)
 }
+
+// TestSyncComputeAttributes exercises the full reconcile: one set updated
+// in place, one created, one deleted (matched by compute_resource_id, the
+// effective key Foreman enforces per profile).
+func TestSyncComputeAttributes(t *testing.T) {
+	t.Parallel()
+
+	var deleted []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodGet && r.URL.Path == "/api/compute_profiles/1":
+			_, _ = w.Write([]byte(`{"id":1,"name":"p","compute_attributes":[
+				{"id":10,"compute_resource_id":100,"vm_attrs":{"cpus":"1"}},
+				{"id":11,"compute_resource_id":101,"vm_attrs":{"cpus":"2"}}
+			]}`))
+		case r.Method == http.MethodPut && r.URL.Path == "/api/compute_profiles/1/compute_resources/100/compute_attributes/10":
+			_, _ = w.Write([]byte(`{"id":10,"compute_resource_id":100,"vm_attrs":{"cpus":"4"}}`))
+		case r.Method == http.MethodPost && r.URL.Path == "/api/compute_profiles/1/compute_resources/102/compute_attributes":
+			_, _ = w.Write([]byte(`{"id":12,"compute_resource_id":102,"vm_attrs":{"cpus":"8"}}`))
+		case r.Method == http.MethodDelete:
+			deleted = append(deleted, r.URL.Path)
+			w.WriteHeader(http.StatusOK)
+		default:
+			t.Errorf("unexpected request: %s %s", r.Method, r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	out, err := client.SyncComputeAttributes(context.Background(), 1, []ComputeAttribute{
+		{ComputeResourceID: 100, VMAttrs: json.RawMessage(`{"cpus":"4"}`)},
+		{ComputeResourceID: 102, VMAttrs: json.RawMessage(`{"cpus":"8"}`)},
+	})
+	require.NoError(t, err)
+	require.Len(t, out, 2)
+	assert.Equal(t, 10, out[0].ID)
+	assert.Equal(t, 12, out[1].ID)
+	assert.Equal(t, []string{"/api/compute_profiles/1/compute_resources/101/compute_attributes/11"}, deleted)
+}

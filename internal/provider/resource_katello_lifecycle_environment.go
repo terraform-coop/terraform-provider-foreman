@@ -119,8 +119,8 @@ func (r *katelloLifecycleEnvironmentResource) Create(ctx context.Context, req re
 	plan.Label = types.StringValue(result.Label)
 	plan.OrganizationID = types.Int64Value(int64(result.OrganizationID))
 	plan.Library = types.BoolValue(result.Library)
-	plan.PriorID = types.Int64Value(int64(result.Prior.ID))
-	plan.SuccessorID = types.Int64Value(int64(result.Successor.ID))
+	plan.PriorID = types.Int64Value(int64(result.PriorID))
+	plan.SuccessorID = types.Int64Value(int64(result.SuccessorID))
 
 	tflog.Trace(ctx, "created katello lifecycle environment", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -153,8 +153,8 @@ func (r *katelloLifecycleEnvironmentResource) Read(ctx context.Context, req reso
 	state.Label = types.StringValue(result.Label)
 	state.OrganizationID = types.Int64Value(int64(result.OrganizationID))
 	state.Library = types.BoolValue(result.Library)
-	state.PriorID = types.Int64Value(int64(result.Prior.ID))
-	state.SuccessorID = types.Int64Value(int64(result.Successor.ID))
+	state.PriorID = types.Int64Value(int64(result.PriorID))
+	state.SuccessorID = types.Int64Value(int64(result.SuccessorID))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
 }
@@ -190,8 +190,8 @@ func (r *katelloLifecycleEnvironmentResource) Update(ctx context.Context, req re
 	plan.Label = types.StringValue(result.Label)
 	plan.OrganizationID = types.Int64Value(int64(result.OrganizationID))
 	plan.Library = types.BoolValue(result.Library)
-	plan.PriorID = types.Int64Value(int64(result.Prior.ID))
-	plan.SuccessorID = types.Int64Value(int64(result.Successor.ID))
+	plan.PriorID = types.Int64Value(int64(result.PriorID))
+	plan.SuccessorID = types.Int64Value(int64(result.SuccessorID))
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }

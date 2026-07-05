@@ -3,6 +3,7 @@ package goforeman
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 )
@@ -113,4 +114,55 @@ func (c *Client) UpdateComputeAttribute(ctx context.Context, profileID, computeR
 func (c *Client) DeleteComputeAttribute(ctx context.Context, profileID, computeResourceID, attributeID int) error {
 	endpoint := fmt.Sprintf("compute_profiles/%d/compute_resources/%d/compute_attributes/%d", profileID, computeResourceID, attributeID)
 	return c.Delete(ctx, endpoint)
+}
+
+// SyncComputeAttributes reconciles a compute profile's per-compute-resource
+// attribute sets to the desired list, matched by ComputeResourceID -
+// Foreman treats that as the effective key: exactly one attribute set per
+// compute resource per profile, and the profile's own create/update body
+// carries only "name", so attribute sets are always managed through these
+// separate nested calls. Desired entries for a compute resource that
+// already has a set are updated in place, new ones are created, and sets
+// for compute resources absent from desired are deleted. Returns the
+// resulting attribute sets (with their server-assigned IDs), in desired
+// order.
+func (c *Client) SyncComputeAttributes(ctx context.Context, profileID int, desired []ComputeAttribute) ([]*ComputeAttribute, error) {
+	profile, err := c.ReadComputeProfile(ctx, profileID)
+	if err != nil {
+		return nil, err
+	}
+	existingByResource := make(map[int]*ComputeAttribute, len(profile.ComputeAttributes))
+	for _, ca := range profile.ComputeAttributes {
+		existingByResource[ca.ComputeResourceID] = ca
+	}
+
+	seen := make(map[int]bool, len(desired))
+	out := make([]*ComputeAttribute, 0, len(desired))
+	for _, ca := range desired {
+		seen[ca.ComputeResourceID] = true
+		if existing, ok := existingByResource[ca.ComputeResourceID]; ok {
+			updated, err := c.UpdateComputeAttribute(ctx, profileID, ca.ComputeResourceID, existing.ID, ca.VMAttrs)
+			if err != nil {
+				return nil, fmt.Errorf("updating compute attribute for compute resource %d: %w", ca.ComputeResourceID, err)
+			}
+			out = append(out, updated)
+		} else {
+			created, err := c.CreateComputeAttribute(ctx, profileID, ca.ComputeResourceID, ca.VMAttrs)
+			if err != nil {
+				return nil, fmt.Errorf("creating compute attribute for compute resource %d: %w", ca.ComputeResourceID, err)
+			}
+			out = append(out, created)
+		}
+	}
+
+	for resourceID, existing := range existingByResource {
+		if seen[resourceID] {
+			continue
+		}
+		if err := c.DeleteComputeAttribute(ctx, profileID, resourceID, existing.ID); err != nil && !errors.Is(err, ErrNotFound) {
+			return nil, fmt.Errorf("deleting compute attribute for compute resource %d: %w", resourceID, err)
+		}
+	}
+
+	return out, nil
 }

@@ -91,6 +91,24 @@ func (c *Client) PublishContentView(ctx context.Context, id int) (*KatelloConten
 	return c.ReadKatelloContentView(ctx, id)
 }
 
+// CreateKatelloContentViewPublished creates a content view and immediately
+// publishes its initial version. A freshly created content view has no
+// published version and is unusable by activation keys / content hosts
+// until one exists, so most workflows (the Katello web UI included) treat
+// create-then-publish as a single logical step. Returns the content view
+// as it stands after the publish.
+func (c *Client) CreateKatelloContentViewPublished(ctx context.Context, req *KatelloContentViewRequest) (*KatelloContentView, error) {
+	created, err := c.CreateKatelloContentView(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	published, err := c.PublishContentView(ctx, created.ID)
+	if err != nil {
+		return created, fmt.Errorf("content view %d created, but publishing its initial version failed: %w", created.ID, err)
+	}
+	return published, nil
+}
+
 func (c *Client) FindKatelloContentViewByName(ctx context.Context, name string) (*KatelloContentView, error) {
 	var response QueryResponse
 	err := c.Get(ctx, fmt.Sprintf("/katello/api/content_views?search=name=\"%s\"", url.QueryEscape(name)), &response)
@@ -248,6 +266,18 @@ func (c *Client) UpdateContentViewFilterRules(ctx context.Context, filterID int,
 		updated = append(updated, resp)
 	}
 	return updated, nil
+}
+
+// ApplyContentViewFilters reconciles a content view's filters to the
+// desired set (see SyncContentViewFilters) and returns the resulting
+// filters as the server now reports them. The re-read matters: filter and
+// rule IDs are server-assigned during the sync, so the desired input alone
+// never reflects the final state.
+func (c *Client) ApplyContentViewFilters(ctx context.Context, cvID int, desired []KatelloContentViewFilter) ([]KatelloContentViewFilter, error) {
+	if err := c.SyncContentViewFilters(ctx, cvID, desired); err != nil {
+		return nil, err
+	}
+	return c.ReadContentViewFilters(ctx, cvID)
 }
 
 // SyncContentViewFilters syncs filters for a content view: creates new, updates existing, deletes removed.

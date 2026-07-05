@@ -211,20 +211,10 @@ func (r *katelloContentViewResource) Create(ctx context.Context, req resource.Cr
 		}
 	}
 
-	result, err := r.client.CreateKatelloContentView(ctx, body)
+	result, err := r.client.CreateKatelloContentViewPublished(ctx, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create katello content view, got error: %s", err))
 		return
-	}
-
-	// Publish an initial version after creation (matches old provider behavior)
-	published, err := r.client.PublishContentView(ctx, int(result.ID))
-	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to publish initial content view version, got error: %s", err))
-		return
-	}
-	if published != nil {
-		result = published
 	}
 
 	plan.ID = types.StringValue(strconv.Itoa(int(result.ID)))
@@ -261,17 +251,12 @@ func (r *katelloContentViewResource) Create(ctx context.Context, req resource.Cr
 			resp.Diagnostics.Append(filterDiags...)
 			return
 		}
-		if err := r.client.SyncContentViewFilters(ctx, int(result.ID), filters); err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to sync content view filters, got error: %s", err))
-			return
-		}
-		// Re-read filters to get computed IDs
-		readFilters, err := r.client.ReadContentViewFilters(ctx, int(result.ID))
+		applied, err := r.client.ApplyContentViewFilters(ctx, int(result.ID), filters)
 		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read content view filters after sync, got error: %s", err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to apply content view filters, got error: %s", err))
 			return
 		}
-		plan.Filters, diags = flattenContentViewFilters(ctx, readFilters)
+		plan.Filters, diags = flattenContentViewFilters(ctx, applied)
 		resp.Diagnostics.Append(diags...)
 	} else {
 		plan.Filters = types.ListNull(filterObjType)
@@ -426,27 +411,18 @@ func (r *katelloContentViewResource) Update(ctx context.Context, req resource.Up
 			resp.Diagnostics.Append(filterDiags...)
 			return
 		}
-		if err := r.client.SyncContentViewFilters(ctx, id, filters); err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to sync content view filters, got error: %s", err))
-			return
-		}
-		// Re-read filters to get computed IDs
-		readFilters, err := r.client.ReadContentViewFilters(ctx, id)
+		applied, err := r.client.ApplyContentViewFilters(ctx, id, filters)
 		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read content view filters after sync, got error: %s", err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to apply content view filters, got error: %s", err))
 			return
 		}
-		plan.Filters, diags = flattenContentViewFilters(ctx, readFilters)
+		plan.Filters, diags = flattenContentViewFilters(ctx, applied)
 		resp.Diagnostics.Append(diags...)
 	} else {
-		// If filters removed, delete all existing
-		readFilters, _ := r.client.ReadContentViewFilters(ctx, id)
-		if len(readFilters) > 0 {
-			var empty []goforeman.KatelloContentViewFilter
-			if err := r.client.SyncContentViewFilters(ctx, id, empty); err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete content view filters, got error: %s", err))
-				return
-			}
+		// Filters removed from config: reconcile to the empty set.
+		if _, err := r.client.ApplyContentViewFilters(ctx, id, nil); err != nil {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete content view filters, got error: %s", err))
+			return
 		}
 		plan.Filters = types.ListNull(filterObjType)
 	}

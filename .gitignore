@@ -44,6 +44,7 @@ goforeman/*.go
 !goforeman/foreman_object.go
 !goforeman/katello_content_view.go
 !goforeman/katello_lifecycle_environment.go
+!goforeman/katello_lifecycle_environment_test.go
 !goforeman/katello_repository.go
 !goforeman/katello_sync_plan.go
 !goforeman/test_helpers_test.go

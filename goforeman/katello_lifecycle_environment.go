@@ -21,14 +21,32 @@ type KatelloLifecycleEnvironment struct {
 	Label          string `json:"label"`
 	OrganizationID int    `json:"organization_id"`
 	Library        bool   `json:"library"`
-	Prior          struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"prior"`
-	Successor struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"successor"`
+	// PriorID/SuccessorID absorb a Katello read/write asymmetry: the
+	// request accepts a flat "prior_id", but responses return nested
+	// {"prior": {"id": ..., "name": ...}} / {"successor": ...} objects.
+	// UnmarshalJSON flattens those back to plain IDs so callers see the
+	// same shape they write.
+	PriorID     int `json:"-"`
+	SuccessorID int `json:"-"`
+}
+
+func (e *KatelloLifecycleEnvironment) UnmarshalJSON(b []byte) error {
+	type alias KatelloLifecycleEnvironment
+	aux := &struct {
+		*alias
+		Prior struct {
+			ID int `json:"id"`
+		} `json:"prior"`
+		Successor struct {
+			ID int `json:"id"`
+		} `json:"successor"`
+	}{alias: (*alias)(e)}
+	if err := json.Unmarshal(b, aux); err != nil {
+		return err
+	}
+	e.PriorID = aux.Prior.ID
+	e.SuccessorID = aux.Successor.ID
+	return nil
 }
 
 func (c *Client) CreateKatelloLifecycleEnvironment(ctx context.Context, req *KatelloLifecycleEnvironmentRequest) (*KatelloLifecycleEnvironment, error) {

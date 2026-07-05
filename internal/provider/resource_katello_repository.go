@@ -105,11 +105,14 @@ func (r *katelloRepositoryResource) Schema(_ context.Context, _ resource.SchemaR
 			"download_policy": schema.StringAttribute{
 				Optional: true,
 			},
+			// download_concurrency is write-only in practice: Katello
+			// accepts it but reads it back as 0 (see goforeman's package
+			// doc on not-returned-on-read fields), so Create/Read/Update
+			// keep the configured state value instead of copying the
+			// response's zero back - which also removes any need for a
+			// diff-suppressing plan modifier.
 			"download_concurrency": schema.Int64Attribute{
 				Optional: true,
-				PlanModifiers: []planmodifier.Int64{
-					suppressDownloadConcurrencyDiff{},
-				},
 			},
 			"mirror_on_sync": schema.BoolAttribute{
 				Optional: true,
@@ -229,7 +232,6 @@ func (r *katelloRepositoryResource) Create(ctx context.Context, req resource.Cre
 	plan.Unprotected = types.BoolValue(result.Unprotected)
 	plan.ChecksumType = types.StringValue(result.ChecksumType)
 	plan.DownloadPolicy = types.StringValue(result.DownloadPolicy)
-	plan.DownloadConcurrency = types.Int64Value(int64(result.DownloadConcurrency))
 	plan.MirrorOnSync = types.BoolValue(result.MirrorOnSync)
 	plan.MirroringPolicy = types.StringValue(result.MirroringPolicy)
 	plan.HttpProxyPolicy = types.StringValue(result.HttpProxyPolicy)
@@ -282,7 +284,6 @@ func (r *katelloRepositoryResource) Read(ctx context.Context, req resource.ReadR
 	state.Unprotected = types.BoolValue(result.Unprotected)
 	state.ChecksumType = types.StringValue(result.ChecksumType)
 	state.DownloadPolicy = types.StringValue(result.DownloadPolicy)
-	state.DownloadConcurrency = types.Int64Value(int64(result.DownloadConcurrency))
 	state.MirrorOnSync = types.BoolValue(result.MirrorOnSync)
 	state.MirroringPolicy = types.StringValue(result.MirroringPolicy)
 	state.HttpProxyPolicy = types.StringValue(result.HttpProxyPolicy)
@@ -359,7 +360,6 @@ func (r *katelloRepositoryResource) Update(ctx context.Context, req resource.Upd
 	plan.Unprotected = types.BoolValue(result.Unprotected)
 	plan.ChecksumType = types.StringValue(result.ChecksumType)
 	plan.DownloadPolicy = types.StringValue(result.DownloadPolicy)
-	plan.DownloadConcurrency = types.Int64Value(int64(result.DownloadConcurrency))
 	plan.MirrorOnSync = types.BoolValue(result.MirrorOnSync)
 	plan.MirroringPolicy = types.StringValue(result.MirroringPolicy)
 	plan.HttpProxyPolicy = types.StringValue(result.HttpProxyPolicy)

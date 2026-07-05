@@ -48,16 +48,6 @@ type parameterResourceModel struct {
 	HiddenValue       types.Bool   `tfsdk:"hidden_value"`
 }
 
-// parentIDFields lists the model's mutually-exclusive parent-scoping
-// attributes, in the same order as goforeman.ParameterParentTypes' keys.
-// Foreman's plain "parameter" resource has no bare /api/parameters route:
-// every method is scoped under exactly one of these parent types (confirmed
-// against apidoc/v2.json).
-var parentIDFields = []string{
-	"host_id", "hostgroup_id", "domain_id", "operatingsystem_id",
-	"subnet_id", "location_id", "organization_id",
-}
-
 func (r *parameterResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_parameter"
 }
@@ -123,37 +113,30 @@ func (r *parameterResource) ValidateConfig(ctx context.Context, req resource.Val
 	resp.Diagnostics.Append(diags...)
 }
 
-// parameterParent returns the Foreman URL path segment (e.g. "hosts") and ID
-// of the model's single configured parent-scoping attribute, or an error
-// diagnostic if zero or more than one are set.
+// parameterParent converts the model's parent-scoping attributes to plain
+// IDs and delegates the exactly-one-of resolution (a Foreman API
+// requirement) to goforeman.ResolveParameterParent.
 func parameterParent(m *parameterResourceModel) (parentType string, parentID int64, diags diag.Diagnostics) {
-	type candidate struct {
-		field string
-		value types.Int64
-	}
-	candidates := []candidate{
-		{"host_id", m.HostID},
-		{"hostgroup_id", m.HostgroupID},
-		{"domain_id", m.DomainID},
-		{"operatingsystem_id", m.OperatingsystemID},
-		{"subnet_id", m.SubnetID},
-		{"location_id", m.LocationID},
-		{"organization_id", m.OrganizationID},
-	}
-	var set []candidate
-	for _, c := range candidates {
-		if !c.value.IsNull() && !c.value.IsUnknown() {
-			set = append(set, c)
+	setIDs := map[string]int64{}
+	for field, value := range map[string]types.Int64{
+		"host_id":            m.HostID,
+		"hostgroup_id":       m.HostgroupID,
+		"domain_id":          m.DomainID,
+		"operatingsystem_id": m.OperatingsystemID,
+		"subnet_id":          m.SubnetID,
+		"location_id":        m.LocationID,
+		"organization_id":    m.OrganizationID,
+	} {
+		if !value.IsNull() && !value.IsUnknown() {
+			setIDs[field] = value.ValueInt64()
 		}
 	}
-	if len(set) != 1 {
-		diags.AddError(
-			"Invalid parameter scoping",
-			fmt.Sprintf("Exactly one of %s must be set; got %d.", strings.Join(parentIDFields, ", "), len(set)),
-		)
+	parentType, parentID, err := goforeman.ResolveParameterParent(setIDs)
+	if err != nil {
+		diags.AddError("Invalid parameter scoping", err.Error())
 		return "", 0, diags
 	}
-	return goforeman.ParameterParentTypes[set[0].field], set[0].value.ValueInt64(), diags
+	return parentType, parentID, diags
 }
 
 func (r *parameterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -310,7 +293,7 @@ func parseParameterImportID(id string) (parentField string, parentID int64, para
 	parentField, parentIDStr, paramID := parts[0], parts[1], parts[2]
 
 	if _, ok := goforeman.ParameterParentTypes[parentField]; !ok {
-		return "", 0, "", fmt.Errorf("unknown parent field %q; must be one of %s", parentField, strings.Join(parentIDFields, ", "))
+		return "", 0, "", fmt.Errorf("unknown parent field %q; must be one of %s", parentField, strings.Join(goforeman.ParameterParentFields, ", "))
 	}
 	parentID, err = strconv.ParseInt(parentIDStr, 10, 64)
 	if err != nil {

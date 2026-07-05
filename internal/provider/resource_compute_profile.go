@@ -116,6 +116,25 @@ func computeAttributeFromResult(ca *goforeman.ComputeAttribute) computeAttribute
 	}
 }
 
+func desiredComputeAttributes(models []computeAttributeModel) []goforeman.ComputeAttribute {
+	out := make([]goforeman.ComputeAttribute, 0, len(models))
+	for _, ca := range models {
+		out = append(out, goforeman.ComputeAttribute{
+			ComputeResourceID: int(ca.ComputeResourceID.ValueInt64()),
+			VMAttrs:           vmAttrsToRaw(ca.VMAttrs),
+		})
+	}
+	return out
+}
+
+func computeAttributesFromResults(results []*goforeman.ComputeAttribute) []computeAttributeModel {
+	out := make([]computeAttributeModel, 0, len(results))
+	for _, ca := range results {
+		out = append(out, computeAttributeFromResult(ca))
+	}
+	return out
+}
+
 func (r *computeprofileResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	var plan computeprofileResourceModel
 	resp.Diagnostics.Append(req.Plan.Get(ctx, &plan)...)
@@ -134,18 +153,12 @@ func (r *computeprofileResource) Create(ctx context.Context, req resource.Create
 	plan.ID = types.StringValue(strconv.Itoa(int(result.ID)))
 	plan.Name = types.StringValue(result.Name)
 
-	profileID := int(result.ID)
-	attrs := make([]computeAttributeModel, 0, len(plan.ComputeAttributes))
-	for _, ca := range plan.ComputeAttributes {
-		crID := int(ca.ComputeResourceID.ValueInt64())
-		created, err := r.client.CreateComputeAttribute(ctx, profileID, crID, vmAttrsToRaw(ca.VMAttrs))
-		if err != nil {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create compute attribute for compute_resource_id %d, got error: %s", crID, err))
-			return
-		}
-		attrs = append(attrs, computeAttributeFromResult(created))
+	synced, err := r.client.SyncComputeAttributes(ctx, int(result.ID), desiredComputeAttributes(plan.ComputeAttributes))
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to sync compute attributes, got error: %s", err))
+		return
 	}
-	plan.ComputeAttributes = attrs
+	plan.ComputeAttributes = computeAttributesFromResults(synced)
 
 	tflog.Trace(ctx, "created computeprofile", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
@@ -190,11 +203,6 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	var state computeprofileResourceModel
-	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
 
 	id, err := strconv.Atoi(plan.ID.ValueString())
 	if err != nil {
@@ -210,45 +218,12 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 	}
 	plan.Name = types.StringValue(result.Name)
 
-	// Reconcile compute_attributes against prior state, matched by
-	// compute_resource_id (Foreman treats that as the effective key: one
-	// attribute set per compute resource per profile).
-	byComputeResource := make(map[int64]computeAttributeModel, len(state.ComputeAttributes))
-	for _, ca := range state.ComputeAttributes {
-		byComputeResource[ca.ComputeResourceID.ValueInt64()] = ca
+	synced, err := r.client.SyncComputeAttributes(ctx, id, desiredComputeAttributes(plan.ComputeAttributes))
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to sync compute attributes, got error: %s", err))
+		return
 	}
-	seen := make(map[int64]bool, len(plan.ComputeAttributes))
-
-	attrs := make([]computeAttributeModel, 0, len(plan.ComputeAttributes))
-	for _, ca := range plan.ComputeAttributes {
-		crID := ca.ComputeResourceID.ValueInt64()
-		seen[crID] = true
-		if existing, ok := byComputeResource[crID]; ok {
-			updated, err := r.client.UpdateComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64()), vmAttrsToRaw(ca.VMAttrs))
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update compute attribute for compute_resource_id %d, got error: %s", crID, err))
-				return
-			}
-			attrs = append(attrs, computeAttributeFromResult(updated))
-		} else {
-			created, err := r.client.CreateComputeAttribute(ctx, id, int(crID), vmAttrsToRaw(ca.VMAttrs))
-			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create compute attribute for compute_resource_id %d, got error: %s", crID, err))
-				return
-			}
-			attrs = append(attrs, computeAttributeFromResult(created))
-		}
-	}
-	for crID, existing := range byComputeResource {
-		if seen[crID] {
-			continue
-		}
-		if err := r.client.DeleteComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !errors.Is(err, goforeman.ErrNotFound) {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete compute attribute for compute_resource_id %d, got error: %s", crID, err))
-			return
-		}
-	}
-	plan.ComputeAttributes = attrs
+	plan.ComputeAttributes = computeAttributesFromResults(synced)
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)
 }

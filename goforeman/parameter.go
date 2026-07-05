@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 )
 
 // ParameterParentTypes maps the Terraform-facing "<parent>_id" attribute
@@ -21,6 +22,33 @@ var ParameterParentTypes = map[string]string{
 	"subnet_id":          "subnets",
 	"location_id":        "locations",
 	"organization_id":    "organizations",
+}
+
+// ParameterParentFields lists ParameterParentTypes' keys in a stable order,
+// for building candidate lists and error messages.
+var ParameterParentFields = []string{
+	"host_id", "hostgroup_id", "domain_id", "operatingsystem_id",
+	"subnet_id", "location_id", "organization_id",
+}
+
+// ResolveParameterParent picks the single parent a parameter is scoped
+// under from a field-name-to-ID map of the caller's set values (zero/absent
+// entries are ignored). Foreman requires exactly one: every parameter
+// endpoint lives under exactly one parent resource, so zero set parents
+// means there is no endpoint to call and several set parents is ambiguous -
+// both return an error naming the valid fields.
+func ResolveParameterParent(setIDs map[string]int64) (parentType string, parentID int64, err error) {
+	var found []string
+	for _, field := range ParameterParentFields {
+		if id := setIDs[field]; id != 0 {
+			found = append(found, field)
+			parentType, parentID = ParameterParentTypes[field], id
+		}
+	}
+	if len(found) != 1 {
+		return "", 0, fmt.Errorf("exactly one of %s must be set; got %d", strings.Join(ParameterParentFields, ", "), len(found))
+	}
+	return parentType, parentID, nil
 }
 
 type ParameterRequest struct {
