@@ -13,14 +13,19 @@ type ForemanKatelloContentViewRequest struct {
 	Description    string `json:"description,omitempty"`
 	Label          string `json:"label,omitempty"`
 	OrganizationID int    `json:"organization_id,omitempty"`
-	// Composite/AutoPublish/SolveDependencies/Filtered are pointers, not
-	// plain bool+omitempty: Go's zero value for bool is false, so plain
-	// omitempty can never send an explicit "false" - these flags could be
-	// enabled but never disabled again via Terraform.
-	Composite         *bool `json:"composite"`
-	AutoPublish       *bool `json:"auto_publish"`
-	SolveDependencies *bool `json:"solve_dependencies"`
-	Filtered          *bool `json:"filtered"`
+	// Composite/AutoPublish/SolveDependencies/Filtered are *bool WITH
+	// omitempty (not plain bool+omitempty, and not *bool without
+	// omitempty): plain bool+omitempty can never send an explicit "false"
+	// (Go's zero value for bool is false), but *bool without omitempty
+	// sends an explicit JSON null when genuinely unset - these columns are
+	// NOT NULL like almost every boolean column, so that null gets
+	// rejected outright. Go's encoding/json only treats a nil pointer as
+	// "empty" for omitempty, so *bool+omitempty gets both right: nil omits
+	// the key entirely, non-nil (even pointing at false) always sends it.
+	Composite         *bool `json:"composite,omitempty"`
+	AutoPublish       *bool `json:"auto_publish,omitempty"`
+	SolveDependencies *bool `json:"solve_dependencies,omitempty"`
+	Filtered          *bool `json:"filtered,omitempty"`
 	RepositoryIDs     []int `json:"repository_ids,omitempty"`
 	ComponentIDs      []int `json:"component_ids,omitempty"`
 }

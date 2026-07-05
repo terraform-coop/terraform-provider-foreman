@@ -12,10 +12,16 @@ type ForemanKatelloSyncPlanRequest struct {
 	Description string `json:"description,omitempty"`
 	Interval    string `json:"interval,omitempty"`
 	SyncDate    string `json:"sync_date,omitempty"`
-	// Enabled is a pointer, not a plain bool+omitempty: Go's zero value for
-	// bool is false, so plain omitempty can never send an explicit "false" -
-	// a sync plan could be enabled but never disabled again via Terraform.
-	Enabled        *bool  `json:"enabled"`
+	// Enabled is *bool with omitempty (not a plain bool+omitempty, and not
+	// *bool without omitempty): a plain bool+omitempty can never send an
+	// explicit "false" (Go's zero value for bool is false), but a nil *bool
+	// WITHOUT omitempty sends an explicit JSON null when the field is
+	// genuinely unset - Foreman's "enabled" column is NOT NULL like almost
+	// every boolean column, so that null gets rejected outright. Go's
+	// encoding/json only treats a nil pointer as "empty" for omitempty
+	// purposes, so *bool+omitempty gets both right: nil omits the key
+	// entirely, non-nil (even pointing at false) always sends it.
+	Enabled        *bool  `json:"enabled,omitempty"`
 	CronExpression string `json:"cron_expression,omitempty"`
 }
 

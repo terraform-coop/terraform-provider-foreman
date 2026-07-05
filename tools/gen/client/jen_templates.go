@@ -459,11 +459,18 @@ func generateResourceFile(res GenResource) *jen.File {
 				continue
 			}
 			if isOptionalBoolPointerField(field) {
-				// Same reasoning as the int64 case above, for bool: a plain
-				// bool+omitempty can never send an explicit "false" (Go's
-				// zero value for bool IS false, so omitempty always drops
-				// it), meaning a field can be turned on but never back off.
-				g.Id(field.GoName).Op("*").Bool().Tag(map[string]string{"json": field.JSONName})
+				// Unlike the int64 case above, this keeps "omitempty":
+				// unlike an optional FK reference, a bool column has no
+				// "explicitly cleared to null" state to preserve - Foreman
+				// requires it NOT NULL like almost every boolean column, so
+				// when the field is genuinely unset (nil pointer) it must
+				// be omitted entirely, not sent as an explicit JSON null
+				// (confirmed live: sending "managed":null on host update
+				// hits a Postgres NOT NULL violation). Go's encoding/json
+				// only treats a *nil* pointer as "empty" for omitempty
+				// purposes - a non-nil pointer to false is never omitted,
+				// which is what actually fixes the can't-send-false bug.
+				g.Id(field.GoName).Op("*").Bool().Tag(map[string]string{"json": field.JSONName + ",omitempty"})
 				continue
 			}
 			g.Id(field.GoName).Id(field.GoType).Tag(map[string]string{"json": field.JSONName + ",omitempty"})

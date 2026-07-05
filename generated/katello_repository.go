@@ -15,19 +15,24 @@ type ForemanKatelloRepositoryRequest struct {
 	ContentType string `json:"content_type,omitempty"`
 	URL         string `json:"url,omitempty"`
 	GpgKeyID    int    `json:"gpg_key_id,omitempty"`
-	// Unprotected/IgnoreGlobalProxy/MirrorOnSync/VerifySslOnSync are
-	// pointers, not plain bool+omitempty: Go's zero value for bool is
-	// false, so plain omitempty can never send an explicit "false" - these
-	// flags could be enabled but never disabled again via Terraform.
-	Unprotected                   *bool    `json:"unprotected"`
+	// Unprotected/IgnoreGlobalProxy/MirrorOnSync/VerifySslOnSync are *bool
+	// WITH omitempty (not plain bool+omitempty, and not *bool without
+	// omitempty): plain bool+omitempty can never send an explicit "false"
+	// (Go's zero value for bool is false), but *bool without omitempty
+	// sends an explicit JSON null when genuinely unset - these columns are
+	// NOT NULL like almost every boolean column, so that null gets
+	// rejected outright. Go's encoding/json only treats a nil pointer as
+	// "empty" for omitempty, so *bool+omitempty gets both right: nil omits
+	// the key entirely, non-nil (even pointing at false) always sends it.
+	Unprotected                   *bool    `json:"unprotected,omitempty"`
 	ChecksumType                  string   `json:"checksum_type,omitempty"`
-	IgnoreGlobalProxy             *bool    `json:"ignore_global_proxy"`
+	IgnoreGlobalProxy             *bool    `json:"ignore_global_proxy,omitempty"`
 	IgnorableContent              []string `json:"ignorable_content,omitempty"`
 	DownloadPolicy                string   `json:"download_policy,omitempty"`
 	DownloadConcurrency           int      `json:"download_concurrency,omitempty"`
-	MirrorOnSync                  *bool    `json:"mirror_on_sync"`
+	MirrorOnSync                  *bool    `json:"mirror_on_sync,omitempty"`
 	MirroringPolicy               string   `json:"mirroring_policy,omitempty"`
-	VerifySslOnSync               *bool    `json:"verify_ssl_on_sync"`
+	VerifySslOnSync               *bool    `json:"verify_ssl_on_sync,omitempty"`
 	UpstreamUsername              string   `json:"upstream_username,omitempty"`
 	UpstreamPassword              string   `json:"upstream_password,omitempty"`
 	HttpProxyPolicy               string   `json:"http_proxy_policy,omitempty"`

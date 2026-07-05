@@ -27,7 +27,11 @@ type ForemanParameterRequest struct {
 	Name          string `json:"name,omitempty"`
 	Value         string `json:"value,omitempty"`
 	ParameterType string `json:"parameter_type,omitempty"`
-	HiddenValue   *bool  `json:"hidden_value"`
+	// *bool WITH omitempty, not without: a nil pointer must omit the key
+	// entirely (hidden_value is NOT NULL like almost every boolean
+	// column), while a non-nil pointer (even to false) still always sends
+	// it - see katello_sync_plan.go's Enabled field for the full reasoning.
+	HiddenValue *bool `json:"hidden_value,omitempty"`
 }
 
 type ForemanParameter struct {

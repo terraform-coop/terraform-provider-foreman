@@ -298,33 +298,36 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 }
 
+// parseParameterImportID parses the "<parent_field>:<parent_id>:<parameter_id>"
+// import identifier (e.g. "host_id:5:42") into its three parts, or returns
+// an error describing exactly what's wrong.
+func parseParameterImportID(id string) (parentField string, parentID int64, paramID string, err error) {
+	parts := strings.Split(id, ":")
+	if len(parts) != 3 {
+		return "", 0, "", fmt.Errorf("expected format \"<parent_field>:<parent_id>:<parameter_id>\" (e.g. \"host_id:5:42\"), got: %s", id)
+	}
+	parentField, parentIDStr, paramID := parts[0], parts[1], parts[2]
+
+	if _, ok := generated.ParameterParentTypes[parentField]; !ok {
+		return "", 0, "", fmt.Errorf("unknown parent field %q; must be one of %s", parentField, strings.Join(parentIDFields, ", "))
+	}
+	parentID, err = strconv.ParseInt(parentIDStr, 10, 64)
+	if err != nil {
+		return "", 0, "", fmt.Errorf("invalid parent ID %q: %w", parentIDStr, err)
+	}
+	return parentField, parentID, paramID, nil
+}
+
 // ImportState expects "<parent_field>:<parent_id>:<parameter_id>", e.g.
 // "host_id:5:42" - a bare numeric ID isn't enough to know which of the 7
 // possible parent-scoped endpoints to read the parameter back from.
 func (r *parameterResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	parts := strings.Split(req.ID, ":")
-	if len(parts) != 3 {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Expected format \"<parent_field>:<parent_id>:<parameter_id>\" (e.g. \"host_id:5:42\"), got: %s", req.ID),
-		)
-		return
-	}
-	parentField, parentIDStr, paramIDStr := parts[0], parts[1], parts[2]
-
-	if _, ok := generated.ParameterParentTypes[parentField]; !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Import Identifier",
-			fmt.Sprintf("Unknown parent field %q; must be one of %s.", parentField, strings.Join(parentIDFields, ", ")),
-		)
-		return
-	}
-	parentID, err := strconv.ParseInt(parentIDStr, 10, 64)
+	parentField, parentID, paramID, err := parseParameterImportID(req.ID)
 	if err != nil {
-		resp.Diagnostics.AddError("Unexpected Import Identifier", fmt.Sprintf("Invalid parent ID %q: %s", parentIDStr, err))
+		resp.Diagnostics.AddError("Unexpected Import Identifier", err.Error())
 		return
 	}
 
 	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root(parentField), parentID)...)
-	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), paramIDStr)...)
+	resp.Diagnostics.Append(resp.State.SetAttribute(ctx, path.Root("id"), paramID)...)
 }

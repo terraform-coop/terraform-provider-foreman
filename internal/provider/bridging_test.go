@@ -344,3 +344,37 @@ func TestBoolValue(t *testing.T) {
 		}
 	})
 }
+
+// ---------------------------------------------------------------------------
+// boolPointerOrNil
+// ---------------------------------------------------------------------------
+
+func TestBoolPointerOrNil(t *testing.T) {
+	t.Run("true", func(t *testing.T) {
+		p := boolPointerOrNil(types.BoolValue(true))
+		if p == nil || !*p {
+			t.Fatalf("expected pointer to true, got %v", p)
+		}
+	})
+
+	t.Run("false", func(t *testing.T) {
+		p := boolPointerOrNil(types.BoolValue(false))
+		if p == nil || *p {
+			t.Fatalf("expected pointer to false, got %v", p)
+		}
+	})
+
+	t.Run("null", func(t *testing.T) {
+		p := boolPointerOrNil(types.BoolNull())
+		if p != nil {
+			t.Fatalf("expected nil pointer for null, got %v", p)
+		}
+	})
+
+	t.Run("unknown", func(t *testing.T) {
+		p := boolPointerOrNil(types.BoolUnknown())
+		if p != nil {
+			t.Fatalf("expected nil pointer for unknown, got %v", p)
+		}
+	})
+}

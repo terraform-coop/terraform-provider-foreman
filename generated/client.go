@@ -67,12 +67,30 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 	reqURL := c.serverURL
 	ep := endpoint
 
+	// Every Query<Resource>/search-by-name endpoint is built as
+	// "path?search=...", but url.URL treats "?" found inside .Path as a
+	// literal character to percent-encode (%3F), not a query separator -
+	// assigning the whole thing to reqURL.Path below would send the "?"
+	// and everything after it as part of the request path, never as a
+	// real query string, and Foreman's router 404s on it. Split it out
+	// and assign to RawQuery (already in encoded form from the caller)
+	// before the path even gets built.
+	var rawQuery string
+	if i := strings.IndexByte(ep, '?'); i >= 0 {
+		ep, rawQuery = ep[:i], ep[i+1:]
+	}
+
 	switch {
-	case strings.HasPrefix(ep, "katello"):
+	// "katello/", "puppet/" (with the trailing slash) rather than a bare
+	// prefix match: a bare "puppet" match previously caught the core
+	// Foreman "puppetclasses" endpoint (no such namespacing intended) and
+	// misrouted it to the Puppet plugin's own URL prefix entirely -
+	// confirmed against a real server, every puppetclasses lookup 404'd.
+	case strings.HasPrefix(ep, "katello/"):
 		reqURL.Path = ForemanKatelloURLPrefix + strings.TrimPrefix(ep, "katello")
 	case strings.HasPrefix(ep, "/katello/api"):
 		reqURL.Path = ep
-	case strings.HasPrefix(ep, "puppet"):
+	case strings.HasPrefix(ep, "puppet/"):
 		reqURL.Path = ForemanPuppetURLPrefix + strings.TrimPrefix(ep, "puppet")
 	case strings.HasPrefix(ep, "foreman_tasks"):
 		reqURL.Path = ep
@@ -83,6 +101,7 @@ func (c *ForemanClient) newRequest(ctx context.Context, method, endpoint string,
 			reqURL.Path = ForemanAPIURLPrefix + "/" + ep
 		}
 	}
+	reqURL.RawQuery = rawQuery
 
 	req, err := http.NewRequestWithContext(ctx, strings.ToUpper(method), reqURL.String(), body)
 	if err != nil {
