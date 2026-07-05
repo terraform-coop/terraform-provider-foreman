@@ -127,6 +127,39 @@ CI (`docs` job in `.github/workflows/test.yml`) fails the build if `docs/`
 is out of date, so this must be run and committed alongside any schema
 change.
 
+## Using the Go client library (goforeman)
+
+The Foreman API client this provider is built on lives in
+[`goforeman/`](./goforeman) as its own Go module,
+`github.com/terraform-coop/terraform-provider-foreman/goforeman`, usable
+by any Go program without pulling in the provider's terraform-plugin
+dependency tree:
+
+```go
+import "github.com/terraform-coop/terraform-provider-foreman/goforeman"
+
+client := goforeman.NewClient(serverURL,
+    goforeman.WithBasicAuth("admin", "changeme"),
+    goforeman.WithTaxonomy(orgID, locID),
+)
+host, err := client.FindHostByName(ctx, "web01.example.com")
+```
+
+It deliberately absorbs the Foreman API's sharp edges (URL namespace
+routing, taxonomy placement, async task polling, polymorphic parameter
+values, the `_destroy` deletion convention, and more) — see the package
+documentation in [`goforeman/doc.go`](./goforeman/doc.go) for the full
+list. Library releases are tagged `goforeman/vX.Y.Z` (Go's nested-module
+tag format), independently of the provider's `vX.Y.Z` releases:
+
+```
+$> go get github.com/terraform-coop/terraform-provider-foreman/goforeman@goforeman/v0.1.0
+```
+
+Most of the client is regenerated from `apidoc/v2.json` by
+`tools/gen/client` (same `make generate` as the provider); the
+hand-written files are the allowlisted ones in `.gitignore`.
+
 ## Logging
 
 **NOTE:** When developing, it may be useful to setup terraform logging. A full

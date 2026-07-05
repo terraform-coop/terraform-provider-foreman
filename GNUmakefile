@@ -11,6 +11,7 @@ fmt:
 
 lint: generate
 	golangci-lint run
+	cd goforeman && golangci-lint run
 
 generate:
 	go generate ./...
@@ -24,6 +25,7 @@ docs-check: docs
 
 test: generate
 	go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
+	cd goforeman && go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
 
 testacc: generate
 	@echo "Starting Foreman (docker compose up -d)..."
@@ -47,9 +49,13 @@ testacc: generate
 testacc-parallel: generate
 	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 -parallel=20 ./...
 
+# Mirrors the CI coverage computation: one profile per module,
+# concatenated (second "mode:" header stripped) into a combined total.
 cover: generate
-	go test -coverprofile=coverage.out -covermode=atomic ./...
-	go tool cover -func=coverage.out | grep total | awk '{print $$3}' | \
-	  xargs -I{} sh -c 'test "$$(echo "{}" | tr -d %)" -ge 80'
+	go test -coverprofile=coverage-provider.out -covermode=atomic ./internal/...
+	cd goforeman && go test -coverprofile=coverage.out -covermode=atomic ./...
+	cp coverage-provider.out coverage.out
+	tail -n +2 goforeman/coverage.out >> coverage.out
+	go tool cover -func=coverage.out | grep total
 
 .PHONY: build install fmt lint generate docs docs-check test testacc testacc-parallel cover

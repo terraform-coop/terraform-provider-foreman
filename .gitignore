@@ -83,3 +83,12 @@ internal/provider/datasource_*.go
 
 internal/provider/provider.go
 internal/provider/acceptance_test.go
+
+# Local multi-module workspaces (the committed root go.mod `replace`
+# directive already wires ./goforeman; a go.work is developer-local).
+go.work
+go.work.sum
+
+# Coverage profiles
+coverage*.out
+goforeman/coverage*.out

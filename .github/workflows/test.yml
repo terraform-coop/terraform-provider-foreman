@@ -17,6 +17,8 @@ jobs:
           go-version: '1.26'
       - run: go generate ./...
       - run: go build -v .
+      - run: go build ./...
+        working-directory: goforeman
 
   lint:
     runs-on: ubuntu-latest
@@ -29,6 +31,12 @@ jobs:
       - uses: golangci/golangci-lint-action@v7
         with:
           version: v2.12.2
+      # golangci-lint does not cross module boundaries; lint the nested
+      # goforeman module separately.
+      - uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.12.2
+          working-directory: goforeman
 
   docs:
     runs-on: ubuntu-latest
@@ -54,7 +62,17 @@ jobs:
           tofu_version: ${{ matrix.opentofu }}
           tofu_wrapper: false
       - run: go generate ./...
-      - run: go test -race -count=1 -coverprofile=coverage.out ./internal/... ./goforeman/...
+      # goforeman is a nested module: a single `go test ./...` from the root
+      # can't span both, so each module writes its own profile and the two
+      # are concatenated (stripping the second "mode:" header line) into one
+      # combined gate - gating per module would fail the provider side,
+      # whose own coverage is intentionally still low.
+      - run: go test -race -count=1 -coverprofile=coverage-provider.out ./internal/...
+      - run: go test -race -count=1 -coverprofile=coverage.out ./...
+        working-directory: goforeman
+      - run: |
+          cp coverage-provider.out coverage.out
+          tail -n +2 goforeman/coverage.out >> coverage.out
       # Coverage gate is intentionally low while the rewrite's test suite is
       # being built back up. Raise this threshold as tests are added.
       - run: "go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%' | awk '{exit ($1 >= 5.0) ? 0 : 1}'"
