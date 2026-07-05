@@ -22,7 +22,7 @@ func TestCreateComputeProfile(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.CreateComputeProfile(context.Background(), &ComputeProfileRequest{Name: "small"})
 	require.NoError(t, err)
 	assert.Equal(t, "small", result.Name)
@@ -42,7 +42,7 @@ func TestReadComputeProfile(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.ReadComputeProfile(context.Background(), 1)
 	require.NoError(t, err)
 	require.Len(t, result.ComputeAttributes, 1)
@@ -61,7 +61,7 @@ func TestUpdateComputeProfile(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.UpdateComputeProfile(context.Background(), 1, &ComputeProfileRequest{Name: "renamed"})
 	require.NoError(t, err)
 	assert.Equal(t, "renamed", result.Name)
@@ -76,7 +76,7 @@ func TestDeleteComputeProfile(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	err := client.DeleteComputeProfile(context.Background(), 1)
 	require.NoError(t, err)
 }
@@ -90,7 +90,7 @@ func TestFindComputeProfileByName(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindComputeProfileByName(context.Background(), "small")
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -104,7 +104,7 @@ func TestFindComputeProfileByName_NotFound(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindComputeProfileByName(context.Background(), "missing")
 	require.NoError(t, err)
 	assert.Nil(t, result)
@@ -122,7 +122,7 @@ func TestCreateComputeAttribute(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.CreateComputeAttribute(context.Background(), 1, 3, json.RawMessage(`{"cpus":1}`))
 	require.NoError(t, err)
 	assert.Equal(t, 3, result.ComputeResourceID)
@@ -141,7 +141,7 @@ func TestUpdateComputeAttribute(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.UpdateComputeAttribute(context.Background(), 1, 3, 9, json.RawMessage(`{"cpus":2}`))
 	require.NoError(t, err)
 	assert.Equal(t, json.RawMessage(`{"cpus":2}`), result.VMAttrs)
@@ -156,7 +156,7 @@ func TestDeleteComputeAttribute(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	err := client.DeleteComputeAttribute(context.Background(), 1, 3, 9)
 	require.NoError(t, err)
 }

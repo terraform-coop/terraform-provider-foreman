@@ -29,38 +29,90 @@ const (
 type Client struct {
 	serverURL   url.URL
 	httpClient  *http.Client
-	credentials ClientCredentials
-	config      ClientConfig
+	credentials clientCredentials
+	config      clientConfig
+	timeout     time.Duration
 }
 
-type ClientCredentials struct {
+type clientCredentials struct {
 	Username string
 	Password string
 }
 
-type ClientConfig struct {
+type clientConfig struct {
 	TLSInsecure    bool
 	NegotiateAuth  bool
 	OrganizationID int
 	LocationID     int
 }
 
-func NewClient(serverURL url.URL, creds ClientCredentials, cfg ClientConfig) *Client {
-	tlsCfg := &tls.Config{
-		InsecureSkipVerify: cfg.TLSInsecure,
+// Option configures a Client at construction time.
+type Option func(*Client)
+
+// WithBasicAuth authenticates every request with HTTP basic auth.
+func WithBasicAuth(username, password string) Option {
+	return func(c *Client) {
+		c.credentials = clientCredentials{Username: username, Password: password}
 	}
-	client := &http.Client{Timeout: defaultRequestTimeout}
-	if cfg.NegotiateAuth {
-		client.Transport = &spnego.Transport{Transport: http.Transport{TLSClientConfig: tlsCfg}}
-	} else {
-		client.Transport = &http.Transport{TLSClientConfig: tlsCfg}
+}
+
+// WithNegotiateAuth authenticates via the HTTP negotiate (SPNEGO/Kerberos)
+// mechanism instead of basic auth.
+func WithNegotiateAuth() Option {
+	return func(c *Client) { c.config.NegotiateAuth = true }
+}
+
+// WithTLSInsecure skips TLS certificate verification.
+func WithTLSInsecure() Option {
+	return func(c *Client) { c.config.TLSInsecure = true }
+}
+
+// WithTaxonomy scopes every request to the given organization and location:
+// the IDs are injected into create/update bodies (nested inside the
+// resource's own wrapped hash, the only placement Foreman honors) and, for
+// org-scoped Katello endpoints, into the URL. Pass 0 to leave a dimension
+// unscoped.
+func WithTaxonomy(organizationID, locationID int) Option {
+	return func(c *Client) {
+		c.config.OrganizationID = organizationID
+		c.config.LocationID = locationID
 	}
-	return &Client{
-		serverURL:   serverURL,
-		httpClient:  client,
-		credentials: creds,
-		config:      cfg,
+}
+
+// WithTimeout overrides the per-request timeout (default 60s). Long-running
+// synchronous Foreman calls (large host creates, slow Katello operations
+// that aren't wrapped in an async task) may need more.
+func WithTimeout(d time.Duration) Option {
+	return func(c *Client) { c.timeout = d }
+}
+
+// WithHTTPClient supplies a fully custom *http.Client, bypassing the
+// transport the other options would construct (their TLS/negotiate/timeout
+// settings then no longer apply - configure the supplied client yourself).
+func WithHTTPClient(hc *http.Client) Option {
+	return func(c *Client) { c.httpClient = hc }
+}
+
+func NewClient(serverURL url.URL, opts ...Option) *Client {
+	c := &Client{
+		serverURL: serverURL,
+		timeout:   defaultRequestTimeout,
 	}
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.httpClient == nil {
+		tlsCfg := &tls.Config{
+			InsecureSkipVerify: c.config.TLSInsecure,
+		}
+		c.httpClient = &http.Client{Timeout: c.timeout}
+		if c.config.NegotiateAuth {
+			c.httpClient.Transport = &spnego.Transport{Transport: http.Transport{TLSClientConfig: tlsCfg}}
+		} else {
+			c.httpClient.Transport = &http.Transport{TLSClientConfig: tlsCfg}
+		}
+	}
+	return c
 }
 
 func (c *Client) newRequest(ctx context.Context, method, endpoint string, body io.Reader) (*http.Request, error) {

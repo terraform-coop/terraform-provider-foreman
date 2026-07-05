@@ -279,8 +279,6 @@ func generateStatusCodeTestFile(resources []GenResource) *jen.File {
 
 						g.Id("client").Op(":=").Id("NewClient").Call(
 							jen.Id("parseURL").Call(jen.Id("srv").Dot("URL")),
-							jen.Id("ClientCredentials").Values(),
-							jen.Id("ClientConfig").Values(),
 						)
 						g.Line()
 
@@ -1004,21 +1002,22 @@ func generateProviderFileJen(resources []GenResource) *jen.File {
 		)
 		g.Line()
 
+		g.Id("opts").Op(":=").Index().Qual(clientPkgPath, "Option").Values(
+			jen.Qual(clientPkgPath, "WithBasicAuth").Call(jen.Id("username"), jen.Id("password")),
+			jen.Qual(clientPkgPath, "WithTaxonomy").Call(jen.Int().Call(jen.Id("orgID")), jen.Int().Call(jen.Id("locID"))),
+		)
+		g.If(jen.Id("tlsInsecure")).Block(
+			jen.Id("opts").Op("=").Append(jen.Id("opts"), jen.Qual(clientPkgPath, "WithTLSInsecure").Call()),
+		)
+		g.If(jen.Id("negotiateAuth")).Block(
+			jen.Id("opts").Op("=").Append(jen.Id("opts"), jen.Qual(clientPkgPath, "WithNegotiateAuth").Call()),
+		)
 		g.Id("client").Op(":=").Qual(clientPkgPath, "NewClient").Call(
 			jen.Qual("net/url", "URL").Values(jen.Dict{
 				jen.Id("Scheme"): jen.Id("protocol"),
 				jen.Id("Host"):   jen.Id("hostname"),
 			}),
-			jen.Qual(clientPkgPath, "ClientCredentials").Values(jen.Dict{
-				jen.Id("Username"): jen.Id("username"),
-				jen.Id("Password"): jen.Id("password"),
-			}),
-			jen.Qual(clientPkgPath, "ClientConfig").Values(jen.Dict{
-				jen.Id("TLSInsecure"):    jen.Id("tlsInsecure"),
-				jen.Id("NegotiateAuth"):  jen.Id("negotiateAuth"),
-				jen.Id("OrganizationID"): jen.Int().Call(jen.Id("orgID")),
-				jen.Id("LocationID"):     jen.Int().Call(jen.Id("locID")),
-			}),
+			jen.Id("opts").Op("..."),
 		)
 		g.Line()
 

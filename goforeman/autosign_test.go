@@ -23,7 +23,7 @@ func TestCreateAutosign(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.CreateAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 	assert.Equal(t, "*.example.com", result.ID)
@@ -37,7 +37,7 @@ func TestDeleteAutosign(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	err := client.DeleteAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 }
@@ -55,7 +55,7 @@ func TestReadAutosign_Found(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -69,7 +69,7 @@ func TestReadAutosign_NotFound(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
 	require.NoError(t, err)
 	assert.Nil(t, result)
@@ -82,7 +82,7 @@ func TestReadAutosign_Error(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	_, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
 	assert.Error(t, err)
 }

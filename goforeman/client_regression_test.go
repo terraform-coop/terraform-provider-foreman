@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,8 +28,7 @@ func TestClient_TaxonomyWrapping(t *testing.T) {
 
 	client := NewClient(
 		parseURL(srv.URL),
-		ClientCredentials{},
-		ClientConfig{OrganizationID: 5, LocationID: 10},
+		WithTaxonomy(5, 10),
 	)
 
 	// Post should add taxonomy to wrapped body
@@ -59,8 +60,7 @@ func TestClient_TaxonomyWrapping_NoWrapperKey(t *testing.T) {
 
 	client := NewClient(
 		parseURL(srv.URL),
-		ClientCredentials{},
-		ClientConfig{OrganizationID: 5, LocationID: 10},
+		WithTaxonomy(5, 10),
 	)
 
 	// Some endpoints (e.g. autosign) take no wrapper key at all - taxonomy
@@ -83,7 +83,7 @@ func TestClient_WrapperKey(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 
 	var resp Domain
 	err := client.Post(context.Background(), "domains", "domain",
@@ -103,7 +103,7 @@ func TestClient_WrapperKey(t *testing.T) {
 	}))
 	defer srv2.Close()
 
-	client2 := NewClient(parseURL(srv2.URL), ClientCredentials{}, ClientConfig{})
+	client2 := NewClient(parseURL(srv2.URL))
 	err = client2.Post(context.Background(), "/katello/api/products", "",
 		&KatelloProductRequest{Name: "test"}, &resp)
 	require.NoError(t, err)
@@ -124,7 +124,7 @@ func TestClient_404Handling(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 
 	// Get should return HTTPError with IsNotFound=true
 	err := client.Get(context.Background(), "domains/999", nil)
@@ -145,4 +145,36 @@ func TestErrNotFound_ErrorsIs(t *testing.T) {
 	assert.False(t, errors.Is(&HTTPError{StatusCode: 500}, ErrNotFound))
 	// wrapped errors still match
 	assert.True(t, errors.Is(fmt.Errorf("reading host: %w", &HTTPError{StatusCode: 404}), ErrNotFound))
+}
+
+func TestNewClient_Options(t *testing.T) {
+	t.Parallel()
+
+	u := url.URL{Scheme: "https", Host: "foreman.example.com"}
+
+	t.Run("defaults", func(t *testing.T) {
+		c := NewClient(u)
+		assert.Equal(t, defaultRequestTimeout, c.httpClient.Timeout)
+		assert.False(t, c.config.TLSInsecure)
+	})
+
+	t.Run("all options", func(t *testing.T) {
+		c := NewClient(u,
+			WithBasicAuth("admin", "secret"),
+			WithTLSInsecure(),
+			WithTaxonomy(3, 7),
+			WithTimeout(5*time.Minute),
+		)
+		assert.Equal(t, "admin", c.credentials.Username)
+		assert.True(t, c.config.TLSInsecure)
+		assert.Equal(t, 3, c.config.OrganizationID)
+		assert.Equal(t, 7, c.config.LocationID)
+		assert.Equal(t, 5*time.Minute, c.httpClient.Timeout)
+	})
+
+	t.Run("custom http client bypasses transport construction", func(t *testing.T) {
+		hc := &http.Client{Timeout: time.Second}
+		c := NewClient(u, WithHTTPClient(hc))
+		assert.Same(t, hc, c.httpClient)
+	})
 }

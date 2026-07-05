@@ -21,7 +21,7 @@ func TestReadSetting(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.ReadSetting(context.Background(), "append_domain_name_for_hosts")
 	require.NoError(t, err)
 	assert.Equal(t, "append_domain_name_for_hosts", result.ID)
@@ -42,7 +42,7 @@ func TestUpdateSetting(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.UpdateSetting(context.Background(), "http_proxy", &SettingRequest{Value: "http://proxy.example.com"})
 	require.NoError(t, err)
 	assert.Equal(t, `"http://proxy.example.com"`, string(result.Value))
@@ -58,7 +58,7 @@ func TestFindSettingByName(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindSettingByName(context.Background(), "http_proxy")
 	require.NoError(t, err)
 	require.NotNil(t, result)

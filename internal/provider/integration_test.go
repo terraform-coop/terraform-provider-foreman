@@ -46,11 +46,11 @@ func testClient(t *testing.T) *goforeman.Client {
 		Host:   hostname,
 	}
 
-	return goforeman.NewClient(
-		serverURL,
-		goforeman.ClientCredentials{Username: username, Password: password},
-		goforeman.ClientConfig{TLSInsecure: tlsInsecure},
-	)
+	opts := []goforeman.Option{goforeman.WithBasicAuth(username, password)}
+	if tlsInsecure {
+		opts = append(opts, goforeman.WithTLSInsecure())
+	}
+	return goforeman.NewClient(serverURL, opts...)
 }
 
 func uniqueName(prefix string) string {

@@ -27,7 +27,7 @@ func TestCreateParameter(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.CreateParameter(context.Background(), "hosts", 5, &ParameterRequest{
 		Name: "ntp_server", Value: "pool.ntp.org", ParameterType: "string",
 	})
@@ -47,7 +47,7 @@ func TestReadParameter(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.ReadParameter(context.Background(), "hostgroups", 6, 42)
 	require.NoError(t, err)
 	assert.Equal(t, "true", string(result.Value))
@@ -62,7 +62,7 @@ func TestUpdateParameter(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	_, err := client.UpdateParameter(context.Background(), "domains", 1, 9, &ParameterRequest{})
 	require.NoError(t, err)
 }
@@ -76,7 +76,7 @@ func TestDeleteParameter(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	err := client.DeleteParameter(context.Background(), "subnets", 3, 7)
 	require.NoError(t, err)
 }
@@ -92,7 +92,7 @@ func TestFindParameterByName(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindParameterByName(context.Background(), "organizations", 2, "ntp_server")
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -106,7 +106,7 @@ func TestFindParameterByName_NotFound(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindParameterByName(context.Background(), "hosts", 1, "missing")
 	require.NoError(t, err)
 	assert.Nil(t, result)

@@ -18,7 +18,7 @@ func TestReadPuppetClass(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.ReadPuppetClass(context.Background(), 2)
 	require.NoError(t, err)
 	assert.Equal(t, "testing", result.Name)
@@ -36,7 +36,7 @@ func TestFindPuppetClassByName_GroupedByEnvironment(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindPuppetClassByName(context.Background(), "testing")
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -50,7 +50,7 @@ func TestFindPuppetClassByName_NotFound(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	client := NewClient(parseURL(srv.URL), ClientCredentials{}, ClientConfig{})
+	client := NewClient(parseURL(srv.URL))
 	result, err := client.FindPuppetClassByName(context.Background(), "testing")
 	require.NoError(t, err)
 	assert.Nil(t, result)
