@@ -38,6 +38,7 @@ __pycache__/
 goforeman/*.go
 !goforeman/client.go
 !goforeman/conventions.go
+!goforeman/doc.go
 !goforeman/conventions_test.go
 !goforeman/client_regression_test.go
 !goforeman/foreman_object.go
