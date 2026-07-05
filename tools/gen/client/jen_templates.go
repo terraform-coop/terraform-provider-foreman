@@ -872,7 +872,7 @@ func generateDataSourceFile(res GenResource) *jen.File {
 				continue
 			}
 			if field.IsPolymorphicValue {
-				g.Id("data").Dot(field.GoName).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("parameterValueToString").Call(jen.Id("result").Dot(field.GoName)))
+				g.Id("data").Dot(field.GoName).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Qual(clientPkgPath, "RawValueString").Call(jen.Id("result").Dot(field.GoName)))
 				continue
 			}
 			if assignScalarListField(g, jen.Id("data").Dot(field.GoName), jen.Id("result").Dot(field.GoName), field) {
@@ -1319,37 +1319,18 @@ func addNestedListHelpers(f *jen.File, res GenResource, field GenField) {
 	if nestedHasIDField(field) {
 		// func flattenXYWithDestroy(planList, stateList types.List) []map[string]interface{}
 		//
-		// Update-only variant of flattenXY: Foreman's nested-attributes API
-		// silently ignores an entry simply missing from the array - it
-		// requires an explicit {"id": ..., "_destroy": true} marker to
-		// actually remove it (an undocumented Rails
-		// accepts_nested_attributes_for convention). Appends that marker for
-		// every id present in stateList but absent from planList.
+		// Update-only variant of flattenXY: appends the Rails
+		// accepts_nested_attributes_for "_destroy" markers for entries
+		// removed from the plan - the convention itself (and why it's
+		// needed) lives with goforeman.AppendDestroyMarkers.
 		f.Func().Id(flattenFn+"WithDestroy").Params(
 			jen.Id("planList"), jen.Id("stateList").Qual("github.com/hashicorp/terraform-plugin-framework/types", "List"),
-		).Index().Map(jen.String()).Interface().BlockFunc(func(g *jen.Group) {
-			g.Id("out").Op(":=").Id(flattenFn).Call(jen.Id("planList"))
-			g.Line()
-			g.Id("planIDs").Op(":=").Make(jen.Map(jen.Int64()).Bool(), jen.Len(jen.Id("out")))
-			g.For(jen.List(jen.Id("_"), jen.Id("m")).Op(":=").Range().Id("out")).Block(
-				jen.If(jen.List(jen.Id("id"), jen.Id("ok")).Op(":=").Id("m").Index(jen.Lit("id")).Assert(jen.Int64()), jen.Id("ok").Op("&&").Id("id").Op("!=").Lit(0)).Block(
-					jen.Id("planIDs").Index(jen.Id("id")).Op("=").True(),
-				),
-			)
-			g.Line()
-			g.For(jen.List(jen.Id("_"), jen.Id("elem")).Op(":=").Range().Id("stateList").Dot("Elements").Call()).BlockFunc(func(g *jen.Group) {
-				g.List(jen.Id("obj"), jen.Id("ok")).Op(":=").Id("elem").Assert(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Object"))
-				g.If(jen.Op("!").Id("ok")).Block(jen.Continue())
-				g.Id("id").Op(":=").Id("maybeInt64").Call(jen.Id("obj").Dot("Attributes").Call().Index(jen.Lit("id")))
-				g.If(jen.Id("id").Op("==").Lit(0).Op("||").Id("planIDs").Index(jen.Id("id"))).Block(jen.Continue())
-				g.Id("out").Op("=").Append(jen.Id("out"), jen.Map(jen.String()).Interface().Values(jen.Dict{
-					jen.Lit("id"):       jen.Id("id"),
-					jen.Lit("_destroy"): jen.True(),
-				}))
-			})
-			g.Line()
-			g.Return(jen.Id("out"))
-		})
+		).Index().Map(jen.String()).Interface().Block(
+			jen.Return(jen.Qual(clientPkgPath, "AppendDestroyMarkers").Call(
+				jen.Id(flattenFn).Call(jen.Id("planList")),
+				jen.Id(flattenFn).Call(jen.Id("stateList")),
+			)),
+		)
 		f.Line()
 	}
 
@@ -1448,7 +1429,7 @@ func assignEntityFieldsFromResult(g *jen.Group, res GenResource, varName string)
 		if field.IsParametersMap {
 			g.Add(dest.Clone()).Op("=").Id("expandParameters").Call(src)
 		} else if field.IsPolymorphicValue {
-			g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("parameterValueToString").Call(src.Clone()))
+			g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Qual(clientPkgPath, "RawValueString").Call(src.Clone()))
 		} else if field.IsNestedList {
 			_, _, expandFn := nestedHelperNames(res, field.GoName)
 			g.Add(dest.Clone()).Op("=").Id(expandFn).Call(src, jen.Op("&").Id("resp").Dot("Diagnostics"))

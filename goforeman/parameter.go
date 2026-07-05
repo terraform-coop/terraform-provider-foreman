@@ -39,11 +39,69 @@ type Parameter struct {
 	// Value is decoded as json.RawMessage, not string: Foreman parameters
 	// are user-typed (string/boolean/integer/array/hash/yaml/json), so a
 	// non-string value would otherwise fail json.Unmarshal for the whole
-	// struct. Rendered via parameterValueToString, matching
+	// struct. Rendered via RawValueString, matching
 	// common_parameters/smart_class_parameters.
 	Value         json.RawMessage `json:"value,omitempty"`
 	ParameterType string          `json:"parameter_type"`
 	HiddenValue   bool            `json:"hidden_value"`
+}
+
+// RawValueString renders a Foreman parameter's raw JSON "value" as plain
+// text: a JSON string decodes to its unquoted contents (the common case),
+// while a boolean/number/array/object's JSON text is used as-is (e.g.
+// "true", "123", ["a","b"]) so any user-typed parameter value
+// (parameter_type: string/boolean/integer/real/array/hash/yaml/json)
+// round-trips losslessly through a string representation instead of
+// failing to decode.
+func RawValueString(raw json.RawMessage) string {
+	var s string
+	if err := json.Unmarshal(raw, &s); err == nil {
+		return s
+	}
+	return string(raw)
+}
+
+// ParseParameters decodes Foreman's standard parameter-collection
+// convention - a JSON array of {"name": ..., "value": ...} objects, as
+// returned for host_parameters_attributes, group_parameters_attributes,
+// os_parameters_attributes, and the like - into a name-to-value map.
+// Values are rendered via RawValueString, since each one is user-typed
+// and not necessarily a JSON string. A missing/null collection returns
+// (nil, nil).
+func ParseParameters(raw json.RawMessage) (map[string]string, error) {
+	if len(raw) == 0 || string(raw) == "null" {
+		return nil, nil
+	}
+	var params []struct {
+		Name  string          `json:"name"`
+		Value json.RawMessage `json:"value"`
+	}
+	if err := json.Unmarshal(raw, &params); err != nil {
+		return nil, err
+	}
+	out := make(map[string]string, len(params))
+	for _, p := range params {
+		out[p.Name] = RawValueString(p.Value)
+	}
+	return out, nil
+}
+
+// BuildParameters converts a name-to-value map into the
+// [{"name": ..., "value": ...}] array shape Foreman expects on write for
+// its parameter-collection attributes (the inverse of ParseParameters).
+// Returns nil for an empty map.
+func BuildParameters(params map[string]string) []map[string]interface{} {
+	if len(params) == 0 {
+		return nil
+	}
+	out := make([]map[string]interface{}, 0, len(params))
+	for name, value := range params {
+		out = append(out, map[string]interface{}{
+			"name":  name,
+			"value": value,
+		})
+	}
+	return out
 }
 
 func (c *Client) CreateParameter(ctx context.Context, parentType string, parentID int, req *ParameterRequest) (*Parameter, error) {

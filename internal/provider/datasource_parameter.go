@@ -108,7 +108,7 @@ func (d *parameterDataSource) Read(ctx context.Context, req datasource.ReadReque
 	}
 
 	data.ID = types.StringValue(strconv.Itoa(int(result.ID)))
-	data.Value = types.StringValue(parameterValueToString(result.Value))
+	data.Value = types.StringValue(goforeman.RawValueString(result.Value))
 	data.ParameterType = types.StringValue(result.ParameterType)
 	data.HiddenValue = types.BoolValue(result.HiddenValue)
 

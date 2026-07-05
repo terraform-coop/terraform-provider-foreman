@@ -237,7 +237,7 @@ type GenField struct {
 	// convenience shape - decoding a non-string response value (e.g. a real
 	// JSON boolean/array) into a plain Go string fails the whole struct's
 	// json.Unmarshal. The entity/response side is decoded as json.RawMessage
-	// and rendered via parameterValueToString instead of stringValue; the
+	// and rendered via RawValueString instead of stringValue; the
 	// request/write side is unaffected (send the Terraform string as-is,
 	// exactly like flattenParameters already does).
 	IsPolymorphicValue bool
@@ -537,7 +537,7 @@ func hardcodedResources() []GenResource {
 				// are user-typed (string/boolean/integer/array/hash/yaml/
 				// json), so a non-string default_value would otherwise fail
 				// json.Unmarshal for the whole struct. Rendered via
-				// parameterValueToString like common_parameters/parameters'
+				// RawValueString like common_parameters/parameters'
 				// "value" field (see IsPolymorphicValue).
 				{JSONName: "default_value", GoName: "DefaultValue", GoType: "json.RawMessage", TFType: "String", TFGoType: "types.String", IsPolymorphicValue: true},
 				{JSONName: "hidden_value", GoName: "HiddenValue", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},

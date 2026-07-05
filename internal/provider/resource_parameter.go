@@ -187,7 +187,7 @@ func (r *parameterResource) Create(ctx context.Context, req resource.CreateReque
 
 	plan.ID = types.StringValue(strconv.Itoa(int(result.ID)))
 	plan.Name = types.StringValue(result.Name)
-	plan.Value = types.StringValue(parameterValueToString(result.Value))
+	plan.Value = types.StringValue(goforeman.RawValueString(result.Value))
 	plan.ParameterType = types.StringValue(result.ParameterType)
 	plan.HiddenValue = types.BoolValue(result.HiddenValue)
 
@@ -224,7 +224,7 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 	state.Name = types.StringValue(result.Name)
-	state.Value = types.StringValue(parameterValueToString(result.Value))
+	state.Value = types.StringValue(goforeman.RawValueString(result.Value))
 	state.ParameterType = types.StringValue(result.ParameterType)
 	state.HiddenValue = types.BoolValue(result.HiddenValue)
 
@@ -266,7 +266,7 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 	plan.Name = types.StringValue(result.Name)
-	plan.Value = types.StringValue(parameterValueToString(result.Value))
+	plan.Value = types.StringValue(goforeman.RawValueString(result.Value))
 	plan.ParameterType = types.StringValue(result.ParameterType)
 	plan.HiddenValue = types.BoolValue(result.HiddenValue)
 

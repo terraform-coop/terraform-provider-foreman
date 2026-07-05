@@ -74,7 +74,7 @@ func (d *settingDataSource) Read(ctx context.Context, req datasource.ReadRequest
 	}
 
 	data.ID = types.StringValue(result.ID)
-	data.Value = types.StringValue(parameterValueToString(result.Value))
+	data.Value = types.StringValue(goforeman.RawValueString(result.Value))
 
 	tflog.Trace(ctx, "read setting data source", map[string]interface{}{"id": data.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

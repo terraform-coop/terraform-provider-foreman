@@ -3,79 +3,49 @@ package provider
 import (
 	"encoding/json"
 
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
+
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 // ---------------------------------------------------------------------------
-// Shared bridging helpers — used by host, operating_system, and hostgroup
-// resources to convert between Terraform types and Foreman API JSON.
+// Shared bridging helpers — thin converters between Terraform framework
+// types and plain Go values. All Foreman API convention/quirk knowledge
+// (parameter collections, polymorphic values, _destroy semantics, ...)
+// lives in the goforeman package; these only translate types.
 // ---------------------------------------------------------------------------
 
-// Parameters bridging — types.Map ↔ [{name,value}] for API.
-// Used by: host (host_parameters_attributes), operating_system (os_parameters_attributes),
-// hostgroup (group_parameters_attributes).
-
-// flattenParameters converts types.Map → [{name,value}] for API request body.
+// flattenParameters converts a types.Map into the [{name,value}] shape
+// Foreman expects (see goforeman.BuildParameters) for request bodies.
 func flattenParameters(m types.Map) []map[string]interface{} {
 	if m.IsNull() || m.IsUnknown() {
 		return nil
 	}
 	elements := m.Elements()
-	result := make([]map[string]interface{}, 0, len(elements))
+	params := make(map[string]string, len(elements))
 	for k, v := range elements {
-		result = append(result, map[string]interface{}{
-			"name":  k,
-			"value": v.(types.String).ValueString(),
-		})
+		params[k] = v.(types.String).ValueString()
 	}
-	return result
+	return goforeman.BuildParameters(params)
 }
 
-// expandParameters converts API response [{name,value}] → types.Map.
-//
-// Foreman parameters are user-typeable (parameter_type: string, boolean,
-// integer, real, array, hash, yaml, or json), so "value" is not always a
-// JSON string - decoding it into a plain Go string unconditionally makes
-// json.Unmarshal fail for the whole parameter list the moment any single
-// parameter has a non-string type, which previously surfaced as e.g. host
-// or hostgroup parameters silently disappearing (or erroring) on import/read
-// (see issues #129, #136). Decode "value" as raw JSON per-element instead,
-// and render it as text for storage in this provider's Map<String>
-// representation.
+// expandParameters converts a Foreman parameter collection from an API
+// response (see goforeman.ParseParameters) into a types.Map.
 func expandParameters(raw json.RawMessage) types.Map {
-	if len(raw) == 0 || string(raw) == "null" {
-		return types.MapNull(types.StringType)
-	}
-	var params []struct {
-		Name  string          `json:"name"`
-		Value json.RawMessage `json:"value"`
-	}
-	if err := json.Unmarshal(raw, &params); err != nil {
+	params, err := goforeman.ParseParameters(raw)
+	if err != nil || params == nil {
 		return types.MapNull(types.StringType)
 	}
 	elements := make(map[string]attr.Value, len(params))
-	for _, p := range params {
-		elements[p.Name] = types.StringValue(parameterValueToString(p.Value))
+	for name, value := range params {
+		elements[name] = types.StringValue(value)
 	}
 	m, diags := types.MapValue(types.StringType, elements)
 	if diags.HasError() {
 		return types.MapNull(types.StringType)
 	}
 	return m
-}
-
-// parameterValueToString renders a Foreman parameter's raw JSON "value" as
-// plain text: a JSON string decodes to its unquoted contents (the common
-// case), while a boolean/number/array/object's JSON text is used as-is
-// (e.g. "true", "123", ["a","b"]) so the value round-trips losslessly
-// through this provider's string representation instead of crashing.
-func parameterValueToString(raw json.RawMessage) string {
-	var s string
-	if err := json.Unmarshal(raw, &s); err == nil {
-		return s
-	}
-	return string(raw)
 }
 
 // maybeStringList extracts a []string from a types.List attr.Value, for

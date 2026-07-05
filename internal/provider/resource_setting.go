@@ -90,7 +90,7 @@ func (r *settingResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
-	state.Value = types.StringValue(parameterValueToString(result.Value))
+	state.Value = types.StringValue(goforeman.RawValueString(result.Value))
 
 	tflog.Trace(ctx, "read setting", map[string]interface{}{"id": state.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
@@ -111,7 +111,7 @@ func (r *settingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	plan.Value = types.StringValue(parameterValueToString(result.Value))
+	plan.Value = types.StringValue(goforeman.RawValueString(result.Value))
 
 	tflog.Trace(ctx, "updated setting", map[string]interface{}{"id": plan.ID.ValueString()})
 	resp.Diagnostics.Append(resp.State.Set(ctx, &plan)...)

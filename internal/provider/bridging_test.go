@@ -126,25 +126,6 @@ func TestExpandParameters(t *testing.T) {
 	})
 }
 
-func TestParameterValueToString(t *testing.T) {
-	cases := []struct {
-		raw  string
-		want string
-	}{
-		{`"hello"`, "hello"},
-		{`true`, "true"},
-		{`42`, "42"},
-		{`null`, ""},
-		{`["a","b"]`, `["a","b"]`},
-	}
-	for _, tc := range cases {
-		got := parameterValueToString(json.RawMessage(tc.raw))
-		if got != tc.want {
-			t.Errorf("parameterValueToString(%s) = %q, want %q", tc.raw, got, tc.want)
-		}
-	}
-}
-
 // ---------------------------------------------------------------------------
 // maybeInt64 / maybeBool / maybeString / maybeJSON
 // ---------------------------------------------------------------------------
