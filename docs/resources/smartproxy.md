@@ -27,6 +27,11 @@ resource "foreman_smartproxy" "dc1_proxy" {
 - `name` (String)
 - `url` (String)
 
+### Optional
+
+- `location_ids` (Set of Number) REPLACE locations with given ids
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+
 ### Read-Only
 
 - `id` (String) The ID of this resource.

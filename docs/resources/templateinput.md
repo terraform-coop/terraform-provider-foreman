@@ -31,6 +31,7 @@ resource "foreman_templateinput" "os_major_version" {
 
 - `input_type` (String) Input type
 - `name` (String) Input name
+- `parent_id` (Number) ID of the parent resource.
 
 ### Optional
 

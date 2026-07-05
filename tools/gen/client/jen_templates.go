@@ -114,6 +114,13 @@ func generateRoundTripTestFile(res GenResource) *jen.File {
 					).Call()
 					continue
 				}
+				if isOptionalBoolPointerField(field) {
+					d[jen.Id(field.GoName)] = jen.Func().Params().Op("*").Bool().Block(
+						jen.Id("v").Op(":=").True(),
+						jen.Return(jen.Op("&").Id("v")),
+					).Call()
+					continue
+				}
 				switch field.GoType {
 				case "string":
 					d[jen.Id(field.GoName)] = jen.Lit("test_" + field.JSONName)
@@ -451,6 +458,14 @@ func generateResourceFile(res GenResource) *jen.File {
 				g.Id(field.GoName).Op("*").Int64().Tag(map[string]string{"json": field.JSONName})
 				continue
 			}
+			if isOptionalBoolPointerField(field) {
+				// Same reasoning as the int64 case above, for bool: a plain
+				// bool+omitempty can never send an explicit "false" (Go's
+				// zero value for bool IS false, so omitempty always drops
+				// it), meaning a field can be turned on but never back off.
+				g.Id(field.GoName).Op("*").Bool().Tag(map[string]string{"json": field.JSONName})
+				continue
+			}
 			g.Id(field.GoName).Id(field.GoType).Tag(map[string]string{"json": field.JSONName + ",omitempty"})
 		}
 	})
@@ -627,13 +642,13 @@ func generateResourceFile(res GenResource) *jen.File {
 			if res.OrgScopedQuery {
 				g.Err().Op(":=").Id("c").Dot("Get").Call(
 					jen.Id("ctx"),
-					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search=name=\"%s\"&organization_id=%d"), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name")), jen.Id("c").Dot("config").Dot("OrganizationID")),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search="+res.searchField()+"=\"%s\"&organization_id=%d"), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name")), jen.Id("c").Dot("config").Dot("OrganizationID")),
 					jen.Op("&").Id("response"),
 				)
 			} else {
 				g.Err().Op(":=").Id("c").Dot("Get").Call(
 					jen.Id("ctx"),
-					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search=name=\"%s\""), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name"))),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"?search="+res.searchField()+"=\"%s\""), jen.Qual("net/url", "QueryEscape").Call(jen.Id("name"))),
 					jen.Op("&").Id("response"),
 				)
 			}
@@ -680,7 +695,7 @@ func generateDataSourceFile(res GenResource) *jen.File {
 		g.Id("ID").Qual("github.com/hashicorp/terraform-plugin-framework/types", "String").Tag(map[string]string{"tfsdk": "id"})
 		g.Id("Name").Qual("github.com/hashicorp/terraform-plugin-framework/types", "String").Tag(map[string]string{"tfsdk": "name"})
 		for _, field := range res.EntityFields {
-			if field.IsList || field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
+			if field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
 				continue
 			}
 			g.Id(field.GoName).Id(field.TFGoType).Tag(map[string]string{"tfsdk": tfKey(field)})
@@ -717,7 +732,7 @@ func generateDataSourceFile(res GenResource) *jen.File {
 				// or the framework errors at runtime on Get/Set. All
 				// data source fields are read-only (Computed).
 				for _, field := range res.EntityFields {
-					if field.IsList || field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
+					if field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
 						continue
 					}
 					attrs := jen.Dict{jen.Id("Computed"): jen.True()}
@@ -726,6 +741,9 @@ func generateDataSourceFile(res GenResource) *jen.File {
 					}
 					if field.IsParametersMap {
 						attrs[jen.Id("ElementType")] = jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringType")
+					}
+					if field.IsList {
+						attrs[jen.Id("ElementType")] = jen.Id(field.ListElemType)
 					}
 					if field.Sensitive {
 						attrs[jen.Id("Sensitive")] = jen.True()
@@ -782,11 +800,18 @@ func generateDataSourceFile(res GenResource) *jen.File {
 
 		g.Id("data").Dot("ID").Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Qual("strconv", "Itoa").Call(jen.Int().Call(jen.Id("result").Dot("ID"))))
 		for _, field := range res.EntityFields {
-			if field.IsList || field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
+			if field.IsNestedList || field.GoName == "Name" || field.GoName == "ID" {
 				continue
 			}
 			if field.IsParametersMap {
 				g.Id("data").Dot(field.GoName).Op("=").Id("expandParameters").Call(jen.Id("result").Dot(field.GoName))
+				continue
+			}
+			if field.IsPolymorphicValue {
+				g.Id("data").Dot(field.GoName).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("parameterValueToString").Call(jen.Id("result").Dot(field.GoName)))
+				continue
+			}
+			if assignScalarListField(g, jen.Id("data").Dot(field.GoName), jen.Id("result").Dot(field.GoName), field) {
 				continue
 			}
 			if field.GoType == "json.RawMessage" {
@@ -1075,6 +1100,21 @@ func nestedHelperNames(res GenResource, goName string) (attrTypesVar, flattenFn,
 	return strings.ToLower(base[:1]) + base[1:] + "AttrTypes", "flatten" + base, "expand" + base
 }
 
+// nestedHasIDField reports whether field's nested sub-schema has its own
+// "id" attribute - the only way Foreman's Rails accepts_nested_attributes_for
+// destroy convention (an explicit {"id": ..., "_destroy": true} entry, since
+// simply omitting a prior entry from the array is silently ignored) can be
+// expressed at all: it needs a stable identifier to diff prior state
+// against the plan.
+func nestedHasIDField(field GenField) bool {
+	for _, nf := range modelFields(nestedGenResource(field)) {
+		if nf.JSONName == "id" {
+			return true
+		}
+	}
+	return false
+}
+
 // nestedAttrType returns the jen code for a nested sub-field's attr.Type,
 // used to build the shared types.ObjectType{AttrTypes: ...} map.
 func nestedAttrType(f GenField) jen.Code {
@@ -1147,7 +1187,14 @@ func nestedObjectSchema(nested GenResource) jen.Code {
 				} else if nf.Required {
 					attrs[jen.Id("Required")] = jen.True()
 				} else {
+					// Optional+Computed, not bare Optional: Foreman may
+					// return a non-null default for a field the config
+					// left unset, and a plain Optional attribute requires
+					// the post-apply value to stay exactly null in that
+					// case - otherwise Terraform Core rejects the apply
+					// with "Provider produced inconsistent result".
 					attrs[jen.Id("Optional")] = jen.True()
+					attrs[jen.Id("Computed")] = jen.True()
 				}
 				if nf.Description != "" {
 					attrs[jen.Id("Description")] = jen.Lit(nf.Description)
@@ -1204,6 +1251,43 @@ func addNestedListHelpers(f *jen.File, res GenResource, field GenField) {
 	})
 	f.Line()
 
+	if nestedHasIDField(field) {
+		// func flattenXYWithDestroy(planList, stateList types.List) []map[string]interface{}
+		//
+		// Update-only variant of flattenXY: Foreman's nested-attributes API
+		// silently ignores an entry simply missing from the array - it
+		// requires an explicit {"id": ..., "_destroy": true} marker to
+		// actually remove it (an undocumented Rails
+		// accepts_nested_attributes_for convention). Appends that marker for
+		// every id present in stateList but absent from planList.
+		f.Func().Id(flattenFn+"WithDestroy").Params(
+			jen.Id("planList"), jen.Id("stateList").Qual("github.com/hashicorp/terraform-plugin-framework/types", "List"),
+		).Index().Map(jen.String()).Interface().BlockFunc(func(g *jen.Group) {
+			g.Id("out").Op(":=").Id(flattenFn).Call(jen.Id("planList"))
+			g.Line()
+			g.Id("planIDs").Op(":=").Make(jen.Map(jen.Int64()).Bool(), jen.Len(jen.Id("out")))
+			g.For(jen.List(jen.Id("_"), jen.Id("m")).Op(":=").Range().Id("out")).Block(
+				jen.If(jen.List(jen.Id("id"), jen.Id("ok")).Op(":=").Id("m").Index(jen.Lit("id")).Assert(jen.Int64()), jen.Id("ok").Op("&&").Id("id").Op("!=").Lit(0)).Block(
+					jen.Id("planIDs").Index(jen.Id("id")).Op("=").True(),
+				),
+			)
+			g.Line()
+			g.For(jen.List(jen.Id("_"), jen.Id("elem")).Op(":=").Range().Id("stateList").Dot("Elements").Call()).BlockFunc(func(g *jen.Group) {
+				g.List(jen.Id("obj"), jen.Id("ok")).Op(":=").Id("elem").Assert(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Object"))
+				g.If(jen.Op("!").Id("ok")).Block(jen.Continue())
+				g.Id("id").Op(":=").Id("maybeInt64").Call(jen.Id("obj").Dot("Attributes").Call().Index(jen.Lit("id")))
+				g.If(jen.Id("id").Op("==").Lit(0).Op("||").Id("planIDs").Index(jen.Id("id"))).Block(jen.Continue())
+				g.Id("out").Op("=").Append(jen.Id("out"), jen.Map(jen.String()).Interface().Values(jen.Dict{
+					jen.Lit("id"):       jen.Id("id"),
+					jen.Lit("_destroy"): jen.True(),
+				}))
+			})
+			g.Line()
+			g.Return(jen.Id("out"))
+		})
+		f.Line()
+	}
+
 	// func expandXY(raw json.RawMessage, diags *diag.Diagnostics) types.List
 	f.Func().Id(expandFn).Params(
 		jen.Id("raw").Qual("encoding/json", "RawMessage"),
@@ -1248,39 +1332,63 @@ func addNestedListHelpers(f *jen.File, res GenResource, field GenField) {
 	f.Line()
 }
 
+// assignScalarListField appends the statement(s) that copy a plain (non-nested)
+// []int64/[]string entity field from src into dest, as a types.List or
+// types.Set (per field.TFType - see tfTypeForIDList). Returns false (and
+// appends nothing) if field isn't a scalar list, so callers can fall through
+// to their own handling.
+func assignScalarListField(g *jen.Group, dest, src *jen.Statement, field GenField) bool {
+	valueMustFn, nullFn := "ListValueMust", "ListNull"
+	if field.TFType == "Set" {
+		valueMustFn, nullFn = "SetValueMust", "SetNull"
+	}
+	switch {
+	case field.IsList && field.GoType == "[]int64":
+		g.If(src.Clone().Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
+			g.Id("elems").Op(":=").Make(jen.Index().Qual("github.com/hashicorp/terraform-plugin-framework/attr", "Value"), jen.Len(src.Clone()))
+			g.For(jen.List(jen.Id("i"), jen.Id("v")).Op(":=").Range().Add(src.Clone())).Block(
+				jen.Id("elems").Index(jen.Id("i")).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64Value").Call(jen.Int64().Call(jen.Id("v"))),
+			)
+			g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", valueMustFn).Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64Type"), jen.Id("elems"))
+		}).Else().Block(
+			jen.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", nullFn).Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64Type")),
+		)
+		return true
+	case field.IsList && field.GoType == "[]string":
+		g.If(src.Clone().Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
+			g.Id("elems").Op(":=").Make(jen.Index().Qual("github.com/hashicorp/terraform-plugin-framework/attr", "Value"), jen.Len(src.Clone()))
+			g.For(jen.List(jen.Id("i"), jen.Id("v")).Op(":=").Range().Add(src.Clone())).Block(
+				jen.Id("elems").Index(jen.Id("i")).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("v")),
+			)
+			g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", valueMustFn).Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringType"), jen.Id("elems"))
+		}).Else().Block(
+			jen.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", nullFn).Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringType")),
+		)
+		return true
+	}
+	return false
+}
+
 // assignEntityFieldsFromResult appends statements to g that copy every
 // entity field out of the "result" API response variable into varName
 // (the "plan" or "state" model variable). Shared by Create, Read, and
 // Update so all three stay in sync.
 func assignEntityFieldsFromResult(g *jen.Group, res GenResource, varName string) {
 	for _, field := range res.EntityFields {
+		if field.NotReturnedOnRead {
+			continue
+		}
 		dest := jen.Id(varName).Dot(field.GoName)
 		src := jen.Id("result").Dot(field.GoName)
 		if field.IsParametersMap {
 			g.Add(dest.Clone()).Op("=").Id("expandParameters").Call(src)
+		} else if field.IsPolymorphicValue {
+			g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("parameterValueToString").Call(src.Clone()))
 		} else if field.IsNestedList {
 			_, _, expandFn := nestedHelperNames(res, field.GoName)
 			g.Add(dest.Clone()).Op("=").Id(expandFn).Call(src, jen.Op("&").Id("resp").Dot("Diagnostics"))
-		} else if field.IsList && field.GoType == "[]int64" {
-			g.If(src.Clone().Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
-				g.Id("elems").Op(":=").Make(jen.Index().Qual("github.com/hashicorp/terraform-plugin-framework/attr", "Value"), jen.Len(src.Clone()))
-				g.For(jen.List(jen.Id("i"), jen.Id("v")).Op(":=").Range().Add(src.Clone())).Block(
-					jen.Id("elems").Index(jen.Id("i")).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64Value").Call(jen.Int64().Call(jen.Id("v"))),
-				)
-				g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "ListValueMust").Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64Type"), jen.Id("elems"))
-			}).Else().Block(
-				jen.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "ListNull").Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Int64Type")),
-			)
-		} else if field.IsList && field.GoType == "[]string" {
-			g.If(src.Clone().Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
-				g.Id("elems").Op(":=").Make(jen.Index().Qual("github.com/hashicorp/terraform-plugin-framework/attr", "Value"), jen.Len(src.Clone()))
-				g.For(jen.List(jen.Id("i"), jen.Id("v")).Op(":=").Range().Add(src.Clone())).Block(
-					jen.Id("elems").Index(jen.Id("i")).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("v")),
-				)
-				g.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "ListValueMust").Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringType"), jen.Id("elems"))
-			}).Else().Block(
-				jen.Add(dest.Clone()).Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "ListNull").Call(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringType")),
-			)
+		} else if assignScalarListField(g, dest, src, field) {
+			// handled
 		} else if field.IsList {
 			continue
 		} else if field.GoType == "json.RawMessage" {
@@ -1305,7 +1413,7 @@ func assignEntityFieldsFromResult(g *jen.Group, res GenResource, varName string)
 // requestBodyDictFunc returns the jen.DictFunc used to build a create/update
 // request body's struct literal from the "plan" model variable. Shared by
 // Create and Update so both stay in sync.
-func requestBodyDictFunc(res GenResource) func(d jen.Dict) {
+func requestBodyDictFunc(res GenResource, forUpdate bool) func(d jen.Dict) {
 	return func(d jen.Dict) {
 		for _, field := range res.Fields {
 			name := modelAccessorName(field)
@@ -1343,7 +1451,11 @@ func requestBodyDictFunc(res GenResource) func(d jen.Dict) {
 				).Call()
 			} else if field.IsNestedList {
 				_, flattenFn, _ := nestedHelperNames(res, name)
-				d[jen.Id(field.GoName)] = jen.Id(flattenFn).Call(accessor())
+				if forUpdate && nestedHasIDField(field) {
+					d[jen.Id(field.GoName)] = jen.Id(flattenFn+"WithDestroy").Call(accessor(), jen.Id("state").Dot(name))
+				} else {
+					d[jen.Id(field.GoName)] = jen.Id(flattenFn).Call(accessor())
+				}
 			} else if field.GoType == "json.RawMessage" {
 				d[jen.Id(field.GoName)] = jen.Func().Params().Qual("encoding/json", "RawMessage").Block(
 					jen.If(accessor().Dot("IsNull").Call().Op("||").Add(accessor()).Dot("IsUnknown").Call()).Block(
@@ -1357,6 +1469,14 @@ func requestBodyDictFunc(res GenResource) func(d jen.Dict) {
 						jen.Return(jen.Nil()),
 					),
 					jen.Id("v").Op(":=").Add(accessor()).Dot("ValueInt64").Call(),
+					jen.Return(jen.Op("&").Id("v")),
+				).Call()
+			} else if isOptionalBoolPointerField(field) {
+				d[jen.Id(field.GoName)] = jen.Func().Params().Op("*").Bool().Block(
+					jen.If(accessor().Dot("IsNull").Call().Op("||").Add(accessor()).Dot("IsUnknown").Call()).Block(
+						jen.Return(jen.Nil()),
+					),
+					jen.Id("v").Op(":=").Add(accessor()).Dot("ValueBool").Call(),
 					jen.Return(jen.Op("&").Id("v")),
 				).Call()
 			} else {
@@ -1395,6 +1515,16 @@ func isOptionalIntPointerField(field GenField, siblings []GenField) bool {
 	return field.GoType == "int64" && !field.Required &&
 		!field.IsList && !field.IsNestedList && !field.IsParametersMap &&
 		!hasTypeCompanion(field, siblings)
+}
+
+// isOptionalBoolPointerField reports whether a request field is a plain
+// optional bool that should use pointer semantics on the wire, for the same
+// reason as isOptionalIntPointerField: a plain bool+omitempty can never
+// distinguish "explicitly set to false" from "left unset", so Terraform can
+// set such a field true but never turn it back off. A nil *bool omits the
+// key; a non-nil *bool (even pointing at false) always marshals.
+func isOptionalBoolPointerField(field GenField) bool {
+	return field.GoType == "bool" && !field.Required
 }
 
 // hasTypeCompanion reports whether field is the "_id" half of a Rails
@@ -1484,6 +1614,13 @@ func fieldAccessor(fieldName string, fields []GenField, entityFields []GenField)
 		case "bool":
 			return jen.Id("plan").Dot(fieldName).Dot("ValueBool").Call()
 		}
+	}
+	// Mismatch: model is json.RawMessage (IsPolymorphicValue's response-side
+	// decode), request is plain string - the request always just sends
+	// whatever string the user configured, same as the reqType=="string"
+	// case above.
+	if reqType == "string" && modelType == "json.RawMessage" {
+		return jen.Id("plan").Dot(fieldName).Dot("ValueString").Call()
 	}
 	// Mismatch: model is string, request is int64
 	if modelType == "string" && reqType == "int64" {
@@ -1608,7 +1745,15 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 						if required {
 							attrs[jen.Id("Required")] = jen.True()
 						} else {
+							// Optional+Computed, not bare Optional: Foreman
+							// may return a non-null default for a field the
+							// config left unset, and a plain Optional
+							// attribute requires the post-apply value to
+							// stay exactly null in that case - otherwise
+							// Terraform Core rejects the apply with
+							// "Provider produced inconsistent result".
 							attrs[jen.Id("Optional")] = jen.True()
+							attrs[jen.Id("Computed")] = jen.True()
 						}
 					}
 					if field.Description != "" {
@@ -1668,7 +1813,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			g.Line()
 
 			// Build request body
-			g.Id("body").Op(":=").Op("&").Qual("github.com/terraform-coop/terraform-provider-foreman/generated", res.GoName+"Request").Values(jen.DictFunc(requestBodyDictFunc(res)))
+			g.Id("body").Op(":=").Op("&").Qual("github.com/terraform-coop/terraform-provider-foreman/generated", res.GoName+"Request").Values(jen.DictFunc(requestBodyDictFunc(res, false)))
 			g.Line()
 
 			// Call API
@@ -1762,11 +1907,25 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 		jen.Id("resp").Op("*").Qual("github.com/hashicorp/terraform-plugin-framework/resource", "UpdateResponse"),
 	).BlockFunc(func(g *jen.Group) {
 		if res.HasUpdate {
+			needsState := false
+			for _, field := range res.Fields {
+				if field.IsNestedList && nestedHasIDField(field) {
+					needsState = true
+				}
+			}
+
 			g.Var().Id("plan").Id(res.ShortName + "ResourceModel")
 			g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("req").Dot("Plan").Dot("Get").Call(jen.Id("ctx"), jen.Op("&").Id("plan")).Op("..."))
 			g.If(jen.Id("resp").Dot("Diagnostics").Dot("HasError").Call()).Block(
 				jen.Return(),
 			)
+			if needsState {
+				g.Var().Id("state").Id(res.ShortName + "ResourceModel")
+				g.Id("resp").Dot("Diagnostics").Dot("Append").Call(jen.Id("req").Dot("State").Dot("Get").Call(jen.Id("ctx"), jen.Op("&").Id("state")).Op("..."))
+				g.If(jen.Id("resp").Dot("Diagnostics").Dot("HasError").Call()).Block(
+					jen.Return(),
+				)
+			}
 			g.Line()
 
 			g.List(jen.Id("id"), jen.Id("err")).Op(":=").Qual("strconv", "Atoi").Call(jen.Id("plan").Dot("ID").Dot("ValueString").Call())
@@ -1777,7 +1936,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 			g.Line()
 
 			// Build request body
-			g.Id("body").Op(":=").Op("&").Qual("github.com/terraform-coop/terraform-provider-foreman/generated", res.GoName+"Request").Values(jen.DictFunc(requestBodyDictFunc(res)))
+			g.Id("body").Op(":=").Op("&").Qual("github.com/terraform-coop/terraform-provider-foreman/generated", res.GoName+"Request").Values(jen.DictFunc(requestBodyDictFunc(res, true)))
 			g.Line()
 
 			// Call API

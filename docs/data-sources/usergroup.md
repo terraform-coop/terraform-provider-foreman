@@ -29,3 +29,6 @@ data "foreman_usergroup" "operators" {
 
 - `admin` (Boolean) is an admin user group, can be modified by admins only
 - `id` (String) The ID of this resource.
+- `role_ids` (Set of Number)
+- `user_ids` (Set of Number)
+- `usergroup_ids` (Set of Number)

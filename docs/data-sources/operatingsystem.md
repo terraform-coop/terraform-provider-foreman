@@ -27,11 +27,15 @@ data "foreman_operatingsystem" "centos7" {
 
 ### Read-Only
 
+- `architecture_ids` (Set of Number) IDs of associated architectures
 - `description` (String)
 - `family` (String)
 - `id` (String) The ID of this resource.
 - `major` (String)
+- `medium_ids` (Set of Number) IDs of associated media
 - `minor` (String)
 - `os_parameters_attributes` (Map of String) Array of parameters
 - `password_hash` (String, Sensitive) Root password hash function to use
+- `provisioning_template_ids` (Set of Number) IDs of associated provisioning templates
+- `ptable_ids` (Set of Number) IDs of associated partition tables
 - `release_name` (String)

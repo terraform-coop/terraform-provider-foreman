@@ -28,5 +28,7 @@ data "foreman_realm" "example_com" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `location_ids` (Set of Number) REPLACE locations with given ids
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `realm_proxy_id` (Number) Proxy ID to use within this realm
 - `realm_type` (String) Realm type, e.g. FreeIPA or Active Directory

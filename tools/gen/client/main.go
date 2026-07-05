@@ -125,6 +125,10 @@ type ResourceOverride struct {
 	// collides with a Terraform-reserved root attribute name, e.g.
 	// compute_resources' "provider" field.
 	AttributeRenames map[string]string `yaml:"attribute_renames"`
+	// NotReturnedOnRead lists fields (by JSONName) Foreman accepts on
+	// create/update but never actually includes in its response body,
+	// confirmed against a real server (see GenField.NotReturnedOnRead).
+	NotReturnedOnRead []string `yaml:"not_returned_on_read"`
 }
 
 type Overrides struct {
@@ -152,13 +156,28 @@ type GenResource struct {
 	// directly by ID) require the provider-configured organization_id as
 	// a "?organization_id=%d" query parameter, e.g. katello/products.
 	OrgScopedQuery bool
-	HasCreate      bool
-	HasUpdate      bool
-	HasDelete      bool
-	HasRead        bool
-	HasIndex       bool
-	Fields         []GenField
-	EntityFields   []GenField
+	// SearchField is the entity's JSON field name to search/look up by, for
+	// both the generated Query<Resource> client method and the data
+	// source's required lookup attribute. Empty means "name" (the
+	// overwhelmingly common case); only needs setting when a resource's own
+	// display-name-like field is called something else (e.g.
+	// smart_class_parameters' "parameter").
+	SearchField  string
+	HasCreate    bool
+	HasUpdate    bool
+	HasDelete    bool
+	HasRead      bool
+	HasIndex     bool
+	Fields       []GenField
+	EntityFields []GenField
+}
+
+// searchField returns res.SearchField, defaulting to "name".
+func (res GenResource) searchField() string {
+	if res.SearchField == "" {
+		return "name"
+	}
+	return res.SearchField
 }
 
 type GenField struct {
@@ -199,6 +218,30 @@ type GenField struct {
 	// attribute key and tfsdk struct tag (see ResourceOverride.AttributeRenames).
 	// The Foreman API wire name (JSONName) is left untouched.
 	TFName string
+	// IsPolymorphicValue marks a standalone Foreman parameter's own "value"
+	// field (e.g. common_parameters, parameters, smart_class_parameters -
+	// detected by having a "parameter_type"/"hidden_value" sibling, the same
+	// convention flattenParameters/expandParameters already handle for
+	// nested *_parameters_attributes maps). Foreman parameters are
+	// user-typed (string/boolean/integer/array/hash/yaml/json), so apidoc's
+	// declared "string" type for this field is only the write-side
+	// convenience shape - decoding a non-string response value (e.g. a real
+	// JSON boolean/array) into a plain Go string fails the whole struct's
+	// json.Unmarshal. The entity/response side is decoded as json.RawMessage
+	// and rendered via parameterValueToString instead of stringValue; the
+	// request/write side is unaffected (send the Terraform string as-is,
+	// exactly like flattenParameters already does).
+	IsPolymorphicValue bool
+	// NotReturnedOnRead marks a writable field that Foreman accepts on
+	// create/update but never actually includes in its response body
+	// (confirmed case-by-case against a real server, not something apidoc's
+	// examples can show - apidoc has zero response examples for several
+	// resources with this quirk). Blindly copying the response's zero value
+	// into state on every Create/Read/Update would silently wipe out
+	// whatever the user configured. Such fields are skipped in
+	// assignEntityFieldsFromResult, leaving the plan/state value from
+	// before the API call untouched.
+	NotReturnedOnRead bool
 }
 
 // tfKey returns the Terraform-facing schema attribute key/tfsdk tag for a
@@ -332,10 +375,16 @@ var skipResources = map[string]bool{
 	// TODO(bridget): compute_attributes — read-only compute profile attributes. Excluded as read-only.
 }
 
-// fields to exclude from generated types (API context fields)
+// taxonomyFields excludes only the singular organization_id/location_id:
+// the provider-level addTaxonomy() mechanism already injects these into
+// every request from the provider's own config, so a per-resource field for
+// them would be redundant/conflicting. The plural forms (location_ids/
+// organization_ids) are a different, genuine per-resource feature - "which
+// locations/organizations can use this record" - unrelated to request
+// scoping, and apidoc does declare them for some resources (e.g. users);
+// they must NOT be excluded here.
 var taxonomyFields = map[string]bool{
 	"location_id": true, "organization_id": true,
-	"location_ids": true, "organization_ids": true,
 }
 
 func buildResources(doc *ApipieDoc, overrides Overrides) []GenResource {
@@ -422,8 +471,12 @@ func hardcodedResources() []GenResource {
 			Fields: []GenField{
 				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
 				{JSONName: "description", GoName: "Description", GoType: "string", TFType: "String", TFGoType: "types.String"},
-				{JSONName: "job_category", GoName: "JobCategory", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				{JSONName: "description_format", GoName: "DescriptionFormat", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				{JSONName: "template", GoName: "Template", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
+				{JSONName: "locked", GoName: "Locked", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
+				{JSONName: "job_category", GoName: "JobCategory", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
 				{JSONName: "provider_type", GoName: "ProviderType", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				{JSONName: "snippet", GoName: "Snippet", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
 			},
 			// EntityFields derived from Fields via entityFromRequest in buildResources
 		},
@@ -443,14 +496,36 @@ func hardcodedResources() []GenResource {
 			ShortName:    "smartclassparameter",
 			EndpointBase: "smart_class_parameters",
 			ParamKey:     "smart_class_parameter",
-			HasCreate:    false, HasRead: true, HasUpdate: true, HasDelete: false, HasIndex: true,
+			// The entity's own display-name-like field is "parameter", not
+			// "name" (it has no "name" field at all) - searching "name"
+			// unconditionally returned zero results. KNOWN LIMITATION: this
+			// searches globally across every puppet class rather than
+			// scoping to one via puppetclass_id (the old provider's data
+			// source did scope this way), so a parameter name shared by two
+			// classes is ambiguous; fully fixing that needs parent-scoped
+			// Query support the generic pipeline doesn't have yet.
+			SearchField: "parameter",
+			// Read-only: matches the old provider exactly, which never had a
+			// foreman_smartclassparameter *resource* at all (only this same
+			// data source) - not in apidoc (Puppet plugin resource) so there's
+			// no source of truth for a real Update request shape, and an
+			// earlier HasUpdate:true here always sent an empty request body
+			// (Fields was empty too), silently updating nothing on every
+			// apply. Same precedent as foreman_templatekind.
+			HasCreate: false, HasRead: true, HasUpdate: false, HasDelete: false, HasIndex: true,
 			Fields: []GenField{},
 			EntityFields: []GenField{
 				{JSONName: "parameter", GoName: "Parameter", GoType: "string", TFType: "String", TFGoType: "types.String"},
 				{JSONName: "puppetclass_id", GoName: "PuppetclassID", GoType: "int64", TFType: "Int64", TFGoType: "types.Int64"},
 				{JSONName: "override", GoName: "Override", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
 				{JSONName: "description", GoName: "Description", GoType: "string", TFType: "String", TFGoType: "types.String"},
-				{JSONName: "default_value", GoName: "DefaultValue", GoType: "string", TFType: "String", TFGoType: "types.String"},
+				// GoType is json.RawMessage, not string: Foreman parameters
+				// are user-typed (string/boolean/integer/array/hash/yaml/
+				// json), so a non-string default_value would otherwise fail
+				// json.Unmarshal for the whole struct. Rendered via
+				// parameterValueToString like common_parameters/parameters'
+				// "value" field (see IsPolymorphicValue).
+				{JSONName: "default_value", GoName: "DefaultValue", GoType: "json.RawMessage", TFType: "String", TFGoType: "types.String", IsPolymorphicValue: true},
 				{JSONName: "hidden_value", GoName: "HiddenValue", GoType: "bool", TFType: "Bool", TFGoType: "types.Bool"},
 			},
 		},
@@ -467,6 +542,15 @@ func hardcodedResources() []GenResource {
 		},
 		// Plugin resources (not in core Foreman apidoc)
 		// Note: override_values skipped — nested endpoint (smart_class_parameters/%d/override_values)
+		// KNOWN GAP: the old provider also supported location_ids/organization_ids
+		// here, but its own Read implementation had to decode them from a
+		// *different* nested shape than it wrote (write: flat int arrays;
+		// read: {"organizations": [{"id":.., "name":..}, ...]}) - a genuine
+		// asymmetric bridge, not something this hardcoded declarative Fields/
+		// EntityFields shape can express without becoming a fully hand-written
+		// resource. Not in apidoc (discovery_rules isn't a core-Foreman
+		// resource at all) so there's no source of truth to verify the exact
+		// shape against; left out rather than guessed.
 		{
 			GoName:       "ForemanDiscoveryRule",
 			ShortName:    "discovery_rule",
@@ -501,7 +585,9 @@ func hardcodedResources() []GenResource {
 			Fields: []GenField{
 				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
 				{JSONName: "target_url", GoName: "TargetURL", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
-				{JSONName: "http_method", GoName: "HTTPMethod", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
+				// Optional, not Required: Foreman defaults this server-side
+				// when omitted (old provider used Optional+Computed).
+				{JSONName: "http_method", GoName: "HTTPMethod", GoType: "string", TFType: "String", TFGoType: "types.String"},
 				{JSONName: "http_content_type", GoName: "HTTPContentType", GoType: "string", TFType: "String", TFGoType: "types.String"},
 				{JSONName: "http_headers", GoName: "HTTPHeaders", GoType: "string", TFType: "String", TFGoType: "types.String"},
 				{JSONName: "event", GoName: "Event", GoType: "string", TFType: "String", TFGoType: "types.String"},
@@ -790,6 +876,14 @@ func normalizeEntityFieldTypes(fields []GenField, entityFields []GenField) []Gen
 // frequently empty or missing.
 func reconcileFieldPair(reqField *GenField, entityField *GenField) {
 	switch {
+	case reqField.IsPolymorphicValue:
+		// The response side alone is decoded as json.RawMessage (any JSON
+		// shape unmarshals into it without error); the write side keeps its
+		// plain string type (see IsPolymorphicValue's own doc comment).
+		entityField.IsPolymorphicValue = true
+		entityField.GoType = "json.RawMessage"
+		entityField.TFType = "String"
+		entityField.TFGoType = "types.String"
 	case reqField.IsParametersMap:
 		entityField.IsParametersMap = true
 		entityField.IsList = false
@@ -843,6 +937,26 @@ func isCompatibleType(a, b string) bool {
 		return true
 	}
 	return false
+}
+
+// tfTypeForIDList returns "Set" for a "_ids"-suffixed int64 list field, and
+// "List" otherwise. Foreman returns these many-to-many FK reference
+// collections in its own order (not necessarily the order the config wrote
+// them in); a List requires an exact order match or Terraform shows a
+// perpetual diff, while a Set is naturally order-independent.
+func tfTypeForIDList(jsonName string) string {
+	if strings.HasSuffix(jsonName, "_ids") {
+		return "Set"
+	}
+	return "List"
+}
+
+// tfGoTypeForIDList is the types.Set/types.List counterpart of tfTypeForIDList.
+func tfGoTypeForIDList(jsonName string) string {
+	if strings.HasSuffix(jsonName, "_ids") {
+		return "types.Set"
+	}
+	return "types.List"
 }
 
 // goTypeToTFType converts a Go type string to the corresponding Terraform framework type.
@@ -923,6 +1037,9 @@ func setInferredType(f *GenField, v interface{}) {
 			case float64:
 				f.GoType = "[]int64"
 				f.ListElemType = "types.Int64Type"
+				f.TFType = tfTypeForIDList(f.JSONName)
+				f.TFGoType = tfGoTypeForIDList(f.JSONName)
+				return
 			case string:
 				f.GoType = "[]string"
 				f.ListElemType = "types.StringType"
@@ -1030,11 +1147,33 @@ func extractHashParams(params []ApipieParam) []GenField {
 				f := paramToGenField(np)
 				fields = append(fields, f)
 			}
+			markPolymorphicValueField(fields)
 			sortFields(fields)
 			return fields
 		}
 	}
 	return nil
+}
+
+// markPolymorphicValueField detects Foreman's standalone-parameter-resource
+// convention (a "value" field alongside "parameter_type" and/or
+// "hidden_value" siblings - the same shape common_parameters, parameters,
+// and smart_class_parameters all share) and marks it IsPolymorphicValue, so
+// its response side is decoded as json.RawMessage instead of a plain string.
+func markPolymorphicValueField(fields []GenField) {
+	hasSibling := false
+	valueIdx := -1
+	for i, f := range fields {
+		switch f.JSONName {
+		case "value":
+			valueIdx = i
+		case "parameter_type", "hidden_value":
+			hasSibling = true
+		}
+	}
+	if valueIdx >= 0 && hasSibling {
+		fields[valueIdx].IsPolymorphicValue = true
+	}
 }
 
 func paramToGenField(p ApipieParam) GenField {
@@ -1124,8 +1263,8 @@ func paramToGenField(p ApipieParam) GenField {
 		} else {
 			f.IsList = true
 			f.GoType = "[]int64"
-			f.TFType = "List"
-			f.TFGoType = "types.List"
+			f.TFType = tfTypeForIDList(p.Name)
+			f.TFGoType = tfGoTypeForIDList(p.Name)
 			f.ListElemType = "types.Int64Type"
 		}
 	default:
@@ -1188,6 +1327,18 @@ func applyFieldOverrides(res *GenResource, ov ResourceOverride) {
 
 	res.Fields = filterFields(res.Fields, exclude, ov.FieldTypes, ov.AttributeRenames)
 	res.EntityFields = filterFields(res.EntityFields, exclude, ov.FieldTypes, ov.AttributeRenames)
+
+	if len(ov.NotReturnedOnRead) > 0 {
+		notReturned := make(map[string]bool, len(ov.NotReturnedOnRead))
+		for _, n := range ov.NotReturnedOnRead {
+			notReturned[n] = true
+		}
+		for i := range res.EntityFields {
+			if notReturned[res.EntityFields[i].JSONName] {
+				res.EntityFields[i].NotReturnedOnRead = true
+			}
+		}
+	}
 }
 
 func filterFields(fields []GenField, exclude map[string]bool, types map[string]string, renames map[string]string) []GenField {

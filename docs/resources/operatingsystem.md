@@ -45,15 +45,15 @@ resource "foreman_operatingsystem" "centos7" {
 
 ### Optional
 
-- `architecture_ids` (List of Number) IDs of associated architectures
+- `architecture_ids` (Set of Number) IDs of associated architectures
 - `description` (String)
 - `family` (String)
-- `medium_ids` (List of Number) IDs of associated media
+- `medium_ids` (Set of Number) IDs of associated media
 - `minor` (String)
 - `os_parameters_attributes` (Map of String) Array of parameters
 - `password_hash` (String, Sensitive) Root password hash function to use
-- `provisioning_template_ids` (List of Number) IDs of associated provisioning templates
-- `ptable_ids` (List of Number) IDs of associated partition tables
+- `provisioning_template_ids` (Set of Number) IDs of associated provisioning templates
+- `ptable_ids` (Set of Number) IDs of associated partition tables
 - `release_name` (String)
 
 ### Read-Only

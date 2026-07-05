@@ -23,15 +23,15 @@ data "foreman_katello_product" "debian_12" {
 
 ### Required
 
-- `name` (String) The name of the katello product to look up.
+- `name` (String) The name of the katello_product to look up.
 
 ### Read-Only
 
-- `description` (String) Description of the product
-- `gpg_key_id` (Number) GPG key ID
+- `description` (String)
+- `gpg_key_id` (Number)
 - `id` (String) The ID of this resource.
-- `label` (String) Label of the product
-- `ssl_ca_cert_id` (Number) SSL CA cert ID
-- `ssl_client_cert_id` (Number) SSL client cert ID
-- `ssl_client_key_id` (Number) SSL client key ID
-- `sync_plan_id` (Number) Sync plan ID
+- `label` (String)
+- `ssl_ca_cert_id` (Number)
+- `ssl_client_cert_id` (Number)
+- `ssl_client_key_id` (Number)
+- `sync_plan_id` (Number)

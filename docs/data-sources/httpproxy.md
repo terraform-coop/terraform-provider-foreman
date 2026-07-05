@@ -28,6 +28,8 @@ data "foreman_httpproxy" "example" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `location_ids` (Set of Number) REPLACE locations with given ids
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `password` (String, Sensitive) Password used to authenticate with the HTTP Proxy
 - `url` (String) URL of the HTTP Proxy
 - `username` (String) Username used to authenticate with the HTTP Proxy

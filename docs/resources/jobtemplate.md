@@ -26,13 +26,17 @@ resource "foreman_jobtemplate" "restart_service" {
 
 ### Required
 
+- `job_category` (String)
 - `name` (String)
+- `template` (String)
 
 ### Optional
 
 - `description` (String)
-- `job_category` (String)
+- `description_format` (String)
+- `locked` (Boolean)
 - `provider_type` (String)
+- `snippet` (Boolean)
 
 ### Read-Only
 

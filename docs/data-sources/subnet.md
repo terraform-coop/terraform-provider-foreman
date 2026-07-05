@@ -35,6 +35,7 @@ data "foreman_subnet" "dc1_vlan24" {
 - `dns_id` (Number) DNS Proxy ID to use within this subnet
 - `dns_primary` (String) Primary DNS for this subnet
 - `dns_secondary` (String) Secondary DNS for this subnet
+- `domain_ids` (Set of Number) Domains in which this subnet is part
 - `externalipam_group` (String) External IPAM group - only relevant when IPAM is set to external
 - `externalipam_id` (Number) External IPAM Proxy ID to use within this subnet
 - `from` (String) Starting IP Address for IP auto suggestion
@@ -42,10 +43,12 @@ data "foreman_subnet" "dc1_vlan24" {
 - `httpboot_id` (Number) HTTPBoot Proxy ID to use within this subnet
 - `id` (String) The ID of this resource.
 - `ipam` (String) IP Address auto suggestion mode for this subnet.
+- `location_ids` (Set of Number) REPLACE locations with given ids
 - `mask` (String) Netmask for this subnet
 - `mtu` (Number) MTU for this subnet
 - `network` (String) Subnet network
 - `network_type` (String) Type or protocol, IPv4 or IPv6, defaults to IPv4
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `subnet_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `template_id` (Number) Template HTTP(S) Proxy ID to use within this subnet
 - `tftp_id` (Number) TFTP Proxy ID to use within this subnet

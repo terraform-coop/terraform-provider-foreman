@@ -50,8 +50,10 @@ resource "foreman_provisioningtemplate" "centos_kickstart" {
 
 - `audit_comment` (String)
 - `description` (String)
+- `location_ids` (Set of Number) REPLACE locations with given ids
 - `locked` (Boolean) Whether or not the template is locked for editing
-- `operatingsystem_ids` (List of Number) Array of operating system IDs to associate with the template
+- `operatingsystem_ids` (Set of Number) Array of operating system IDs to associate with the template
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `snippet` (Boolean)
 - `template_combinations_attributes` (List of String) Array of template combinations (hostgroup_id, environment_id)
 - `template_kind_id` (Number) not relevant for snippet

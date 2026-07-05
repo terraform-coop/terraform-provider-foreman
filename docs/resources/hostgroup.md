@@ -55,8 +55,10 @@ resource "foreman_hostgroup" "app" {
 - `compute_resource_id` (Number)
 - `description` (String)
 - `domain_id` (Number)
+- `location_ids` (Set of Number) REPLACE locations with given ids
 - `medium_id` (Number)
 - `operatingsystem_id` (Number)
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `parameters` (Map of String)
 - `parent_id` (Number)
 - `ptable_id` (Number)

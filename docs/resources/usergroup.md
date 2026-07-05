@@ -33,9 +33,9 @@ resource "foreman_usergroup" "operators" {
 ### Optional
 
 - `admin` (Boolean) is an admin user group, can be modified by admins only
-- `role_ids` (List of Number)
-- `user_ids` (List of Number)
-- `usergroup_ids` (List of Number)
+- `role_ids` (Set of Number)
+- `user_ids` (Set of Number)
+- `usergroup_ids` (Set of Number)
 
 ### Read-Only
 

@@ -36,7 +36,9 @@ resource "foreman_media" "centos_mirror" {
 
 ### Optional
 
-- `operatingsystem_ids` (List of Number)
+- `location_ids` (Set of Number) REPLACE locations with given ids
+- `operatingsystem_ids` (Set of Number)
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `os_family` (String) Operating system family, available values: AIX, Altlinux, Archlinux, Coreos, Debian, Fcos, Freebsd, Gentoo, Junos, NXOS, Rancheros, Redhat, Rhcos, Solaris, Suse, VRP, Windows, Xenserver
 
 ### Read-Only

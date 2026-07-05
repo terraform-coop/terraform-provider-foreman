@@ -44,6 +44,7 @@ data "foreman_host" "web" {
 - `domain_id` (Number)
 - `enabled` (Boolean)
 - `global_status` (Number)
+- `global_status_fulltext` (List of String)
 - `global_status_label` (String)
 - `hostgroup_id` (Number)
 - `id` (String) The ID of this resource.

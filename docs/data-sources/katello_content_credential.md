@@ -23,9 +23,9 @@ data "foreman_katello_content_credential" "rpm_gpg_key_centos7" {
 
 ### Required
 
-- `name` (String) The name of the katello content credential to look up.
+- `name` (String) The name of the katello_content_credential to look up.
 
 ### Read-Only
 
-- `content` (String) Content of the content credential
+- `content` (String)
 - `id` (String) The ID of this resource.

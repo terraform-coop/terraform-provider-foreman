@@ -48,6 +48,7 @@ generated/*.go
 !generated/autosign_test.go
 !generated/compute_profile_test.go
 !generated/compute_profile.go
+!generated/parameter.go
 
 internal/provider/resource_*.go
 !internal/provider/resource_katello_content_view.go
@@ -58,6 +59,7 @@ internal/provider/resource_*.go
 !internal/provider/resource_compute_profile.go
 !internal/provider/resource_host_validation.go
 !internal/provider/resource_host_validation_test.go
+!internal/provider/resource_parameter.go
 
 internal/provider/datasource_*.go
 !internal/provider/datasource_katello_content_view.go
@@ -66,6 +68,7 @@ internal/provider/datasource_*.go
 !internal/provider/datasource_katello_sync_plan.go
 !internal/provider/datasource_autosign.go
 !internal/provider/datasource_compute_profile.go
+!internal/provider/datasource_parameter.go
 
 internal/provider/provider.go
 internal/provider/acceptance_test.go

@@ -30,7 +30,7 @@ resource "foreman_architecture" "x86_64" {
 
 ### Optional
 
-- `operatingsystem_ids` (List of Number) Operating system IDs
+- `operatingsystem_ids` (Set of Number) Operating system IDs
 
 ### Read-Only
 

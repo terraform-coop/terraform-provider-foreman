@@ -31,3 +31,5 @@ data "foreman_domain" "example" {
 - `domain_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `fullname` (String) Description of the domain
 - `id` (String) The ID of this resource.
+- `location_ids` (Set of Number) REPLACE locations with given ids
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.

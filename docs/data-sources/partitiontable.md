@@ -29,8 +29,13 @@ data "foreman_partitiontable" "centos_lvm" {
 
 - `audit_comment` (String)
 - `description` (String)
+- `host_ids` (Set of Number) Array of host IDs to associate with the partition table
+- `hostgroup_ids` (Set of Number) Array of host group IDs to associate with the partition table
 - `id` (String) The ID of this resource.
 - `layout` (String)
+- `location_ids` (Set of Number) REPLACE locations with given ids
 - `locked` (Boolean) Whether or not the template is locked for editing
+- `operatingsystem_ids` (Set of Number) Array of operating system IDs to associate with the partition table
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `os_family` (String)
 - `snippet` (Boolean)

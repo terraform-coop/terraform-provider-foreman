@@ -28,3 +28,4 @@ data "foreman_architecture" "x86_64" {
 ### Read-Only
 
 - `id` (String) The ID of this resource.
+- `operatingsystem_ids` (Set of Number) Operating system IDs

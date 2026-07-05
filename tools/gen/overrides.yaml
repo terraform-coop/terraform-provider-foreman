@@ -4,6 +4,19 @@
 # RULE: Only exclude fields that are TRULY read-only, taxonomy-managed,
 # or nested object duplications. Never exclude fields the old provider supported.
 # "manage in UI" is NEVER an acceptable reason.
+#
+# KNOWN GAP: provisioning_templates.template_combinations_attributes.
+# apidoc/v2.json declares this field as a bare "array" with zero sub-params
+# (a documentation gap - no example, no nested param list), so the generic
+# field-shape detection can't infer anything better than a flat list. The
+# old provider modeled it as objects ({hostgroup_id, environment_id, id,
+# _destroy}), letting a combination be scoped to a hostgroup+environment
+# pair and removed individually; the current flat-list shape can't express
+# either. Fixing this for real needs a new override mechanism (manually
+# injecting a nested field's sub-schema when apidoc has no example to infer
+# it from) that doesn't exist yet - not attempted here since guessing the
+# exact JSON field names without a source of truth risks shipping a
+# confidently wrong shape instead of an honestly incomplete one.
 skip_resources:
   # autosign entries don't fit the generic pipeline's assumptions: the
   # entity's own "id" is a user-supplied hostname/wildcard pattern (a
@@ -22,6 +35,15 @@ skip_resources:
   # resource_compute_profile.go, datasource_compute_profile.go to restore
   # the old provider's nested compute_attributes list behavior.
   - compute_profiles
+  # Foreman has no bare /api/parameters route at all - every method
+  # (index/show/create/update/destroy) is scoped under exactly one of 7
+  # different parent types (confirmed against apidoc:
+  # hosts/hostgroups/domains/operatingsystems/locations/organizations/
+  # subnets/:parent_id/parameters). The generic ParentEndpoint mechanism
+  # only supports a single fixed parent type, not an exactly-one-of-N
+  # choice. Hand-written in generated/parameter.go, resource_parameter.go,
+  # datasource_parameter.go.
+  - parameters
 skip_data_sources:
   # autosign's data source is also hand-written (see skip_resources above) -
   # the generic shape (lookup-by-"name") doesn't apply since autosign has no
@@ -30,7 +52,20 @@ skip_data_sources:
   # compute_profiles' data source also needs the hand-written
   # compute_attributes list (see skip_resources above).
   - compute_profiles
+  # parameters' data source also needs the same hand-written parent-scoping
+  # (see skip_resources above).
+  - parameters
 resources:
+  # KNOWN GAP (not an oversight): the old provider's hosts/hostgroups also
+  # supported puppet_class_ids/config_group_ids (Puppet plugin) and, on
+  # hostgroups, content_source_id/content_view_id/lifecycle_environment_id
+  # (Katello extension). None of these appear anywhere in the pinned
+  # apidoc/v2.json (confirmed: apidoc's own hosts/hostgroups create params
+  # list has no puppet_class_ids/config_group_ids at all), i.e. this apidoc
+  # was captured from a core-Foreman-only instance with neither plugin
+  # enabled. Adding them here would mean guessing their JSON shape with no
+  # way to verify it - regenerate apidoc/v2.json from a Puppet+Katello-enabled
+  # Foreman instance to pick these up for real instead.
   hosts:
     exclude_fields:
       # --- READ-ONLY DISPLAY NAMES (use _id fields instead) ---
@@ -149,6 +184,12 @@ resources:
     short_name: media
   template_inputs:
     short_name: templateinput
+    # Real endpoint is /api/templates/:template_id/template_inputs - nested
+    # under a single numeric parent, same as os_default_templates below. The
+    # generic pipeline previously ignored this and generated a flat
+    # /api/template_inputs endpoint that doesn't exist, so every CRUD call
+    # 404'd against a real server.
+    parent_endpoint: templates
   os_default_templates:
     # Real endpoint is /api/operatingsystems/:operatingsystem_id/os_default_templates -
     # nested under a single numeric parent that the generic pipeline previously
@@ -176,3 +217,17 @@ resources:
   architectures:
     exclude_fields:
       # None currently excluded — ptables managed via operatingsystem.ptable_ids
+  ptables:
+    # Confirmed against a real server by the old provider (see its
+    # setResourceDataFromForemanPartitionTable): these 6 fields are accepted
+    # on create/update but never actually included in Foreman's ptables API
+    # response. Copying the response's zero value into state on every
+    # Create/Read/Update would silently wipe out whatever the user
+    # configured, so these are left untouched by the API response instead.
+    not_returned_on_read:
+      - snippet
+      - locked
+      - audit_comment
+      - hostgroup_ids
+      - host_ids
+      - description

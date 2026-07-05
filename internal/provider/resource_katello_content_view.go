@@ -182,10 +182,10 @@ func (r *katelloContentViewResource) Create(ctx context.Context, req resource.Cr
 		Description:       plan.Description.ValueString(),
 		Label:             plan.Label.ValueString(),
 		OrganizationID:    int(plan.OrganizationID.ValueInt64()),
-		Composite:         plan.Composite.ValueBool(),
-		AutoPublish:       plan.AutoPublish.ValueBool(),
-		SolveDependencies: plan.SolveDependencies.ValueBool(),
-		Filtered:          plan.Filtered.ValueBool(),
+		Composite:         boolPointerOrNil(plan.Composite),
+		AutoPublish:       boolPointerOrNil(plan.AutoPublish),
+		SolveDependencies: boolPointerOrNil(plan.SolveDependencies),
+		Filtered:          boolPointerOrNil(plan.Filtered),
 	}
 	if !plan.RepositoryIDs.IsUnknown() {
 		var repoIDs []int64
@@ -359,10 +359,10 @@ func (r *katelloContentViewResource) Update(ctx context.Context, req resource.Up
 		Description:       plan.Description.ValueString(),
 		Label:             plan.Label.ValueString(),
 		OrganizationID:    int(plan.OrganizationID.ValueInt64()),
-		Composite:         plan.Composite.ValueBool(),
-		AutoPublish:       plan.AutoPublish.ValueBool(),
-		SolveDependencies: plan.SolveDependencies.ValueBool(),
-		Filtered:          plan.Filtered.ValueBool(),
+		Composite:         boolPointerOrNil(plan.Composite),
+		AutoPublish:       boolPointerOrNil(plan.AutoPublish),
+		SolveDependencies: boolPointerOrNil(plan.SolveDependencies),
+		Filtered:          boolPointerOrNil(plan.Filtered),
 	}
 	if !plan.RepositoryIDs.IsUnknown() {
 		var repoIDs []int64

@@ -98,7 +98,7 @@ func (r *katelloSyncPlanResource) Create(ctx context.Context, req resource.Creat
 		Description:    plan.Description.ValueString(),
 		Interval:       plan.Interval.ValueString(),
 		SyncDate:       plan.SyncDate.ValueString(),
-		Enabled:        plan.Enabled.ValueBool(),
+		Enabled:        boolPointerOrNil(plan.Enabled),
 		CronExpression: plan.CronExpression.ValueString(),
 	}
 
@@ -170,7 +170,7 @@ func (r *katelloSyncPlanResource) Update(ctx context.Context, req resource.Updat
 		Description:    plan.Description.ValueString(),
 		Interval:       plan.Interval.ValueString(),
 		SyncDate:       plan.SyncDate.ValueString(),
-		Enabled:        plan.Enabled.ValueBool(),
+		Enabled:        boolPointerOrNil(plan.Enabled),
 		CronExpression: plan.CronExpression.ValueString(),
 	}
 

@@ -8,11 +8,14 @@ import (
 )
 
 type ForemanKatelloSyncPlanRequest struct {
-	Name           string `json:"name,omitempty"`
-	Description    string `json:"description,omitempty"`
-	Interval       string `json:"interval,omitempty"`
-	SyncDate       string `json:"sync_date,omitempty"`
-	Enabled        bool   `json:"enabled,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Interval    string `json:"interval,omitempty"`
+	SyncDate    string `json:"sync_date,omitempty"`
+	// Enabled is a pointer, not a plain bool+omitempty: Go's zero value for
+	// bool is false, so plain omitempty can never send an explicit "false" -
+	// a sync plan could be enabled but never disabled again via Terraform.
+	Enabled        *bool  `json:"enabled"`
 	CronExpression string `json:"cron_expression,omitempty"`
 }
 

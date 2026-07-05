@@ -50,9 +50,11 @@ resource "foreman_user" "jdoe" {
 - `firstname` (String)
 - `lastname` (String)
 - `locale` (String) User&#39;s preferred locale
+- `location_ids` (Set of Number) REPLACE locations with given ids
 - `mail_enabled` (Boolean) Enable user&#39;s email
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `password` (String, Sensitive) Required unless user is in an external authentication source
-- `role_ids` (List of Number)
+- `role_ids` (Set of Number)
 - `timezone` (String) User&#39;s timezone
 - `ui_compact_mode` (Boolean) Use compact UI
 

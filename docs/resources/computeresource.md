@@ -46,6 +46,8 @@ resource "foreman_computeresource" "vmware" {
 - `description` (String)
 - `display_type` (String) for Libvirt only
 - `domain` (String) for OpenStack (v3) only
+- `location_ids` (Set of Number) REPLACE locations with given ids
+- `organization_ids` (Set of Number) REPLACE organizations with given ids.
 - `password` (String, Sensitive) Password for EC2, VMware, OpenStack. Secret key for EC2
 - `project_domain_id` (String) for OpenStack (v3) only
 - `project_domain_name` (String) for OpenStack (v3) only

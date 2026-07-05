@@ -3,12 +3,12 @@
 page_title: "foreman_parameter Data Source - terraform-provider-foreman"
 subcategory: ""
 description: |-
-  
+  Looks up a parameter scoped to exactly one of host_id, hostgroup_id, domain_id, operatingsystem_id, subnet_id, location_id, or organization_id - set exactly one of these.
 ---
 
 # foreman_parameter (Data Source)
 
-
+Looks up a parameter scoped to exactly one of host_id, hostgroup_id, domain_id, operatingsystem_id, subnet_id, location_id, or organization_id - set exactly one of these.
 
 ## Example Usage
 
@@ -25,9 +25,19 @@ data "foreman_parameter" "ntp_server" {
 
 - `name` (String) The name of the parameter to look up.
 
+### Optional
+
+- `domain_id` (Number)
+- `host_id` (Number)
+- `hostgroup_id` (Number)
+- `location_id` (Number)
+- `operatingsystem_id` (Number)
+- `organization_id` (Number)
+- `subnet_id` (Number)
+
 ### Read-Only
 
-- `hidden_value` (Boolean) Should the value be hidden
+- `hidden_value` (Boolean)
 - `id` (String) The ID of this resource.
-- `parameter_type` (String) Type of value
+- `parameter_type` (String)
 - `value` (String)

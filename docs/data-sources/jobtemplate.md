@@ -28,6 +28,10 @@ data "foreman_jobtemplate" "restart_service" {
 ### Read-Only
 
 - `description` (String)
+- `description_format` (String)
 - `id` (String) The ID of this resource.
 - `job_category` (String)
+- `locked` (Boolean)
 - `provider_type` (String)
+- `snippet` (Boolean)
+- `template` (String)

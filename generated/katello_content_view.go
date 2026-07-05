@@ -9,16 +9,20 @@ import (
 )
 
 type ForemanKatelloContentViewRequest struct {
-	Name              string `json:"name,omitempty"`
-	Description       string `json:"description,omitempty"`
-	Label             string `json:"label,omitempty"`
-	OrganizationID    int    `json:"organization_id,omitempty"`
-	Composite         bool   `json:"composite,omitempty"`
-	AutoPublish       bool   `json:"auto_publish,omitempty"`
-	SolveDependencies bool   `json:"solve_dependencies,omitempty"`
-	Filtered          bool   `json:"filtered,omitempty"`
-	RepositoryIDs     []int  `json:"repository_ids,omitempty"`
-	ComponentIDs      []int  `json:"component_ids,omitempty"`
+	Name           string `json:"name,omitempty"`
+	Description    string `json:"description,omitempty"`
+	Label          string `json:"label,omitempty"`
+	OrganizationID int    `json:"organization_id,omitempty"`
+	// Composite/AutoPublish/SolveDependencies/Filtered are pointers, not
+	// plain bool+omitempty: Go's zero value for bool is false, so plain
+	// omitempty can never send an explicit "false" - these flags could be
+	// enabled but never disabled again via Terraform.
+	Composite         *bool `json:"composite"`
+	AutoPublish       *bool `json:"auto_publish"`
+	SolveDependencies *bool `json:"solve_dependencies"`
+	Filtered          *bool `json:"filtered"`
+	RepositoryIDs     []int `json:"repository_ids,omitempty"`
+	ComponentIDs      []int `json:"component_ids,omitempty"`
 }
 
 type ForemanKatelloContentView struct {
@@ -69,14 +73,17 @@ func (c *ForemanClient) DeleteForemanKatelloContentView(ctx context.Context, id 
 	return c.Delete(ctx, fmt.Sprintf("/katello/api/content_views/%d", id))
 }
 
-// PublishContentView publishes a new version of a content view.
+// PublishContentView publishes a new version of a content view. The
+// .../publish endpoint's response body is the async task, not the content
+// view (unlike most other Katello 202s) - passing a nil respObj here avoids
+// do() misinterpreting the task JSON as the content view (wrong ID, every
+// other field blank), and the up-to-date content view is fetched
+// separately once the task completes.
 func (c *ForemanClient) PublishContentView(ctx context.Context, id int) (*ForemanKatelloContentView, error) {
-	var resp ForemanKatelloContentView
-	err := c.Post(ctx, fmt.Sprintf("/katello/api/content_views/%d/publish", id), "", nil, &resp)
-	if err != nil {
+	if err := c.Post(ctx, fmt.Sprintf("/katello/api/content_views/%d/publish", id), "", nil, nil); err != nil {
 		return nil, err
 	}
-	return &resp, nil
+	return c.ReadForemanKatelloContentView(ctx, id)
 }
 
 func (c *ForemanClient) QueryForemanKatelloContentView(ctx context.Context, name string) (*ForemanKatelloContentView, error) {

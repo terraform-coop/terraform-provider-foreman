@@ -132,6 +132,19 @@ func maybeBool(v attr.Value) bool {
 	return false
 }
 
+// boolPointerOrNil converts a types.Bool to *bool: nil when null/unknown,
+// otherwise a pointer to its value. Used for optional bool request fields
+// tagged without "omitempty" (see isOptionalBoolPointerField in the
+// generator) so an explicit "false" can actually reach the API instead of
+// being silently dropped by Go's zero-value/omitempty interaction.
+func boolPointerOrNil(v types.Bool) *bool {
+	if v.IsNull() || v.IsUnknown() {
+		return nil
+	}
+	b := v.ValueBool()
+	return &b
+}
+
 // maybeString extracts string from attr.Value, returns "" if null.
 func maybeString(v attr.Value) string {
 	if sv, ok := v.(types.String); ok && !sv.IsNull() {

@@ -42,7 +42,6 @@ resource "foreman_webhook" "build_notify" {
 
 ### Required
 
-- `http_method` (String)
 - `name` (String)
 - `target_url` (String)
 
@@ -52,6 +51,7 @@ resource "foreman_webhook" "build_notify" {
 - `event` (String)
 - `http_content_type` (String)
 - `http_headers` (String)
+- `http_method` (String)
 - `password` (String)
 - `proxy_authorization` (Boolean)
 - `ssl_ca_certs` (String)

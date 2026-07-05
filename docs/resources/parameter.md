@@ -3,17 +3,20 @@
 page_title: "foreman_parameter Resource - terraform-provider-foreman"
 subcategory: ""
 description: |-
-  
+  Manages a parameter scoped to exactly one of host_id, hostgroup_id, domain_id, operatingsystem_id, subnet_id, location_id, or organization_id - set exactly one of these.
 ---
 
 # foreman_parameter (Resource)
 
-
+Manages a parameter scoped to exactly one of host_id, hostgroup_id, domain_id, operatingsystem_id, subnet_id, location_id, or organization_id - set exactly one of these.
 
 ## Example Usage
 
 ```terraform
 resource "foreman_parameter" "ntp_server" {
+  # exactly one of host_id, hostgroup_id, domain_id, operatingsystem_id,
+  # subnet_id, location_id, organization_id must be set
+  host_id        = foreman_host.example.id
   name           = "ntp_server"
   value          = "pool.ntp.org"
   parameter_type = "string"
@@ -28,12 +31,19 @@ resource "foreman_parameter" "ntp_server" {
 ### Required
 
 - `name` (String)
-- `parameter_type` (String) Type of value
+- `parameter_type` (String) One of string, boolean, integer, real, array, hash, yaml, json.
 - `value` (String)
 
 ### Optional
 
-- `hidden_value` (Boolean) Should the value be hidden
+- `domain_id` (Number)
+- `hidden_value` (Boolean)
+- `host_id` (Number)
+- `hostgroup_id` (Number)
+- `location_id` (Number)
+- `operatingsystem_id` (Number)
+- `organization_id` (Number)
+- `subnet_id` (Number)
 
 ### Read-Only
 
@@ -46,5 +56,5 @@ Import is supported using the following syntax:
 The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
-terraform import foreman_parameter.ntp_server <parameter_id>
+terraform import foreman_parameter.ntp_server host_id:<host_id>:<parameter_id>
 ```
