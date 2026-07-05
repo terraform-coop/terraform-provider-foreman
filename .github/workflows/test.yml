@@ -67,6 +67,12 @@ jobs:
       # are concatenated (stripping the second "mode:" header line) into one
       # combined gate - gating per module would fail the provider side,
       # whose own coverage is intentionally still low.
+      # Compile-check the integration-tagged test code here too: it is
+      # otherwise only built by the integration job, minutes after a
+      # Foreman container boots - a plain compile error in it should fail
+      # fast instead (this exact miss happened once: a rename that normal
+      # builds couldn't see because of the build tag).
+      - run: go vet -tags=integration ./internal/provider/
       - run: go test -race -count=1 -coverprofile=coverage-provider.out ./internal/...
       - run: go test -race -count=1 -coverprofile=coverage.out ./...
         working-directory: goforeman

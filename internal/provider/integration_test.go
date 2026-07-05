@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	generated "github.com/terraform-coop/terraform-provider-foreman/goforeman"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
 func testClient(t *testing.T) *goforeman.Client {
