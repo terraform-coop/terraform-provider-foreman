@@ -35,26 +35,26 @@ __pycache__/
 # Generated client/provider code (see main.go's //go:generate directive).
 # Regenerated from apidoc/v2.json by `make generate` / `go generate ./...`.
 # Hand-written files (no "Code generated" header) are excluded below and stay tracked.
-generated/*.go
-!generated/client.go
-!generated/client_regression_test.go
-!generated/foreman_object.go
-!generated/katello_content_view.go
-!generated/katello_lifecycle_environment.go
-!generated/katello_repository.go
-!generated/katello_sync_plan.go
-!generated/test_helpers_test.go
-!generated/autosign.go
-!generated/autosign_test.go
-!generated/compute_profile_test.go
-!generated/compute_profile.go
-!generated/parameter.go
-!generated/parameter_test.go
-!generated/setting.go
-!generated/setting_test.go
-!generated/puppet_class.go
-!generated/puppet_class_test.go
-!generated/realworld_test.go
+goforeman/*.go
+!goforeman/client.go
+!goforeman/client_regression_test.go
+!goforeman/foreman_object.go
+!goforeman/katello_content_view.go
+!goforeman/katello_lifecycle_environment.go
+!goforeman/katello_repository.go
+!goforeman/katello_sync_plan.go
+!goforeman/test_helpers_test.go
+!goforeman/autosign.go
+!goforeman/autosign_test.go
+!goforeman/compute_profile_test.go
+!goforeman/compute_profile.go
+!goforeman/parameter.go
+!goforeman/parameter_test.go
+!goforeman/setting.go
+!goforeman/setting_test.go
+!goforeman/puppet_class.go
+!goforeman/puppet_class_test.go
+!goforeman/realworld_test.go
 
 internal/provider/resource_*.go
 !internal/provider/resource_katello_content_view.go

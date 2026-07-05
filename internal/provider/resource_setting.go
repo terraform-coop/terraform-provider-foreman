@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -25,7 +25,7 @@ func NewForemanSettingResource() resource.Resource {
 }
 
 type settingResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type settingResourceModel struct {
@@ -58,9 +58,9 @@ func (r *settingResource) Configure(_ context.Context, req resource.ConfigureReq
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -80,7 +80,7 @@ func (r *settingResource) Read(ctx context.Context, req resource.ReadRequest, re
 
 	result, err := r.client.ReadForemanSetting(ctx, state.ID.ValueString())
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			tflog.Warn(ctx, "setting not found, removing from state", map[string]interface{}{"id": state.ID.ValueString()})
 			resp.State.RemoveResource(ctx)
 			return
@@ -102,7 +102,7 @@ func (r *settingResource) Update(ctx context.Context, req resource.UpdateRequest
 		return
 	}
 
-	body := &generated.ForemanSettingRequest{Value: plan.Value.ValueString()}
+	body := &goforeman.ForemanSettingRequest{Value: plan.Value.ValueString()}
 
 	result, err := r.client.UpdateForemanSetting(ctx, plan.ID.ValueString(), body)
 	if err != nil {

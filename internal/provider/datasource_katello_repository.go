@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -22,7 +22,7 @@ func NewKatelloRepositoryDataSource() datasource.DataSource {
 }
 
 type katelloRepositoryDataSource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type katelloRepositoryDataSourceModel struct {
@@ -122,9 +122,9 @@ func (d *katelloRepositoryDataSource) Configure(_ context.Context, req datasourc
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	d.client = client

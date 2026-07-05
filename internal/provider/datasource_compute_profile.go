@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
 // Hand-written: see resource_compute_profile.go's header comment.
@@ -22,7 +22,7 @@ func NewForemanComputeProfileDataSource() datasource.DataSource {
 }
 
 type computeprofileDataSource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type computeprofileDataSourceModel struct {
@@ -58,9 +58,9 @@ func (d *computeprofileDataSource) Configure(_ context.Context, req datasource.C
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	d.client = client

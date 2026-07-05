@@ -2,7 +2,7 @@
 //
 // Usage:
 //
-//	go run tools/gen/client/main.go --input apidoc/v2.json --output generated/
+//	go run tools/gen/client/main.go --input apidoc/v2.json --output goforeman/
 package main
 
 import (
@@ -25,7 +25,7 @@ var verbose bool
 
 func main() {
 	inputPath := flag.String("input", "apidoc/v2.json", "Path to apidoc/v2.json")
-	outputDir := flag.String("output", "generated/", "Output directory for generated client files")
+	outputDir := flag.String("output", "goforeman/", "Output directory for generated client files")
 	providerDir := flag.String("provider", "internal/provider/", "Output directory for generated provider files")
 	overridesPath := flag.String("overrides", "tools/gen/overrides.yaml", "Path to type overrides file")
 	verboseFlag := flag.Bool("verbose", false, "Log skipped resources and generation details")
@@ -1554,7 +1554,7 @@ func generateTestFiles(resources []GenResource, outputDir, providerDir string, o
 		}
 		kept = append(kept, res)
 
-		// Round-trip JSON test in generated/
+		// Round-trip JSON test in the client library dir
 		path := filepath.Join(outputDir, snakeCase(res.GoName)+"_roundtrip_test.go")
 		if err := writeGeneratedFileJen(path, generateRoundTripTestFile(res)); err != nil {
 			return fmt.Errorf("generating roundtrip test %s: %w", res.GoName, err)
@@ -1565,12 +1565,12 @@ func generateTestFiles(resources []GenResource, outputDir, providerDir string, o
 	// generic Request/Query shape, which skip_resources entries (hand-written
 	// client code) don't - so they're built from `kept`, not `resources`.
 
-	// Consolidated fuzz test in generated/
+	// Consolidated fuzz test in the client library dir
 	if err := writeGeneratedFileJen(filepath.Join(outputDir, "fuzz_test.go"), generateFuzzTestFile(kept)); err != nil {
 		return fmt.Errorf("generating fuzz test: %w", err)
 	}
 
-	// Consolidated status-code test in generated/
+	// Consolidated status-code test in the client library dir
 	if err := writeGeneratedFileJen(filepath.Join(outputDir, "statuscode_test.go"), generateStatusCodeTestFile(kept)); err != nil {
 		return fmt.Errorf("generating status code test: %w", err)
 	}

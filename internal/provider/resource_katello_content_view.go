@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,7 +28,7 @@ func NewKatelloContentViewResource() resource.Resource {
 }
 
 type katelloContentViewResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type katelloContentViewResourceModel struct {
@@ -162,9 +162,9 @@ func (r *katelloContentViewResource) Configure(_ context.Context, req resource.C
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -177,7 +177,7 @@ func (r *katelloContentViewResource) Create(ctx context.Context, req resource.Cr
 		return
 	}
 
-	body := &generated.ForemanKatelloContentViewRequest{
+	body := &goforeman.ForemanKatelloContentViewRequest{
 		Name:              plan.Name.ValueString(),
 		Description:       plan.Description.ValueString(),
 		Label:             plan.Label.ValueString(),
@@ -295,7 +295,7 @@ func (r *katelloContentViewResource) Read(ctx context.Context, req resource.Read
 
 	result, err := r.client.ReadForemanKatelloContentView(ctx, id)
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -354,7 +354,7 @@ func (r *katelloContentViewResource) Update(ctx context.Context, req resource.Up
 		return
 	}
 
-	body := &generated.ForemanKatelloContentViewRequest{
+	body := &goforeman.ForemanKatelloContentViewRequest{
 		Name:              plan.Name.ValueString(),
 		Description:       plan.Description.ValueString(),
 		Label:             plan.Label.ValueString(),
@@ -441,7 +441,7 @@ func (r *katelloContentViewResource) Update(ctx context.Context, req resource.Up
 		// If filters removed, delete all existing
 		readFilters, _ := r.client.ReadContentViewFilters(ctx, id)
 		if len(readFilters) > 0 {
-			var empty []generated.ForemanKatelloContentViewFilter
+			var empty []goforeman.ForemanKatelloContentViewFilter
 			if err := r.client.SyncContentViewFilters(ctx, id, empty); err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete content view filters, got error: %s", err))
 				return
@@ -467,7 +467,7 @@ func (r *katelloContentViewResource) Delete(ctx context.Context, req resource.De
 	}
 
 	err = r.client.DeleteForemanKatelloContentView(ctx, id)
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello content view, got error: %s", err))
 		return
 	}
@@ -500,7 +500,7 @@ var filterAttrTypeMap = map[string]attr.Type{
 
 var filterObjType = types.ObjectType{AttrTypes: filterAttrTypeMap}
 
-func flattenContentViewFilters(ctx context.Context, filters []generated.ForemanKatelloContentViewFilter) (types.List, diag.Diagnostics) {
+func flattenContentViewFilters(ctx context.Context, filters []goforeman.ForemanKatelloContentViewFilter) (types.List, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	if len(filters) == 0 {
 		return types.ListNull(filterObjType), diags
@@ -539,7 +539,7 @@ func flattenContentViewFilters(ctx context.Context, filters []generated.ForemanK
 	return result, diags
 }
 
-func expandContentViewFilters(ctx context.Context, filtersList types.List) ([]generated.ForemanKatelloContentViewFilter, diag.Diagnostics) {
+func expandContentViewFilters(ctx context.Context, filtersList types.List) ([]goforeman.ForemanKatelloContentViewFilter, diag.Diagnostics) {
 	var diags diag.Diagnostics
 	if filtersList.IsNull() || filtersList.IsUnknown() {
 		return nil, diags
@@ -551,11 +551,11 @@ func expandContentViewFilters(ctx context.Context, filtersList types.List) ([]ge
 		return nil, diags
 	}
 
-	result := make([]generated.ForemanKatelloContentViewFilter, 0, len(elements))
+	result := make([]goforeman.ForemanKatelloContentViewFilter, 0, len(elements))
 	for _, elem := range elements {
 		attrs := elem.Attributes()
 
-		var f generated.ForemanKatelloContentViewFilter
+		var f goforeman.ForemanKatelloContentViewFilter
 		if v, ok := attrs["id"]; ok && !v.(types.Int64).IsNull() && !v.(types.Int64).IsUnknown() {
 			f.ID = int(v.(types.Int64).ValueInt64())
 		}
@@ -581,7 +581,7 @@ func expandContentViewFilters(ctx context.Context, filtersList types.List) ([]ge
 			}
 			for _, re := range ruleElements {
 				rAttrs := re.Attributes()
-				var rule generated.ForemanKatelloContentViewFilterRule
+				var rule goforeman.ForemanKatelloContentViewFilterRule
 				if rv, ok := rAttrs["id"]; ok && !rv.(types.Int64).IsNull() && !rv.(types.Int64).IsUnknown() {
 					rule.ID = int(rv.(types.Int64).ValueInt64())
 				}

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -29,7 +29,7 @@ func NewForemanParameterResource() resource.Resource {
 }
 
 type parameterResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type parameterResourceModel struct {
@@ -48,7 +48,7 @@ type parameterResourceModel struct {
 }
 
 // parentIDFields lists the model's mutually-exclusive parent-scoping
-// attributes, in the same order as generated.ParameterParentTypes' keys.
+// attributes, in the same order as goforeman.ParameterParentTypes' keys.
 // Foreman's plain "parameter" resource has no bare /api/parameters route:
 // every method is scoped under exactly one of these parent types (confirmed
 // against apidoc/v2.json).
@@ -102,9 +102,9 @@ func (r *parameterResource) Configure(_ context.Context, req resource.ConfigureR
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -152,7 +152,7 @@ func parameterParent(m *parameterResourceModel) (parentType string, parentID int
 		)
 		return "", 0, diags
 	}
-	return generated.ParameterParentTypes[set[0].field], set[0].value.ValueInt64(), diags
+	return goforeman.ParameterParentTypes[set[0].field], set[0].value.ValueInt64(), diags
 }
 
 func (r *parameterResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -168,7 +168,7 @@ func (r *parameterResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	body := &generated.ForemanParameterRequest{
+	body := &goforeman.ForemanParameterRequest{
 		Name:          plan.Name.ValueString(),
 		Value:         plan.Value.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
@@ -215,7 +215,7 @@ func (r *parameterResource) Read(ctx context.Context, req resource.ReadRequest, 
 
 	result, err := r.client.ReadForemanParameter(ctx, parentType, int(parentID), id)
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -249,7 +249,7 @@ func (r *parameterResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	body := &generated.ForemanParameterRequest{
+	body := &goforeman.ForemanParameterRequest{
 		Name:          plan.Name.ValueString(),
 		Value:         plan.Value.ValueString(),
 		ParameterType: plan.ParameterType.ValueString(),
@@ -292,7 +292,7 @@ func (r *parameterResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	err = r.client.DeleteForemanParameter(ctx, parentType, int(parentID), id)
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete parameter, got error: %s", err))
 		return
 	}
@@ -308,7 +308,7 @@ func parseParameterImportID(id string) (parentField string, parentID int64, para
 	}
 	parentField, parentIDStr, paramID := parts[0], parts[1], parts[2]
 
-	if _, ok := generated.ParameterParentTypes[parentField]; !ok {
+	if _, ok := goforeman.ParameterParentTypes[parentField]; !ok {
 		return "", 0, "", fmt.Errorf("unknown parent field %q; must be one of %s", parentField, strings.Join(parentIDFields, ", "))
 	}
 	parentID, err = strconv.ParseInt(parentIDStr, 10, 64)

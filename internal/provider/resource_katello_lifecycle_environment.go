@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -26,7 +26,7 @@ func NewKatelloLifecycleEnvironmentResource() resource.Resource {
 }
 
 type katelloLifecycleEnvironmentResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type katelloLifecycleEnvironmentResourceModel struct {
@@ -83,9 +83,9 @@ func (r *katelloLifecycleEnvironmentResource) Configure(_ context.Context, req r
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -98,7 +98,7 @@ func (r *katelloLifecycleEnvironmentResource) Create(ctx context.Context, req re
 		return
 	}
 
-	body := &generated.ForemanKatelloLifecycleEnvironmentRequest{
+	body := &goforeman.ForemanKatelloLifecycleEnvironmentRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Label:          plan.Label.ValueString(),
@@ -140,7 +140,7 @@ func (r *katelloLifecycleEnvironmentResource) Read(ctx context.Context, req reso
 
 	result, err := r.client.ReadForemanKatelloLifecycleEnvironment(ctx, id)
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -171,7 +171,7 @@ func (r *katelloLifecycleEnvironmentResource) Update(ctx context.Context, req re
 		return
 	}
 
-	body := &generated.ForemanKatelloLifecycleEnvironmentRequest{
+	body := &goforeman.ForemanKatelloLifecycleEnvironmentRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Label:          plan.Label.ValueString(),
@@ -209,7 +209,7 @@ func (r *katelloLifecycleEnvironmentResource) Delete(ctx context.Context, req re
 	}
 
 	err = r.client.DeleteForemanKatelloLifecycleEnvironment(ctx, id)
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello lifecycle environment, got error: %s", err))
 		return
 	}

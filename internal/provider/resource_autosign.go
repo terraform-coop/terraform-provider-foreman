@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
 // autosign entries have no numeric primary key of their own (the entity's
@@ -32,7 +32,7 @@ func NewForemanAutosignResource() resource.Resource {
 }
 
 type autosignResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type autosignResourceModel struct {
@@ -67,9 +67,9 @@ func (r *autosignResource) Configure(_ context.Context, req resource.ConfigureRe
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -134,7 +134,7 @@ func (r *autosignResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	smartProxyID := int(state.SmartProxyID.ValueInt64())
 	err := r.client.DeleteForemanAutosign(ctx, smartProxyID, state.ID.ValueString())
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete autosign entry, got error: %s", err))
 		return
 	}

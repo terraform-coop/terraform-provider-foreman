@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
 // Hand-written: see resource_autosign.go's header comment for why autosign
@@ -22,7 +22,7 @@ func NewForemanAutosignDataSource() datasource.DataSource {
 }
 
 type autosignDataSource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type autosignDataSourceModel struct {
@@ -51,9 +51,9 @@ func (d *autosignDataSource) Configure(_ context.Context, req datasource.Configu
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	d.client = client

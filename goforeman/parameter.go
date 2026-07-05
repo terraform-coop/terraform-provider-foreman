@@ -1,4 +1,4 @@
-package generated
+package goforeman
 
 import (
 	"context"

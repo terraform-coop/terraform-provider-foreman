@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -26,7 +26,7 @@ func NewKatelloSyncPlanResource() resource.Resource {
 }
 
 type katelloSyncPlanResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type katelloSyncPlanResourceModel struct {
@@ -78,9 +78,9 @@ func (r *katelloSyncPlanResource) Configure(_ context.Context, req resource.Conf
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -93,7 +93,7 @@ func (r *katelloSyncPlanResource) Create(ctx context.Context, req resource.Creat
 		return
 	}
 
-	body := &generated.ForemanKatelloSyncPlanRequest{
+	body := &goforeman.ForemanKatelloSyncPlanRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Interval:       plan.Interval.ValueString(),
@@ -135,7 +135,7 @@ func (r *katelloSyncPlanResource) Read(ctx context.Context, req resource.ReadReq
 
 	result, err := r.client.ReadForemanKatelloSyncPlan(ctx, id)
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -165,7 +165,7 @@ func (r *katelloSyncPlanResource) Update(ctx context.Context, req resource.Updat
 		return
 	}
 
-	body := &generated.ForemanKatelloSyncPlanRequest{
+	body := &goforeman.ForemanKatelloSyncPlanRequest{
 		Name:           plan.Name.ValueString(),
 		Description:    plan.Description.ValueString(),
 		Interval:       plan.Interval.ValueString(),
@@ -203,7 +203,7 @@ func (r *katelloSyncPlanResource) Delete(ctx context.Context, req resource.Delet
 	}
 
 	err = r.client.DeleteForemanKatelloSyncPlan(ctx, id)
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello sync plan, got error: %s", err))
 		return
 	}

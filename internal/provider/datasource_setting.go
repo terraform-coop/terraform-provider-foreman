@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -19,7 +19,7 @@ func NewForemanSettingDataSource() datasource.DataSource {
 }
 
 type settingDataSource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type settingDataSourceModel struct {
@@ -47,9 +47,9 @@ func (d *settingDataSource) Configure(_ context.Context, req datasource.Configur
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	d.client = client

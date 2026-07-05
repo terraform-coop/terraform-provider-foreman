@@ -15,7 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 )
 
 // A compute profile's own create/update body only ever has "name"; its
@@ -34,7 +34,7 @@ func NewForemanComputeProfileResource() resource.Resource {
 }
 
 type computeprofileResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type computeAttributeModel struct {
@@ -85,9 +85,9 @@ func (r *computeprofileResource) Configure(_ context.Context, req resource.Confi
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -107,7 +107,7 @@ func vmAttrsFromRaw(raw json.RawMessage) types.String {
 	return types.StringValue(string(raw))
 }
 
-func computeAttributeFromResult(ca *generated.ForemanComputeAttribute) computeAttributeModel {
+func computeAttributeFromResult(ca *goforeman.ForemanComputeAttribute) computeAttributeModel {
 	return computeAttributeModel{
 		ID:                types.Int64Value(int64(ca.ID)),
 		ComputeResourceID: types.Int64Value(int64(ca.ComputeResourceID)),
@@ -122,7 +122,7 @@ func (r *computeprofileResource) Create(ctx context.Context, req resource.Create
 		return
 	}
 
-	body := &generated.ForemanComputeProfileRequest{Name: plan.Name.ValueString()}
+	body := &goforeman.ForemanComputeProfileRequest{Name: plan.Name.ValueString()}
 
 	result, err := r.client.CreateForemanComputeProfile(ctx, body)
 	if err != nil {
@@ -165,7 +165,7 @@ func (r *computeprofileResource) Read(ctx context.Context, req resource.ReadRequ
 
 	result, err := r.client.ReadForemanComputeProfile(ctx, id)
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -201,7 +201,7 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 		return
 	}
 
-	body := &generated.ForemanComputeProfileRequest{Name: plan.Name.ValueString()}
+	body := &goforeman.ForemanComputeProfileRequest{Name: plan.Name.ValueString()}
 	result, err := r.client.UpdateForemanComputeProfile(ctx, id, body)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update computeprofile, got error: %s", err))
@@ -242,7 +242,7 @@ func (r *computeprofileResource) Update(ctx context.Context, req resource.Update
 		if seen[crID] {
 			continue
 		}
-		if err := r.client.DeleteForemanComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !generated.IsNotFoundError(err) {
+		if err := r.client.DeleteForemanComputeAttribute(ctx, id, int(crID), int(existing.ID.ValueInt64())); err != nil && !goforeman.IsNotFoundError(err) {
 			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete compute attribute for compute_resource_id %d, got error: %s", crID, err))
 			return
 		}
@@ -266,7 +266,7 @@ func (r *computeprofileResource) Delete(ctx context.Context, req resource.Delete
 	}
 
 	err = r.client.DeleteForemanComputeProfile(ctx, id)
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete computeprofile, got error: %s", err))
 		return
 	}

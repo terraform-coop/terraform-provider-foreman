@@ -1,4 +1,4 @@
-package generated
+package goforeman
 
 // Validates every generated entity struct's json.Unmarshal against real
 // Foreman API response fixtures captured by the old provider's test suite

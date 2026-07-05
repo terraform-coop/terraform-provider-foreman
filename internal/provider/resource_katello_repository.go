@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/terraform-coop/terraform-provider-foreman/generated"
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -28,7 +28,7 @@ func NewKatelloRepositoryResource() resource.Resource {
 }
 
 type katelloRepositoryResource struct {
-	client *generated.ForemanClient
+	client *goforeman.ForemanClient
 }
 
 type katelloRepositoryResourceModel struct {
@@ -167,9 +167,9 @@ func (r *katelloRepositoryResource) Configure(_ context.Context, req resource.Co
 	if req.ProviderData == nil {
 		return
 	}
-	client, ok := req.ProviderData.(*generated.ForemanClient)
+	client, ok := req.ProviderData.(*goforeman.ForemanClient)
 	if !ok {
-		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *generated.ForemanClient")
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.ForemanClient")
 		return
 	}
 	r.client = client
@@ -182,7 +182,7 @@ func (r *katelloRepositoryResource) Create(ctx context.Context, req resource.Cre
 		return
 	}
 
-	body := &generated.ForemanKatelloRepositoryRequest{
+	body := &goforeman.ForemanKatelloRepositoryRequest{
 		Name:                          plan.Name.ValueString(),
 		Description:                   plan.Description.ValueString(),
 		Label:                         plan.Label.ValueString(),
@@ -264,7 +264,7 @@ func (r *katelloRepositoryResource) Read(ctx context.Context, req resource.ReadR
 
 	result, err := r.client.ReadForemanKatelloRepository(ctx, id)
 	if err != nil {
-		if generated.IsNotFoundError(err) {
+		if goforeman.IsNotFoundError(err) {
 			resp.State.RemoveResource(ctx)
 			return
 		}
@@ -314,7 +314,7 @@ func (r *katelloRepositoryResource) Update(ctx context.Context, req resource.Upd
 		return
 	}
 
-	body := &generated.ForemanKatelloRepositoryRequest{
+	body := &goforeman.ForemanKatelloRepositoryRequest{
 		Name:                          plan.Name.ValueString(),
 		Description:                   plan.Description.ValueString(),
 		Label:                         plan.Label.ValueString(),
@@ -392,7 +392,7 @@ func (r *katelloRepositoryResource) Delete(ctx context.Context, req resource.Del
 	}
 
 	err = r.client.DeleteForemanKatelloRepository(ctx, id)
-	if err != nil && !generated.IsNotFoundError(err) {
+	if err != nil && !goforeman.IsNotFoundError(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete katello repository, got error: %s", err))
 		return
 	}
