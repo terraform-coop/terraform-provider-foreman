@@ -29,6 +29,35 @@ func pluralize(s string) string {
 	return s + "s"
 }
 
+// isAssocIDListField reports whether an entity field is a Rails
+// association ID list ("<assoc>_ids": [1,2]). Foreman accepts that flat
+// form on WRITE but never returns it on read - responses carry the
+// association as a nested object array under the pluralized name instead
+// (operatingsystems' "architecture_ids" reads back as "architectures":
+// [{"id": 5, "name": ...}], confirmed against a real server for
+// operatingsystems, subnets, architectures, media, provisioning_templates).
+// Decoding the flat key silently yields an empty slice, which the provider
+// would then write back to state as "cleared". These fields get json:"-"
+// plus a generated UnmarshalJSON that lifts the IDs out of the nested form.
+func isAssocIDListField(field GenField) bool {
+	return field.IsList && field.GoType == "[]int64" && strings.HasSuffix(field.JSONName, "_ids")
+}
+
+// jsonAssocKey maps an association ID list's write key to the read key its
+// nested object array appears under ("architecture_ids" -> "architectures",
+// "medium_ids" -> "media"). Only the rules the current fields need.
+func jsonAssocKey(jsonName string) string {
+	base := strings.TrimSuffix(jsonName, "_ids")
+	switch {
+	case base == "medium":
+		return "media"
+	case strings.HasSuffix(base, "y") && len(base) >= 2 && !strings.ContainsRune("aeiou", rune(base[len(base)-2])):
+		return base[:len(base)-1] + "ies"
+	default:
+		return base + "s"
+	}
+}
+
 // generateRoundTripTestFile generates a round-trip test file for a resource using jen.
 func generateRoundTripTestFile(res GenResource) *jen.File {
 	f := jen.NewFile(clientPkgName)
@@ -472,15 +501,27 @@ func generateResourceFile(res GenResource) *jen.File {
 	f.Type().Id(res.GoName + "Request").StructFunc(func(g *jen.Group) {
 		for _, field := range res.Fields {
 			if isOptionalIntPointerField(field, res.Fields) {
-				// Optional int64 fields (e.g. FK references like
-				// compute_resource_id) use a pointer with no "omitempty": a
-				// nil pointer marshals to explicit JSON null, distinguishing
-				// "the user cleared this back to unset" from "0". With a
-				// plain int64+omitempty, both cases marshal to nothing at
-				// all, so an update that removes the attribute from config
-				// silently fails to clear it server-side - Foreman never
-				// sees any signal to do so. See issue #185.
-				g.Id(field.GoName).Op("*").Int64().Tag(map[string]string{"json": field.JSONName})
+				// Optional int64 FK references (compute_resource_id, ...)
+				// use a pointer with no "omitempty": a nil pointer marshals
+				// to explicit JSON null, distinguishing "the user cleared
+				// this back to unset" from "0". With a plain int64+omitempty,
+				// both cases marshal to nothing at all, so an update that
+				// removes the attribute from config silently fails to clear
+				// it server-side - Foreman never sees any signal to do so.
+				// See issue #185.
+				//
+				// That null-means-clear contract only holds for *_id
+				// references, though. A non-FK numeric column (a subnet's
+				// mtu) is typically NOT NULL with a server-side default, and
+				// an explicit null gets a 422 ("Mtu can't be blank" -
+				// confirmed against a real server) - those keep omitempty,
+				// so nil omits the key entirely while a non-nil pointer
+				// (even to 0) is still always sent.
+				tag := field.JSONName
+				if !strings.HasSuffix(field.JSONName, "_id") {
+					tag += ",omitempty"
+				}
+				g.Id(field.GoName).Op("*").Int64().Tag(map[string]string{"json": tag})
 				continue
 			}
 			if isOptionalBoolPointerField(field) {
@@ -508,6 +549,15 @@ func generateResourceFile(res GenResource) *jen.File {
 		g.Id("Base")
 		for _, field := range res.EntityFields {
 			jsonTag := field.JSONName
+			if jsonTag == "hidden_value" && field.GoType == "bool" {
+				// Parameter-family responses return the boolean under
+				// "hidden_value?" (literal question mark) and reuse plain
+				// "hidden_value" for the masked VALUE string ("*****") -
+				// decoding the latter as bool fails outright (confirmed
+				// against a real server for common_parameters). Writes
+				// still use plain "hidden_value" on the request struct.
+				jsonTag = "hidden_value?"
+			}
 			if field.GoType == "json.RawMessage" {
 				// Without omitempty, a nil RawMessage marshals to the
 				// literal 4 bytes "null" and round-trips back as that
@@ -520,10 +570,49 @@ func generateResourceFile(res GenResource) *jen.File {
 				g.Id(field.GoName).Qual("encoding/json", "RawMessage").Tag(map[string]string{"json": jsonTag})
 				continue
 			}
+			if isAssocIDListField(field) {
+				// Populated by the generated UnmarshalJSON below, never
+				// directly from the flat "_ids" key (see isAssocIDListField).
+				g.Id(field.GoName).Id(field.GoType).Tag(map[string]string{"json": "-"})
+				continue
+			}
 			g.Id(field.GoName).Id(field.GoType).Tag(map[string]string{"json": jsonTag})
 		}
 	})
 	f.Line()
+
+	// Association ID lists read back as nested object arrays (see
+	// isAssocIDListField) - lift the IDs out with a custom UnmarshalJSON.
+	var assocFields []GenField
+	for _, field := range res.EntityFields {
+		if isAssocIDListField(field) {
+			assocFields = append(assocFields, field)
+		}
+	}
+	if len(assocFields) > 0 {
+		f.Func().Params(jen.Id("e").Op("*").Id(res.GoName)).Id("UnmarshalJSON").Params(jen.Id("b").Index().Byte()).Error().BlockFunc(func(g *jen.Group) {
+			g.Type().Id("alias").Id(res.GoName)
+			g.Id("aux").Op(":=").Op("&").StructFunc(func(sg *jen.Group) {
+				sg.Op("*").Id("alias")
+				for _, field := range assocFields {
+					sg.Id(strings.TrimSuffix(field.GoName, "IDs") + "Assoc").Index().Struct(
+						jen.Id("ID").Int64().Tag(map[string]string{"json": "id"}),
+					).Tag(map[string]string{"json": jsonAssocKey(field.JSONName)})
+				}
+			}).Values(jen.Dict{jen.Id("alias"): jen.Parens(jen.Op("*").Id("alias")).Call(jen.Id("e"))})
+			g.If(jen.Err().Op(":=").Qual("encoding/json", "Unmarshal").Call(jen.Id("b"), jen.Id("aux")), jen.Err().Op("!=").Nil()).Block(
+				jen.Return(jen.Err()),
+			)
+			for _, field := range assocFields {
+				auxName := strings.TrimSuffix(field.GoName, "IDs") + "Assoc"
+				g.For(jen.List(jen.Id("_"), jen.Id("o")).Op(":=").Range().Id("aux").Dot(auxName)).Block(
+					jen.Id("e").Dot(field.GoName).Op("=").Append(jen.Id("e").Dot(field.GoName), jen.Id("o").Dot("ID")),
+				)
+			}
+			g.Return(jen.Nil())
+		})
+		f.Line()
+	}
 
 	// Create method
 	if res.HasCreate {
@@ -676,6 +765,21 @@ func generateResourceFile(res GenResource) *jen.File {
 			jen.Id("ctx").Qual("context", "Context"),
 			jen.Id("name").String(),
 		).Params(jen.Op("*").Id(res.GoName), jen.Id("error")).BlockFunc(func(g *jen.Group) {
+			if res.FindViaList {
+				// Index endpoint rejects ?search= outright (see
+				// GenResource.FindViaList) - fetch all, match client-side.
+				g.List(jen.Id("all"), jen.Err()).Op(":=").Id("c").Dot("List" + pluralize(res.GoName)).Call(jen.Id("ctx"))
+				g.If(jen.Err().Op("!=").Nil()).Block(
+					jen.Return(jen.Nil(), jen.Err()),
+				)
+				g.For(jen.Id("i").Op(":=").Range().Id("all")).Block(
+					jen.If(jen.Id("all").Index(jen.Id("i")).Dot("Name").Op("==").Id("name")).Block(
+						jen.Return(jen.Op("&").Id("all").Index(jen.Id("i")), jen.Nil()),
+					),
+				)
+				g.Return(jen.Nil(), jen.Nil())
+				return
+			}
 			g.Var().Id("response").Id("QueryResponse")
 			if res.OrgScopedQuery {
 				g.Err().Op(":=").Id("c").Dot("Get").Call(

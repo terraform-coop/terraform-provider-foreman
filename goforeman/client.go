@@ -125,11 +125,18 @@ func (c *Client) newRequest(ctx context.Context, method, endpoint string, body i
 	// assigning the whole thing to reqURL.Path below would send the "?"
 	// and everything after it as part of the request path, never as a
 	// real query string, and Foreman's router 404s on it. Split it out
-	// and assign to RawQuery (already in encoded form from the caller)
-	// before the path even gets built.
+	// before the path even gets built, and re-encode it: callers build
+	// queries like `search=name="foo"` with literal quotes, which Go's
+	// own HTTP stack tolerates but Foreman's server (Puma) rejects with
+	// a 400 - confirmed against a real server for every search-by-name
+	// lookup. ParseQuery+Encode round-trips already-encoded input
+	// unchanged and percent-encodes anything raw.
 	var rawQuery string
 	if i := strings.IndexByte(ep, '?'); i >= 0 {
 		ep, rawQuery = ep[:i], ep[i+1:]
+		if q, err := url.ParseQuery(rawQuery); err == nil {
+			rawQuery = q.Encode()
+		}
 	}
 
 	switch {

@@ -71,7 +71,10 @@ type Parameter struct {
 	// common_parameters/smart_class_parameters.
 	Value         json.RawMessage `json:"value,omitempty"`
 	ParameterType string          `json:"parameter_type"`
-	HiddenValue   bool            `json:"hidden_value"`
+	// "hidden_value?" (literal question mark), not "hidden_value":
+	// parameter-family responses carry the boolean under the ?-suffixed
+	// key and reuse the plain key for the masked VALUE string ("*****").
+	HiddenValue bool `json:"hidden_value?"`
 }
 
 // RawValueString renders a Foreman parameter's raw JSON "value" as plain

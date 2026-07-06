@@ -222,3 +222,46 @@ func TestListAll_EmptyPageGuard(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, domains)
 }
+
+// TestQueryStringProperlyEncoded pins the wire form of search queries:
+// Go's own HTTP stack happily accepts literal quotes in a query string, but
+// Foreman's server (Puma) rejects them with a 400 - so asserting via
+// r.URL.Query() (which decodes both forms) is NOT enough, the raw bytes on
+// the wire must be percent-encoded.
+func TestQueryStringProperlyEncoded(t *testing.T) {
+	t.Parallel()
+
+	var rawQuery string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rawQuery = r.URL.RawQuery
+		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{Results: []json.RawMessage{}}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	_, err := client.FindDomainByName(context.Background(), "web01.example.com")
+	require.NoError(t, err)
+	assert.NotContains(t, rawQuery, `"`, "raw quotes in the query string get a 400 from Puma")
+	assert.Contains(t, rawQuery, "%22")
+}
+
+// TestAssocIDListDecode covers the generated UnmarshalJSON that lifts
+// association IDs out of the nested object arrays Foreman actually returns
+// (the flat "_ids" keys are write-only; confirmed against a real server).
+func TestAssocIDListDecode(t *testing.T) {
+	t.Parallel()
+
+	var osObj OperatingSystem
+	require.NoError(t, json.Unmarshal([]byte(`{
+		"id": 7, "name": "RHEL", "major": "9",
+		"architectures": [{"id": 1, "name": "x86_64"}, {"id": 2, "name": "aarch64"}],
+		"media": [{"id": 3, "name": "mirror"}],
+		"ptables": [],
+		"provisioning_templates": [{"id": 9, "name": "tpl"}]
+	}`), &osObj))
+	assert.Equal(t, []int64{1, 2}, osObj.ArchitectureIDs)
+	assert.Equal(t, []int64{3}, osObj.MediumIDs)
+	assert.Empty(t, osObj.PtableIDs)
+	assert.Equal(t, []int64{9}, osObj.ProvisioningTemplateIDs)
+	assert.Equal(t, "RHEL", osObj.Name)
+}

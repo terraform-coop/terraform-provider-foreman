@@ -171,7 +171,12 @@ type GenResource struct {
 	// overwhelmingly common case); only needs setting when a resource's own
 	// display-name-like field is called something else (e.g.
 	// smart_class_parameters' "parameter").
-	SearchField  string
+	SearchField string
+	// FindViaList makes Find<Resource>ByName fetch the full (paginated)
+	// list and match client-side instead of using a ?search= query -
+	// for index endpoints that don't support search at all and 400 on it
+	// (confirmed against a real server for template_kinds).
+	FindViaList  bool
 	HasCreate    bool
 	HasUpdate    bool
 	HasDelete    bool
@@ -548,7 +553,11 @@ func hardcodedResources() []GenResource {
 			ShortName:    "templatekind",
 			EndpointBase: "template_kinds",
 			ParamKey:     "template_kind",
-			HasCreate:    false, HasRead: true, HasUpdate: false, HasDelete: false, HasIndex: true,
+			// The template_kinds index endpoint 400s on any ?search= query
+			// (confirmed against a real server); it's a tiny fixed list, so
+			// find-by-name fetches it and matches client-side.
+			FindViaList: true,
+			HasCreate:   false, HasRead: true, HasUpdate: false, HasDelete: false, HasIndex: true,
 			Fields: []GenField{},
 			EntityFields: []GenField{
 				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String"},
