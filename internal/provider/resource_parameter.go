@@ -109,6 +109,18 @@ func (r *parameterResource) ValidateConfig(ctx context.Context, req resource.Val
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	// A parent ID referencing a not-yet-created resource is unknown at plan
+	// time - the exactly-one-of rule can't be evaluated until apply, so
+	// don't reject what may become valid (Create re-checks with real
+	// values).
+	for _, v := range []types.Int64{
+		data.HostID, data.HostgroupID, data.DomainID, data.OperatingsystemID,
+		data.SubnetID, data.LocationID, data.OrganizationID,
+	} {
+		if v.IsUnknown() {
+			return
+		}
+	}
 	_, _, diags := parameterParent(&data)
 	resp.Diagnostics.Append(diags...)
 }

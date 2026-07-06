@@ -30,7 +30,7 @@ resource "foreman_architecture" "x86_64" {
 
 ### Optional
 
-- `operatingsystem_ids` (Set of Number) Operating system IDs
+- `operatingsystem_ids` (Set of Number) Operating system IDs Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 
 ### Read-Only
 

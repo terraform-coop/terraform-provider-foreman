@@ -57,18 +57,18 @@ resource "foreman_subnet" "dc1_vlan24" {
 - `dns_id` (Number) DNS Proxy ID to use within this subnet
 - `dns_primary` (String) Primary DNS for this subnet
 - `dns_secondary` (String) Secondary DNS for this subnet
-- `domain_ids` (Set of Number) Domains in which this subnet is part
+- `domain_ids` (Set of Number) Domains in which this subnet is part Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `externalipam_group` (String) External IPAM group - only relevant when IPAM is set to external
 - `externalipam_id` (Number) External IPAM Proxy ID to use within this subnet
 - `from` (String) Starting IP Address for IP auto suggestion
 - `gateway` (String) Subnet gateway
 - `httpboot_id` (Number) HTTPBoot Proxy ID to use within this subnet
 - `ipam` (String) IP Address auto suggestion mode for this subnet.
-- `location_ids` (Set of Number) REPLACE locations with given ids
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `mask` (String) Netmask for this subnet
 - `mtu` (Number) MTU for this subnet
 - `network_type` (String) Type or protocol, IPv4 or IPv6, defaults to IPv4
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `subnet_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `template_id` (Number) Template HTTP(S) Proxy ID to use within this subnet
 - `tftp_id` (Number) TFTP Proxy ID to use within this subnet

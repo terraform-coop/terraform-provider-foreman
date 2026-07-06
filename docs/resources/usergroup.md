@@ -33,9 +33,9 @@ resource "foreman_usergroup" "operators" {
 ### Optional
 
 - `admin` (Boolean) is an admin user group, can be modified by admins only
-- `role_ids` (Set of Number)
-- `user_ids` (Set of Number)
-- `usergroup_ids` (Set of Number)
+- `role_ids` (Set of Number) Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `user_ids` (Set of Number) Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `usergroup_ids` (Set of Number) Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 
 ### Read-Only
 

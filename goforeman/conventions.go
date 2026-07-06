@@ -69,3 +69,28 @@ func FirstOutOfOrderIdentifier(ids []string) (prev, next string, found bool) {
 	}
 	return "", "", false
 }
+
+// MatchNestedIDs copies server-assigned "id"s from priorItems onto planItems
+// that lack one, matched by the collection's natural key (a host
+// interface's "identifier"). Rails' accepts_nested_attributes_for treats an
+// entry without an id as a NEW record: re-submitting an existing entry
+// id-less makes Foreman try to create a duplicate and fail validation
+// ("Identifier has already been taken", confirmed against a real server) -
+// so declarative callers that only know the desired state must re-attach
+// ids before submitting an update. Pair with AppendDestroyMarkers.
+func MatchNestedIDs(planItems, priorItems []map[string]interface{}, key string) []map[string]interface{} {
+	priorByKey := make(map[interface{}]int64, len(priorItems))
+	for _, m := range priorItems {
+		if id := numericID(m["id"]); id != 0 && m[key] != nil {
+			priorByKey[m[key]] = id
+		}
+	}
+	for _, m := range planItems {
+		if numericID(m["id"]) == 0 && m[key] != nil {
+			if id, ok := priorByKey[m[key]]; ok {
+				m["id"] = id
+			}
+		}
+	}
+	return planItems
+}

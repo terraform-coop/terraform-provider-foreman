@@ -50,11 +50,11 @@ resource "foreman_user" "jdoe" {
 - `firstname` (String)
 - `lastname` (String)
 - `locale` (String) User&#39;s preferred locale
-- `location_ids` (Set of Number) REPLACE locations with given ids
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `mail_enabled` (Boolean) Enable user&#39;s email
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `password` (String, Sensitive) Required unless user is in an external authentication source
-- `role_ids` (Set of Number)
+- `role_ids` (Set of Number) Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `timezone` (String) User&#39;s timezone
 - `ui_compact_mode` (Boolean) Use compact UI
 

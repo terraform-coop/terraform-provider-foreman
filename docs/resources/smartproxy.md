@@ -29,8 +29,8 @@ resource "foreman_smartproxy" "dc1_proxy" {
 
 ### Optional
 
-- `location_ids` (Set of Number) REPLACE locations with given ids
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 
 ### Read-Only
 

@@ -36,8 +36,8 @@ resource "foreman_domain" "example" {
 - `dns_id` (Number) DNS proxy ID to use within this domain
 - `domain_parameters_attributes` (Map of String) Array of parameters (name, value)
 - `fullname` (String) Description of the domain
-- `location_ids` (Set of Number) REPLACE locations with given ids
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 
 ### Read-Only
 

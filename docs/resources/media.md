@@ -36,9 +36,9 @@ resource "foreman_media" "centos_mirror" {
 
 ### Optional
 
-- `location_ids` (Set of Number) REPLACE locations with given ids
-- `operatingsystem_ids` (Set of Number)
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `operatingsystem_ids` (Set of Number) Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `os_family` (String) Operating system family, available values: AIX, Altlinux, Archlinux, Coreos, Debian, Fcos, Freebsd, Gentoo, Junos, NXOS, Rancheros, Redhat, Rhcos, Solaris, Suse, VRP, Windows, Xenserver
 
 ### Read-Only

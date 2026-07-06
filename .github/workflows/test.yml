@@ -91,6 +91,9 @@ jobs:
         with:
           go-version: '1.26'
       - run: go generate ./...
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_wrapper: false
       - name: Start Foreman
         run: docker compose up -d
       - name: Wait for Foreman
@@ -109,14 +112,24 @@ jobs:
           echo "Foreman did not become ready in 600s"
           docker compose logs foreman
           exit 1
-      - name: Run integration tests
-        run: go test -v -tags=integration -count=1 -timeout=300s -race ./internal/provider/...
+      # One run covers both layers against the live Foreman: the
+      # goforeman client integration tests (TestIntegration_*) and the
+      # Terraform acceptance tests (TestAcc*, driven by opentofu via
+      # TF_ACC_TERRAFORM_PATH - the TF_ACC_PROVIDER_* variables are
+      # required for terraform-plugin-testing to accept tofu's registry).
+      - name: Run integration and acceptance tests
+        run: |
+          export TF_ACC_TERRAFORM_PATH=$(which tofu)
+          go test -v -tags=integration -count=1 -timeout=600s -race ./internal/provider/...
         env:
           FOREMAN_INTEGRATION_TESTS: "1"
           FOREMAN_SERVER_HOSTNAME: localhost:3000
           FOREMAN_CLIENT_SCHEME: http
           FOREMAN_CLIENT_USERNAME: admin
           FOREMAN_CLIENT_PASSWORD: changeme
+          TF_ACC: "1"
+          TF_ACC_PROVIDER_NAMESPACE: terraform-coop
+          TF_ACC_PROVIDER_HOST: registry.opentofu.org
       - name: Tear down
         if: always()
         run: docker compose down -v

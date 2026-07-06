@@ -355,17 +355,24 @@ func generateAcceptanceTestFile(resources []GenResource) *jen.File {
 				// resource type exists at all for HasCreate==false &&
 				// HasUpdate==false && HasDelete==false; the others, e.g.
 				// setting/smart_class_parameter, have Update-only semantics
-				// this generic shape doesn't fit either).
-				if !res.HasCreate {
+				// this generic shape doesn't fit either). ParentEndpoint
+				// resources need a parent to exist first and don't fit the
+				// generic shape either. Resources whose create can't work
+				// against the bare CI Foreman are skipped via AccSkip.
+				if !res.HasCreate || res.ParentEndpoint != "" || res.AccSkip != "" {
 					continue
+				}
+				extra := ""
+				if res.AccExtraHCL != "" {
+					extra = "  " + strings.TrimRight(strings.ReplaceAll(res.AccExtraHCL, "\n", "\n  "), " \n") + "\n"
 				}
 				g.Values(jen.Dict{
 					jen.Id("resourceType"): jen.Lit("foreman_" + res.ShortName),
 					jen.Id("config"): jen.Id("providerConfig").Op("+").Lit(fmt.Sprintf(`
 resource "foreman_%s" "test" {
   name = "test-acc-%s"
-}
-`, res.ShortName, res.ShortName)),
+%s}
+`, res.ShortName, res.ShortName, extra)),
 				})
 			}
 		})
@@ -741,6 +748,27 @@ func generateResourceFile(res GenResource) *jen.File {
 			}
 			g.Id("id").Int()
 		}).Error().BlockFunc(func(g *jen.Group) {
+			if len(res.ClearAssocsOnDelete) > 0 {
+				// Foreman refuses to delete this resource while these
+				// associations exist - and the associated side refuses
+				// deletion too ("is used by ...", both directions,
+				// confirmed against a real server), so without clearing
+				// them first no deletion order can ever succeed. Errors are
+				// ignored: if the clear fails the DELETE below surfaces the
+				// real problem.
+				clearBody := jen.Map(jen.String()).Interface().ValuesFunc(func(vg *jen.Group) {
+					for _, assoc := range res.ClearAssocsOnDelete {
+						vg.Add(jen.Lit(assoc).Op(":").Index().Int().Values())
+					}
+				})
+				g.Id("_").Op("=").Id("c").Dot("Put").Call(
+					jen.Id("ctx"),
+					jen.Qual("fmt", "Sprintf").Call(jen.Lit(res.EndpointBase+"/%d"), jen.Id("id")),
+					jen.Lit(res.ParamKey),
+					clearBody,
+					jen.Nil(),
+				)
+			}
 			if res.ParentEndpoint != "" {
 				g.Return(jen.Id("c").Dot("Delete").Call(
 					jen.Id("ctx"),
@@ -1408,11 +1436,17 @@ func addNestedListHelpers(f *jen.File, res GenResource, field GenField) {
 			g.List(jen.Id("obj"), jen.Id("ok")).Op(":=").Id("elem").Assert(jen.Qual("github.com/hashicorp/terraform-plugin-framework/types", "Object"))
 			g.If(jen.Op("!").Id("ok")).Block(jen.Continue())
 			g.Id("a").Op(":=").Id("obj").Dot("Attributes").Call()
-			g.Id("m").Op(":=").Map(jen.String()).Interface().Values(jen.DictFunc(func(d jen.Dict) {
-				for _, nf := range nestedFields {
-					d[jen.Lit(nf.JSONName)] = nestedFlattenAccessor(nf, "a")
-				}
-			}))
+			// Only attributes the user actually set go on the wire:
+			// including a null attribute as its Go zero value sends e.g.
+			// "type": "" for a host interface, which Foreman rejects
+			// outright ("Unknown interface type" - confirmed against a
+			// real server), and silently mis-writes other fields.
+			g.Id("m").Op(":=").Map(jen.String()).Interface().Values()
+			for _, nf := range nestedFields {
+				g.If(jen.Id("attrIsSet").Call(jen.Id("a").Index(jen.Lit(nf.JSONName)))).Block(
+					jen.Id("m").Index(jen.Lit(nf.JSONName)).Op("=").Add(nestedFlattenAccessor(nf, "a")),
+				)
+			}
 			g.Id("out").Op("=").Append(jen.Id("out"), jen.Id("m"))
 		})
 		g.If(jen.Len(jen.Id("out")).Op("==").Lit(0)).Block(jen.Return(jen.Nil()))
@@ -1427,12 +1461,27 @@ func addNestedListHelpers(f *jen.File, res GenResource, field GenField) {
 		// accepts_nested_attributes_for "_destroy" markers for entries
 		// removed from the plan - the convention itself (and why it's
 		// needed) lives with goforeman.AppendDestroyMarkers.
+		// The natural key by which existing entries are recognized across
+		// updates (config entries carry no server id; see
+		// goforeman.MatchNestedIDs).
+		matchKey := "name"
+		for _, nf := range nestedFields {
+			if nf.JSONName == "identifier" {
+				matchKey = "identifier"
+				break
+			}
+		}
 		f.Func().Id(flattenFn+"WithDestroy").Params(
 			jen.Id("planList"), jen.Id("stateList").Qual("github.com/hashicorp/terraform-plugin-framework/types", "List"),
 		).Index().Map(jen.String()).Interface().Block(
+			jen.Id("prior").Op(":=").Id(flattenFn).Call(jen.Id("stateList")),
 			jen.Return(jen.Qual(clientPkgPath, "AppendDestroyMarkers").Call(
-				jen.Id(flattenFn).Call(jen.Id("planList")),
-				jen.Id(flattenFn).Call(jen.Id("stateList")),
+				jen.Qual(clientPkgPath, "MatchNestedIDs").Call(
+					jen.Id(flattenFn).Call(jen.Id("planList")),
+					jen.Id("prior"),
+					jen.Lit(matchKey),
+				),
+				jen.Id("prior"),
 			)),
 		)
 		f.Line()
@@ -1519,17 +1568,108 @@ func assignScalarListField(g *jen.Group, dest, src *jen.Statement, field GenFiel
 	return false
 }
 
+// normalizeUnknownsToNull appends statements that null out any model field
+// still unknown after the API response was applied. Optional+Computed
+// attributes not set in config enter Create/Update as unknown, and any of
+// them the response never mentions (write-only secrets like root_pass,
+// NotReturnedOnRead fields, fields absent from the entity) would otherwise
+// stay unknown - which Terraform rejects wholesale: "Provider returned
+// invalid result object after apply". Confirmed against a real server via
+// the TF acceptance suite. For fields the response DID populate this is a
+// no-op.
+func normalizeUnknownsToNull(g *jen.Group, res GenResource, varName string) {
+	tfTypes := "github.com/hashicorp/terraform-plugin-framework/types"
+	for _, field := range res.Fields {
+		if field.Required {
+			// Required attributes are always known in the plan.
+			continue
+		}
+		accessor := jen.Id(varName).Dot(modelAccessorName(field))
+		var null *jen.Statement
+		switch {
+		case field.IsParametersMap:
+			null = jen.Qual(tfTypes, "MapNull").Call(jen.Qual(tfTypes, "StringType"))
+		case field.IsNestedList:
+			// Nested lists are always assigned from the response via their
+			// expand helper (which yields a typed null for an absent field),
+			// so they can't stay unknown.
+			continue
+		case field.IsList && field.TFType == "Set":
+			null = jen.Qual(tfTypes, "SetNull").Call(jen.Qual(tfTypes, elemTypeName(field)))
+		case field.IsList:
+			null = jen.Qual(tfTypes, "ListNull").Call(jen.Qual(tfTypes, elemTypeName(field)))
+		case field.TFType == "Int64":
+			null = jen.Qual(tfTypes, "Int64Null").Call()
+		case field.TFType == "Bool":
+			null = jen.Qual(tfTypes, "BoolNull").Call()
+		default:
+			null = jen.Qual(tfTypes, "StringNull").Call()
+		}
+		g.If(accessor.Clone().Dot("IsUnknown").Call()).Block(
+			accessor.Clone().Op("=").Add(null),
+		)
+	}
+}
+
+// elemTypeName returns the framework element type identifier for a scalar
+// list/set field ("Int64Type"/"StringType").
+func elemTypeName(field GenField) string {
+	if field.ListElemType == "types.Int64Type" {
+		return "Int64Type"
+	}
+	return "StringType"
+}
+
 // assignEntityFieldsFromResult appends statements to g that copy every
 // entity field out of the "result" API response variable into varName
 // (the "plan" or "state" model variable). Shared by Create, Read, and
 // Update so all three stay in sync.
 func assignEntityFieldsFromResult(g *jen.Group, res GenResource, varName string) {
+	// Name lives on the embedded Base struct and every response returns it,
+	// but whether EntityFields contains its own "name" entry depends on the
+	// apidoc example JSON for that resource (domain: yes; model/host: no).
+	// Without this, resources missing the entry never populate name on
+	// Read - which an import then surfaces as a missing attribute.
+	hasNameEntity := false
+	for _, field := range res.EntityFields {
+		if field.JSONName == "name" {
+			hasNameEntity = true
+			break
+		}
+	}
+	hasNameAttr := false
+	for _, field := range res.Fields {
+		if field.JSONName == "name" {
+			hasNameAttr = true
+			break
+		}
+	}
+	if !hasNameEntity && hasNameAttr {
+		g.Id(varName).Dot("Name").Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Id("result").Dot("Name"))
+	}
 	for _, field := range res.EntityFields {
 		if field.NotReturnedOnRead {
 			continue
 		}
 		dest := jen.Id(varName).Dot(field.GoName)
 		src := jen.Id("result").Dot(field.GoName)
+		if isAssocIDListField(field) {
+			// Association ID sets track ONLY the IDs the user configures.
+			// Foreman auto-associates additional members server-side (an OS
+			// created with one provisioning template gets every
+			// family-matched stock template attached too - confirmed
+			// against a real server), so mirroring the full server set
+			// would make the apply result diverge from the plan (a
+			// framework error) and then show every auto-added member as a
+			// perpetual diff. Create/Update therefore keep the planned
+			// set as-is, and Read keeps only still-present tracked IDs -
+			// dropping members the server lost (real drift) while ignoring
+			// ones it added on its own.
+			if varName == "state" {
+				g.Add(dest.Clone()).Op("=").Id("intersectIDSet").Call(dest.Clone(), src.Clone())
+			}
+			continue
+		}
 		if field.IsParametersMap {
 			g.Add(dest.Clone()).Op("=").Id("expandParameters").Call(src)
 		} else if field.IsPolymorphicValue {
@@ -1906,8 +2046,17 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 							attrs[jen.Id("Computed")] = jen.True()
 						}
 					}
-					if field.Description != "" {
-						attrs[jen.Id("Description")] = jen.Lit(field.Description)
+					desc := field.Description
+					if isAssocIDListField(field) {
+						// User-visible semantics of the intersect-on-read
+						// handling (see assignEntityFieldsFromResult).
+						if desc != "" {
+							desc += " "
+						}
+						desc += "Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched."
+					}
+					if desc != "" {
+						attrs[jen.Id("Description")] = jen.Lit(desc)
 					}
 					if field.IsList {
 						attrs[jen.Id("ElementType")] = jen.Id(field.ListElemType)
@@ -1977,11 +2126,37 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 				jen.Id("resp").Dot("Diagnostics").Dot("AddError").Call(jen.Lit("Client Error"), jen.Qual("fmt", "Sprintf").Call(jen.Lit("Unable to create "+res.ShortName+", got error: %s"), jen.Id("err"))),
 				jen.Return(),
 			)
+			if res.HasRead {
+				// Foreman's create responses are frequently thinner than a
+				// subsequent show of the same record (e.g. http_proxies'
+				// create response omits the server-assigned taxonomy that
+				// show returns - confirmed against a real server), so
+				// computed state written from the create response alone
+				// diverges from what an import would read. Re-read and
+				// prefer that; fall back to the create response if the
+				// follow-up read fails for any reason.
+				if res.ParentEndpoint != "" {
+					g.If(
+						jen.List(jen.Id("refreshed"), jen.Id("readErr")).Op(":=").Id("r").Dot("client").Dot("Read"+res.GoName).Call(jen.Id("ctx"), jen.Id("parentID"), jen.Int().Call(jen.Id("result").Dot("ID"))),
+						jen.Id("readErr").Op("==").Nil().Op("&&").Id("refreshed").Op("!=").Nil(),
+					).Block(
+						jen.Id("result").Op("=").Id("refreshed"),
+					)
+				} else {
+					g.If(
+						jen.List(jen.Id("refreshed"), jen.Id("readErr")).Op(":=").Id("r").Dot("client").Dot("Read"+res.GoName).Call(jen.Id("ctx"), jen.Int().Call(jen.Id("result").Dot("ID"))),
+						jen.Id("readErr").Op("==").Nil().Op("&&").Id("refreshed").Op("!=").Nil(),
+					).Block(
+						jen.Id("result").Op("=").Id("refreshed"),
+					)
+				}
+			}
 			g.Line()
 
 			// Set ID and fields
 			g.Id("plan").Dot("ID").Op("=").Qual("github.com/hashicorp/terraform-plugin-framework/types", "StringValue").Call(jen.Qual("strconv", "Itoa").Call(jen.Int().Call(jen.Id("result").Dot("ID"))))
 			assignEntityFieldsFromResult(g, res, "plan")
+			normalizeUnknownsToNull(g, res, "plan")
 			g.Line()
 
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Trace").Call(jen.Id("ctx"), jen.Lit("created "+res.ShortName), jen.Map(jen.String()).Interface().Values(jen.Dict{
@@ -2104,6 +2279,7 @@ func generateFrameworkResourceFile(res GenResource) *jen.File {
 
 			// Set fields from result
 			assignEntityFieldsFromResult(g, res, "plan")
+			normalizeUnknownsToNull(g, res, "plan")
 			g.Line()
 
 			g.Qual("github.com/hashicorp/terraform-plugin-log/tflog", "Trace").Call(jen.Id("ctx"), jen.Lit("updated "+res.ShortName), jen.Map(jen.String()).Interface().Values(jen.Dict{

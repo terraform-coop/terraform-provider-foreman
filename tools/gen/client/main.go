@@ -138,6 +138,23 @@ type ResourceOverride struct {
 	// decode-as-json.RawMessage/render-as-string treatment but don't match
 	// that sibling pattern.
 	PolymorphicValueFields []string `yaml:"polymorphic_value_fields"`
+	// ClearAssocsOnDelete lists association ID fields (by JSONName) that
+	// must be emptied before the resource can be deleted: Foreman deadlocks
+	// subnet<->domain deletion in BOTH directions while the association
+	// exists ("is used by ..." from either side, confirmed against a real
+	// server), so a plain DELETE can never succeed and terraform destroy
+	// wedges. The generated Delete clears these first.
+	ClearAssocsOnDelete []string `yaml:"clear_assocs_on_delete"`
+	// AcceptanceSkip excludes the resource from the generated per-resource
+	// TF acceptance test (TestAccForemanResources_Basic), with the reason
+	// emitted as a comment. For resources whose create cannot succeed on
+	// the bare CI Foreman instance (plugin missing, needs a live
+	// hypervisor/proxy to talk to, ...).
+	AcceptanceSkip string `yaml:"acceptance_skip"`
+	// AcceptanceExtraHCL is appended inside the resource block of the
+	// generated per-resource TF acceptance config, for resources whose
+	// create requires more than "name" (e.g. media's path).
+	AcceptanceExtraHCL string `yaml:"acceptance_extra_hcl"`
 }
 
 type Overrides struct {
@@ -176,14 +193,19 @@ type GenResource struct {
 	// list and match client-side instead of using a ?search= query -
 	// for index endpoints that don't support search at all and 400 on it
 	// (confirmed against a real server for template_kinds).
-	FindViaList  bool
-	HasCreate    bool
-	HasUpdate    bool
-	HasDelete    bool
-	HasRead      bool
-	HasIndex     bool
-	Fields       []GenField
-	EntityFields []GenField
+	FindViaList bool
+	// AccSkip/AccExtraHCL: see ResourceOverride.AcceptanceSkip/AcceptanceExtraHCL.
+	AccSkip     string
+	AccExtraHCL string
+	// ClearAssocsOnDelete: see ResourceOverride.ClearAssocsOnDelete.
+	ClearAssocsOnDelete []string
+	HasCreate           bool
+	HasUpdate           bool
+	HasDelete           bool
+	HasRead             bool
+	HasIndex            bool
+	Fields              []GenField
+	EntityFields        []GenField
 }
 
 // searchField returns res.SearchField, defaulting to "name".
@@ -450,6 +472,9 @@ func buildResources(doc *ApipieDoc, overrides Overrides) []GenResource {
 
 		applyFieldOverrides(&res, override)
 		applyFieldAliases(&res, override)
+		res.AccSkip = override.AcceptanceSkip
+		res.AccExtraHCL = override.AcceptanceExtraHCL
+		res.ClearAssocsOnDelete = override.ClearAssocsOnDelete
 
 		resources = append(resources, res)
 	}
@@ -470,6 +495,7 @@ func hardcodedResources() []GenResource {
 			ShortName:    "environment",
 			EndpointBase: "environments",
 			ParamKey:     "environment",
+			AccSkip:      "requires the Puppet plugin (bare CI Foreman has no /api/environments)",
 			HasCreate:    true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
 			Fields: []GenField{
 				{JSONName: "name", GoName: "Name", GoType: "string", TFType: "String", TFGoType: "types.String", Required: true},
@@ -479,6 +505,7 @@ func hardcodedResources() []GenResource {
 		{
 			GoName:       "JobTemplate",
 			ShortName:    "jobtemplate",
+			AccSkip:      "requires the Remote Execution plugin",
 			EndpointBase: "job_templates",
 			ParamKey:     "job_template",
 			HasCreate:    true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
@@ -577,6 +604,7 @@ func hardcodedResources() []GenResource {
 		{
 			GoName:       "DiscoveryRule",
 			ShortName:    "discovery_rule",
+			AccSkip:      "requires the Discovery plugin",
 			EndpointBase: "discovery_rules",
 			ParamKey:     "discovery_rule",
 			HasCreate:    true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
@@ -602,6 +630,7 @@ func hardcodedResources() []GenResource {
 		{
 			GoName:       "Webhook",
 			ShortName:    "webhook",
+			AccSkip:      "requires the foreman_webhooks plugin (bare CI image lacks /api/webhooks)",
 			EndpointBase: "webhooks",
 			ParamKey:     "webhook",
 			HasCreate:    true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
@@ -640,6 +669,7 @@ func hardcodedResources() []GenResource {
 		{
 			GoName:       "WebhookTemplate",
 			ShortName:    "webhooktemplate",
+			AccSkip:      "requires the foreman_webhooks plugin (bare CI image lacks /api/webhooks)",
 			EndpointBase: "webhook_templates",
 			ParamKey:     "webhook_template",
 			HasCreate:    true, HasRead: true, HasUpdate: true, HasDelete: true, HasIndex: true,
@@ -687,6 +717,7 @@ func hardcodedResources() []GenResource {
 		// hand-written in generated/katello_*.go / internal/provider/*_katello_*.go.
 		{
 			GoName:         "KatelloContentCredential",
+			AccSkip:        "requires Katello",
 			ShortName:      "katello_content_credential",
 			EndpointBase:   "katello/content_credentials",
 			ParamKey:       "content_credential",
@@ -700,6 +731,7 @@ func hardcodedResources() []GenResource {
 		},
 		{
 			GoName:         "KatelloProduct",
+			AccSkip:        "requires Katello",
 			ShortName:      "katello_product",
 			EndpointBase:   "katello/products",
 			ParamKey:       "product",

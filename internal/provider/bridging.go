@@ -185,3 +185,36 @@ func mapToJSONString(v interface{}) types.String {
 	}
 	return types.StringValue(string(b))
 }
+
+// intersectIDSet returns the members of tracked that the server still
+// reports. Association ID sets track only the IDs the user configured:
+// Foreman auto-associates additional members server-side (see the
+// generated resources' assoc-field handling), so Read must drop tracked
+// IDs the server lost (real drift) without adopting foreign members the
+// server added on its own. A null/unknown tracked set stays null.
+func intersectIDSet(tracked types.Set, serverIDs []int64) types.Set {
+	if tracked.IsNull() || tracked.IsUnknown() {
+		return types.SetNull(types.Int64Type)
+	}
+	onServer := make(map[int64]bool, len(serverIDs))
+	for _, id := range serverIDs {
+		onServer[id] = true
+	}
+	kept := []attr.Value{}
+	for _, v := range tracked.Elements() {
+		if iv, ok := v.(types.Int64); ok && onServer[iv.ValueInt64()] {
+			kept = append(kept, iv)
+		}
+	}
+	out, diags := types.SetValue(types.Int64Type, kept)
+	if diags.HasError() {
+		return types.SetNull(types.Int64Type)
+	}
+	return out
+}
+
+// attrIsSet reports whether a nested object's attribute carries a real,
+// user-set value (not null/unknown) and should be sent on the wire.
+func attrIsSet(v attr.Value) bool {
+	return v != nil && !v.IsNull() && !v.IsUnknown()
+}

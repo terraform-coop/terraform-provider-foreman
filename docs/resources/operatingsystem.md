@@ -45,15 +45,15 @@ resource "foreman_operatingsystem" "centos7" {
 
 ### Optional
 
-- `architecture_ids` (Set of Number) IDs of associated architectures
+- `architecture_ids` (Set of Number) IDs of associated architectures Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `description` (String)
 - `family` (String)
-- `medium_ids` (Set of Number) IDs of associated media
+- `medium_ids` (Set of Number) IDs of associated media Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `minor` (String)
 - `os_parameters_attributes` (Map of String) Array of parameters
 - `password_hash` (String, Sensitive) Root password hash function to use
-- `provisioning_template_ids` (Set of Number) IDs of associated provisioning templates
-- `ptable_ids` (Set of Number) IDs of associated partition tables
+- `provisioning_template_ids` (Set of Number) IDs of associated provisioning templates Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `ptable_ids` (Set of Number) IDs of associated partition tables Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `release_name` (String)
 
 ### Read-Only

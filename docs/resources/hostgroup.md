@@ -55,10 +55,10 @@ resource "foreman_hostgroup" "app" {
 - `compute_resource_id` (Number)
 - `description` (String)
 - `domain_id` (Number)
-- `location_ids` (Set of Number) REPLACE locations with given ids
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `medium_id` (Number)
 - `operatingsystem_id` (Number)
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `parameters` (Map of String)
 - `parent_id` (Number)
 - `ptable_id` (Number)

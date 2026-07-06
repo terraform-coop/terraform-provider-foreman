@@ -39,12 +39,12 @@ resource "foreman_partitiontable" "centos_lvm" {
 
 - `audit_comment` (String)
 - `description` (String)
-- `host_ids` (Set of Number) Array of host IDs to associate with the partition table
-- `hostgroup_ids` (Set of Number) Array of host group IDs to associate with the partition table
-- `location_ids` (Set of Number) REPLACE locations with given ids
+- `host_ids` (Set of Number) Array of host IDs to associate with the partition table Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `hostgroup_ids` (Set of Number) Array of host group IDs to associate with the partition table Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `locked` (Boolean) Whether or not the template is locked for editing
-- `operatingsystem_ids` (Set of Number) Array of operating system IDs to associate with the partition table
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `operatingsystem_ids` (Set of Number) Array of operating system IDs to associate with the partition table Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `os_family` (String)
 - `snippet` (Boolean)
 

@@ -573,16 +573,9 @@ func TestIntegration_EndToEnd(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create subnet: %v", err)
 	}
-	t.Cleanup(func() {
-		// Foreman deadlocks subnet<->domain deletion: an associated subnet
-		// refuses deletion ("is used by <domain>") AND the domain refuses
-		// deletion while the subnet lists it - the association must be
-		// cleared first. The typed SubnetRequest can't express an explicit
-		// empty domain_ids (omitempty swallows it), so clear via raw body.
-		_ = c.Put(context.Background(), fmt.Sprintf("subnets/%d", subnet.ID), "subnet",
-			map[string]interface{}{"domain_ids": []int{}}, nil)
-		_ = c.DeleteSubnet(context.Background(), subnet.ID)
-	})
+	// DeleteSubnet itself clears the domain association first - Foreman
+	// otherwise deadlocks subnet<->domain deletion in both directions.
+	t.Cleanup(func() { _ = c.DeleteSubnet(context.Background(), subnet.ID) })
 
 	if got := subnet.Gateway; got != "198.51.100.1" {
 		t.Errorf("subnet gateway: got %q, want %q", got, "198.51.100.1")

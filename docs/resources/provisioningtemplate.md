@@ -50,10 +50,10 @@ resource "foreman_provisioningtemplate" "centos_kickstart" {
 
 - `audit_comment` (String)
 - `description` (String)
-- `location_ids` (Set of Number) REPLACE locations with given ids
+- `location_ids` (Set of Number) REPLACE locations with given ids Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `locked` (Boolean) Whether or not the template is locked for editing
-- `operatingsystem_ids` (Set of Number) Array of operating system IDs to associate with the template
-- `organization_ids` (Set of Number) REPLACE organizations with given ids.
+- `operatingsystem_ids` (Set of Number) Array of operating system IDs to associate with the template Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
+- `organization_ids` (Set of Number) REPLACE organizations with given ids. Only the IDs listed here are tracked by Terraform; associations Foreman adds on its own (e.g. family-matched stock templates) are left untouched.
 - `snippet` (Boolean)
 - `template_combinations_attributes` (List of String) Array of template combinations (hostgroup_id, environment_id)
 - `template_kind_id` (Number) not relevant for snippet

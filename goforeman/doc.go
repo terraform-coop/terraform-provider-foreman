@@ -70,6 +70,16 @@
 // download_concurrency reads back as 0) - readers must not treat their
 // absence or zero value as "cleared".
 //
+// Server-side auto-association: creating/updating a resource with
+// association IDs can make Foreman attach MORE members than submitted (an
+// operating system created with one provisioning template gets every
+// family-matched stock template and partition table associated too), and
+// some associations deadlock deletion in both directions until cleared
+// (subnet<->domain; DeleteSubnet clears it first). Declarative consumers
+// should treat association ID lists as "ensure these are members", not as
+// the exhaustive set - see also MatchNestedIDs for the id-matching needed
+// to update nested collections declaratively.
+//
 // Odd response shapes: settings have string IDs (the setting's key) and
 // user-typed values; the puppetclasses index groups results by Puppet
 // environment name instead of the flat results array every other endpoint
