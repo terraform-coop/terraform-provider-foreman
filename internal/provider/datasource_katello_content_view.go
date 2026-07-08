@@ -1,0 +1,151 @@
+package provider
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
+
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+)
+
+var (
+	_ datasource.DataSource = &katelloContentViewDataSource{}
+)
+
+func NewKatelloContentViewDataSource() datasource.DataSource {
+	return &katelloContentViewDataSource{}
+}
+
+type katelloContentViewDataSource struct {
+	client *goforeman.Client
+}
+
+type katelloContentViewDataSourceModel struct {
+	ID                types.String `tfsdk:"id"`
+	Name              types.String `tfsdk:"name"`
+	Description       types.String `tfsdk:"description"`
+	Label             types.String `tfsdk:"label"`
+	OrganizationID    types.Int64  `tfsdk:"organization_id"`
+	Composite         types.Bool   `tfsdk:"composite"`
+	AutoPublish       types.Bool   `tfsdk:"auto_publish"`
+	SolveDependencies types.Bool   `tfsdk:"solve_dependencies"`
+	Filtered          types.Bool   `tfsdk:"filtered"`
+	LatestVersionID   types.Int64  `tfsdk:"latest_version_id"`
+	LatestVersion     types.String `tfsdk:"latest_version"`
+	ContentHostCount  types.Int64  `tfsdk:"content_host_count"`
+	VersionCount      types.Int64  `tfsdk:"version_count"`
+}
+
+func (d *katelloContentViewDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_katello_content_view"
+}
+
+func (d *katelloContentViewDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{
+		Attributes: map[string]schema.Attribute{
+			"id": schema.StringAttribute{
+				Computed: true,
+			},
+			"name": schema.StringAttribute{
+				Required:    true,
+				Description: "The name of the katello content view to look up.",
+			},
+			"description": schema.StringAttribute{
+				Computed:    true,
+				Description: "Description of the content view",
+			},
+			"label": schema.StringAttribute{
+				Computed:    true,
+				Description: "Label of the content view",
+			},
+			"organization_id": schema.Int64Attribute{
+				Computed:    true,
+				Description: "Organization ID",
+			},
+			"composite": schema.BoolAttribute{
+				Computed:    true,
+				Description: "Composite content view",
+			},
+			"auto_publish": schema.BoolAttribute{
+				Computed:    true,
+				Description: "Auto publish composite view",
+			},
+			"solve_dependencies": schema.BoolAttribute{
+				Computed:    true,
+				Description: "Solve dependencies",
+			},
+			"filtered": schema.BoolAttribute{
+				Computed:    true,
+				Description: "Content view has filters",
+			},
+			"latest_version_id": schema.Int64Attribute{
+				Computed:    true,
+				Description: "Latest version ID",
+			},
+			"latest_version": schema.StringAttribute{
+				Computed:    true,
+				Description: "Latest version",
+			},
+			"content_host_count": schema.Int64Attribute{
+				Computed:    true,
+				Description: "Content host count",
+			},
+			"version_count": schema.Int64Attribute{
+				Computed:    true,
+				Description: "Version count",
+			},
+		},
+	}
+}
+
+func (d *katelloContentViewDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+	client, ok := req.ProviderData.(*goforeman.Client)
+	if !ok {
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
+		return
+	}
+	d.client = client
+}
+
+func (d *katelloContentViewDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data katelloContentViewDataSourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	name := data.Name.ValueString()
+	result, err := d.client.FindKatelloContentViewByName(ctx, name)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read katello content view, got error: %s", err))
+		return
+	}
+	if result == nil {
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("KatelloContentView %q not found", name))
+		return
+	}
+
+	data.ID = types.StringValue(strconv.Itoa(int(result.ID)))
+	data.Description = types.StringValue(result.Description)
+	data.Label = types.StringValue(result.Label)
+	data.OrganizationID = types.Int64Value(int64(result.OrganizationID))
+	data.Composite = types.BoolValue(result.Composite)
+	data.AutoPublish = types.BoolValue(result.AutoPublish)
+	data.SolveDependencies = types.BoolValue(result.SolveDependencies)
+	data.Filtered = types.BoolValue(result.Filtered)
+	data.LatestVersionID = types.Int64Value(int64(result.LatestVersionID))
+	data.LatestVersion = types.StringValue(result.LatestVersion)
+	data.ContentHostCount = types.Int64Value(int64(result.ContentHostCount))
+	data.VersionCount = types.Int64Value(int64(result.VersionCount))
+
+	tflog.Trace(ctx, "read katello content view data source", map[string]interface{}{"id": data.ID.ValueString()})
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}

@@ -1,0 +1,294 @@
+# Type corrections and field exclusions for generated Foreman client code.
+# Run `go generate` to regenerate after editing this file.
+#
+# RULE: Only exclude fields that are TRULY read-only, taxonomy-managed,
+# or nested object duplications. Never exclude fields the old provider supported.
+# "manage in UI" is NEVER an acceptable reason.
+#
+# KNOWN GAP: provisioning_templates.template_combinations_attributes.
+# apidoc/v2.json declares this field as a bare "array" with zero sub-params
+# (a documentation gap - no example, no nested param list), so the generic
+# field-shape detection can't infer anything better than a flat list. The
+# old provider modeled it as objects ({hostgroup_id, environment_id, id,
+# _destroy}), letting a combination be scoped to a hostgroup+environment
+# pair and removed individually; the current flat-list shape can't express
+# either. Fixing this for real needs a new override mechanism (manually
+# injecting a nested field's sub-schema when apidoc has no example to infer
+# it from) that doesn't exist yet - not attempted here since guessing the
+# exact JSON field names without a source of truth risks shipping a
+# confidently wrong shape instead of an honestly incomplete one.
+skip_resources:
+  # autosign entries don't fit the generic pipeline's assumptions: the
+  # entity's own "id" is a user-supplied hostname/wildcard pattern (a
+  # string), not a server-assigned integer; the API is nested under
+  # /api/smart_proxies/:smart_proxy_id/autosign (parent scoping the
+  # generic apidoc-driven path doesn't support); create params aren't
+  # wrapped in a hash (so the field detector finds nothing); and there is
+  # no "show" endpoint at all. Hand-written in generated/autosign.go,
+  # resource_autosign.go, datasource_autosign.go.
+  - autosign
+  # compute_profiles' own create/update body only has "name" (confirmed
+  # against apidoc); its per-compute-resource VM sizing attributes are a
+  # separate resource scoped by BOTH compute_profile_id and
+  # compute_resource_id at once, which ParentEndpoint (single parent) can't
+  # express. Hand-written in generated/compute_profile.go,
+  # resource_compute_profile.go, datasource_compute_profile.go to restore
+  # the old provider's nested compute_attributes list behavior.
+  - compute_profiles
+  # Foreman has no bare /api/parameters route at all - every method
+  # (index/show/create/update/destroy) is scoped under exactly one of 7
+  # different parent types (confirmed against apidoc:
+  # hosts/hostgroups/domains/operatingsystems/locations/organizations/
+  # subnets/:parent_id/parameters). The generic ParentEndpoint mechanism
+  # only supports a single fixed parent type, not an exactly-one-of-N
+  # choice. Hand-written in generated/parameter.go, resource_parameter.go,
+  # datasource_parameter.go.
+  - parameters
+  # Confirmed against real Foreman 1.11 API response fixtures: a setting's
+  # own "id" is a string (the setting's key, e.g. "append_domain_name_for_
+  # hosts"), not a server-assigned integer - the generic pipeline
+  # unconditionally embeds ForemanObject (ID int) and builds "settings/%d"
+  # URLs, both wrong here. Same class of problem as autosign. Its "value"
+  # is also user-typed like common_parameters/parameters (this fixture
+  # shows a JSON boolean, not a string). Hand-written in generated/
+  # setting.go, resource_setting.go, datasource_setting.go.
+  - settings
+  # Confirmed against a real Foreman 3.1.2 API response fixture: the
+  # puppetclasses index/query endpoint groups results by Puppet
+  # environment name ({"testing": [...]}), not the standard flat
+  # {"results": [...]} array every other resource uses - the generic
+  # QueryResponse shape can't decode it at all (json.Unmarshal error on
+  # every search). Only the CLIENT file needs to be hand-written for
+  # this (generated/puppet_class.go); the data source stays generated,
+  # calling the hand-written Query function normally.
+  - puppetclasses
+skip_data_sources:
+  # autosign's data source is also hand-written (see skip_resources above) -
+  # the generic shape (lookup-by-"name") doesn't apply since autosign has no
+  # "name" field and needs a smart_proxy_id to look anything up.
+  - autosign
+  # compute_profiles' data source also needs the hand-written
+  # compute_attributes list (see skip_resources above).
+  - compute_profiles
+  # parameters' data source also needs the same hand-written parent-scoping
+  # (see skip_resources above).
+  - parameters
+  # settings' data source also needs the hand-written string-id/polymorphic
+  # value handling (see skip_resources above).
+  - settings
+resources:
+  # KNOWN GAP (not an oversight): the old provider's hosts/hostgroups also
+  # supported puppet_class_ids/config_group_ids (Puppet plugin) and, on
+  # hostgroups, content_source_id/content_view_id/lifecycle_environment_id
+  # (Katello extension). None of these appear anywhere in the pinned
+  # apidoc/v2.json (confirmed: apidoc's own hosts/hostgroups create params
+  # list has no puppet_class_ids/config_group_ids at all), i.e. this apidoc
+  # was captured from a core-Foreman-only instance with neither plugin
+  # enabled. Adding them here would mean guessing their JSON shape with no
+  # way to verify it - regenerate apidoc/v2.json from a Puppet+Katello-enabled
+  # Foreman instance to pick these up for real instead.
+  hosts:
+    acceptance_extra_hcl: |
+      managed = false
+      build   = false
+    exclude_fields:
+      # --- READ-ONLY DISPLAY NAMES (use _id fields instead) ---
+      - compute_resource_name
+      - domain_name
+      - architecture_name
+      - operatingsystem_name
+      - medium_name
+      - subnet_name
+      - subnet6_name
+      - ptable_name
+      - hostgroup_name
+      - owner_name
+      - realm_name
+      - puppet_ca_proxy_name
+      - puppet_proxy_name
+      - model_name
+      - compute_profile_name
+      - image_name
+      # --- NESTED OBJECT DUPLICATIONS (use _id fields instead) ---
+      - operatingsystem    # Use operatingsystem_id
+      - compute_resource   # Use compute_resource_id
+      - domain             # Use domain_id
+      - hostgroup          # Use hostgroup_id
+      - architecture       # Use architecture_id
+      - medium             # Use medium_id
+      - subnet             # Use subnet_id
+      - subnet6            # Use subnet6_id
+      - ptable             # Use ptable_id
+      - realm              # Use realm_id
+      - puppet_ca_proxy    # Use puppet_ca_proxy_id
+      - puppet_proxy       # Use puppet_proxy_id
+      - model              # Use model_id
+      - compute_profile    # Use compute_profile_id
+      - image              # Use image_id
+      # --- COMPUTED/SYSTEM-MANAGED (not user-settable) ---
+      - token              # Security token, read-only
+      - certificate_name   # Read-only
+      - puppet_status      # Read-only
+      - image_file         # Read-only
+      - uuid               # Set by compute resource
+      - capabilities       # Read-only
+      - hostgroup_title    # Computed from parent chain
+      # --- TAXONOMY FIELDS (handled at provider level) ---
+      - location_id        # Handled by addTaxonomy()
+      - location_ids       # Handled by addTaxonomy()
+      - location_name      # Taxonomy display name
+      - locations          # Taxonomy nested object
+      - organization_id    # Handled by addTaxonomy()
+      - organization_ids   # Handled by addTaxonomy()
+      - organization_name  # Taxonomy display name
+      - organizations      # Taxonomy nested object
+      # --- COMPLEX NESTED TYPES ---
+      - template_combinations        # Managed via provisioning_template_ids
+      - all_parameters               # Read-only aggregation
+    field_aliases:
+      # Foreman returns host parameters under "parameters" but accepts them
+      # for write under "host_parameters_attributes".
+      parameters: host_parameters_attributes
+      # Foreman returns network interfaces under "interfaces" but accepts
+      # them for write under "interfaces_attributes".
+      interfaces: interfaces_attributes
+    attribute_renames:
+      # Match the old provider's attribute name (and Foreman's own write-side
+      # wire name) instead of the read-side "interfaces" - purely a naming
+      # choice (the field_aliases entry above still does the actual
+      # read/write reconciliation either way), but this is the one place our
+      # naming diverged from the old provider for no reason.
+      interfaces: interfaces_attributes
+  hostgroups:
+    exclude_fields:
+      # --- READ-ONLY DISPLAY NAMES ---
+      - architecture_name
+      - compute_profile_name
+      - compute_resource_name
+      - domain_name
+      - medium_name
+      - operatingsystem_name
+      - parent_name
+      - ptable_name
+      - puppet_ca_proxy_name
+      - puppet_proxy_name
+      - realm_name
+      - subnet6_name
+      - subnet_name
+      # --- INHERITED VALUES (set by parent hostgroup) ---
+      - inherited_architecture_id
+      - inherited_compute_profile_id
+      - inherited_compute_resource_id
+      - inherited_domain_id
+      - inherited_medium_id
+      - inherited_operatingsystem_id
+      - inherited_ptable_id
+      - inherited_puppet_ca_proxy_id
+      - inherited_puppet_proxy_id
+      - inherited_pxe_loader
+      - inherited_realm_id
+      - inherited_subnet6_id
+      - inherited_subnet_id
+      # --- NESTED OBJECT DUPLICATIONS ---
+      - puppet_ca_proxy
+      - puppet_proxy
+      # --- COMPUTED ---
+      - ancestry            # Internal tree structure
+      - title               # Computed from parent chain
+      # --- TAXONOMY FIELDS ---
+      - locations
+      - organizations
+      # --- COMPLEX NESTED TYPES (need custom bridging) ---
+      - template_combinations       # Managed via provisioning_template_ids
+    field_aliases:
+      # Foreman returns hostgroup parameters under "parameters" but accepts
+      # them for write under "group_parameters_attributes".
+      parameters: group_parameters_attributes
+  media:
+    short_name: media
+    acceptance_extra_hcl: |
+      path = "http://mirror.example.test/$version/$arch"
+  template_inputs:
+    short_name: templateinput
+    # Real endpoint is /api/templates/:template_id/template_inputs - nested
+    # under a single numeric parent, same as os_default_templates below. The
+    # generic pipeline previously ignored this and generated a flat
+    # /api/template_inputs endpoint that doesn't exist, so every CRUD call
+    # 404'd against a real server.
+    parent_endpoint: templates
+  os_default_templates:
+    # Real endpoint is /api/operatingsystems/:operatingsystem_id/os_default_templates -
+    # nested under a single numeric parent that the generic pipeline previously
+    # dropped entirely (every CRUD call hit the un-scoped, wrong URL and would
+    # 404 against a real server).
+    parent_endpoint: operatingsystems
+  compute_resources:
+    # Foreman connects to the hypervisor/cloud endpoint when a compute
+    # resource is created - impossible against the bare CI instance.
+    acceptance_skip: creating a compute resource makes Foreman probe the hypervisor
+    field_types:
+      id: int
+    attribute_renames:
+      # "provider" is a Terraform-reserved root attribute/block name; Foreman's
+      # compute resource backend type (EC2, Libvirt, VMware, ...) must be
+      # exposed under a different Terraform attribute name. The Foreman API
+      # wire field name ("provider") is unaffected.
+      provider: compute_resource_provider
+  architectures:
+    exclude_fields:
+      # None currently excluded — ptables managed via operatingsystem.ptable_ids
+  ptables:
+    acceptance_extra_hcl: |
+      layout = "autopart"
+    # Confirmed against a real server by the old provider (see its
+    # setResourceDataFromForemanPartitionTable): these 6 fields are accepted
+    # on create/update but never actually included in Foreman's ptables API
+    # response. Copying the response's zero value into state on every
+    # Create/Read/Update would silently wipe out whatever the user
+    # configured, so these are left untouched by the API response instead.
+    not_returned_on_read:
+      - snippet
+      - locked
+      - audit_comment
+      - hostgroup_ids
+      - host_ids
+      - description
+  subnets:
+    # Foreman deadlocks subnet<->domain deletion in both directions while
+    # the association exists - the generated Delete clears it first.
+    clear_assocs_on_delete:
+      - domain_ids
+    acceptance_extra_hcl: |
+      network = "192.0.2.0"
+      mask    = "255.255.255.0"
+    # Confirmed against real Foreman 1.11 API response fixtures (the old
+    # provider's test suite): "cidr" and "vlanid" are documented in apidoc
+    # as strings, but the server actually returns them as JSON numbers (or
+    # null for vlanid), crashing json.Unmarshal for every subnet read.
+    polymorphic_value_fields:
+      - cidr
+      - vlanid
+  operatingsystems:
+    acceptance_extra_hcl: |
+      major = "1"
+  provisioning_templates:
+    # snippet=true sidesteps the otherwise-required template_kind_id, which
+    # is install-specific and can't appear in a static single-resource config.
+    acceptance_extra_hcl: |
+      template = "# acceptance test template"
+      snippet  = true
+  http_proxies:
+    acceptance_extra_hcl: |
+      url = "http://proxy.example.test:3128"
+  common_parameters:
+    acceptance_extra_hcl: |
+      value          = "test-acc-value"
+      parameter_type = "string"
+  realms:
+    acceptance_skip: requires a realm smart proxy on the CI instance
+  smart_proxies:
+    acceptance_skip: Foreman probes the proxy URL during create
+  users:
+    acceptance_skip: no "name" attribute (login/mail/auth_source_id) - does not fit the generic shape
+  images:
+    acceptance_skip: requires a compute resource (hypervisor) to attach to

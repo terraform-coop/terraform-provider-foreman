@@ -1,0 +1,1 @@
+terraform import foreman_setting.append_domain_name_for_hosts <setting_id>

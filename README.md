@@ -9,9 +9,9 @@ Use the provider from the official **Terraform registry**:
 This is a fork of the project previously developed, owned, and maintained by
 the SRE - Orchestration pod at Wayfair.
 
-This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation and
-Go modules for dependency management.  Dependencies are tracked as part of the
-repository.
+Resource/data-source documentation is rendered directly by the Terraform
+Registry from the `docs/` directory in this repository — see the
+[registry listing](https://registry.terraform.io/providers/terraform-coop/foreman/latest/docs).
 
 **Example use-cases** of this provider are included in this repository under `./examples`.
 See the examples for more information.
@@ -109,36 +109,56 @@ section:
 
 ## Documentation
 
-The rendered documentation is available at
-[terraform-coop.github.io/terraform-provider-foreman](https://terraform-coop.github.io/terraform-provider-foreman/).
+Rendered documentation is available on the
+[Terraform Registry](https://registry.terraform.io/providers/terraform-coop/foreman/latest/docs),
+which renders it directly from the `docs/` directory committed to this
+repository — no separate hosting or build step is required to view it.
 
-This repository uses [`mkdocs`](https://www.mkdocs.org/) for documentation.
-Follow the installation instructions on
-[`mkdocs`](https://www.mkdocs.org/#installation) to get started or use the
-auto-generated documentation available on the Github Pages for this project.
-
-The `mkdocs` configuration and associated markdown is auto-generated for the
-provider using the `autodoc` package from the utility repository. The
-`autodoc` tool uses text templates defined in `templates` and the schema
-definitions in the provider to generate all the necessary `mkdocs` files and
-resources. The `autodoc` command is located in `cmd/autodoc/main.go`.
-
-To generate and view the entire repository and in-depth provider documentation:
+`docs/` is generated from the provider's schema plus the real `.tf` examples
+under `examples/` using [`terraform-plugin-docs`](https://github.com/hashicorp/terraform-plugin-docs)
+(`tfplugindocs`). After changing a resource/data-source schema or its
+example, regenerate the docs and commit the result:
 
 ```
-$> go build -v -o autodoc $(go list ./cmd/autodoc)
-$> mkdir -p docs/{data-sources,resources}
-$> ./autodoc
-$> mkdocs serve
-INFO    -  Building documentation...
-INFO    -  Cleaning site directory
-[I 160402 15:50:43 server:271] Serving on http://127.0.0.1:8000
-[I 160402 15:50:43 handlers:58] Start watching changes
-[I 160402 15:50:43 handlers:60] Start detecting changes
+$> make docs
 ```
 
-The documentation can then be viewed by accessing localhost in your favorite
-browser or viewport.
+CI (`docs` job in `.github/workflows/test.yml`) fails the build if `docs/`
+is out of date, so this must be run and committed alongside any schema
+change.
+
+## Using the Go client library (goforeman)
+
+The Foreman API client this provider is built on lives in
+[`goforeman/`](./goforeman) as its own Go module,
+`github.com/terraform-coop/terraform-provider-foreman/goforeman`, usable
+by any Go program without pulling in the provider's terraform-plugin
+dependency tree:
+
+```go
+import "github.com/terraform-coop/terraform-provider-foreman/goforeman"
+
+client := goforeman.NewClient(serverURL,
+    goforeman.WithBasicAuth("admin", "changeme"),
+    goforeman.WithTaxonomy(orgID, locID),
+)
+host, err := client.FindHostByName(ctx, "web01.example.com")
+```
+
+It deliberately absorbs the Foreman API's sharp edges (URL namespace
+routing, taxonomy placement, async task polling, polymorphic parameter
+values, the `_destroy` deletion convention, and more) — see the package
+documentation in [`goforeman/doc.go`](./goforeman/doc.go) for the full
+list. Library releases are tagged `goforeman/vX.Y.Z` (Go's nested-module
+tag format), independently of the provider's `vX.Y.Z` releases:
+
+```
+$> go get github.com/terraform-coop/terraform-provider-foreman/goforeman@goforeman/v0.1.0
+```
+
+Most of the client is regenerated from `apidoc/v2.json` by
+`tools/gen/client` (same `make generate` as the provider); the
+hand-written files are the allowlisted ones in `.gitignore`.
 
 ## Logging
 
@@ -157,59 +177,46 @@ Windows
 > $env:TF_LOG = "DEBUG"
 ```
 
-The provider is set to log to the file `terraform-provider-foreman.log` with
-all Foreman provider specific log messages sent to this file.  When the
-provider is executed, it will create the provider log file in the current
-working directory (if it does not exist).  If the log file already exists,
-then the logs are *appended* to the existing file.  In the case the
-provider cannot create/open the desired log file, the provider defaults to
-sending log messages to `stderr`.
+The provider logs through [`tflog`](https://developer.hashicorp.com/terraform/plugin/log/writing),
+the standard Terraform Plugin Framework logging library. Log output is
+controlled entirely by Terraform's own `TF_LOG`/`TF_LOG_PROVIDER` environment
+variables (see the link above) and goes to Terraform's normal log stream —
+there is no separate provider-specific log file to configure.
 
-The provider uses a level-based logging module that extends the golang
-stdlib `log` package.  When the log level is set to a verbosity threshold,
-only log messages of that verbosity and higher are sent to the output file.
+## Migrating from the pre-rewrite provider
 
-From most verbose to least verbose:
+The `provider_loglevel` and `provider_logfile` provider-block arguments (and
+their `FOREMAN_PROVIDER_LOGLEVEL`/`FOREMAN_PROVIDER_LOGFILE` environment
+variable equivalents) from the old custom file-based logger no longer exist.
+Remove them from your provider block if present — `terraform plan`/`apply`
+will otherwise fail with an "Unsupported argument" error — and use `TF_LOG`
+as described above instead.
 
-| Log Level | Description |
-| :--- | :--- |
-| DEBUG | Intermediate calculations, values. Useful when debugging. |
-| TRACE | Function enter/exit notifications |
-| INFO | Notifications - not related to suspicious behavior or errors |
-| WARNING | Suspcious or error behavior, but the system was able to recover or default/degrade gracefully |
-| ERROR | Behavior that causes the program execution to stop |
-| NONE | Do not log any output |
+The `foreman_global_parameter` resource and data source were renamed to
+`foreman_commonparameter`. Update your configuration's resource/data source
+type accordingly; existing state can be migrated with
+[`terraform state mv`](https://developer.hashicorp.com/terraform/cli/commands/state/mv),
+e.g. `terraform state mv foreman_global_parameter.example foreman_commonparameter.example`.
 
-The provider's log level defaults to `INFO`, meaning `INFO`, `WARNING`, and
-`ERROR` messages are committed to the log file, `DEBUG` and `TRACE` are
-ignored.  The log level can be overridden by either setting the
-`provider_loglevel` attribute in the provider block of the Terraform module,
-or by setting the environment variable `FOREMAN_PROVIDER_LOGLEVEL`.  If both
-values are set, `provider_loglevel` takes precedence. You can also override
-the Foreman provider's log file using the `FOREMAN_PROVIDER_LOGFILE`
-environment variable. A value of `-` preserves the stdlib `log` behavior
-and outputs to the `stdlog` stream.
+Every other provider-block argument (`server_hostname`, `server_protocol`,
+`client_username`/`FOREMAN_CLIENT_USERNAME`,
+`client_password`/`FOREMAN_CLIENT_PASSWORD`, `client_tls_insecure`,
+`client_auth_negotiate`, `organization_id`, `location_id`) is unchanged.
 
-Ex:
+## Known limitations
 
-Terraform module
-```
-provider "foreman" {
-  ...
-  provider_loglevel = "DEBUG"
-  provider_logfile  = "terraform-provider-foreman.log"
-  ...
-}
-```
-
-MacOS / Linux
-```shell
-$> export FOREMAN_PROVIDER_LOGLEVEL="DEBUG"
-$> export FOREMAN_PROVIDER_LOGFILE="terraform-provider-foreman.log"
-```
-
-Windows
-```powershell
-> $env:FOREMAN_PROVIDER_LOGLEVEL = "DEBUG"
-> $env:FOREMAN_PROVIDER_LOGFILE = "terraform-provider-foreman.log"
-```
+**Creating many `foreman_host` resources at once can hit a Foreman-side race
+condition.** ([#192](https://github.com/terraform-coop/terraform-provider-foreman/issues/192))
+Under Terraform's default parallelism, some hosts in a large batch may fail
+to create with no logged error, and a subsequent `terraform apply` then
+fails with `Name has already been taken` for those hosts even though they
+don't appear in the Foreman web UI or `hammer` — the host row was partially
+created before something in Foreman's own request handling (most likely
+contention in its orchestration providers: DHCP/DNS/TFTP record creation)
+failed. `POST /api/hosts` is a plain synchronous call with no async task to
+wait on (confirmed against `apidoc/v2.json` and this provider's client code),
+so this isn't a case of the provider returning before Foreman has actually
+finished — the race is on Foreman's side under concurrent host creation. If
+you hit this, apply with a lower parallelism for the hosts in question, e.g.
+`terraform apply -parallelism=1`, or `-parallelism=<N>` tuned to what your
+Foreman instance can handle concurrently.

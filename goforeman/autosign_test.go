@@ -1,0 +1,88 @@
+package goforeman
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestCreateAutosign(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/smart_proxies/5/autosign", r.URL.Path)
+		var body map[string]string
+		require.NoError(t, json.NewDecoder(r.Body).Decode(&body))
+		assert.Equal(t, "*.example.com", body["id"])
+		w.WriteHeader(http.StatusCreated)
+		require.NoError(t, json.NewEncoder(w).Encode(Autosign{ID: "*.example.com"}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	result, err := client.CreateAutosign(context.Background(), 5, "*.example.com")
+	require.NoError(t, err)
+	assert.Equal(t, "*.example.com", result.ID)
+}
+
+func TestDeleteAutosign(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/smart_proxies/5/autosign/%2A.example.com", r.URL.Path)
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	err := client.DeleteAutosign(context.Background(), 5, "*.example.com")
+	require.NoError(t, err)
+}
+
+func TestReadAutosign_Found(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/smart_proxies/5/autosign", r.URL.Path)
+		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{
+			Results: []json.RawMessage{
+				[]byte(`{"id":"other.example.com"}`),
+				[]byte(`{"id":"*.example.com"}`),
+			},
+		}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	result, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, "*.example.com", result.ID)
+}
+
+func TestReadAutosign_NotFound(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		require.NoError(t, json.NewEncoder(w).Encode(QueryResponse{Results: []json.RawMessage{}}))
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	result, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
+	require.NoError(t, err)
+	assert.Nil(t, result)
+}
+
+func TestReadAutosign_Error(t *testing.T) {
+	t.Parallel()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	defer srv.Close()
+
+	client := NewClient(parseURL(srv.URL))
+	_, err := client.ReadAutosign(context.Background(), 5, "*.example.com")
+	assert.Error(t, err)
+}

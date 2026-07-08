@@ -1,0 +1,1 @@
+terraform import foreman_computeresource.vmware <computeresource_id>

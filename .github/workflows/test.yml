@@ -2,67 +2,134 @@ name: Test
 on:
   pull_request:
     branches:
+      - main
       - master
     paths:
       - '**.go'
       - '.github/workflows/*.yml'
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - run: go generate ./...
+      - run: go build -v .
+      - run: go build ./...
+        working-directory: goforeman
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - run: go generate ./...
+      - uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.12.2
+      # golangci-lint does not cross module boundaries; lint the nested
+      # goforeman module separately.
+      - uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.12.2
+          working-directory: goforeman
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - run: make docs-check
+
   test:
     strategy:
       matrix:
-        go-version: ['>=1.21','>=1.22']
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.platform }}
-    steps:
-    - name: Install Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: ${{ matrix.go-version }}
-
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Run go code tests
-      run: go test ./... -v -covermode=count
-
-    - name: Compile terraform provider binary
-      run: go build
-
-    - name: Install terraform
-      uses: hashicorp/setup-terraform@v3
-
-    - name: Test provider integrity
-      run: terraform plan -input=false -no-color
-      working-directory: ./examples/verify_provider
-      env:
-        TF_CLI_CONFIG_FILE: tfoverriderc
-
-  buildtest:
+        opentofu: ['1.11.*', '1.12.*']
     runs-on: ubuntu-latest
     steps:
-    - name: Install Go
-      if: success()
-      uses: actions/setup-go@v3
-      with:
-        go-version: '>=1.22'
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: ${{ matrix.opentofu }}
+          tofu_wrapper: false
+      - run: go generate ./...
+      # goforeman is a nested module: a single `go test ./...` from the root
+      # can't span both, so each module writes its own profile and the two
+      # are concatenated (stripping the second "mode:" header line) into one
+      # combined gate - gating per module would fail the provider side,
+      # whose own coverage is intentionally still low.
+      # Compile-check the integration-tagged test code here too: it is
+      # otherwise only built by the integration job, minutes after a
+      # Foreman container boots - a plain compile error in it should fail
+      # fast instead (this exact miss happened once: a rename that normal
+      # builds couldn't see because of the build tag).
+      - run: go vet -tags=integration ./internal/provider/
+      - run: go test -race -count=1 -coverprofile=coverage-provider.out ./internal/...
+      - run: go test -race -count=1 -coverprofile=coverage.out ./...
+        working-directory: goforeman
+      - run: |
+          cp coverage-provider.out coverage.out
+          tail -n +2 goforeman/coverage.out >> coverage.out
+      # Coverage gate is intentionally low while the rewrite's test suite is
+      # being built back up. Raise this threshold as tests are added.
+      - run: "go tool cover -func=coverage.out | grep total | awk '{print $3}' | tr -d '%' | awk '{exit ($1 >= 5.0) ? 0 : 1}'"
 
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Run GoReleaser Test
-      uses: goreleaser/goreleaser-action@v5
-      with:
-        version: latest
-        args: release --clean --snapshot --skip sign
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload assets
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ github.run_id }}
-        path: |
-          dist/terraform-provider-foreman*
-          !dist/*.zip
-        retention-days: 3
-        overwrite: true
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+      - run: go generate ./...
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_wrapper: false
+      - name: Start Foreman
+        run: docker compose up -d
+      - name: Wait for Foreman
+        run: |
+          echo "Waiting for Foreman to be ready..."
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null \
+              -u admin:changeme \
+              "http://localhost:3000/api/v2/status" 2>/dev/null; then
+              echo "Foreman is ready"
+              exit 0
+            fi
+            echo "  attempt $i/60..."
+            sleep 10
+          done
+          echo "Foreman did not become ready in 600s"
+          docker compose logs foreman
+          exit 1
+      # One run covers both layers against the live Foreman: the
+      # goforeman client integration tests (TestIntegration_*) and the
+      # Terraform acceptance tests (TestAcc*, driven by opentofu via
+      # TF_ACC_TERRAFORM_PATH - the TF_ACC_PROVIDER_* variables are
+      # required for terraform-plugin-testing to accept tofu's registry).
+      - name: Run integration and acceptance tests
+        run: |
+          export TF_ACC_TERRAFORM_PATH=$(which tofu)
+          go test -v -tags=integration -count=1 -timeout=600s -race ./internal/provider/...
+        env:
+          FOREMAN_INTEGRATION_TESTS: "1"
+          FOREMAN_SERVER_HOSTNAME: localhost:3000
+          FOREMAN_CLIENT_SCHEME: http
+          FOREMAN_CLIENT_USERNAME: admin
+          FOREMAN_CLIENT_PASSWORD: changeme
+          TF_ACC: "1"
+          TF_ACC_PROVIDER_NAMESPACE: terraform-coop
+          TF_ACC_PROVIDER_HOST: registry.opentofu.org
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

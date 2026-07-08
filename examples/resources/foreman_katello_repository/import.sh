@@ -1,0 +1,1 @@
+terraform import foreman_katello_repository.debian_12_base <repository_id>

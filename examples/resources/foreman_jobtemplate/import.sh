@@ -1,0 +1,1 @@
+terraform import foreman_jobtemplate.restart_service <jobtemplate_id>

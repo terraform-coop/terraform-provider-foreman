@@ -1,0 +1,1 @@
+terraform import foreman_defaulttemplate.kickstart_default <operatingsystem_id>/<defaulttemplate_id>

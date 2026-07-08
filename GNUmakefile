@@ -1,0 +1,61 @@
+default: build
+
+build: generate
+	go build -v .
+
+install: generate
+	go install -v .
+
+fmt:
+	gofmt -s -w -e .
+
+lint: generate
+	golangci-lint run
+	cd goforeman && golangci-lint run
+
+generate:
+	go generate ./...
+
+docs: generate
+	go tool tfplugindocs generate
+
+docs-check: docs
+	@git diff --exit-code -- docs/ || \
+		(echo "docs/ is out of date, run 'make docs' and commit the result" && exit 1)
+
+test: generate
+	go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
+	cd goforeman && go test -v -cover -timeout=120s -parallel=10 -count=1 ./...
+
+testacc: generate
+	@echo "Starting Foreman (docker compose up -d)..."
+	docker compose up -d
+	@echo "Waiting for Foreman to be ready..."
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do \
+		if curl -fsS -o /dev/null -u admin:changeme "http://localhost:3000/api/v2/status" 2>/dev/null; then \
+			echo "Foreman is ready"; break; \
+		fi; \
+		echo "  waiting... ($$i/30)"; sleep 10; \
+	done
+	FOREMAN_INTEGRATION_TESTS=1 \
+	FOREMAN_SERVER_HOSTNAME=localhost:3000 \
+	FOREMAN_CLIENT_SCHEME=http \
+	FOREMAN_CLIENT_USERNAME=admin \
+	FOREMAN_CLIENT_PASSWORD=changeme \
+	go test -v -cover -timeout=300s -tags=integration -count=1 ./internal/provider/...
+	@echo "Tearing down Foreman..."
+	docker compose down -v
+
+testacc-parallel: generate
+	TF_ACC=1 go test -v -cover -timeout=120m -tags=integration -count=1 -parallel=20 ./...
+
+# Mirrors the CI coverage computation: one profile per module,
+# concatenated (second "mode:" header stripped) into a combined total.
+cover: generate
+	go test -coverprofile=coverage-provider.out -covermode=atomic ./internal/...
+	cd goforeman && go test -coverprofile=coverage.out -covermode=atomic ./...
+	cp coverage-provider.out coverage.out
+	tail -n +2 goforeman/coverage.out >> coverage.out
+	go tool cover -func=coverage.out | grep total
+
+.PHONY: build install fmt lint generate docs docs-check test testacc testacc-parallel cover

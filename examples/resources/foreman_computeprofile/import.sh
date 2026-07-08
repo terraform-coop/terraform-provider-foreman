@@ -1,0 +1,1 @@
+terraform import foreman_computeprofile.small_vm <computeprofile_id>

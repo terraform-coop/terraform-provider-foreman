@@ -1,0 +1,1 @@
+terraform import foreman_provisioningtemplate.centos_kickstart <provisioningtemplate_id>

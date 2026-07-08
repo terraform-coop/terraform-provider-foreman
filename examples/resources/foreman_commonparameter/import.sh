@@ -1,0 +1,1 @@
+terraform import foreman_commonparameter.puppet_server <commonparameter_id>

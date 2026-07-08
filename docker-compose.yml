@@ -1,0 +1,49 @@
+# docker-compose.yml — Local Foreman for integration tests
+#
+# Usage:
+#   docker compose up -d
+#   # Wait for Foreman to be ready (~60-120s first time)
+#   make testacc
+#   docker compose down -v
+#
+# Foreman runs on port 3000 (HTTP). Login: admin/changeme
+# The Foreman image is amd64-only; on ARM64 it runs via QEMU emulation (slow but works).
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: foreman
+      POSTGRES_PASSWORD: foreman
+      POSTGRES_DB: foreman
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foreman"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  foreman:
+    image: quay.io/foreman/foreman:3.19
+    platform: linux/amd64
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://foreman:foreman@postgres/foreman?pool=5"
+      FOREMAN_FQDN: localhost
+      FOREMAN_DOMAIN: localhost
+      SEED_ADMIN_USER: admin
+      SEED_ADMIN_PASSWORD: changeme
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:3000/api/v2/status"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 120s
+
+volumes:
+  pgdata:

@@ -1,0 +1,81 @@
+package provider
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/terraform-coop/terraform-provider-foreman/goforeman"
+
+	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
+)
+
+var _ datasource.DataSource = &settingDataSource{}
+
+func NewSettingDataSource() datasource.DataSource {
+	return &settingDataSource{}
+}
+
+type settingDataSource struct {
+	client *goforeman.Client
+}
+
+type settingDataSourceModel struct {
+	ID    types.String `tfsdk:"id"`
+	Name  types.String `tfsdk:"name"`
+	Value types.String `tfsdk:"value"`
+}
+
+func (d *settingDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_setting"
+}
+
+func (d *settingDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+	resp.Schema = schema.Schema{Attributes: map[string]schema.Attribute{
+		"id": schema.StringAttribute{Computed: true},
+		"name": schema.StringAttribute{
+			Description: "The name of the setting to look up.",
+			Required:    true,
+		},
+		"value": schema.StringAttribute{Computed: true},
+	}}
+}
+
+func (d *settingDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+	if req.ProviderData == nil {
+		return
+	}
+	client, ok := req.ProviderData.(*goforeman.Client)
+	if !ok {
+		resp.Diagnostics.AddError("Unexpected Provider Data", "Expected *goforeman.Client")
+		return
+	}
+	d.client = client
+}
+
+func (d *settingDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	var data settingDataSourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	name := data.Name.ValueString()
+	result, err := d.client.FindSettingByName(ctx, name)
+	if err != nil {
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read setting, got error: %s", err))
+		return
+	}
+	if result == nil {
+		resp.Diagnostics.AddError("Not Found", fmt.Sprintf("Setting %q not found", name))
+		return
+	}
+
+	data.ID = types.StringValue(result.ID)
+	data.Value = types.StringValue(goforeman.RawValueString(result.Value))
+
+	tflog.Trace(ctx, "read setting data source", map[string]interface{}{"id": data.ID.ValueString()})
+	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+}

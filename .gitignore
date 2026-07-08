@@ -1,30 +1,95 @@
-# Binaries for programs and plugins
-html
-build/
+# Binaries
 *.exe
 *.dll
 *.so
 *.dylib
-*.code-workspace
-
-# godoc files
-docs/godoc/**
-
-# Test binary, build with `go test -c`
 *.test
-
-# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+terraform-provider-foreman
+client
+!tools/gen/client/
 
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-.glide/
+# IDE
+*.code-workspace
+.idea/
+.vscode/
 
-autodoc
-
+# Terraform
 .terraform/
-
 *.tfstate
 *.tfstate.backup
 crash.log
 terraform-provider-foreman.log
-terraform-provider-foreman
+
+# Build
+build/
+dist/
+
+# Python
+.ruff_cache/
+__pycache__/
+
+# OS
+.DS_Store
+
+# Generated client/provider code (see main.go's //go:generate directive).
+# Regenerated from apidoc/v2.json by `make generate` / `go generate ./...`.
+# Hand-written files (no "Code generated" header) are excluded below and stay tracked.
+goforeman/*.go
+!goforeman/client.go
+!goforeman/conventions.go
+!goforeman/doc.go
+!goforeman/conventions_test.go
+!goforeman/client_regression_test.go
+!goforeman/foreman_object.go
+!goforeman/katello_content_view.go
+!goforeman/katello_lifecycle_environment.go
+!goforeman/katello_lifecycle_environment_test.go
+!goforeman/katello_repository.go
+!goforeman/katello_sync_plan.go
+!goforeman/test_helpers_test.go
+!goforeman/autosign.go
+!goforeman/autosign_test.go
+!goforeman/compute_profile_test.go
+!goforeman/compute_profile.go
+!goforeman/parameter.go
+!goforeman/parameter_test.go
+!goforeman/setting.go
+!goforeman/setting_test.go
+!goforeman/puppet_class.go
+!goforeman/puppet_class_test.go
+!goforeman/realworld_test.go
+
+internal/provider/resource_*.go
+!internal/provider/resource_katello_content_view.go
+!internal/provider/resource_katello_lifecycle_environment.go
+!internal/provider/resource_katello_repository.go
+!internal/provider/resource_katello_sync_plan.go
+!internal/provider/resource_autosign.go
+!internal/provider/resource_compute_profile.go
+!internal/provider/resource_host_validation.go
+!internal/provider/resource_parameter.go
+!internal/provider/resource_parameter_test.go
+!internal/provider/resource_setting.go
+
+internal/provider/datasource_*.go
+!internal/provider/datasource_katello_content_view.go
+!internal/provider/datasource_katello_lifecycle_environment.go
+!internal/provider/datasource_katello_repository.go
+!internal/provider/datasource_katello_sync_plan.go
+!internal/provider/datasource_autosign.go
+!internal/provider/datasource_compute_profile.go
+!internal/provider/datasource_parameter.go
+!internal/provider/datasource_setting.go
+
+internal/provider/provider.go
+internal/provider/acceptance_test.go
+
+# Local multi-module workspaces (the committed root go.mod `replace`
+# directive already wires ./goforeman; a go.work is developer-local).
+go.work
+go.work.sum
+
+# Coverage profiles
+coverage*.out
+goforeman/coverage*.out

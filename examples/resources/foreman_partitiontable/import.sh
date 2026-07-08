@@ -1,0 +1,1 @@
+terraform import foreman_partitiontable.centos_lvm <partitiontable_id>

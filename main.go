@@ -1,16 +1,24 @@
 package main
 
-import (
-	"github.com/terraform-coop/terraform-provider-foreman/foreman"
+//go:generate go run ./tools/gen/client -input apidoc/v2.json -output ./goforeman/ -provider ./internal/provider/ -overrides ./tools/gen/overrides.yaml
 
-	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+import (
+	"context"
+	"log"
+
+	"github.com/terraform-coop/terraform-provider-foreman/internal/provider"
+
+	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
+var version = "dev"
+
 func main() {
-	// opts contains the configurations to serve the Foreman plugin.
-	opts := plugin.ServeOpts{
-		ProviderFunc: foreman.Provider,
+	opts := providerserver.ServeOpts{
+		Address: "registry.terraform.io/terraform-coop/foreman",
 	}
-	// Serves the foreman plugin in the defined configurations.
-	plugin.Serve(&opts)
+	err := providerserver.Serve(context.Background(), provider.New(version), opts)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
